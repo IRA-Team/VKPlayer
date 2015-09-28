@@ -5,6 +5,13 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="actionBarStyle">@style/ActionBarTheme</item>
     </style>
+
+    <style name="ActionBarTheme" parent="Widget.AppCompat.ActionBar">
+        <item name="android:displayOptions">homeAsUp|showHome|showTitle</item>
+        <item name="displayOptions">homeAsUp|showHome|showTitle</item>
+    </style>
+
 
 </resources>
