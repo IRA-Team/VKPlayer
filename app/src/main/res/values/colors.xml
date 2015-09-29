@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <item name="colorBackground" type="color">#ffffff</item>
     <item name="colorPrimary" type="color">#3f51b5</item>
+    <item name="colorSecondary" type="color">#35444c</item>
     <item name="colorPrimaryDark" type="color">#303f9f</item>
     <item name="colorAccent" type="color">#ff4081</item>
+
+    <item name="colorSeekBarTrack" type="color">#f3f3f3</item>
+    <item name="colorSeekBarSecondaryProgress" type="color">#b5bce4</item>
+
+    <item name="colorPlayerPanelAuthor" type="color">#d7d5d5</item>
 </resources>
