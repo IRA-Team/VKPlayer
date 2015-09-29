@@ -1,18 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@android:id/background"
-        android:drawable="@drawable/player_seekbar_track"/>
-    <item android:id="@android:id/secondaryProgress">
-        <scale
-            android:drawable="@drawable/player_seekbar_secondary"
-            android:scaleWidth="100%" />
+        android:gravity="center_vertical|fill_horizontal">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/colorSeekBarTrack" />
+            <size android:height="8dp" />
+        </shape>
     </item>
-    <item android:id="@android:id/progress">
-        <scale
-            android:drawable="@drawable/player_seekbar_primary"
-            android:scaleWidth="100%" />
+    <item
+        android:id="@android:id/secondaryProgress"
+        android:gravity="center_vertical|fill_horizontal">
+        <scale android:scaleWidth="100%">
+            <shape android:shape="rectangle">
+                <size android:height="8dp" />
+                <solid android:color="@color/colorSeekBarSecondaryProgress" />
+            </shape>
+        </scale>
+    </item>
+    <item
+        android:id="@android:id/progress"
+        android:gravity="center_vertical|fill_horizontal">
+        <scale android:scaleWidth="100%">
+            <shape android:shape="rectangle">
+                <size android:height="8dp" />
+                <solid android:color="@color/colorAccent" />
+            </shape>
+        </scale>
     </item>
 
 </layer-list>

@@ -5,6 +5,21 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="actionBarStyle">@style/ActionBar</item>
     </style>
+
+    <style name="ActionBar" parent="Widget.AppCompat.ActionBar">
+        <item name="displayOptions">homeAsUp|showHome|showTitle</item>
+        <item name="background">@color/colorPrimary</item>
+    </style>
+
+    <style name="SeekBar">
+        <item name="android:progressDrawable">@drawable/seekbar_layerlist</item>
+        <item name="android:thumb">@drawable/seekbar_control</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:maxHeight">8dp</item>
+        <item name="android:splitTrack">false</item>
+    </style>
+
 
 </resources>
