@@ -1,6 +1,8 @@
 package com.irateam.vkplayer.serveces;
 
 import com.vk.sdk.api.VKApi;
+import com.vk.sdk.api.VKApiConst;
+import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
 import com.vk.sdk.api.model.VKApiAudio;
@@ -52,7 +54,7 @@ public class AudioService {
 
     public List<VKApiAudio> getPopularAudio() {
         final List<VKApiAudio> list = new ArrayList<>();
-        VKApi.audio().get().executeWithListener(new VKRequest.VKRequestListener() {
+        VKApi.audio().getPopular().executeWithListener(new VKRequest.VKRequestListener() {
             @Override
             public void onComplete(VKResponse response) {
                 super.onComplete(response);
