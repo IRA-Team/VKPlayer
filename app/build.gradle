@@ -25,4 +25,5 @@ dependencies {
     compile 'com.android.support:design:23.0.+'
     compile 'com.vk:androidsdk:+'
     compile 'com.nanohttpd:nanohttpd:2.1.0'
+    compile 'asia.ivity.android:drag-sort-listview-apklib:1.0'
 }

@@ -1,4 +1,4 @@
-package com.irateam.vkplayer;
+package com.irateam.vkplayer.player;
 
 import android.os.AsyncTask;
 import android.os.Environment;
