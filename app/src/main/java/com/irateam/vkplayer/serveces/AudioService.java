@@ -54,7 +54,7 @@ public class AudioService {
 
     public List<VKApiAudio> getPopularAudio() {
         final List<VKApiAudio> list = new ArrayList<>();
-        VKApi.audio().getPopular().executeWithListener(new VKRequest.VKRequestListener() {
+        VKApi.audio().getPopular(VKParameters.from("genre_id", 0)).executeWithListener(new VKRequest.VKRequestListener() {
             @Override
             public void onComplete(VKResponse response) {
                 super.onComplete(response);
