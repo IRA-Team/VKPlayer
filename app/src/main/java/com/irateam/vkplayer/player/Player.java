@@ -56,7 +56,7 @@ public class Player extends MediaPlayer {
 
     public void play() {
         if (playingAudio != null) {
-            
+
         }
     }
 

@@ -1,4 +1,4 @@
-package com.irateam.vkplayer.serveces;
+package com.irateam.vkplayer.services;
 
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKApiConst;
@@ -9,12 +9,13 @@ import com.vk.sdk.api.model.VKApiAudio;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AudioService {
+
+    public static final String GENRE_ID = "genre_id";
 
     public List<VKApiAudio> getMyAudio() {
         final List<VKApiAudio> list = new ArrayList<>();
@@ -34,7 +35,7 @@ public class AudioService {
         return list;
     }
 
-    public List<VKApiAudio> getRecommendationAudio() {
+    public List<VKApiAudio> getRecommendedAudio() {
         final List<VKApiAudio> list = new ArrayList<>();
         VKApi.audio().getRecommendations().executeWithListener(new VKRequest.VKRequestListener() {
             @Override
@@ -54,7 +55,7 @@ public class AudioService {
 
     public List<VKApiAudio> getPopularAudio() {
         final List<VKApiAudio> list = new ArrayList<>();
-        VKApi.audio().getPopular(VKParameters.from("genre_id", 0)).executeWithListener(new VKRequest.VKRequestListener() {
+        VKApi.audio().getPopular(VKParameters.from(GENRE_ID, 0)).executeWithListener(new VKRequest.VKRequestListener() {
             @Override
             public void onComplete(VKResponse response) {
                 super.onComplete(response);
