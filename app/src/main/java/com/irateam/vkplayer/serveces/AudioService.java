@@ -32,4 +32,22 @@ public class AudioService {
         return list;
     }
 
+    public List<VKApiAudio> getRecommendationAudio() {
+        final List<VKApiAudio> list = new ArrayList<>();
+        VKApi.audio().getRecommendations().executeWithListener(new VKRequest.VKRequestListener() {
+            @Override
+            public void onComplete(VKResponse response) {
+                super.onComplete(response);
+                try {
+                    JSONArray array = response.json.getJSONObject("response").getJSONArray("items");
+                    for (int i = 0; i < array.length(); i++)
+                        list.add(new VKApiAudio().parse(array.getJSONObject(i)));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        return list;
+    }
+
 }
