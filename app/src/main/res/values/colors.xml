@@ -10,4 +10,7 @@
     <item name="colorSeekBarSecondaryProgress" type="color">#b5bce4</item>
 
     <item name="colorPlayerPanelAuthor" type="color">#d7d5d5</item>
+
+    <item name="colorListElementName" type="color">#000000</item>
+    <item name="colorListElementAuthor" type="color">#b6b6b6</item>
 </resources>
