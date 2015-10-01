@@ -1,10 +1,9 @@
-package com.irateam.vkplayer;
+package com.irateam.vkplayer.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.irateam.vkplayer.services.ListActivity;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKScope;

@@ -1,4 +1,4 @@
-package com.irateam.vkplayer.services;
+package com.irateam.vkplayer.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
