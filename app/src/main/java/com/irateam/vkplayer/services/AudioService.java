@@ -1,7 +1,7 @@
 package com.irateam.vkplayer.services;
 
 import com.vk.sdk.api.VKApi;
-import com.vk.sdk.api.VKApiConst;
+import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
@@ -10,65 +10,70 @@ import com.vk.sdk.api.model.VKApiAudio;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AudioService {
+public class AudioService extends VKRequest.VKRequestListener {
 
     public static final String GENRE_ID = "genre_id";
 
-    public List<VKApiAudio> getMyAudio() {
-        final List<VKApiAudio> list = new ArrayList<>();
-        VKApi.audio().get().executeWithListener(new VKRequest.VKRequestListener() {
-            @Override
-            public void onComplete(VKResponse response) {
-                super.onComplete(response);
-                try {
-                    JSONArray array = response.json.getJSONObject("response").getJSONArray("items");
-                    for (int i = 0; i < array.length(); i++)
-                        list.add(new VKApiAudio().parse(array.getJSONObject(i)));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        return list;
+    public void getMyAudio() {
+        VKApi.audio().get().executeWithListener(this);
     }
 
-    public List<VKApiAudio> getRecommendedAudio() {
-        final List<VKApiAudio> list = new ArrayList<>();
-        VKApi.audio().getRecommendations().executeWithListener(new VKRequest.VKRequestListener() {
-            @Override
-            public void onComplete(VKResponse response) {
-                super.onComplete(response);
-                try {
-                    JSONArray array = response.json.getJSONObject("response").getJSONArray("items");
-                    for (int i = 0; i < array.length(); i++)
-                        list.add(new VKApiAudio().parse(array.getJSONObject(i)));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        return list;
+    public void getRecommendationAudio() {
+        VKApi.audio().getRecommendations().executeWithListener(this);
     }
 
-    public List<VKApiAudio> getPopularAudio() {
-        final List<VKApiAudio> list = new ArrayList<>();
-        VKApi.audio().getPopular(VKParameters.from(GENRE_ID, 0)).executeWithListener(new VKRequest.VKRequestListener() {
-            @Override
-            public void onComplete(VKResponse response) {
-                super.onComplete(response);
-                try {
-                    JSONArray array = response.json.getJSONArray("response");
-                    for (int i = 0; i < array.length(); i++)
-                        list.add(new VKApiAudio().parse(array.getJSONObject(i)));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+    public void getPopularAudio() {
+        VKApi.audio().getPopular(VKParameters.from(GENRE_ID, 0)).executeWithListener(this);
+    }
+
+    @Override
+    public void onComplete(VKResponse response) {
+        super.onComplete(response);
+        try {
+            List<VKApiAudio> list = new ArrayList<>();
+            JSONArray array = response.json.getJSONObject("response").getJSONArray("items");
+            for (int i = 0; i < array.length(); i++) {
+                list.add(new VKApiAudio().parse(array.getJSONObject(i)));
             }
-        });
-        return list;
+            notifyAllComplete(list);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        System.out.println("OK");
+    }
+
+    @Override
+    public void onError(VKError error) {
+        super.onError(error);
+        System.out.println("ERROR");
+    }
+
+    private List<WeakReference<Listener>> listeners = new ArrayList<>();
+
+    public interface Listener {
+        void onComplete(List<VKApiAudio> list);
+    }
+
+    public void addListener(Listener listener) {
+        listeners.add(new WeakReference<Listener>(listener));
+    }
+
+    public void removeListener(Listener listener) {
+        listeners.remove(listener);
+    }
+
+    private void notifyAllComplete(List<VKApiAudio> list) {
+        for (WeakReference<Listener> l : listeners) {
+            l.get().onComplete(list);
+        }
+    }
+
+    private void notifyAllError() {
+
     }
 
 }

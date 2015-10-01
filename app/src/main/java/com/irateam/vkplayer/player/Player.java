@@ -2,12 +2,13 @@ package com.irateam.vkplayer.player;
 
 import android.media.MediaPlayer;
 
+import com.irateam.vkplayer.services.AudioService;
 import com.vk.sdk.api.model.VKApiAudio;
 
 import java.io.IOException;
 import java.util.List;
 
-public class Player extends MediaPlayer {
+public class Player extends MediaPlayer implements AudioService.Listener {
 
     public static final String proxyURL = "http://localhost:8080/";
 
@@ -87,5 +88,10 @@ public class Player extends MediaPlayer {
             previousIndex = list.size() - 1;
         }
         play(previousIndex);
+    }
+
+    @Override
+    public void onComplete(List<VKApiAudio> list) {
+
     }
 }
