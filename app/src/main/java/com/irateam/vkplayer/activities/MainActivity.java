@@ -3,6 +3,7 @@ package com.irateam.vkplayer.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
@@ -15,29 +16,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Intent intent;
         if (VKSdk.isLoggedIn()) {
-            startActivity(new Intent(this, ListActivity.class));
-            finish();
+            intent = new Intent(this, ListActivity.class);
+
         } else {
-            VKSdk.login(this, VKScope.AUDIO);
+            intent = new Intent(this, LoginActivity.class);
         }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
-            @Override
-            public void onResult(VKAccessToken res) {
-                startActivity(new Intent(MainActivity.this, ListActivity.class));
-            }
-
-            @Override
-            public void onError(VKError error) {
-            }
-        })) {
-
-        }
+        startActivity(intent);
         finish();
     }
+
+
 }
