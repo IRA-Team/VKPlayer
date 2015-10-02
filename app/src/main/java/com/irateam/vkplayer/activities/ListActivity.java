@@ -2,24 +2,51 @@ package com.irateam.vkplayer.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.irateam.vkplayer.R;
+import com.irateam.vkplayer.player.Player;
+import com.irateam.vkplayer.player.ServerProxy;
+import com.irateam.vkplayer.services.AudioService;
 import com.vk.sdk.VKSdk;
+import com.vk.sdk.api.model.VKApiAudio;
 
-public class ListActivity extends AppCompatActivity {
+import java.io.IOException;
+import java.util.List;
+
+public class ListActivity extends AppCompatActivity implements AudioService.Listener {
+
+    Player player = Player.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
+        AudioService audioService = new AudioService();
+        audioService.addListener(this);
+        audioService.getMyAudio();
+
+        final ServerProxy serverProxy = new ServerProxy();
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 VKSdk.logout();
-                System.out.println("EXITED");
+            }
+        });
+        findViewById(R.id.button3).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    serverProxy.start();
+                    Log.i("Server", "Server start");
+                    player.play(0);
+                    Log.i("Player", "Player play start");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -44,5 +71,11 @@ public class ListActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onComplete(List<VKApiAudio> list) {
+        player.setList(list);
+        System.out.println("Complete" + list.size());
     }
 }

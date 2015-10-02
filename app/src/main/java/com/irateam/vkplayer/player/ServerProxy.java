@@ -45,15 +45,14 @@ public class ServerProxy extends NanoHTTPD {
             connection = (HttpURLConnection) url.openConnection();
             connection.connect();
             input = connection.getInputStream();
-            output = new FileOutputStream(Environment.getExternalStorageDirectory() + "/Music/" + index + ".mp3");
-            new DownloadTask().execute();
+            //output = new FileOutputStream(Environment.getExternalStorageDirectory() + "/Music/" + index + ".mp3");
+            //new DownloadTask().execute();
             //Thread.sleep(200000);
             fileLength = connection.getContentLength();
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
                 System.out.println("Server returned HTTP " + connection.getResponseCode()
                         + " " + connection.getResponseMessage());
             }
-            fis = new FileInputStream(Environment.getExternalStorageDirectory() + "/Music/" + index + ".mp3");
 
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
@@ -61,7 +60,7 @@ public class ServerProxy extends NanoHTTPD {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new NanoHTTPD.Response(Response.Status.OK, "audio/mpeg", fis);
+        return new NanoHTTPD.Response(Response.Status.OK, "audio/mpeg", input);
     }
 
     private class DownloadTask extends AsyncTask<String, Integer, String> {
