@@ -14,5 +14,7 @@
     <dimen name="player_list_element_album_cover">40dp</dimen>
     <dimen name="player_list_element_info_width">40dp</dimen>
 
+    <dimen name="button_login_activity_height">56dp</dimen>
+
 
 </resources>

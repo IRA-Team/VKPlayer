@@ -13,4 +13,12 @@
 
     <item name="colorListElementName" type="color">#000000</item>
     <item name="colorListElementAuthor" type="color">#b6b6b6</item>
+
+    <item name="colorActionBarTextColor" type="color">#ffffff</item>
+
+    <!--Login Activity-->
+    <item name="colorButtonWhiteLoginActivity" type="color">#ffffff</item>
+    <item name="colorTextButtonWhiteLoginActivity" type="color">#5c6bc0</item>
+    <item name="colorButtonBlueLoginActivity" type="color">#5c6bc0</item>
+    <item name="colorTextButtonBlueLoginActivity" type="color">#ffffff</item>
 </resources>

@@ -1,21 +1,40 @@
 <resources>
 
-    <style name="LoginActivity" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="android:windowBackground">@color/colorPrimary</item>
-    </style>
-
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="BaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="actionBarStyle">@style/ActionBar</item>
     </style>
 
-    <style name="ActionBar" parent="Widget.AppCompat.ActionBar">
-        <item name="displayOptions">homeAsUp|showHome|showTitle</item>
-        <item name="background">@color/colorPrimary</item>
+    <style name="BaseTheme.LoginActivity" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@color/colorPrimary</item>
+    </style>
+
+    <style name="BaseTheme.App">
+
+    </style>
+
+    <style name="ActionBarStyle">
+        <item name="android:textColorPrimary">@color/colorActionBarTextColor</item>
+        <item name="actionMenuTextColor">@color/colorActionBarTextColor</item>
+        <item name="android:textColorSecondary">@color/colorActionBarTextColor</item>
+    </style>
+
+    <style name="ButtonLoginActivity">
+        <item name="android:paddingLeft">24dp</item>
+        <item name="android:drawablePadding">24dp</item>
+        <item name="android:height">@dimen/button_login_activity_height</item>
+        <item name="android:gravity">left|center_vertical</item>
+    </style>
+
+    <style name="ButtonLoginActivity.White">
+        <item name="android:background">@color/colorButtonWhiteLoginActivity</item>
+        <item name="android:textColor">@color/colorTextButtonWhiteLoginActivity</item>
+    </style>
+
+    <style name="ButtonLoginActivity.Blue">
+        <item name="android:background">@color/colorButtonBlueLoginActivity</item>
+        <item name="android:textColor">@color/colorTextButtonBlueLoginActivity</item>
     </style>
 
     <style name="SeekBar">
