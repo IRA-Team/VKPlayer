@@ -1,75 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="@dimen/player_panel_height">
+    android:id="@+id/wrapper"
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/player_panel_height"
+    android:layout_alignParentBottom="true">
 
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="@dimen/player_panel_group_height"
+        android:layout_above="@+id/linearLayout3"
         android:background="@color/colorSecondary"
+        android:clickable="true"
         android:gravity="center"
         android:orientation="vertical"
         android:paddingLeft="16dp">
 
         <TextView
+            android:id="@+id/player_panel_song_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="A Sky Full of Stars"
+            android:paddingRight="72dp"
+            android:singleLine="true"
             android:textColor="#ffffff"
             android:textSize="@dimen/player_panel_song_name" />
 
         <TextView
+            android:id="@+id/player_panel_author"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Coldplay"
+            android:paddingRight="72dp"
+            android:singleLine="true"
             android:textColor="#ffffff"
             android:textSize="@dimen/player_panel_author" />
 
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/linearLayout3"
         android:layout_width="match_parent"
         android:layout_height="@dimen/player_panel_group_height"
-        android:layout_below="@+id/seekBar2"
-        android:layout_marginTop="-8dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="8dp"
         android:background="@color/colorBackground"
         android:orientation="horizontal">
 
         <ImageView
+            style="@style/PlayerPanelButton"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:src="@drawable/ic_player_repeat_light_grey_18dp"
-            android:scaleType="center" />
+            android:src="@drawable/ic_player_repeat_light_grey_18dp" />
 
         <ImageView
+            style="@style/PlayerPanelButton"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:src="@drawable/ic_player_previous_grey_18dp"
-            android:scaleType="center" />
+            android:src="@drawable/ic_player_previous_grey_18dp" />
 
         <ImageView
+            style="@style/PlayerPanelButton"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:src="@drawable/ic_player_pause_grey_18dp"
-            android:scaleType="center" />
+            android:src="@drawable/ic_player_pause_grey_18dp" />
 
         <ImageView
+            style="@style/PlayerPanelButton"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:src="@drawable/ic_player_next_grey_18dp"
-            android:scaleType="center" />
+            android:src="@drawable/ic_player_next_grey_18dp" />
 
         <ImageView
+            style="@style/PlayerPanelButton"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:src="@drawable/ic_player_random_light_grey_18dp"
-            android:scaleType="center" />
+            android:src="@drawable/ic_player_random_light_grey_18dp" />
     </LinearLayout>
 
     <SeekBar

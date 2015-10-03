@@ -4,25 +4,25 @@
     <group android:checkableBehavior="single">
 
         <item
-            android:id="@+id/inbox"
+            android:id="@+id/my_audio"
             android:checked="false"
             android:icon="@drawable/ic_navigation_drawer_mysound_grey_18dp"
             android:title="@string/navigation_drawer_my_audio" />
 
         <item
-            android:id="@+id/starred"
+            android:id="@+id/recommended_audio"
             android:checked="false"
             android:icon="@drawable/ic_navigation_drawer_like_grey_18dp"
             android:title="@string/navigation_drawer_recomendation" />
 
         <item
-            android:id="@+id/sent_mail"
+            android:id="@+id/popular_audio"
             android:checked="false"
             android:icon="@drawable/ic_navigation_drawer_star_grey_18dp"
             android:title="@string/navigation_drawer_popular" />
 
         <item
-            android:id="@+id/drafts"
+            android:id="@+id/cached_audio"
             android:checked="false"
             android:icon="@drawable/ic_navigation_drawer_download_grey_18dp"
             android:title="@string/navigation_drawer_downloaded" />

@@ -5,28 +5,49 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-
-    <LinearLayout
+    <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/coordinator_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <include layout="@layout/toolbar" />
-
-        <com.mobeta.android.dslv.DragSortListView
-            android:id="@+id/view"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:drag_enabled="false">
+            android:layout_height="match_parent">
 
-        </com.mobeta.android.dslv.DragSortListView>
-    </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <include layout="@layout/toolbar" />
+
+                <com.mobeta.android.dslv.DragSortListView
+                    android:id="@+id/view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:drag_enabled="false">
+
+                </com.mobeta.android.dslv.DragSortListView>
+            </LinearLayout>
+
+            <include
+                android:id="@+id/player_panel"
+                layout="@layout/player_panel"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/player_panel_height"
+                android:layout_alignParentBottom="true" />
+
+        </RelativeLayout>
+    </android.support.design.widget.CoordinatorLayout>
 
     <android.support.design.widget.NavigationView
+        android:id="@+id/navigation_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
-        />
+        app:menu="@menu/menu_navigation_drawer" />
 
 </android.support.v4.widget.DrawerLayout>
+

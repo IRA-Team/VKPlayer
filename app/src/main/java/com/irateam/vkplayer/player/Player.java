@@ -3,9 +3,12 @@ package com.irateam.vkplayer.player;
 import android.media.MediaPlayer;
 
 import com.irateam.vkplayer.services.AudioService;
+import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.model.VKApiAudio;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Player extends MediaPlayer implements AudioService.Listener {
@@ -46,13 +49,14 @@ public class Player extends MediaPlayer implements AudioService.Listener {
     }
 
     public void play(int index) {
-        try {
+        /*try {
             setDataSource(proxyURL + index);
             prepare();
             start();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
+        notifyAudioChanged(list.get(index));
     }
 
     public void play() {
@@ -93,5 +97,31 @@ public class Player extends MediaPlayer implements AudioService.Listener {
     @Override
     public void onComplete(List<VKApiAudio> list) {
 
+    }
+
+    @Override
+    public void onError(VKError error) {
+
+    }
+
+    //Listeners
+    private List<WeakReference<Listener>> listeners = new ArrayList<>();
+
+    public interface Listener {
+        void onAudioChanged(VKApiAudio audio);
+    }
+
+    public void addListener(Listener listener) {
+        listeners.add(new WeakReference<Listener>(listener));
+    }
+
+    public void removeListener(Listener listener) {
+        listeners.remove(listener);
+    }
+
+    private void notifyAudioChanged(VKApiAudio audio) {
+        for (WeakReference<Listener> l : listeners) {
+            l.get().onAudioChanged(audio);
+        }
     }
 }

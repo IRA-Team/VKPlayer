@@ -9,6 +9,7 @@ import com.vk.sdk.api.model.VKApiAudio;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class AudioService extends VKRequest.VKRequestListener {
     }
 
     public void getPopularAudio() {
-        VKApi.audio().getPopular(VKParameters.from(GENRE_ID, 0)).executeWithListener(this);
+        VKApi.audio().getPopular(VKParameters.from(GENRE_ID, -88)).executeWithListener(this);
     }
 
     @Override
@@ -35,7 +36,16 @@ public class AudioService extends VKRequest.VKRequestListener {
         super.onComplete(response);
         try {
             List<VKApiAudio> list = new ArrayList<>();
-            JSONArray array = response.json.getJSONObject("response").getJSONArray("items");
+
+            //Popular audio doesn't have JSONArray items, so need to check
+            JSONArray array;
+            JSONObject jsonResponse = response.json.optJSONObject("response");
+            if (jsonResponse != null) {
+                array = jsonResponse.getJSONArray("items");
+            } else {
+                array = response.json.getJSONArray("response");
+            }
+
             for (int i = 0; i < array.length(); i++) {
                 list.add(new VKApiAudio().parse(array.getJSONObject(i)));
             }
@@ -43,19 +53,20 @@ public class AudioService extends VKRequest.VKRequestListener {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        System.out.println("OK");
     }
 
     @Override
     public void onError(VKError error) {
         super.onError(error);
-        System.out.println("ERROR");
+        notifyAllError(error);
     }
 
     private List<WeakReference<Listener>> listeners = new ArrayList<>();
 
     public interface Listener {
         void onComplete(List<VKApiAudio> list);
+
+        void onError(VKError error);
     }
 
     public void addListener(Listener listener) {
@@ -72,8 +83,10 @@ public class AudioService extends VKRequest.VKRequestListener {
         }
     }
 
-    private void notifyAllError() {
-
+    private void notifyAllError(VKError error) {
+        for (WeakReference<Listener> l : listeners) {
+            l.get().onError(error);
+        }
     }
 
 }
