@@ -1,5 +1,7 @@
 package com.irateam.vkplayer.viewholders;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -32,12 +34,23 @@ public class PlayerPanel {
         random = (ImageView) view.findViewById(R.id.player_panel_random);
     }
 
-    public void setAudio(VKApiAudio audio) {
-        songName.setText(audio.title);
+    public void setAudio(int position, VKApiAudio audio) {
+        songName.setText(position + 1 + ". " + audio.title);
         author.setText(audio.artist);
     }
 
-    public void setPlayer(final Player player) {
+    public void setPlayer(final Context context, final Player player) {
+        final Resources resources = context.getResources();
+
+        playPause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (player.isPlaying()) {
+
+                }
+            }
+        });
+
         previous.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -49,6 +62,34 @@ public class PlayerPanel {
             @Override
             public void onClick(View v) {
                 player.next();
+            }
+        });
+
+        repeat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (player.switchRepeatState()) {
+                    case NO_REPEAT:
+                        repeat.setImageDrawable(resources.getDrawable(R.drawable.ic_player_repeat_light_grey_18dp));
+                        break;
+                    case ALL_REPEAT:
+                        repeat.setImageDrawable(resources.getDrawable(R.drawable.ic_player_repeat_all_light_grey_18dp));
+                        break;
+                    case ONE_REPEAT:
+                        repeat.setImageDrawable(resources.getDrawable(R.drawable.ic_player_repeat_one_light_grey_18dp));
+                        break;
+                }
+            }
+        });
+
+        random.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (player.switchRandomState()) {
+                    random.setImageDrawable(resources.getDrawable(R.drawable.ic_player_random_on_light_grey_18dp));
+                } else {
+                    random.setImageDrawable(resources.getDrawable(R.drawable.ic_player_random_light_grey_18dp));
+                }
             }
         });
     }

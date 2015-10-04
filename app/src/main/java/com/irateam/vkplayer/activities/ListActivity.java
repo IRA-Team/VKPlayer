@@ -78,7 +78,7 @@ public class ListActivity extends AppCompatActivity implements
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
         playerPanel = new PlayerPanel(findViewById(R.id.player_panel));
         playerPanel.rootView.setVisibility(View.GONE);
-        playerPanel.setPlayer(player);
+        playerPanel.setPlayer(this, player);
 
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
         refreshLayout.setColorSchemeResources(
@@ -93,11 +93,22 @@ public class ListActivity extends AppCompatActivity implements
         listView.setOnItemClickListener(this);
         listView.setDropListener(this);
 
-        //Services
-        audioService.addListener(this);
         onNavigationItemSelected(navigationView.getMenu().getItem(0));
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        audioService.addListener(this);
         player.addListener(this);
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        audioService.removeListener(this);
+        player.removeListener(this);
     }
 
     @Override
@@ -168,11 +179,11 @@ public class ListActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onAudioChanged(VKApiAudio audio) {
+    public void onAudioChanged(int position, VKApiAudio audio) {
         if (playerPanel.rootView.getVisibility() == View.GONE) {
             playerPanel.rootView.setVisibility(View.VISIBLE);
         }
-        playerPanel.setAudio(audio);
+        playerPanel.setAudio(position, audio);
     }
 
     @Override
