@@ -62,6 +62,7 @@ public class ListActivity extends AppCompatActivity implements AudioService.List
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
         playerPanel = new PlayerPanel(findViewById(R.id.player_panel));
         playerPanel.rootView.setVisibility(View.GONE);
+        playerPanel.setPlayer(player);
 
         listView = (DragSortListView) findViewById(R.id.view);
         listView.setAdapter(audioAdapter);
@@ -93,7 +94,6 @@ public class ListActivity extends AppCompatActivity implements AudioService.List
 
     @Override
     public void onComplete(List<VKApiAudio> list) {
-        player.setList(list);
         audioAdapter.setList(list);
         audioAdapter.notifyDataSetChanged();
         System.out.println("Complete" + list.size());
@@ -130,6 +130,9 @@ public class ListActivity extends AppCompatActivity implements AudioService.List
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        if (audioAdapter.getList() != player.getList()) {
+            player.setList(audioAdapter.getList());
+        }
         player.play(position);
     }
 

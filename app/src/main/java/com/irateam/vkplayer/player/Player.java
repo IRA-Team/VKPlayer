@@ -56,6 +56,7 @@ public class Player extends MediaPlayer implements AudioService.Listener {
         } catch (IOException e) {
             e.printStackTrace();
         }*/
+        playingAudio = list.get(index);
         notifyAudioChanged(list.get(index));
     }
 
