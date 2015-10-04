@@ -11,6 +11,7 @@
 
     <item name="player_panel_author" type="color">#d7d5d5</item>
 
+    <item name="player_list_element_drag_color" type="color">#eeeeee</item>
     <item name="player_list_element_song_name" type="color">#000000</item>
     <item name="player_list_element_author" type="color">#b6b6b6</item>
     <item name="player_list_element_cover_overlay" type="color">#80000000</item>
@@ -22,6 +23,5 @@
     <item name="login_activity_button_white_text" type="color">#5c6bc0</item>
     <item name="login_activity_button_blue" type="color">#5c6bc0</item>
     <item name="login_activity_button_blue_text" type="color">#ffffff</item>
-
 
 </resources>

@@ -9,6 +9,8 @@
     <string name="title_button_login_vk">Войти через VK</string>
     <string name="title_button_github">Github/IRA-Team</string>
 
+    <string name="navigation_drawer_open">Открыть</string>
+    <string name="navigation_drawer_close">Закрыть</string>
     <string name="navigation_drawer_my_audio">Мои аудиозаписи</string>
     <string name="navigation_drawer_recomendation">Рекомендации</string>
     <string name="navigation_drawer_popular">Популярное</string>

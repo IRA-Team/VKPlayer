@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -22,14 +23,20 @@
 
                 <include layout="@layout/toolbar" />
 
-                <com.mobeta.android.dslv.DragSortListView
-                    android:id="@+id/view"
+                <android.support.v4.widget.SwipeRefreshLayout
+                    android:id="@+id/refresh_layout"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:drag_enabled="false"
-                    app:float_background_color="@color/primary_dark">
+                    android:layout_height="match_parent">
 
-                </com.mobeta.android.dslv.DragSortListView>
+                    <com.mobeta.android.dslv.DragSortListView
+                        android:id="@+id/list"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        app:drag_enabled="false"
+                        app:float_background_color="@color/player_list_element_drag_color">
+
+                    </com.mobeta.android.dslv.DragSortListView>
+                </android.support.v4.widget.SwipeRefreshLayout>
             </LinearLayout>
 
             <include

@@ -18,17 +18,27 @@ import java.util.List;
 public class AudioService extends VKRequest.VKRequestListener {
 
     public static final String GENRE_ID = "genre_id";
+    private VKRequest lastRequest;
 
     public void getMyAudio() {
-        VKApi.audio().get().executeWithListener(this);
+        performRequest(VKApi.audio().get());
     }
 
     public void getRecommendationAudio() {
-        VKApi.audio().getRecommendations().executeWithListener(this);
+        performRequest(VKApi.audio().getRecommendations());
     }
 
     public void getPopularAudio() {
-        VKApi.audio().getPopular(VKParameters.from(GENRE_ID, -88)).executeWithListener(this);
+        performRequest(VKApi.audio().getPopular(VKParameters.from(GENRE_ID, 0)));
+    }
+
+    private void performRequest(VKRequest request) {
+        lastRequest = request;
+        request.executeWithListener(this);
+    }
+
+    public void repeatLastRequest() {
+        lastRequest.executeWithListener(this);
     }
 
     @Override

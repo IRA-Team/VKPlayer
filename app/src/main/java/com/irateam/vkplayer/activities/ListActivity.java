@@ -6,6 +6,8 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -23,10 +25,14 @@ import com.mobeta.android.dslv.DragSortListView;
 import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.model.VKApiAudio;
 
-import java.util.Collections;
 import java.util.List;
 
-public class ListActivity extends AppCompatActivity implements AudioService.Listener, NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemClickListener, Player.Listener, DragSortListView.DropListener {
+public class ListActivity extends AppCompatActivity implements
+        AudioService.Listener,
+        NavigationView.OnNavigationItemSelectedListener,
+        AdapterView.OnItemClickListener, Player.Listener,
+        DragSortListView.DropListener,
+        SwipeRefreshLayout.OnRefreshListener {
 
     private Player player = Player.getInstance();
     private AudioAdapter audioAdapter = new AudioAdapter(this);
@@ -38,6 +44,7 @@ public class ListActivity extends AppCompatActivity implements AudioService.List
     private NavigationView navigationView;
     private CoordinatorLayout coordinatorLayout;
     private PlayerPanel playerPanel;
+    private SwipeRefreshLayout refreshLayout;
     private DragSortListView listView;
 
     @Override
@@ -60,19 +67,35 @@ public class ListActivity extends AppCompatActivity implements AudioService.List
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
+                this,
+                drawerLayout,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close);
+        drawerLayout.setDrawerListener(drawerToggle);
+        drawerToggle.syncState();
+
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
         playerPanel = new PlayerPanel(findViewById(R.id.player_panel));
         playerPanel.rootView.setVisibility(View.GONE);
         playerPanel.setPlayer(player);
 
-        listView = (DragSortListView) findViewById(R.id.view);
+        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
+        refreshLayout.setColorSchemeResources(
+                R.color.accent,
+                R.color.primary
+        );
+        refreshLayout.setOnRefreshListener(this);
+        refreshLayout.setRefreshing(true);
+
+        listView = (DragSortListView) findViewById(R.id.list);
         listView.setAdapter(audioAdapter);
         listView.setOnItemClickListener(this);
         listView.setDropListener(this);
 
         //Services
         audioService.addListener(this);
-        audioService.getMyAudio();
+        onNavigationItemSelected(navigationView.getMenu().getItem(0));
 
         player.addListener(this);
     }
@@ -98,6 +121,7 @@ public class ListActivity extends AppCompatActivity implements AudioService.List
 
     @Override
     public void onComplete(List<VKApiAudio> list) {
+        refreshLayout.setRefreshing(false);
         audioAdapter.setList(list);
         audioAdapter.notifyDataSetChanged();
         System.out.println("Complete" + list.size());
@@ -105,6 +129,7 @@ public class ListActivity extends AppCompatActivity implements AudioService.List
 
     @Override
     public void onError(VKError error) {
+        refreshLayout.setRefreshing(false);
         Snackbar.make(coordinatorLayout, error.errorMessage, Snackbar.LENGTH_LONG)
                 .setAction("Retry", new View.OnClickListener() {
                     @Override
@@ -118,6 +143,8 @@ public class ListActivity extends AppCompatActivity implements AudioService.List
     @Override
     public boolean onNavigationItemSelected(MenuItem menuItem) {
         drawerLayout.closeDrawers();
+        getSupportActionBar().setTitle(menuItem.getTitle());
+        refreshLayout.setRefreshing(true);
         switch (menuItem.getItemId()) {
             case R.id.my_audio:
                 audioService.getMyAudio();
@@ -155,5 +182,10 @@ public class ListActivity extends AppCompatActivity implements AudioService.List
         list.remove(from);
         list.add(to, audio);
         audioAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onRefresh() {
+        audioService.repeatLastRequest();
     }
 }
