@@ -26,7 +26,8 @@
                     android:id="@+id/view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    app:drag_enabled="false">
+                    app:drag_enabled="false"
+                    app:float_background_color="@color/primary_dark">
 
                 </com.mobeta.android.dslv.DragSortListView>
             </LinearLayout>

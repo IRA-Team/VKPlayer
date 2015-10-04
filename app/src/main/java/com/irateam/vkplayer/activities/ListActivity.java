@@ -23,9 +23,10 @@ import com.mobeta.android.dslv.DragSortListView;
 import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.model.VKApiAudio;
 
+import java.util.Collections;
 import java.util.List;
 
-public class ListActivity extends AppCompatActivity implements AudioService.Listener, NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemClickListener, Player.Listener {
+public class ListActivity extends AppCompatActivity implements AudioService.Listener, NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemClickListener, Player.Listener, DragSortListView.DropListener {
 
     private Player player = Player.getInstance();
     private AudioAdapter audioAdapter = new AudioAdapter(this);
@@ -67,6 +68,7 @@ public class ListActivity extends AppCompatActivity implements AudioService.List
         listView = (DragSortListView) findViewById(R.id.view);
         listView.setAdapter(audioAdapter);
         listView.setOnItemClickListener(this);
+        listView.setDropListener(this);
 
         //Services
         audioService.addListener(this);
@@ -83,10 +85,12 @@ public class ListActivity extends AppCompatActivity implements AudioService.List
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_sort:
+                boolean flag = !listView.isDragEnabled();
+                listView.setDragEnabled(flag);
+                audioAdapter.setSortMode(flag);
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -142,5 +146,14 @@ public class ListActivity extends AppCompatActivity implements AudioService.List
             playerPanel.rootView.setVisibility(View.VISIBLE);
         }
         playerPanel.setAudio(audio);
+    }
+
+    @Override
+    public void drop(int from, int to) {
+        List<VKApiAudio> list = audioAdapter.getList();
+        VKApiAudio audio = list.get(from);
+        list.remove(from);
+        list.add(to, audio);
+        audioAdapter.notifyDataSetChanged();
     }
 }

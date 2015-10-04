@@ -1,6 +1,10 @@
 package com.irateam.vkplayer.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +24,8 @@ public class AudioAdapter extends BaseAdapter {
 
     private Context context;
     private List<VKApiAudio> list;
+
+    private boolean sortMode = false;
 
     private ColorGenerator colorGenerator;
 
@@ -67,8 +73,27 @@ public class AudioAdapter extends BaseAdapter {
 
         songName.setText(audio.title);
         author.setText(audio.artist);
-        cover.setImageDrawable(TextDrawable.builder()
-                .buildRound(String.valueOf(audio.artist.charAt(0)), colorGenerator.getColor(audio.artist)));
+
+        Drawable drawable = TextDrawable.builder()
+                .buildRound(String.valueOf(audio.artist.charAt(0)), colorGenerator.getColor(audio.artist));
+        if (sortMode) {
+            Drawable[] layers = new Drawable[2];
+            layers[0] = drawable;
+            layers[1] = context.getResources().getDrawable(R.drawable.player_list_element_cover_overlay);
+            drawable = new LayerDrawable(layers);
+        }
+        cover.setImageDrawable(drawable);
         return view;
+    }
+
+    public boolean isSortMode() {
+        return sortMode;
+    }
+
+    public void setSortMode(boolean sortMode) {
+        if (this.sortMode != sortMode) {
+            notifyDataSetChanged();
+        }
+        this.sortMode = sortMode;
     }
 }

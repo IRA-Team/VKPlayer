@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:singleLine="true"
             android:text="Paradise"
-            android:textColor="@color/colorListElementName"
+            android:textColor="@color/player_list_element_song_name"
             android:textSize="16dp" />
 
         <TextView
@@ -34,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Coldplay"
-            android:textColor="@color/colorListElementAuthor"
+            android:textColor="@color/player_list_element_author"
             android:textSize="10dp" />
     </LinearLayout>
 

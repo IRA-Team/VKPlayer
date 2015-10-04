@@ -13,4 +13,6 @@
     <string name="navigation_drawer_recomendation">Рекомендации</string>
     <string name="navigation_drawer_popular">Популярное</string>
     <string name="navigation_drawer_downloaded">Загруженные</string>
+
+    <string name="title_menu_sort">Сортировка</string>
 </resources>

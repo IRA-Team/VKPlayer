@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/player_panel_group_height"
         android:layout_above="@+id/linearLayout3"
-        android:background="@color/colorSecondary"
+        android:background="@color/secondary"
         android:clickable="true"
         android:gravity="center"
         android:orientation="vertical"
@@ -42,7 +42,7 @@
         android:layout_height="@dimen/player_panel_group_height"
         android:layout_alignParentBottom="true"
         android:layout_marginTop="7dp"
-        android:background="@color/colorBackground"
+        android:background="@color/background"
         android:orientation="horizontal">
 
         <ImageView
