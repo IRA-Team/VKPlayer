@@ -24,7 +24,6 @@ import com.irateam.vkplayer.services.AudioService;
 import com.irateam.vkplayer.viewholders.PlayerPanel;
 import com.mobeta.android.dslv.DragSortListView;
 import com.vk.sdk.VKSdk;
-import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.model.VKApiAudio;
 
 import java.util.List;
@@ -81,7 +80,27 @@ public class ListActivity extends AppCompatActivity implements
         playerPanel = new PlayerPanel(findViewById(R.id.player_panel));
         playerPanel.rootView.setVisibility(View.GONE);
         playerPanel.setPlayer(this, player);
-
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        if (player.isPlaying()) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    playerPanel.progress.setMax(player.getDuration());
+                                    playerPanel.progress.setProgress(player.getCurrentPosition());
+                                }
+                            });
+                        }
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
         refreshLayout.setColorSchemeResources(
                 R.color.accent,
