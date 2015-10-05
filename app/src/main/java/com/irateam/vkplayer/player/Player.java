@@ -3,7 +3,6 @@ package com.irateam.vkplayer.player;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 
-import com.irateam.vkplayer.viewholders.PlayerPanel;
 import com.vk.sdk.api.model.VKApiAudio;
 
 import java.io.IOException;
@@ -172,6 +171,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         if (randomState) {
             randomStack.push(playingAudio);
         }
+        next();
     }
 
     //Listeners

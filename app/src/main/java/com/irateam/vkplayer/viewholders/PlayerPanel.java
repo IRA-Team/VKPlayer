@@ -3,8 +3,6 @@ package com.irateam.vkplayer.viewholders;
 import android.content.Context;
 import android.content.res.Resources;
 import android.media.MediaPlayer;
-import android.os.AsyncTask;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -111,44 +109,5 @@ public class PlayerPanel {
                 progress.setSecondaryProgress(percent);
             }
         });
-    }
-
-    public static class SeekBarHandler extends AsyncTask<Void, Integer, Void> {
-
-        private SeekBar progress;
-        private Player player;
-
-        public SeekBarHandler(Player player, SeekBar progress) {
-            this.player = player;
-            this.progress = progress;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            progress.setProgress(player.getCurrentPosition());
-            Log.i("Current position", String.valueOf(player.getCurrentPosition()));
-            super.onProgressUpdate(values);
-        }
-
-        @Override
-        protected Void doInBackground(Void... arg0) {
-            while (player.isPlaying()) {
-                try {
-                    Log.i("DoInBackground", "G");
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                publishProgress();
-            }
-            return null;
-        }
-
     }
 }

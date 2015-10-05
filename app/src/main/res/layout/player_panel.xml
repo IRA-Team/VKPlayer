@@ -88,6 +88,6 @@
         android:layout_height="@dimen/player_seek_bar_height"
         android:layout_below="@+id/linearLayout"
         android:layout_marginTop="-8dp"
-        android:progress="50" />
+        android:progress="0" />
 
 </RelativeLayout>
