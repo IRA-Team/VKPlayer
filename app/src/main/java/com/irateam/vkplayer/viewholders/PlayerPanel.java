@@ -2,8 +2,12 @@ package com.irateam.vkplayer.viewholders;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.media.MediaPlayer;
+import android.os.AsyncTask;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.irateam.vkplayer.R;
@@ -22,6 +26,8 @@ public class PlayerPanel {
     public ImageView next;
     public ImageView random;
 
+    public SeekBar progress;
+
     public PlayerPanel(View view) {
         rootView = view;
         songName = (TextView) view.findViewById(R.id.player_panel_song_name);
@@ -32,6 +38,8 @@ public class PlayerPanel {
         playPause = (ImageView) view.findViewById(R.id.player_panel_play_pause);
         next = (ImageView) view.findViewById(R.id.player_panel_next);
         random = (ImageView) view.findViewById(R.id.player_panel_random);
+
+        progress = (SeekBar) view.findViewById(R.id.progress);
     }
 
     public void setAudio(int position, VKApiAudio audio) {
@@ -46,7 +54,11 @@ public class PlayerPanel {
             @Override
             public void onClick(View v) {
                 if (player.isPlaying()) {
-
+                    player.pause();
+                    playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_play_grey_18dp));
+                } else {
+                    player.play();
+                    playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_pause_grey_18dp));
                 }
             }
         });
@@ -92,5 +104,51 @@ public class PlayerPanel {
                 }
             }
         });
+
+        player.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+            @Override
+            public void onBufferingUpdate(MediaPlayer mp, int percent) {
+                progress.setSecondaryProgress(percent);
+            }
+        });
+    }
+
+    public static class SeekBarHandler extends AsyncTask<Void, Integer, Void> {
+
+        private SeekBar progress;
+        private Player player;
+
+        public SeekBarHandler(Player player, SeekBar progress) {
+            this.player = player;
+            this.progress = progress;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            progress.setProgress(player.getCurrentPosition());
+            Log.i("Current position", String.valueOf(player.getCurrentPosition()));
+            super.onProgressUpdate(values);
+        }
+
+        @Override
+        protected Void doInBackground(Void... arg0) {
+            while (player.isPlaying()) {
+                try {
+                    Log.i("DoInBackground", "G");
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                publishProgress();
+            }
+            return null;
+        }
+
     }
 }

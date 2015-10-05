@@ -82,7 +82,7 @@
     </LinearLayout>
 
     <SeekBar
-        android:id="@+id/seekBar2"
+        android:id="@+id/progress"
         style="@style/SeekBar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/player_seek_bar_height"

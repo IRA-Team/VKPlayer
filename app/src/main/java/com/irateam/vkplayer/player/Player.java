@@ -1,9 +1,12 @@
 package com.irateam.vkplayer.player;
 
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 
+import com.irateam.vkplayer.viewholders.PlayerPanel;
 import com.vk.sdk.api.model.VKApiAudio;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,11 +17,12 @@ import static com.irateam.vkplayer.player.Player.RepeatState.ALL_REPEAT;
 import static com.irateam.vkplayer.player.Player.RepeatState.NO_REPEAT;
 import static com.irateam.vkplayer.player.Player.RepeatState.ONE_REPEAT;
 
-public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListener {
+public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
 
     public static final String proxyURL = "http://localhost:8080/";
 
     private static Player instance;
+    private int pauseTime;
 
     public synchronized static Player getInstance() {
         if (instance == null) {
@@ -29,6 +33,8 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     private Player() {
         super();
+        setAudioStreamType(AudioManager.STREAM_MUSIC);
+        setOnPreparedListener(this);
         setOnCompletionListener(this);
     }
 
@@ -58,20 +64,21 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     public void play(int index) {
-        /*try {
-            setDataSource(proxyURL + index);
-            prepare();
-            start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
         playingAudio = list.get(index);
         notifyAudioChanged(index, list.get(index));
+        try {
+            reset();
+            setDataSource(playingAudio.url);
+            prepareAsync();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void play() {
         if (playingAudio != null) {
-
+            seekTo(pauseTime);
+            start();
         }
     }
 
@@ -85,6 +92,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     public void pause() {
         if (isPlaying()) {
             super.pause();
+            pauseTime = getCurrentPosition();
         }
     }
 
@@ -99,6 +107,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
                 nextIndex = 0;
             }
         }
+        reset();
         play(nextIndex);
     }
 
@@ -112,6 +121,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
                 previousIndex = list.size() - 1;
             }
         }
+        reset();
         play(previousIndex);
     }
 
@@ -166,6 +176,11 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     //Listeners
     private List<WeakReference<Listener>> listeners = new ArrayList<>();
+
+    @Override
+    public void onPrepared(MediaPlayer mp) {
+        start();
+    }
 
     public interface Listener {
         void onAudioChanged(int position, VKApiAudio audio);
