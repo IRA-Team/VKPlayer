@@ -145,6 +145,10 @@ public class ListActivity extends AppCompatActivity implements
                 startActivity(new Intent(this, LoginActivity.class));
                 finish();
                 return true;
+            case R.id.audio_activity:
+                startActivity(new Intent(this, AudioActivity.class));
+                finish();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
