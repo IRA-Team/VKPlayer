@@ -1,5 +1,6 @@
 package com.irateam.vkplayer.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
@@ -22,6 +23,7 @@ import com.irateam.vkplayer.player.ServerProxy;
 import com.irateam.vkplayer.services.AudioService;
 import com.irateam.vkplayer.viewholders.PlayerPanel;
 import com.mobeta.android.dslv.DragSortListView;
+import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.model.VKApiAudio;
 
@@ -36,7 +38,7 @@ public class ListActivity extends AppCompatActivity implements
 
     private Player player = Player.getInstance();
     private AudioAdapter audioAdapter = new AudioAdapter(this);
-    private AudioService audioService = new AudioService();
+    private AudioService audioService = new AudioService(this);
     private ServerProxy serverProxy = new ServerProxy();
 
     private Toolbar toolbar;
@@ -86,30 +88,23 @@ public class ListActivity extends AppCompatActivity implements
                 R.color.primary
         );
         refreshLayout.setOnRefreshListener(this);
-        refreshLayout.setRefreshing(true);
 
         listView = (DragSortListView) findViewById(R.id.list);
         listView.setAdapter(audioAdapter);
         listView.setOnItemClickListener(this);
         listView.setDropListener(this);
 
+        audioService.addListener(this);
+        player.addListener(this);
         onNavigationItemSelected(navigationView.getMenu().getItem(0));
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        audioService.addListener(this);
-        player.addListener(this);
-
-    }
-
-    @Override
+/*    @Override
     protected void onStop() {
         super.onStop();
         audioService.removeListener(this);
         player.removeListener(this);
-    }
+    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -124,6 +119,12 @@ public class ListActivity extends AppCompatActivity implements
                 boolean flag = !listView.isDragEnabled();
                 listView.setDragEnabled(flag);
                 audioAdapter.setSortMode(flag);
+                refreshLayout.setEnabled(!flag);
+                return true;
+            case R.id.action_settings:
+                VKSdk.logout();
+                startActivity(new Intent(this, LoginActivity.class));
+                finish();
                 return true;
         }
 
@@ -135,17 +136,16 @@ public class ListActivity extends AppCompatActivity implements
         refreshLayout.setRefreshing(false);
         audioAdapter.setList(list);
         audioAdapter.notifyDataSetChanged();
-        System.out.println("Complete" + list.size());
     }
 
     @Override
-    public void onError(VKError error) {
+    public void onError(String errorMessage) {
         refreshLayout.setRefreshing(false);
-        Snackbar.make(coordinatorLayout, error.errorMessage, Snackbar.LENGTH_LONG)
-                .setAction("Retry", new View.OnClickListener() {
+        Snackbar.make(coordinatorLayout, errorMessage, Snackbar.LENGTH_LONG)
+                .setAction(getString(R.string.title_snackbar_action), new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        audioService.getMyAudio();
+                        audioService.repeatLastRequest();
                     }
                 })
                 .show();
@@ -198,5 +198,16 @@ public class ListActivity extends AppCompatActivity implements
     @Override
     public void onRefresh() {
         audioService.repeatLastRequest();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (audioAdapter.isSortMode()) {
+            audioAdapter.setSortMode(false);
+            listView.setDragEnabled(false);
+            refreshLayout.setEnabled(true);
+            return;
+        }
+        super.onBackPressed();
     }
 }

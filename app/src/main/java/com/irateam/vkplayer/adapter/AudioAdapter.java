@@ -1,10 +1,10 @@
 package com.irateam.vkplayer.adapter;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -96,4 +96,5 @@ public class AudioAdapter extends BaseAdapter {
         }
         this.sortMode = sortMode;
     }
+
 }

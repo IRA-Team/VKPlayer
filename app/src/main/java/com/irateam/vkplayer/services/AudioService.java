@@ -1,5 +1,10 @@
 package com.irateam.vkplayer.services;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
+import com.irateam.vkplayer.R;
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;
@@ -16,6 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AudioService extends VKRequest.VKRequestListener {
+
+    private Context context;
+
+    public AudioService(Context context) {
+        this.context = context;
+    }
 
     public static final String GENRE_ID = "genre_id";
     private VKRequest lastRequest;
@@ -34,11 +45,15 @@ public class AudioService extends VKRequest.VKRequestListener {
 
     private void performRequest(VKRequest request) {
         lastRequest = request;
-        request.executeWithListener(this);
+        if (checkNetwork()) {
+            request.executeWithListener(this);
+        } else {
+            notifyAllError(context.getString(R.string.error_no_internet_connection));
+        }
     }
 
     public void repeatLastRequest() {
-        lastRequest.executeWithListener(this);
+        performRequest(lastRequest);
     }
 
     @Override
@@ -65,10 +80,17 @@ public class AudioService extends VKRequest.VKRequestListener {
         }
     }
 
+    private boolean checkNetwork() {
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnectedOrConnecting();
+    }
+
     @Override
     public void onError(VKError error) {
         super.onError(error);
-        notifyAllError(error);
+        notifyAllError(context.getString(R.string.error_load));
     }
 
     private List<WeakReference<Listener>> listeners = new ArrayList<>();
@@ -76,7 +98,7 @@ public class AudioService extends VKRequest.VKRequestListener {
     public interface Listener {
         void onComplete(List<VKApiAudio> list);
 
-        void onError(VKError error);
+        void onError(String errorMessage);
     }
 
     public void addListener(Listener listener) {
@@ -93,9 +115,9 @@ public class AudioService extends VKRequest.VKRequestListener {
         }
     }
 
-    private void notifyAllError(VKError error) {
+    private void notifyAllError(String errorMessage) {
         for (WeakReference<Listener> l : listeners) {
-            l.get().onError(error);
+            l.get().onError(errorMessage);
         }
     }
 
