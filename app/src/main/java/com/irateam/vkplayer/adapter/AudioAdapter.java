@@ -3,8 +3,6 @@ package com.irateam.vkplayer.adapter;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +15,9 @@ import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.irateam.vkplayer.R;
 import com.vk.sdk.api.model.VKApiAudio;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class AudioAdapter extends BaseAdapter {
@@ -69,10 +69,13 @@ public class AudioAdapter extends BaseAdapter {
 
         TextView songName = (TextView) view.findViewById(R.id.player_list_element_song_name);
         TextView author = (TextView) view.findViewById(R.id.player_list_element_author);
+        TextView duration = (TextView) view.findViewById(R.id.player_list_element_duration);
         ImageView cover = (ImageView) view.findViewById(R.id.player_list_element_cover);
 
         songName.setText(audio.title);
         author.setText(audio.artist);
+        SimpleDateFormat sdf = new SimpleDateFormat("mm:ss");
+        duration.setText(sdf.format(new Date(audio.duration * 1000)));
 
         Drawable drawable = TextDrawable.builder()
                 .buildRound(String.valueOf(audio.artist.charAt(0)), colorGenerator.getColor(audio.artist));

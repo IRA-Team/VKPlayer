@@ -49,6 +49,11 @@
         android:layout_marginLeft="8dp"
         android:orientation="vertical">
 
+        <TextView
+            android:id="@+id/player_list_element_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>
 
 </RelativeLayout>
