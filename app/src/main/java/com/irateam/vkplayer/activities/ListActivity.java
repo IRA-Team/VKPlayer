@@ -202,6 +202,8 @@ public class ListActivity extends AppCompatActivity implements
         if (playerPanel.rootView.getVisibility() == View.GONE) {
             playerPanel.rootView.setVisibility(View.VISIBLE);
         }
+        playerPanel.progress.setProgress(0);
+        playerPanel.playPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_player_pause_grey_18dp));
         playerPanel.setAudio(position, audio);
     }
 
