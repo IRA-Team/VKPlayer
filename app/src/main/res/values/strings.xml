@@ -3,4 +3,22 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_list">ListActivity</string>
+    <string name="title_activity_login">LoginActivity</string>
+
+    <string name="title_button_login_vk">Войти через VK</string>
+    <string name="title_button_github">Github/IRA-Team</string>
+
+    <string name="navigation_drawer_open">Открыть</string>
+    <string name="navigation_drawer_close">Закрыть</string>
+    <string name="navigation_drawer_my_audio">Мои аудиозаписи</string>
+    <string name="navigation_drawer_recomendation">Рекомендации</string>
+    <string name="navigation_drawer_popular">Популярное</string>
+    <string name="navigation_drawer_downloaded">Загруженные</string>
+
+    <string name="title_menu_sort">Сортировка</string>
+
+    <string name="error_load">Ошибка загрузки</string>
+    <string name="error_no_internet_connection">Отсутствует соединение с интернетом</string>
+    <string name="title_snackbar_action">Повторить</string>
 </resources>

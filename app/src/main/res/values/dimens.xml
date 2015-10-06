@@ -7,12 +7,28 @@
     <dimen name="player_panel_group_height">56dp</dimen>
     <dimen name="player_seek_bar_height">22dp</dimen>
 
+    <dimen name="player_activity_height">244dp</dimen>
+    <dimen name="player_activity_group_height">90dp</dimen>
+    <dimen name="player_activity_actions_height">146dp</dimen>
+    <dimen name="player_activity_action_height">56dp</dimen>
+    <dimen name="player_activity_seek_bar_height">22dp</dimen>
+    <dimen name="player_activity_text_height">45dp</dimen>
+
+    <dimen name="player_activity_time">10dp</dimen>
+    <dimen name="player_activity_count_audio">10dp</dimen>
+    <dimen name="player_activity_audio_size">10dp</dimen>
+
     <dimen name="player_panel_song_name">16dp</dimen>
     <dimen name="player_panel_author">10dp</dimen>
+
+    <dimen name="player_activity_song_name">16dp</dimen>
+    <dimen name="player_activity_author">10dp</dimen>
 
     <dimen name="player_list_element_height">72dp</dimen>
     <dimen name="player_list_element_album_cover">40dp</dimen>
     <dimen name="player_list_element_info_width">40dp</dimen>
+
+    <dimen name="button_login_activity_height">56dp</dimen>
 
 
 </resources>

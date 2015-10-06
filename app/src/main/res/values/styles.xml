@@ -1,16 +1,41 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="actionBarStyle">@style/ActionBar</item>
+    <style name="BaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
-    <style name="ActionBar" parent="Widget.AppCompat.ActionBar">
-        <item name="displayOptions">homeAsUp|showHome|showTitle</item>
-        <item name="background">@color/colorPrimary</item>
+    <style name="BaseTheme.LoginActivity" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@color/primary</item>
+    </style>
+
+    <style name="BaseTheme.App">
+
+    </style>
+
+    <style name="ActionBarStyle">
+        <item name="android:textColorPrimary">@color/action_bar_text_color</item>
+        <item name="actionMenuTextColor">@color/action_bar_text_color</item>
+        <item name="android:textColorSecondary">@color/action_bar_text_color</item>
+    </style>
+
+    <style name="ButtonLoginActivity">
+        <item name="android:paddingLeft">24dp</item>
+        <item name="android:drawablePadding">24dp</item>
+        <item name="android:height">@dimen/button_login_activity_height</item>
+        <item name="android:gravity">left|center_vertical</item>
+    </style>
+
+    <style name="ButtonLoginActivity.White">
+        <item name="android:background">@color/login_activity_button_white</item>
+        <item name="android:textColor">@color/login_activity_button_white_text</item>
+    </style>
+
+    <style name="ButtonLoginActivity.Blue">
+        <item name="android:background">@color/login_activity_button_blue</item>
+        <item name="android:textColor">@color/login_activity_button_blue_text</item>
     </style>
 
     <style name="SeekBar">
@@ -19,6 +44,13 @@
         <item name="android:padding">0dp</item>
         <item name="android:maxHeight">8dp</item>
         <item name="android:splitTrack">false</item>
+    </style>
+
+    <style name="PlayerPanelButton">
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">?selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:scaleType">center</item>
     </style>
 
 

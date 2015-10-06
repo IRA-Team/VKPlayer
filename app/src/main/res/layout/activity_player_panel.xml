@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/player_activity_height"
+    android:layout_alignParentBottom="true">
+
+    <LinearLayout
+        android:id="@+id/player_activity_group"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/player_activity_group_height"
+        android:layout_above="@+id/player_activity_actions"
+        android:background="@color/secondary"
+        android:clickable="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingLeft="72dp">
+
+        <TextView
+            android:id="@+id/player_activity_song_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingRight="72dp"
+            android:singleLine="true"
+            android:text="A Sky Full of Stars"
+            android:textColor="#ffffff"
+            android:textSize="@dimen/player_activity_song_name" />
+
+        <TextView
+            android:id="@+id/player_activity_author"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingRight="72dp"
+            android:singleLine="true"
+            android:text="Coldplay"
+            android:textColor="#ffffff"
+            android:textSize="@dimen/player_activity_author" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/player_activity_actions"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/player_activity_actions_height"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="7dp"
+        android:background="@color/background"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/player_activity_text_height"
+            android:layout_gravity="center_vertical"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp">
+
+            <TextView
+                android:id="@+id/player_activity_current_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="00:59"
+                android:textColor="@color/player_activity_text"
+                android:textSize="@dimen/player_activity_time" />
+
+            <TextView
+                android:id="@+id/player_activity_time_remaining"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:text="-02:45"
+                android:textColor="@color/player_activity_text"
+                android:textSize="@dimen/player_activity_time" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/player_activity_action"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/player_activity_action_height"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/player_panel_repeat"
+                style="@style/PlayerPanelButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_player_repeat_light_grey_18dp" />
+
+            <ImageView
+                android:id="@+id/player_panel_previous"
+                style="@style/PlayerPanelButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_player_previous_grey_24dp" />
+
+            <ImageView
+                android:id="@+id/player_panel_play_pause"
+                style="@style/PlayerPanelButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_player_pause_grey_24dp" />
+
+            <ImageView
+                android:id="@+id/player_panel_next"
+                style="@style/PlayerPanelButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_player_next_grey_24dp" />
+
+            <ImageView
+                android:id="@+id/player_panel_random"
+                style="@style/PlayerPanelButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_player_random_light_grey_18dp" />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/player_activity_text_height"
+            android:paddingLeft="46dp"
+            android:paddingRight="54dp">
+
+            <TextView
+                android:id="@+id/player_activity_count_audio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="#120/234"
+                android:textColor="@color/player_activity_text"
+                android:textSize="@dimen/player_activity_count_audio" />
+
+            <TextView
+                android:id="@+id/player_activity_audio_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:text="11.4Mb"
+                android:textColor="@color/player_activity_text"
+                android:textSize="@dimen/player_activity_audio_size" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <SeekBar
+        android:id="@+id/progress"
+        style="@style/SeekBar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/player_seek_bar_height"
+        android:layout_below="@+id/player_activity_group"
+        android:layout_marginTop="-8dp"
+        android:progress="0" />
+</RelativeLayout>

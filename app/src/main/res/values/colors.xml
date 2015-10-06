@@ -1,16 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="colorBackground" type="color">#ffffff</item>
-    <item name="colorPrimary" type="color">#3f51b5</item>
-    <item name="colorSecondary" type="color">#35444c</item>
-    <item name="colorPrimaryDark" type="color">#303f9f</item>
-    <item name="colorAccent" type="color">#ff4081</item>
+    <item name="background" type="color">#ffffff</item>
+    <item name="primary" type="color">#3f51b5</item>
+    <item name="secondary" type="color">#35444c</item>
+    <item name="primary_dark" type="color">#303f9f</item>
+    <item name="accent" type="color">#ff4081</item>
 
-    <item name="colorSeekBarTrack" type="color">#f3f3f3</item>
-    <item name="colorSeekBarSecondaryProgress" type="color">#b5bce4</item>
+    <item name="seekbar_track" type="color">#f3f3f3</item>
+    <item name="seekbar_secondary_progress" type="color">#b5bce4</item>
 
-    <item name="colorPlayerPanelAuthor" type="color">#d7d5d5</item>
+    <item name="player_panel_author" type="color">#d7d5d5</item>
 
-    <item name="colorListElementName" type="color">#000000</item>
-    <item name="colorListElementAuthor" type="color">#b6b6b6</item>
+    <item name="player_list_element_drag_color" type="color">#eeeeee</item>
+    <item name="player_list_element_song_name" type="color">#000000</item>
+    <item name="player_list_element_author" type="color">#b6b6b6</item>
+    <item name="player_list_element_cover_overlay" type="color">#80000000</item>
+
+    <item name="action_bar_text_color" type="color">#ffffff</item>
+
+    <item name="player_activity_text" type="color">#000000</item>
+
+    <!--Login Activity-->
+    <item name="login_activity_button_white" type="color">#ffffff</item>
+    <item name="login_activity_button_white_text" type="color">#5c6bc0</item>
+    <item name="login_activity_button_blue" type="color">#5c6bc0</item>
+    <item name="login_activity_button_blue_text" type="color">#ffffff</item>
+
 </resources>
