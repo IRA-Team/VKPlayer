@@ -48,6 +48,8 @@ public class ListActivity extends AppCompatActivity implements
     private SwipeRefreshLayout refreshLayout;
     private DragSortListView listView;
 
+    Thread thread = new Thread();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
