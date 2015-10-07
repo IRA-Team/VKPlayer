@@ -45,6 +45,7 @@ public class PlayerPanel {
         author.setText(audio.artist);
     }
 
+    @SuppressWarnings("deprecation")
     public void setPlayer(final Context context, final Player player) {
         final Resources resources = context.getResources();
 
@@ -113,6 +114,9 @@ public class PlayerPanel {
         progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    player.seekTo(progress);
+                }
             }
 
             @Override
@@ -121,7 +125,6 @@ public class PlayerPanel {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                player.seekTo(seekBar.getProgress());
             }
         });
     }

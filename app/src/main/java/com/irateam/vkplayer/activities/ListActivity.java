@@ -15,16 +15,27 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.TextView;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.adapter.AudioAdapter;
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.player.ServerProxy;
 import com.irateam.vkplayer.services.AudioService;
+import com.irateam.vkplayer.ui.RoundImageView;
 import com.irateam.vkplayer.viewholders.PlayerPanel;
 import com.mobeta.android.dslv.DragSortListView;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.vk.sdk.VKSdk;
+import com.vk.sdk.api.VKApi;
+import com.vk.sdk.api.VKApiConst;
+import com.vk.sdk.api.VKParameters;
+import com.vk.sdk.api.VKRequest;
+import com.vk.sdk.api.VKResponse;
 import com.vk.sdk.api.model.VKApiAudio;
+import com.vk.sdk.api.model.VKApiUser;
+
+import org.json.JSONException;
 
 import java.util.List;
 
@@ -43,6 +54,11 @@ public class ListActivity extends AppCompatActivity implements
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
+    private RoundImageView roundImageView;
+    private TextView userFullName;
+    private TextView userVkId;
+
+
     private CoordinatorLayout coordinatorLayout;
     private PlayerPanel playerPanel;
     private SwipeRefreshLayout refreshLayout;
@@ -69,6 +85,24 @@ public class ListActivity extends AppCompatActivity implements
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
+        roundImageView = (RoundImageView) findViewById(R.id.navigation_drawer_header_avatar);
+        userFullName = (TextView) findViewById(R.id.navigation_drawer_header_full_name);
+        userVkId = (TextView) findViewById(R.id.navigation_drawer_header_id);
+
+        VKApi.users().get(VKParameters.from(VKApiConst.FIELDS, "photo_100")).executeWithListener(new VKRequest.VKRequestListener() {
+            @Override
+            public void onComplete(VKResponse response) {
+                super.onComplete(response);
+                try {
+                    VKApiUser user = new VKApiUser().parse(response.json.getJSONArray("response").getJSONObject(0));
+                    ImageLoader.getInstance().displayImage(user.photo_100, roundImageView);
+                    userFullName.setText(user.first_name + " " + user.last_name);
+                    userVkId.setText(String.valueOf(user.id));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
                 this,
@@ -142,11 +176,6 @@ public class ListActivity extends AppCompatActivity implements
                 audioAdapter.setSortMode(flag);
                 refreshLayout.setEnabled(!flag);
                 return true;
-            case R.id.action_settings:
-                VKSdk.logout();
-                startActivity(new Intent(this, LoginActivity.class));
-                finish();
-                return true;
             case R.id.audio_activity:
                 startActivity(new Intent(this, AudioActivity.class));
                 finish();
@@ -179,8 +208,12 @@ public class ListActivity extends AppCompatActivity implements
     @Override
     public boolean onNavigationItemSelected(MenuItem menuItem) {
         drawerLayout.closeDrawers();
-        getSupportActionBar().setTitle(menuItem.getTitle());
-        refreshLayout.setRefreshing(true);
+
+        if (menuItem.getGroupId() == R.id.audio_group) {
+            getSupportActionBar().setTitle(menuItem.getTitle());
+            refreshLayout.setRefreshing(true);
+        }
+
         switch (menuItem.getItemId()) {
             case R.id.my_audio:
                 audioService.getMyAudio();
@@ -190,6 +223,10 @@ public class ListActivity extends AppCompatActivity implements
                 return true;
             case R.id.popular_audio:
                 audioService.getPopularAudio();
+                return true;
+
+            case R.id.exit:
+                VkLogout();
                 return true;
         }
         return false;
@@ -236,5 +273,11 @@ public class ListActivity extends AppCompatActivity implements
             return;
         }
         super.onBackPressed();
+    }
+
+    private void VkLogout() {
+        VKSdk.logout();
+        startActivity(new Intent(this, LoginActivity.class));
+        finish();
     }
 }

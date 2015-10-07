@@ -48,9 +48,6 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onError(VKError error) {
             }
-        })) {
-
-        }
-
+        })) ;
     }
 }

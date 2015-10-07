@@ -26,4 +26,7 @@
     <item name="login_activity_button_blue" type="color">#5c6bc0</item>
     <item name="login_activity_button_blue_text" type="color">#ffffff</item>
 
+    <!--Navigation Drawer-->
+    <item name="navigation_drawer_header_text_color" type="color">#ffffff</item>
+
 </resources>

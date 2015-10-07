@@ -30,5 +30,8 @@
 
     <dimen name="button_login_activity_height">56dp</dimen>
 
+    <dimen name="navigation_drawer_header_height">174dp</dimen>
+    <dimen name="navigation_drawer_header_avatar">64dp</dimen>
+
 
 </resources>
