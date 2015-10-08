@@ -23,4 +23,5 @@
     <string name="error_load">Ошибка загрузки</string>
     <string name="error_no_internet_connection">Отсутствует соединение с интернетом</string>
     <string name="title_snackbar_action">Повторить</string>
+    <string name="title_activity_help">HelpActivity</string>
 </resources>

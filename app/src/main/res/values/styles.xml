@@ -21,6 +21,13 @@
         <item name="android:textColorSecondary">@color/action_bar_text_color</item>
     </style>
 
+    <style name="TransparentActionBarStyle">
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="windowActionBarOverlay">true</item>
+        <item name="android:textColorSecondary">@color/action_bar_text_color</item>
+        <item name="android:actionMenuTextColor">@color/activity_audio_menu_item_text_color</item>
+    </style>
+
     <style name="ButtonLoginActivity">
         <item name="android:paddingLeft">24dp</item>
         <item name="android:drawablePadding">24dp</item>
@@ -52,6 +59,10 @@
         <item name="android:clickable">true</item>
         <item name="android:scaleType">center</item>
     </style>
+
+    <style name="BaseTheme.App.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="BaseTheme.App.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 
 </resources>
