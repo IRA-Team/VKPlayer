@@ -10,9 +10,10 @@ import android.widget.TextView;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.player.Player;
+import com.irateam.vkplayer.services.PlayerService;
 import com.vk.sdk.api.model.VKApiAudio;
 
-public class PlayerPanel {
+public class PlayerPanel implements Player.PlayerEventListener, Player.PlayerProgressListener {
 
     public View rootView;
     public TextView songName;
@@ -25,8 +26,15 @@ public class PlayerPanel {
     public ImageView random;
 
     public SeekBar progress;
+    private boolean dragMode;
 
-    public PlayerPanel(View view) {
+    private Context context;
+    private Resources resources;
+
+    public PlayerPanel(Context context, View view) {
+        this.context = context;
+        resources = context.getResources();
+
         rootView = view;
         songName = (TextView) view.findViewById(R.id.player_panel_song_name);
         author = (TextView) view.findViewById(R.id.player_panel_author);
@@ -40,23 +48,19 @@ public class PlayerPanel {
         progress = (SeekBar) view.findViewById(R.id.progress);
     }
 
-    public void setAudio(int position, VKApiAudio audio) {
-        songName.setText(position + 1 + ". " + audio.title);
-        author.setText(audio.artist);
-    }
-
     @SuppressWarnings("deprecation")
-    public void setPlayer(final Context context, final Player player) {
+    public void setPlayerService(final PlayerService playerService) {
         final Resources resources = context.getResources();
+        configurePanel(playerService);
 
         playPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (player.isPlaying()) {
-                    player.pause();
+                if (playerService.isPlaying()) {
+                    playerService.pause();
                     playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_play_grey_18dp));
                 } else {
-                    player.play();
+                    playerService.resume();
                     playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_pause_grey_18dp));
                 }
             }
@@ -65,67 +69,110 @@ public class PlayerPanel {
         previous.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                player.previous();
+                playerService.previous();
             }
         });
 
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                player.next();
+                playerService.next();
             }
         });
 
         repeat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switch (player.switchRepeatState()) {
-                    case NO_REPEAT:
-                        repeat.setImageDrawable(resources.getDrawable(R.drawable.ic_player_repeat_light_grey_18dp));
-                        break;
-                    case ALL_REPEAT:
-                        repeat.setImageDrawable(resources.getDrawable(R.drawable.ic_player_repeat_all_light_grey_18dp));
-                        break;
-                    case ONE_REPEAT:
-                        repeat.setImageDrawable(resources.getDrawable(R.drawable.ic_player_repeat_one_light_grey_18dp));
-                        break;
-                }
+                setRepeatState(playerService.switchRepeatState());
             }
         });
 
         random.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (player.switchRandomState()) {
-                    random.setImageDrawable(resources.getDrawable(R.drawable.ic_player_random_on_light_grey_18dp));
-                } else {
-                    random.setImageDrawable(resources.getDrawable(R.drawable.ic_player_random_light_grey_18dp));
-                }
-            }
-        });
-
-        player.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
-            @Override
-            public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                progress.setSecondaryProgress(percent);
+                setRandomState(playerService.switchRandomState());
             }
         });
 
         progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser) {
-                    player.seekTo(progress);
-                }
+
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
+                dragMode = true;
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
+                dragMode = false;
+                playerService.seekTo(progress.getProgress());
             }
         });
+    }
+
+    private void configurePanel(PlayerService playerService) {
+        playerService.addPlayerProgressListener(this);
+        VKApiAudio audio = playerService.getPlayingAudio();
+        if (audio != null) {
+            rootView.setVisibility(View.VISIBLE);
+            setAudio(playerService.getPlayingAudioIndex(), audio);
+            setRepeatState(playerService.getRepeatState());
+            setRandomState(playerService.getRandomState());
+        }
+    }
+
+    @Override
+    public void onEvent(int position, VKApiAudio audio, Player.PlayerEvent event) {
+        switch (event) {
+            case PLAY:
+                setAudio(position, audio);
+                break;
+        }
+    }
+
+    public void setAudio(int position, VKApiAudio audio) {
+        if (audio != null) {
+            if (rootView.getVisibility() != View.VISIBLE) {
+                rootView.setVisibility(View.VISIBLE);
+            }
+            songName.setText(position + 1 + ". " + audio.title);
+            author.setText(audio.artist);
+            progress.setMax(audio.duration * 1000);
+            progress.setProgress(0);
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    public void setRepeatState(Player.RepeatState repeatState) {
+        switch (repeatState) {
+            case NO_REPEAT:
+                repeat.setImageDrawable(resources.getDrawable(R.drawable.ic_player_repeat_light_grey_18dp));
+                break;
+            case ALL_REPEAT:
+                repeat.setImageDrawable(resources.getDrawable(R.drawable.ic_player_repeat_all_light_grey_18dp));
+                break;
+            case ONE_REPEAT:
+                repeat.setImageDrawable(resources.getDrawable(R.drawable.ic_player_repeat_one_light_grey_18dp));
+                break;
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private void setRandomState(boolean randomState) {
+        if (randomState) {
+            random.setImageDrawable(resources.getDrawable(R.drawable.ic_player_random_on_light_grey_18dp));
+        } else {
+            random.setImageDrawable(resources.getDrawable(R.drawable.ic_player_random_light_grey_18dp));
+        }
+    }
+
+    @Override
+    public void onProgressChanged(int milliseconds) {
+        if (!dragMode) {
+            progress.setProgress(milliseconds);
+        }
     }
 }

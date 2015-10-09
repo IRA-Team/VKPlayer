@@ -26,12 +26,12 @@ public class AudioActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         imageView = (ImageView) findViewById(R.id.imageView);
-        imageView.setImageDrawable(getResources().getDrawable(R.drawable.audio_title_image));
+        //imageView.setImageDrawable(getResources().getDrawable(R.drawable.audio_title_image));
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_audio, menu);
+        //getMenuInflater().inflate(R.menu.menu_audio, menu);
         return true;
     }
 

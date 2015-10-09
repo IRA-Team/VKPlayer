@@ -1,7 +1,10 @@
 package com.irateam.vkplayer.activities;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -11,6 +14,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,6 +26,7 @@ import com.irateam.vkplayer.adapter.AudioAdapter;
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.player.ServerProxy;
 import com.irateam.vkplayer.services.AudioService;
+import com.irateam.vkplayer.services.PlayerService;
 import com.irateam.vkplayer.ui.RoundImageView;
 import com.irateam.vkplayer.viewholders.PlayerPanel;
 import com.mobeta.android.dslv.DragSortListView;
@@ -42,14 +47,12 @@ import java.util.List;
 public class ListActivity extends AppCompatActivity implements
         AudioService.Listener,
         NavigationView.OnNavigationItemSelectedListener,
-        AdapterView.OnItemClickListener, Player.Listener,
+        AdapterView.OnItemClickListener,
         DragSortListView.DropListener,
-        SwipeRefreshLayout.OnRefreshListener {
+        SwipeRefreshLayout.OnRefreshListener, ServiceConnection {
 
-    private Player player = Player.getInstance();
     private AudioAdapter audioAdapter = new AudioAdapter(this);
     private AudioService audioService = new AudioService(this);
-    private ServerProxy serverProxy = new ServerProxy();
 
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
@@ -58,13 +61,12 @@ public class ListActivity extends AppCompatActivity implements
     private TextView userFullName;
     private TextView userVkId;
 
-
     private CoordinatorLayout coordinatorLayout;
-    private PlayerPanel playerPanel;
     private SwipeRefreshLayout refreshLayout;
     private DragSortListView listView;
 
-    Thread thread = new Thread();
+    private PlayerPanel playerPanel;
+    private PlayerService playerService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,30 +115,9 @@ public class ListActivity extends AppCompatActivity implements
         drawerToggle.syncState();
 
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
-        playerPanel = new PlayerPanel(findViewById(R.id.player_panel));
+        playerPanel = new PlayerPanel(this, findViewById(R.id.player_panel));
         playerPanel.rootView.setVisibility(View.GONE);
-        playerPanel.setPlayer(this, player);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        if (player.isPlaying()) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    playerPanel.progress.setMax(player.getDuration());
-                                    playerPanel.progress.setProgress(player.getCurrentPosition());
-                                }
-                            });
-                        }
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }).start();
+
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
         refreshLayout.setColorSchemeResources(
                 R.color.accent,
@@ -150,16 +131,18 @@ public class ListActivity extends AppCompatActivity implements
         listView.setDropListener(this);
 
         audioService.addListener(this);
-        player.addListener(this);
         onNavigationItemSelected(navigationView.getMenu().getItem(0));
+
+        startService(new Intent(this, PlayerService.class));
+        bindService(new Intent(this, PlayerService.class), this, BIND_AUTO_CREATE);
     }
 
-/*    @Override
-    protected void onStop() {
-        super.onStop();
-        audioService.removeListener(this);
-        player.removeListener(this);
-    }*/
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        playerService.removePlayerEventListener(playerPanel);
+        unbindService(this);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -234,20 +217,10 @@ public class ListActivity extends AppCompatActivity implements
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (audioAdapter.getList() != player.getList()) {
-            player.setList(audioAdapter.getList());
+        if (playerService != null) {
+            playerService.setPlaylist(audioAdapter.getList());
+            playerService.play(position);
         }
-        player.play(position);
-    }
-
-    @Override
-    public void onAudioChanged(int position, VKApiAudio audio) {
-        if (playerPanel.rootView.getVisibility() == View.GONE) {
-            playerPanel.rootView.setVisibility(View.VISIBLE);
-        }
-        playerPanel.progress.setProgress(0);
-        playerPanel.playPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_player_pause_grey_18dp));
-        playerPanel.setAudio(position, audio);
     }
 
     @Override
@@ -279,5 +252,18 @@ public class ListActivity extends AppCompatActivity implements
         VKSdk.logout();
         startActivity(new Intent(this, LoginActivity.class));
         finish();
+    }
+
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        Log.i("Service", "Connected");
+        playerService = ((PlayerService.PlayerBinder) service).getPlayerService();
+        playerPanel.setPlayerService(playerService);
+        playerService.addPlayerEventListener(playerPanel);
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+        Log.i("Service", "Disconnected");
     }
 }
