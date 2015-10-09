@@ -176,10 +176,21 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        if (randomState) {
-            randomStack.push(playingAudio);
+        if (repeatState == NO_REPEAT && playingAudio == list.get(list.size() - 1)) {
+            notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.STOP);
+            stop();
+            return;
         }
-        next();
+
+        if (repeatState != ONE_REPEAT) {
+            if (randomState) {
+                randomStack.push(playingAudio);
+            }
+            next();
+        } else {
+            play(getPlayingAudioIndex());
+        }
+
     }
 
     @Override

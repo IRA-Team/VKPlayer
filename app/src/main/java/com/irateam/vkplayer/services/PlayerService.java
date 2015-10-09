@@ -135,7 +135,9 @@ public class PlayerService extends Service implements Player.PlayerEventListener
                 startForeground(PlayerNotification.ID, PlayerNotification.create(this, audio));
                 break;
             case PAUSE:
-                // stopForeground(true);
+                break;
+            case STOP:
+                stopForeground(true);
                 break;
         }
     }
