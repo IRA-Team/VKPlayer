@@ -24,4 +24,10 @@
     <string name="error_no_internet_connection">Отсутствует соединение с интернетом</string>
     <string name="title_snackbar_action">Повторить</string>
     <string name="title_activity_help">HelpActivity</string>
+
+    <string name="notification_previous">Предыдущая</string>
+    <string name="notification_pause">Пауза</string>
+    <string name="notification_resume">Возобновить</string>
+    <string name="notification_next">Следующая</string>
+
 </resources>

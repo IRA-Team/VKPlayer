@@ -13,6 +13,11 @@ import java.util.List;
 
 public class PlayerService extends Service implements Player.PlayerEventListener {
 
+    public static final String PREVIOUS = "playerService.PREVIOUS";
+    public static final String PAUSE = "playerService.PAUSE";
+    public static final String RESUME = "playerService.RESUME";
+    public static final String NEXT = "playerService.NEXT";
+
     private Player player = new Player();
     private Binder binder = new PlayerBinder();
 
@@ -25,6 +30,23 @@ public class PlayerService extends Service implements Player.PlayerEventListener
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        String action = intent.getAction();
+        if (action != null) {
+            switch (action) {
+                case PREVIOUS:
+                    previous();
+                    break;
+                case PAUSE:
+                    pause();
+                    break;
+                case RESUME:
+                    resume();
+                    break;
+                case NEXT:
+                    next();
+                    break;
+            }
+        }
         return START_NOT_STICKY;
     }
 
@@ -132,9 +154,13 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     public void onEvent(int position, VKApiAudio audio, Player.PlayerEvent event) {
         switch (event) {
             case PLAY:
-                startForeground(PlayerNotification.ID, PlayerNotification.create(this, audio));
+                startForeground(PlayerNotification.ID, PlayerNotification.create(this, position, audio, event));
                 break;
             case PAUSE:
+                PlayerNotification.update(this, position, audio, Player.PlayerEvent.PAUSE);
+                break;
+            case RESUME:
+                PlayerNotification.update(this, position, audio, Player.PlayerEvent.RESUME);
                 break;
             case STOP:
                 stopForeground(true);
