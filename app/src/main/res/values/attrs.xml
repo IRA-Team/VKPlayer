@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AudioListElement">
+        <attr name="cover" format="reference" />
+        <attr name="checked" format="boolean" />
+        <attr name="artist" format="string" />
+        <attr name="song_name" format="string" />
+        <attr name="downloaded" format="boolean" />
+        <attr name="duration" format="integer" />
+    </declare-styleable>
+</resources>

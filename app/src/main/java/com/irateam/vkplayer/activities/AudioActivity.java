@@ -39,7 +39,7 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         imageView = (ImageView) findViewById(R.id.imageView);
-        imageView.setImageDrawable(getResources().getDrawable(R.drawable.audio_title_image));
+        //imageView.setImageDrawable(getResources().getDrawable(R.drawable.audio_title_image));
         playerPanel = new PlayerPanel(this, findViewById(R.id.activity_player_panel));
 
         playerPanel.audioActivity = true;
@@ -92,7 +92,7 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_audio, menu);
+        //getMenuInflater().inflate(R.menu.menu_audio, menu);
         return true;
     }
 

@@ -15,6 +15,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +25,7 @@ import android.widget.TextView;
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.adapter.AudioAdapter;
 import com.irateam.vkplayer.services.AudioService;
+import com.irateam.vkplayer.services.DownloadService;
 import com.irateam.vkplayer.services.PlayerService;
 import com.irateam.vkplayer.ui.RoundImageView;
 import com.irateam.vkplayer.viewholders.PlayerPanel;
@@ -40,6 +42,7 @@ import com.vk.sdk.api.model.VKApiUser;
 
 import org.json.JSONException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ListActivity extends AppCompatActivity implements
@@ -47,7 +50,7 @@ public class ListActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
         AdapterView.OnItemClickListener,
         DragSortListView.DropListener,
-        SwipeRefreshLayout.OnRefreshListener, ServiceConnection {
+        SwipeRefreshLayout.OnRefreshListener, ServiceConnection, AdapterView.OnItemLongClickListener, AudioAdapter.CoverCheckListener, ActionMode.Callback {
 
     private AudioAdapter audioAdapter = new AudioAdapter(this);
     private AudioService audioService = new AudioService(this);
@@ -65,6 +68,8 @@ public class ListActivity extends AppCompatActivity implements
 
     private PlayerPanel playerPanel;
     private PlayerService playerService;
+
+    private ActionMode actionMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,7 +131,9 @@ public class ListActivity extends AppCompatActivity implements
         listView = (DragSortListView) findViewById(R.id.list);
         listView.setAdapter(audioAdapter);
         listView.setOnItemClickListener(this);
+        listView.setOnItemLongClickListener(this);
         listView.setDropListener(this);
+        audioAdapter.setCoverCheckListener(this);
 
         audioService.addListener(this);
         onNavigationItemSelected(navigationView.getMenu().getItem(0));
@@ -273,5 +280,59 @@ public class ListActivity extends AppCompatActivity implements
     @Override
     public void onServiceDisconnected(ComponentName name) {
         Log.i("Service", "Disconnected");
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        performCheck(position);
+        return true;
+    }
+
+    @Override
+    public void onCoverCheck(int position) {
+        performCheck(position);
+    }
+
+    public void performCheck(int position) {
+        System.out.println(listView.getCheckedItemCount());
+        audioAdapter.toggleChecked(position);
+        if (audioAdapter.getCheckedCount() > 0) {
+            if (actionMode == null) {
+                startActionMode(this);
+            }
+            actionMode.setTitle(String.valueOf(audioAdapter.getCheckedCount()));
+        } else {
+            actionMode.finish();
+        }
+    }
+
+    @Override
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        actionMode = mode;
+        mode.getMenuInflater().inflate(R.menu.menu_list_context, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        return false;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_download:
+                Intent intent = new Intent(this, DownloadService.class);
+                intent.putExtra(DownloadService.AUDIO_SET, (ArrayList<VKApiAudio>) audioAdapter.getCheckedItems());
+                startService(intent);
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
+        audioAdapter.clearChecked();
+        actionMode = null;
     }
 }

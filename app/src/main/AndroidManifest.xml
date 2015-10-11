@@ -2,11 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.irateam.vkplayer">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-
     <application
         android:name=".Application"
         android:allowBackup="true"
@@ -59,6 +54,11 @@
             </intent-filter>
         </service>
 
+        <service
+            android:name=".services.DownloadService"
+            android:enabled="true"
+            android:exported="true" />
+
         <receiver android:name=".receivers.NotificationReceiver">
             <intent-filter>
                 <action android:name="player.STOP_SERVICE" />
@@ -66,4 +66,7 @@
         </receiver>
     </application>
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="18" />
 </manifest>

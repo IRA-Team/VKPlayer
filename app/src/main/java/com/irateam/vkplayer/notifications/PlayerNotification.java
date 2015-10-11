@@ -13,6 +13,7 @@ import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.services.PlayerService;
+import com.irateam.vkplayer.utils.AlbumCoverUtils;
 import com.vk.sdk.api.model.VKApiAudio;
 
 public class PlayerNotification {
@@ -20,12 +21,12 @@ public class PlayerNotification {
     public static final int ID = 1;
 
     public static Notification create(Context context, int index, VKApiAudio audio, Player.PlayerEvent event) {
-        ColorGenerator generator = ColorGenerator.MATERIAL;
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
 
         builder
                 .setContentTitle(index + 1 + ". " + audio.title)
                 .setContentText(audio.artist)
+                .setLargeIcon(AlbumCoverUtils.createBitmapFromAudio(audio))
                 .setShowWhen(false)
                 .addAction(R.drawable.ic_player_previous_grey_18dp,
                         context.getString(R.string.notification_previous),

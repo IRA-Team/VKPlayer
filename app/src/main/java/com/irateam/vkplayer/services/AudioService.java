@@ -22,14 +22,14 @@ import java.util.List;
 
 public class AudioService extends VKRequest.VKRequestListener {
 
+    public static final String GENRE_ID = "genre_id";
     private Context context;
+    private VKRequest lastRequest;
+    private List<WeakReference<Listener>> listeners = new ArrayList<>();
 
     public AudioService(Context context) {
         this.context = context;
     }
-
-    public static final String GENRE_ID = "genre_id";
-    private VKRequest lastRequest;
 
     public void getMyAudio() {
         performRequest(VKApi.audio().get());
@@ -93,14 +93,6 @@ public class AudioService extends VKRequest.VKRequestListener {
         notifyAllError(context.getString(R.string.error_load));
     }
 
-    private List<WeakReference<Listener>> listeners = new ArrayList<>();
-
-    public interface Listener {
-        void onComplete(List<VKApiAudio> list);
-
-        void onError(String errorMessage);
-    }
-
     public void addListener(Listener listener) {
         listeners.add(new WeakReference<Listener>(listener));
     }
@@ -119,6 +111,12 @@ public class AudioService extends VKRequest.VKRequestListener {
         for (WeakReference<Listener> l : listeners) {
             l.get().onError(errorMessage);
         }
+    }
+
+    public interface Listener {
+        void onComplete(List<VKApiAudio> list);
+
+        void onError(String errorMessage);
     }
 
 }

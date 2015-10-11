@@ -11,6 +11,8 @@
 
     <item name="player_panel_author" type="color">#d7d5d5</item>
 
+    <item name="player_list_element_color" type="color">#ffffff</item>
+    <item name="player_list_element_checked_color" type="color">#eeeeee</item>
     <item name="player_list_element_drag_color" type="color">#eeeeee</item>
     <item name="player_list_element_song_name" type="color">#000000</item>
     <item name="player_list_element_author" type="color">#b6b6b6</item>
