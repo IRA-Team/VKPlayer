@@ -1,23 +1,38 @@
 package com.irateam.vkplayer.viewholders;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
-import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.irateam.vkplayer.R;
+import com.irateam.vkplayer.activities.AudioActivity;
+import com.irateam.vkplayer.activities.ListActivity;
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.services.PlayerService;
 import com.vk.sdk.api.model.VKApiAudio;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.SimpleDateFormat;
+import java.util.concurrent.ExecutionException;
 
 public class PlayerPanel implements Player.PlayerEventListener, Player.PlayerProgressListener {
 
     public View rootView;
     public TextView songName;
     public TextView author;
+    public TextView currentTime;
+    public TextView timeToFinish;
+    public TextView numberAudio;
+    public TextView sizeAudio;
 
     public ImageView repeat;
     public ImageView previous;
@@ -27,9 +42,12 @@ public class PlayerPanel implements Player.PlayerEventListener, Player.PlayerPro
 
     public SeekBar progress;
     private boolean dragMode;
+    public boolean audioActivity = false;
 
     private Context context;
     private Resources resources;
+
+    private LinearLayout headerLayout;
 
     public PlayerPanel(Context context, View view) {
         this.context = context;
@@ -38,6 +56,10 @@ public class PlayerPanel implements Player.PlayerEventListener, Player.PlayerPro
         rootView = view;
         songName = (TextView) view.findViewById(R.id.player_panel_song_name);
         author = (TextView) view.findViewById(R.id.player_panel_author);
+        currentTime = (TextView) view.findViewById(R.id.player_panel_current_time);
+        timeToFinish = (TextView) view.findViewById(R.id.player_panel_time_remaining);
+        numberAudio = (TextView) view.findViewById(R.id.player_panel_count_audio);
+        sizeAudio = (TextView) view.findViewById(R.id.player_panel_audio_size);
 
         repeat = (ImageView) view.findViewById(R.id.player_panel_repeat);
         previous = (ImageView) view.findViewById(R.id.player_panel_previous);
@@ -46,6 +68,8 @@ public class PlayerPanel implements Player.PlayerEventListener, Player.PlayerPro
         random = (ImageView) view.findViewById(R.id.player_panel_random);
 
         progress = (SeekBar) view.findViewById(R.id.progress);
+
+        headerLayout = (LinearLayout) view.findViewById(R.id.player_panel_header_layout);
     }
 
     @SuppressWarnings("deprecation")
@@ -58,10 +82,16 @@ public class PlayerPanel implements Player.PlayerEventListener, Player.PlayerPro
             public void onClick(View v) {
                 if (playerService.isPlaying()) {
                     playerService.pause();
-                    playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_play_grey_18dp));
+                    if (!audioActivity)
+                        playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_play_grey_18dp));
+                    else
+                        playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_play_grey_24dp));
                 } else {
                     playerService.resume();
-                    playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_pause_grey_18dp));
+                    if (!audioActivity)
+                        playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_pause_grey_18dp));
+                    else
+                        playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_pause_grey_24dp));
                 }
             }
         });
@@ -111,6 +141,19 @@ public class PlayerPanel implements Player.PlayerEventListener, Player.PlayerPro
                 playerService.seekTo(progress.getProgress());
             }
         });
+
+        headerLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!audioActivity) {
+                    Intent intent = new Intent(context, AudioActivity.class);
+                    context.startActivity(intent);
+                } else {
+                    Intent intent = new Intent(context, ListActivity.class);
+                    context.startActivity(intent);
+                }
+            }
+        });
     }
 
     private void configurePanel(PlayerService playerService) {
@@ -142,6 +185,46 @@ public class PlayerPanel implements Player.PlayerEventListener, Player.PlayerPro
             author.setText(audio.artist);
             progress.setMax(audio.duration * 1000);
             progress.setProgress(0);
+            progress.setSecondaryProgress(0);
+            if (audioActivity) {
+                numberAudio.setText("#" + (position + 1) + "/");
+                try {
+                    SizeTask sizeTask = new SizeTask(new URL(audio.url));
+                    sizeTask.execute();
+                    String size = String.format("%.1f", Double.valueOf(sizeTask.get()));
+                    sizeAudio.setText(size + "Mb");
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    class SizeTask extends AsyncTask<Void, Void, Double> {
+
+        private URL url;
+
+        public SizeTask(URL url) {
+            this.url = url;
+        }
+
+        @Override
+        protected Double doInBackground(Void... params) {
+
+            URLConnection urlConnection = null;
+            double size = 0;
+            try {
+                urlConnection = url.openConnection();
+                urlConnection.connect();
+                size = urlConnection.getContentLength() / (double) 1024 / (double) 1024;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return size;
         }
     }
 
@@ -174,5 +257,10 @@ public class PlayerPanel implements Player.PlayerEventListener, Player.PlayerPro
         if (!dragMode) {
             progress.setProgress(milliseconds);
         }
+    }
+
+    @Override
+    public void onBufferingUpdate(int milliseconds) {
+        progress.setSecondaryProgress(milliseconds);
     }
 }

@@ -23,8 +23,6 @@ import android.widget.TextView;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.adapter.AudioAdapter;
-import com.irateam.vkplayer.player.Player;
-import com.irateam.vkplayer.player.ServerProxy;
 import com.irateam.vkplayer.services.AudioService;
 import com.irateam.vkplayer.services.PlayerService;
 import com.irateam.vkplayer.ui.RoundImageView;
@@ -132,16 +130,25 @@ public class ListActivity extends AppCompatActivity implements
 
         audioService.addListener(this);
         onNavigationItemSelected(navigationView.getMenu().getItem(0));
+    }
 
-        startService(new Intent(this, PlayerService.class));
-        bindService(new Intent(this, PlayerService.class), this, BIND_AUTO_CREATE);
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unbindService(this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         playerService.removePlayerEventListener(playerPanel);
-        unbindService(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        startService(new Intent(this, PlayerService.class));
+        bindService(new Intent(this, PlayerService.class), this, BIND_AUTO_CREATE);
     }
 
     @Override
@@ -221,6 +228,7 @@ public class ListActivity extends AppCompatActivity implements
             playerService.setPlaylist(audioAdapter.getList());
             playerService.play(position);
         }
+        playerPanel.playPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_player_pause_grey_18dp));
     }
 
     @Override

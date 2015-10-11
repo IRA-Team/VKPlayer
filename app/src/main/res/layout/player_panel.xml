@@ -6,7 +6,7 @@
     android:layout_alignParentBottom="true">
 
     <LinearLayout
-        android:id="@+id/linearLayout"
+        android:id="@+id/player_panel_header_layout"
         android:layout_width="match_parent"
         android:layout_height="@dimen/player_panel_group_height"
         android:layout_above="@+id/linearLayout3"
@@ -86,8 +86,9 @@
         style="@style/SeekBar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/player_seek_bar_height"
-        android:layout_below="@+id/linearLayout"
+        android:layout_below="@+id/player_panel_header_layout"
         android:layout_marginTop="-8dp"
         android:progress="0" />
+
 
 </RelativeLayout>

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="@dimen/player_activity_height">
+    android:layout_height="@dimen/player_activity_height"
+    android:paddingBottom="1dp">
 
     <LinearLayout
-        android:id="@+id/player_activity_group"
+        android:id="@+id/player_panel_header_layout"
         android:layout_width="match_parent"
         android:layout_height="@dimen/player_activity_group_height"
         android:layout_above="@+id/player_activity_actions"
@@ -15,7 +16,7 @@
         android:paddingLeft="72dp">
 
         <TextView
-            android:id="@+id/player_activity_song_name"
+            android:id="@+id/player_panel_song_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingRight="72dp"
@@ -25,7 +26,7 @@
             android:textSize="@dimen/player_activity_song_name" />
 
         <TextView
-            android:id="@+id/player_activity_author"
+            android:id="@+id/player_panel_author"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingRight="72dp"
@@ -52,21 +53,19 @@
             android:paddingRight="16dp">
 
             <TextView
-                android:id="@+id/player_activity_current_time"
+                android:id="@+id/player_panel_current_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="00:59"
                 android:textColor="@color/player_activity_text"
                 android:textSize="@dimen/player_activity_time" />
 
             <TextView
-                android:id="@+id/player_activity_time_remaining"
+                android:id="@+id/player_panel_time_remaining"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:text="-02:45"
                 android:textColor="@color/player_activity_text"
                 android:textSize="@dimen/player_activity_time" />
         </RelativeLayout>
@@ -122,21 +121,19 @@
             android:paddingRight="54dp">
 
             <TextView
-                android:id="@+id/player_activity_count_audio"
+                android:id="@+id/player_panel_count_audio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="#120/234"
                 android:textColor="@color/player_activity_text"
                 android:textSize="@dimen/player_activity_count_audio" />
 
             <TextView
-                android:id="@+id/player_activity_audio_size"
+                android:id="@+id/player_panel_audio_size"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:text="11.4Mb"
                 android:textColor="@color/player_activity_text"
                 android:textSize="@dimen/player_activity_audio_size" />
         </RelativeLayout>
@@ -147,7 +144,7 @@
         style="@style/SeekBar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/player_seek_bar_height"
-        android:layout_below="@+id/player_activity_group"
+        android:layout_below="@+id/player_panel_header_layout"
         android:layout_marginTop="-8dp"
         android:progress="0" />
 </RelativeLayout>

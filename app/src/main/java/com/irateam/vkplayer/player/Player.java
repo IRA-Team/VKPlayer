@@ -16,7 +16,7 @@ import static com.irateam.vkplayer.player.Player.RepeatState.ALL_REPEAT;
 import static com.irateam.vkplayer.player.Player.RepeatState.NO_REPEAT;
 import static com.irateam.vkplayer.player.Player.RepeatState.ONE_REPEAT;
 
-public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
+public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener {
 
     public static final String proxyURL = "http://localhost:8080/";
 
@@ -36,6 +36,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         setOnPreparedListener(this);
         setOnCompletionListener(this);
         startProgress();
+        setOnBufferingUpdateListener(this);
     }
 
     private List<VKApiAudio> list;
@@ -201,6 +202,11 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     //Listeners
     private List<WeakReference<PlayerEventListener>> listeners = new ArrayList<>();
 
+    @Override
+    public void onBufferingUpdate(MediaPlayer mp, int percent) {
+        notifyBufferingUpdate(percent * getDuration() / 100);
+    }
+
     public interface PlayerEventListener {
         void onEvent(int position, VKApiAudio audio, PlayerEvent event);
     }
@@ -258,6 +264,8 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     public interface PlayerProgressListener {
         void onProgressChanged(int milliseconds);
+
+        void onBufferingUpdate(int milliseconds);
     }
 
     public void addPlayerProgressListener(PlayerProgressListener listener) {
@@ -273,6 +281,15 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
             PlayerProgressListener listener = l.get();
             if (listener != null) {
                 listener.onProgressChanged(getCurrentPosition());
+            }
+        }
+    }
+
+    private void notifyBufferingUpdate(int milliseconds) {
+        for (WeakReference<PlayerProgressListener> l : progressListeners) {
+            PlayerProgressListener listener = l.get();
+            if (listener != null) {
+                listener.onBufferingUpdate(milliseconds);
             }
         }
     }
