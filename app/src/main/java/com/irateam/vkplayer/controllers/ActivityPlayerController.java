@@ -1,4 +1,4 @@
-package com.irateam.vkplayer.viewholders;
+package com.irateam.vkplayer.controllers;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -18,7 +18,7 @@ import java.net.URLConnection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-public class ActivityPlayerPanel extends PlayerPanel implements Player.PlayerEventListener {
+public class ActivityPlayerController extends PlayerController implements Player.PlayerEventListener {
 
     public TextView currentTime;
     public TextView timeToFinish;
@@ -27,7 +27,7 @@ public class ActivityPlayerPanel extends PlayerPanel implements Player.PlayerEve
 
     private Resources resources;
 
-    public ActivityPlayerPanel(Context context, View view) {
+    public ActivityPlayerController(Context context, View view) {
         super(context, view);
 
         resources = context.getResources();

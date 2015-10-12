@@ -1,4 +1,4 @@
-package com.irateam.vkplayer.viewholders;
+package com.irateam.vkplayer.controllers;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +15,7 @@ import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.services.PlayerService;
 import com.vk.sdk.api.model.VKApiAudio;
 
-public class PlayerPanel implements Player.PlayerEventListener, Player.PlayerProgressListener {
+public class PlayerController implements Player.PlayerEventListener, Player.PlayerProgressListener {
 
     public View rootView;
     public TextView songName;
@@ -36,7 +36,7 @@ public class PlayerPanel implements Player.PlayerEventListener, Player.PlayerPro
     private LinearLayout headerLayout;
     protected PlayerService playerService;
 
-    public PlayerPanel(Context context, View view) {
+    public PlayerController(Context context, View view) {
         this.context = context;
         resources = context.getResources();
 

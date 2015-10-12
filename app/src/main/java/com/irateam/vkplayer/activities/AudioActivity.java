@@ -14,15 +14,15 @@ import android.widget.ImageView;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.services.PlayerService;
-import com.irateam.vkplayer.viewholders.ActivityPlayerPanel;
-import com.irateam.vkplayer.viewholders.PlayerPanel;
+import com.irateam.vkplayer.controllers.ActivityPlayerController;
+import com.irateam.vkplayer.controllers.PlayerController;
 
 public class AudioActivity extends AppCompatActivity implements ServiceConnection {
 
     private Toolbar toolbar;
     private ImageView imageView;
 
-    private PlayerPanel playerPanel;
+    private PlayerController playerController;
     private PlayerService playerService;
 
     @Override
@@ -35,7 +35,7 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
 
         imageView = (ImageView) findViewById(R.id.imageView);
         imageView.setImageDrawable(getResources().getDrawable(R.drawable.audio_title_image));
-        playerPanel = new ActivityPlayerPanel(this, findViewById(R.id.activity_player_panel));
+        playerController = new ActivityPlayerController(this, findViewById(R.id.activity_player_panel));
     }
 
     @Override
@@ -76,8 +76,8 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
     public void onServiceConnected(ComponentName name, IBinder service) {
         Log.i("Service", "Connected");
         playerService = ((PlayerService.PlayerBinder) service).getPlayerService();
-        playerPanel.setPlayerService(playerService);
-        playerService.addPlayerEventListener(playerPanel);
+        playerController.setPlayerService(playerService);
+        playerService.addPlayerEventListener(playerController);
     }
 
     @Override

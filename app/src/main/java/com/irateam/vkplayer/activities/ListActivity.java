@@ -28,7 +28,7 @@ import com.irateam.vkplayer.services.AudioService;
 import com.irateam.vkplayer.services.DownloadService;
 import com.irateam.vkplayer.services.PlayerService;
 import com.irateam.vkplayer.ui.RoundImageView;
-import com.irateam.vkplayer.viewholders.PlayerPanel;
+import com.irateam.vkplayer.controllers.PlayerController;
 import com.mobeta.android.dslv.DragSortListView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.vk.sdk.VKSdk;
@@ -66,7 +66,7 @@ public class ListActivity extends AppCompatActivity implements
     private SwipeRefreshLayout refreshLayout;
     private DragSortListView listView;
 
-    private PlayerPanel playerPanel;
+    private PlayerController playerController;
     private PlayerService playerService;
 
     private ActionMode actionMode;
@@ -118,8 +118,8 @@ public class ListActivity extends AppCompatActivity implements
         drawerToggle.syncState();
 
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
-        playerPanel = new PlayerPanel(this, findViewById(R.id.player_panel));
-        playerPanel.rootView.setVisibility(View.GONE);
+        playerController = new PlayerController(this, findViewById(R.id.player_panel));
+        playerController.rootView.setVisibility(View.GONE);
 
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
         refreshLayout.setColorSchemeResources(
@@ -148,7 +148,7 @@ public class ListActivity extends AppCompatActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        playerService.removePlayerEventListener(playerPanel);
+        playerService.removePlayerEventListener(playerController);
     }
 
     @Override
@@ -235,7 +235,7 @@ public class ListActivity extends AppCompatActivity implements
             playerService.setPlaylist(audioAdapter.getList());
             playerService.play(position);
         }
-        playerPanel.playPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_player_pause_grey_18dp));
+        playerController.playPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_player_pause_grey_18dp));
     }
 
     @Override
@@ -273,8 +273,8 @@ public class ListActivity extends AppCompatActivity implements
     public void onServiceConnected(ComponentName name, IBinder service) {
         Log.i("Service", "Connected");
         playerService = ((PlayerService.PlayerBinder) service).getPlayerService();
-        playerPanel.setPlayerService(playerService);
-        playerService.addPlayerEventListener(playerPanel);
+        playerController.setPlayerService(playerService);
+        playerService.addPlayerEventListener(playerController);
     }
 
     @Override
