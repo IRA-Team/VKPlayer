@@ -12,10 +12,8 @@ import com.irateam.vkplayer.services.PlayerService;
 import com.vk.sdk.api.model.VKApiAudio;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class ActivityPlayerController extends PlayerController implements Player.PlayerEventListener {
@@ -81,18 +79,7 @@ public class ActivityPlayerController extends PlayerController implements Player
         super.setAudio(position, audio);
         if (audio != null) {
             numberAudio.setText("#" + (position + 1) + "/" + playerService.getPlaylist().size());
-            try {
-                SizeTask sizeTask = new SizeTask(new URL(audio.url));
-                sizeTask.execute();
-                String size = String.format("%.1f", Double.valueOf(sizeTask.get()));
-                sizeAudio.setText(size + "Mb");
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
+            new SizeTask(audio.url).execute();
         }
     }
 
@@ -114,9 +101,9 @@ public class ActivityPlayerController extends PlayerController implements Player
 
     class SizeTask extends AsyncTask<Void, Void, Double> {
 
-        private URL url;
+        private String url;
 
-        public SizeTask(URL url) {
+        public SizeTask(String url) {
             this.url = url;
         }
 
@@ -126,13 +113,20 @@ public class ActivityPlayerController extends PlayerController implements Player
             URLConnection urlConnection = null;
             double size = 0;
             try {
-                urlConnection = url.openConnection();
+
+                urlConnection = new URL(url).openConnection();
                 urlConnection.connect();
                 size = urlConnection.getContentLength() / (double) 1024 / (double) 1024;
             } catch (IOException e) {
                 e.printStackTrace();
             }
             return size;
+        }
+
+        @Override
+        protected void onPostExecute(Double size) {
+            super.onPostExecute(size);
+            sizeAudio.setText(size + "Mb");
         }
     }
 }

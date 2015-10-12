@@ -3,6 +3,7 @@ package com.irateam.vkplayer.services;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.database.AudioDatabaseHelper;
@@ -17,8 +18,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class AudioService extends VKRequest.VKRequestListener {
@@ -78,7 +81,7 @@ public class AudioService extends VKRequest.VKRequestListener {
             List<VKApiAudio> cachedList = new AudioDatabaseHelper(context).getAll();
             for (int i = 0; i < vkList.size(); i++) {
                 for (VKApiAudio audio : cachedList) {
-                    if (vkList.get(i).id == audio.id) {
+                    if (vkList.get(i).id == audio.id && new File(audio.url).exists()) {
                         vkList.set(i, audio);
                     }
                 }
@@ -87,6 +90,29 @@ public class AudioService extends VKRequest.VKRequestListener {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    public void getCachedAudio() {
+        new AsyncTask<Void, Void, List<VKApiAudio>>() {
+            @Override
+            protected List<VKApiAudio> doInBackground(Void... params) {
+                List<VKApiAudio> list = new AudioDatabaseHelper(context).getAll();
+                Iterator<VKApiAudio> i = list.iterator();
+                while (i.hasNext()) {
+                    File file = new File(i.next().url);
+                    if (!file.exists()) {
+                        i.remove();
+                    }
+                }
+                return list;
+            }
+
+            @Override
+            protected void onPostExecute(List<VKApiAudio> vkApiAudios) {
+                super.onPostExecute(vkApiAudios);
+                notifyAllComplete(vkApiAudios);
+            }
+        }.execute();
     }
 
     private boolean checkNetwork() {

@@ -24,11 +24,11 @@ import android.widget.TextView;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.adapter.AudioAdapter;
+import com.irateam.vkplayer.controllers.PlayerController;
 import com.irateam.vkplayer.services.AudioService;
 import com.irateam.vkplayer.services.DownloadService;
 import com.irateam.vkplayer.services.PlayerService;
 import com.irateam.vkplayer.ui.RoundImageView;
-import com.irateam.vkplayer.controllers.PlayerController;
 import com.mobeta.android.dslv.DragSortListView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.vk.sdk.VKSdk;
@@ -50,7 +50,7 @@ public class ListActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
         AdapterView.OnItemClickListener,
         DragSortListView.DropListener,
-        SwipeRefreshLayout.OnRefreshListener, ServiceConnection, AdapterView.OnItemLongClickListener, AudioAdapter.CoverCheckListener, ActionMode.Callback {
+        SwipeRefreshLayout.OnRefreshListener, ServiceConnection, AdapterView.OnItemLongClickListener, AudioAdapter.CoverCheckListener, ActionMode.Callback, DragSortListView.RemoveListener {
 
     private AudioAdapter audioAdapter = new AudioAdapter(this);
     private AudioService audioService = new AudioService(this);
@@ -133,6 +133,7 @@ public class ListActivity extends AppCompatActivity implements
         listView.setOnItemClickListener(this);
         listView.setOnItemLongClickListener(this);
         listView.setDropListener(this);
+        listView.setRemoveListener(this);
         audioAdapter.setCoverCheckListener(this);
 
         audioService.addListener(this);
@@ -221,6 +222,9 @@ public class ListActivity extends AppCompatActivity implements
             case R.id.popular_audio:
                 audioService.getPopularAudio();
                 return true;
+            case R.id.cached_audio:
+                audioService.getCachedAudio();
+                return true;
 
             case R.id.exit:
                 VkLogout();
@@ -248,7 +252,21 @@ public class ListActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void remove(int i) {
+        audioAdapter.getList().remove(i);
+        audioAdapter.notifyDataSetChanged();
+    }
+
+    @Override
     public void onRefresh() {
+        if (actionMode != null) {
+            actionMode.finish();
+        }
+
+        if (audioAdapter.isSortMode()) {
+            audioAdapter.setSortMode(false);
+        }
+
         audioService.repeatLastRequest();
     }
 
@@ -325,9 +343,10 @@ public class ListActivity extends AppCompatActivity implements
                 Intent intent = new Intent(this, DownloadService.class);
                 intent.putExtra(DownloadService.AUDIO_SET, (ArrayList<VKApiAudio>) audioAdapter.getCheckedItems());
                 startService(intent);
-                return true;
+                break;
         }
-        return false;
+        mode.finish();
+        return true;
     }
 
     @Override

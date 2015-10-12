@@ -60,7 +60,7 @@ public class AudioListElement extends FrameLayout implements Checkable {
 
             int cover = a.getResourceId(R.styleable.AudioListElement_cover, 0);
             if (cover != 0) {
-                setCover(context.getResources().getDrawable(cover));
+                setCoverDrawable(context.getResources().getDrawable(cover));
             }
 
             checked = a.getBoolean(R.styleable.AudioListElement_checked, false);
@@ -96,17 +96,27 @@ public class AudioListElement extends FrameLayout implements Checkable {
         return artist.getText().toString();
     }
 
-    public void setCover(Drawable cover) {
+    public void setCoverDrawable(Drawable cover) {
         coverDrawable = cover;
         this.cover.setImageDrawable(cover);
     }
 
-    public Drawable getCover() {
+    public Drawable getCoverDrawable() {
         return coverDrawable;
     }
 
     public void setDuration(int duration) {
         this.duration.setText(String.format("%02d:%02d", duration / 60, duration % 60));
+    }
+
+    public void setSorted(boolean sorted) {
+        if (sorted) {
+            Drawable[] layers = new Drawable[2];
+            layers[0] = coverDrawable;
+            layers[1] = getResources().getDrawable(R.drawable.player_list_element_cover_overlay);
+            cover.setImageDrawable(new LayerDrawable(layers));
+            findViewById(R.id.player_list_element_cover_wrapper).setClickable(false);
+        }
     }
 
     public int getDuration() {
@@ -148,6 +158,6 @@ public class AudioListElement extends FrameLayout implements Checkable {
     }
 
     public void setCoverOnClickListener(OnClickListener listener) {
-        cover.setOnClickListener(listener);
+        findViewById(R.id.player_list_element_cover_wrapper).setOnClickListener(listener);
     }
 }

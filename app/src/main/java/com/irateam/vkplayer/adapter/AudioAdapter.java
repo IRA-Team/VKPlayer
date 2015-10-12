@@ -1,13 +1,10 @@
 package com.irateam.vkplayer.adapter;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.ui.AudioListElement;
@@ -66,11 +63,13 @@ public class AudioAdapter extends BaseAdapter {
 
         element.setTitle(audio.title);
         element.setArtist(audio.artist);
-        element.setCover(AlbumCoverUtils.createFromAudio(audio));
+        element.setCoverDrawable(AlbumCoverUtils.createFromAudio(audio));
         element.setCoverOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                notifyCoverChecked(position);
+                if (!sortMode) {
+                    notifyCoverChecked(position);
+                }
             }
         });
         element.setDuration(audio.duration);
@@ -78,9 +77,12 @@ public class AudioAdapter extends BaseAdapter {
         if (!audio.url.startsWith("https://") && !audio.url.startsWith("http://")) {
             element.setDownloaded(true);
         }
-
-        if (checkedList.contains(position)) {
-            element.setChecked(true);
+        if (!sortMode) {
+            if (checkedList.contains(position)) {
+                element.setChecked(true);
+            }
+        } else {
+            element.setSorted(true);
         }
         return view;
     }
@@ -116,13 +118,6 @@ public class AudioAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-
-    private void setSortedCover(ImageView v) {
-        Drawable[] layers = new Drawable[2];
-        layers[0] = v.getDrawable();
-        layers[1] = context.getResources().getDrawable(R.drawable.player_list_element_cover_overlay);
-        v.setImageDrawable(new LayerDrawable(layers));
-    }
 
     public boolean isSortMode() {
         return sortMode;

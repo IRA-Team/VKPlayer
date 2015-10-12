@@ -35,7 +35,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         app:drag_enabled="false"
-                        app:float_background_color="@color/player_list_element_drag_color">
+                        app:drag_handle_id="@+id/player_list_element_cover_wrapper"
+                        app:float_background_color="@color/player_list_element_drag_color"
+                        app:max_drag_scroll_speed="1.5"
+                        app:use_default_controller="true">
 
                     </com.mobeta.android.dslv.DragSortListView>
                 </android.support.v4.widget.SwipeRefreshLayout>
