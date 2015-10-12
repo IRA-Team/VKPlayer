@@ -14,9 +14,8 @@ import android.widget.ImageView;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.services.PlayerService;
+import com.irateam.vkplayer.viewholders.ActivityPlayerPanel;
 import com.irateam.vkplayer.viewholders.PlayerPanel;
-
-import java.util.concurrent.TimeUnit;
 
 public class AudioActivity extends AppCompatActivity implements ServiceConnection {
 
@@ -26,8 +25,6 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
     private PlayerPanel playerPanel;
     private PlayerService playerService;
 
-    Thread updateTime = null;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,46 +32,10 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
 
         toolbar = (Toolbar) findViewById(R.id.toolbar_transparent);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         imageView = (ImageView) findViewById(R.id.imageView);
-        //imageView.setImageDrawable(getResources().getDrawable(R.drawable.audio_title_image));
-        playerPanel = new PlayerPanel(this, findViewById(R.id.activity_player_panel));
-
-        playerPanel.audioActivity = true;
-
-        updateTime = new Thread() {
-
-            @Override
-            public void run() {
-                while (!isInterrupted()) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            playerPanel.currentTime.setText(String.format("%02d:%02d",
-                                    TimeUnit.MILLISECONDS.toMinutes(playerPanel.progress.getProgress()),
-                                    TimeUnit.MILLISECONDS.toSeconds(playerPanel.progress.getProgress()) -
-                                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(playerPanel.progress.getProgress()))
-                            ));
-                            int timeRemaining = playerPanel.progress.getMax() - playerPanel.progress.getProgress();
-                            playerPanel.timeToFinish.setText("-" + String.format("%02d:%02d",
-                                    TimeUnit.MILLISECONDS.toMinutes(timeRemaining),
-                                    TimeUnit.MILLISECONDS.toSeconds(timeRemaining) -
-                                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(timeRemaining))
-                            ));
-                        }
-                    });
-                }
-            }
-        };
-
-        updateTime.start();
+        imageView.setImageDrawable(getResources().getDrawable(R.drawable.audio_title_image));
+        playerPanel = new ActivityPlayerPanel(this, findViewById(R.id.activity_player_panel));
     }
 
     @Override
@@ -92,25 +53,22 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        //getMenuInflater().inflate(R.menu.menu_audio, menu);
+        getMenuInflater().inflate(R.menu.menu_audio, menu);
         return true;
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        playerPanel.audioActivity = false;
-        updateTime.destroy();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.home:
-                finish();
+                Log.i("Home", "Home");
                 return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 

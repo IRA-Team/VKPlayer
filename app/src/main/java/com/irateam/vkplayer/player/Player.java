@@ -2,6 +2,8 @@ package com.irateam.vkplayer.player;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.vk.sdk.api.model.VKApiAudio;
 
@@ -277,12 +279,17 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     private void notifyPlayerProgressChanged() {
-        for (WeakReference<PlayerProgressListener> l : progressListeners) {
-            PlayerProgressListener listener = l.get();
-            if (listener != null) {
-                listener.onProgressChanged(getCurrentPosition());
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                for (WeakReference<PlayerProgressListener> l : progressListeners) {
+                    PlayerProgressListener listener = l.get();
+                    if (listener != null) {
+                        listener.onProgressChanged(getCurrentPosition());
+                    }
+                }
             }
-        }
+        });
     }
 
     private void notifyBufferingUpdate(int milliseconds) {
