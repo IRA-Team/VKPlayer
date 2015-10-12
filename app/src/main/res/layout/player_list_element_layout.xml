@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <RelativeLayout
+        android:id="@+id/player_list_element"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/player_list_element_height"
+        android:duplicateParentState="true"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:id="@+id/player_list_element_cover_wrapper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/player_list_element_cover"
+                android:layout_width="@dimen/player_list_element_album_cover"
+                android:layout_height="@dimen/player_list_element_album_cover"
+                android:layout_margin="16dp" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toLeftOf="@+id/linearLayout2"
+            android:layout_toRightOf="@+id/player_list_element_cover_wrapper"
+            android:layout_toStartOf="@+id/linearLayout2"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/player_list_element_song_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="Paradise"
+                android:textColor="@color/player_list_element_song_name"
+                android:textSize="16dp" />
+
+            <TextView
+                android:id="@+id/player_list_element_author"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Coldplay"
+                android:textColor="@color/player_list_element_author"
+                android:textSize="10dp" />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/linearLayout2"
+            android:layout_width="@dimen/player_list_element_info_width"
+            android:layout_height="match_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="right"
+            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/player_list_element_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:text="00:00"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <ImageView
+                android:id="@+id/player_list_element_downloaded"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/ic_list_download_light_grey_12dp"
+                android:visibility="gone" />
+        </RelativeLayout>
+
+    </RelativeLayout>
+</merge>

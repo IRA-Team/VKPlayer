@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/navigation_drawer_header_height"
+    android:background="@drawable/header_navigation_drawer"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingBottom="8dp">
+
+
+    <TextView
+        android:id="@+id/navigation_drawer_header_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="88005553535"
+        android:singleLine="true"
+        android:textSize="12sp"
+        android:textColor="@color/navigation_drawer_header_text_color" />
+
+    <TextView
+        android:id="@+id/navigation_drawer_header_full_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/navigation_drawer_header_id"
+        android:singleLine="true"
+        android:layout_marginBottom="4dp"
+        android:text="Igar Black"
+        android:textColor="@color/navigation_drawer_header_text_color"
+        android:textSize="16sp" />
+
+    <com.irateam.vkplayer.ui.RoundImageView
+        android:id="@+id/navigation_drawer_header_avatar"
+        android:layout_width="@dimen/navigation_drawer_header_avatar"
+        android:layout_height="@dimen/navigation_drawer_header_avatar"
+        android:layout_marginBottom="8dp"
+        android:layout_above="@+id/navigation_drawer_header_full_name" />
+
+</RelativeLayout>

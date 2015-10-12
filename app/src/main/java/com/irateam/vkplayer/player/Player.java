@@ -2,6 +2,8 @@ package com.irateam.vkplayer.player;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.vk.sdk.api.model.VKApiAudio;
 
@@ -16,7 +18,7 @@ import static com.irateam.vkplayer.player.Player.RepeatState.ALL_REPEAT;
 import static com.irateam.vkplayer.player.Player.RepeatState.NO_REPEAT;
 import static com.irateam.vkplayer.player.Player.RepeatState.ONE_REPEAT;
 
-public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
+public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener {
 
     public static final String proxyURL = "http://localhost:8080/";
 
@@ -30,11 +32,13 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         return instance;
     }
 
-    private Player() {
+    public Player() {
         super();
         setAudioStreamType(AudioManager.STREAM_MUSIC);
         setOnPreparedListener(this);
         setOnCompletionListener(this);
+        startProgress();
+        setOnBufferingUpdateListener(this);
     }
 
     private List<VKApiAudio> list;
@@ -54,6 +58,10 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         return playingAudio;
     }
 
+    public Integer getPlayingAudioIndex() {
+        return playingAudio != null ? list.indexOf(playingAudio) : null;
+    }
+
     public List<VKApiAudio> getList() {
         return list;
     }
@@ -64,27 +72,29 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     public void play(int index) {
         playingAudio = list.get(index);
-        notifyAudioChanged(index, list.get(index));
         try {
             reset();
             setDataSource(playingAudio.url);
             prepareAsync();
+            notifyPlayerEvent(index, playingAudio, PlayerEvent.PLAY);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void play() {
+    public void resume() {
         if (playingAudio != null) {
             seekTo(pauseTime);
             start();
+            notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.RESUME);
         }
     }
 
     public void stop() {
         if (isPlaying() && playingAudio != null) {
-            playingAudio = null;
             super.stop();
+            notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.STOP);
+            playingAudio = null;
         }
     }
 
@@ -92,6 +102,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         if (isPlaying()) {
             super.pause();
             pauseTime = getCurrentPosition();
+            notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.PAUSE);
         }
     }
 
@@ -101,7 +112,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
             nextIndex = random.nextInt(list.size());
             randomStack.push(playingAudio);
         } else {
-            nextIndex = list.indexOf(playingAudio) + 1;
+            nextIndex = getPlayingAudioIndex() + 1;
             if (list.size() == nextIndex) {
                 nextIndex = 0;
             }
@@ -168,37 +179,53 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        if (randomState) {
-            randomStack.push(playingAudio);
+        if (repeatState == NO_REPEAT && playingAudio == list.get(list.size() - 1)) {
+            notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.STOP);
+            stop();
+            return;
         }
-        next();
-    }
 
-    //Listeners
-    private List<WeakReference<Listener>> listeners = new ArrayList<>();
+        if (repeatState != ONE_REPEAT) {
+            if (randomState) {
+                randomStack.push(playingAudio);
+            }
+            next();
+        } else {
+            play(getPlayingAudioIndex());
+        }
+
+    }
 
     @Override
     public void onPrepared(MediaPlayer mp) {
         start();
     }
 
-    public interface Listener {
-        void onAudioChanged(int position, VKApiAudio audio);
+    //Listeners
+    private List<WeakReference<PlayerEventListener>> listeners = new ArrayList<>();
+
+    @Override
+    public void onBufferingUpdate(MediaPlayer mp, int percent) {
+        notifyBufferingUpdate(percent * getDuration() / 100);
     }
 
-    public void addListener(Listener listener) {
+    public interface PlayerEventListener {
+        void onEvent(int position, VKApiAudio audio, PlayerEvent event);
+    }
+
+    public void addPlayerEventListener(PlayerEventListener listener) {
         listeners.add(new WeakReference<>(listener));
     }
 
-    public void removeListener(Listener listener) {
+    public void removePlayerEventListener(PlayerEventListener listener) {
         listeners.remove(listener);
     }
 
-    private void notifyAudioChanged(int position, VKApiAudio audio) {
-        for (WeakReference<Listener> l : listeners) {
-            Listener listener = l.get();
+    private void notifyPlayerEvent(int position, VKApiAudio audio, PlayerEvent event) {
+        for (WeakReference<PlayerEventListener> l : listeners) {
+            PlayerEventListener listener = l.get();
             if (listener != null) {
-                listener.onAudioChanged(position, audio);
+                listener.onEvent(position, audio, event);
             }
         }
     }
@@ -209,4 +236,68 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         ALL_REPEAT
     }
 
+    public enum PlayerEvent {
+        PLAY,
+        PAUSE,
+        RESUME,
+        STOP
+    }
+
+    //Progress Listener
+    public void startProgress() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        if (isPlaying()) {
+                            notifyPlayerProgressChanged();
+                        }
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+    }
+
+    private List<WeakReference<PlayerProgressListener>> progressListeners = new ArrayList<>();
+
+    public interface PlayerProgressListener {
+        void onProgressChanged(int milliseconds);
+
+        void onBufferingUpdate(int milliseconds);
+    }
+
+    public void addPlayerProgressListener(PlayerProgressListener listener) {
+        progressListeners.add(new WeakReference<>(listener));
+    }
+
+    public void removePlayerProgressListener(PlayerProgressListener listener) {
+        progressListeners.remove(listener);
+    }
+
+    private void notifyPlayerProgressChanged() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                for (WeakReference<PlayerProgressListener> l : progressListeners) {
+                    PlayerProgressListener listener = l.get();
+                    if (listener != null) {
+                        listener.onProgressChanged(getCurrentPosition());
+                    }
+                }
+            }
+        });
+    }
+
+    private void notifyBufferingUpdate(int milliseconds) {
+        for (WeakReference<PlayerProgressListener> l : progressListeners) {
+            PlayerProgressListener listener = l.get();
+            if (listener != null) {
+                listener.onBufferingUpdate(milliseconds);
+            }
+        }
+    }
 }

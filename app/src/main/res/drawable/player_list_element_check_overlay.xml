@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/player_list_element_cover_checked_overlay" />
+            <size
+                android:width="@dimen/player_list_element_album_cover"
+                android:height="@dimen/player_list_element_album_cover" />
+        </shape>
+    </item>
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/ic_list_element_selected_mode_white_18dp" />
+    </item>
+</layer-list>

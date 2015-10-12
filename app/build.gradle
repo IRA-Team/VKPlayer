@@ -27,4 +27,5 @@ dependencies {
     compile 'com.nanohttpd:nanohttpd:2.1.0'
     compile 'asia.ivity.android:drag-sort-listview:1.0'
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
 }

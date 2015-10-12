@@ -1,7 +1,10 @@
 package com.irateam.vkplayer.activities;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -11,42 +14,62 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.TextView;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.adapter.AudioAdapter;
-import com.irateam.vkplayer.player.Player;
-import com.irateam.vkplayer.player.ServerProxy;
+import com.irateam.vkplayer.controllers.PlayerController;
 import com.irateam.vkplayer.services.AudioService;
-import com.irateam.vkplayer.viewholders.PlayerPanel;
+import com.irateam.vkplayer.services.DownloadService;
+import com.irateam.vkplayer.services.PlayerService;
+import com.irateam.vkplayer.ui.RoundImageView;
 import com.mobeta.android.dslv.DragSortListView;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.vk.sdk.VKSdk;
+import com.vk.sdk.api.VKApi;
+import com.vk.sdk.api.VKApiConst;
+import com.vk.sdk.api.VKParameters;
+import com.vk.sdk.api.VKRequest;
+import com.vk.sdk.api.VKResponse;
 import com.vk.sdk.api.model.VKApiAudio;
+import com.vk.sdk.api.model.VKApiUser;
 
+import org.json.JSONException;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class ListActivity extends AppCompatActivity implements
         AudioService.Listener,
         NavigationView.OnNavigationItemSelectedListener,
-        AdapterView.OnItemClickListener, Player.Listener,
+        AdapterView.OnItemClickListener,
         DragSortListView.DropListener,
-        SwipeRefreshLayout.OnRefreshListener {
+        SwipeRefreshLayout.OnRefreshListener, ServiceConnection, AdapterView.OnItemLongClickListener, AudioAdapter.CoverCheckListener, ActionMode.Callback, DragSortListView.RemoveListener {
 
-    private Player player = Player.getInstance();
     private AudioAdapter audioAdapter = new AudioAdapter(this);
     private AudioService audioService = new AudioService(this);
-    private ServerProxy serverProxy = new ServerProxy();
 
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
+    private RoundImageView roundImageView;
+    private TextView userFullName;
+    private TextView userVkId;
+
     private CoordinatorLayout coordinatorLayout;
-    private PlayerPanel playerPanel;
     private SwipeRefreshLayout refreshLayout;
     private DragSortListView listView;
+
+    private PlayerController playerController;
+    private PlayerService playerService;
+
+    private ActionMode actionMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +90,24 @@ public class ListActivity extends AppCompatActivity implements
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
+        roundImageView = (RoundImageView) findViewById(R.id.navigation_drawer_header_avatar);
+        userFullName = (TextView) findViewById(R.id.navigation_drawer_header_full_name);
+        userVkId = (TextView) findViewById(R.id.navigation_drawer_header_id);
+
+        VKApi.users().get(VKParameters.from(VKApiConst.FIELDS, "photo_100")).executeWithListener(new VKRequest.VKRequestListener() {
+            @Override
+            public void onComplete(VKResponse response) {
+                super.onComplete(response);
+                try {
+                    VKApiUser user = new VKApiUser().parse(response.json.getJSONArray("response").getJSONObject(0));
+                    ImageLoader.getInstance().displayImage(user.photo_100, roundImageView);
+                    userFullName.setText(user.first_name + " " + user.last_name);
+                    userVkId.setText(String.valueOf(user.id));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
                 this,
@@ -77,30 +118,9 @@ public class ListActivity extends AppCompatActivity implements
         drawerToggle.syncState();
 
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
-        playerPanel = new PlayerPanel(findViewById(R.id.player_panel));
-        playerPanel.rootView.setVisibility(View.GONE);
-        playerPanel.setPlayer(this, player);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        if (player.isPlaying()) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    playerPanel.progress.setMax(player.getDuration());
-                                    playerPanel.progress.setProgress(player.getCurrentPosition());
-                                }
-                            });
-                        }
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }).start();
+        playerController = new PlayerController(this, findViewById(R.id.player_panel));
+        playerController.rootView.setVisibility(View.GONE);
+
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
         refreshLayout.setColorSchemeResources(
                 R.color.accent,
@@ -111,19 +131,33 @@ public class ListActivity extends AppCompatActivity implements
         listView = (DragSortListView) findViewById(R.id.list);
         listView.setAdapter(audioAdapter);
         listView.setOnItemClickListener(this);
+        listView.setOnItemLongClickListener(this);
         listView.setDropListener(this);
+        listView.setRemoveListener(this);
+        audioAdapter.setCoverCheckListener(this);
 
         audioService.addListener(this);
-        player.addListener(this);
         onNavigationItemSelected(navigationView.getMenu().getItem(0));
     }
 
-/*    @Override
-    protected void onStop() {
-        super.onStop();
-        audioService.removeListener(this);
-        player.removeListener(this);
-    }*/
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unbindService(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        playerService.removePlayerEventListener(playerController);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        startService(new Intent(this, PlayerService.class));
+        bindService(new Intent(this, PlayerService.class), this, BIND_AUTO_CREATE);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -139,11 +173,6 @@ public class ListActivity extends AppCompatActivity implements
                 listView.setDragEnabled(flag);
                 audioAdapter.setSortMode(flag);
                 refreshLayout.setEnabled(!flag);
-                return true;
-            case R.id.action_settings:
-                VKSdk.logout();
-                startActivity(new Intent(this, LoginActivity.class));
-                finish();
                 return true;
             case R.id.audio_activity:
                 startActivity(new Intent(this, AudioActivity.class));
@@ -177,8 +206,12 @@ public class ListActivity extends AppCompatActivity implements
     @Override
     public boolean onNavigationItemSelected(MenuItem menuItem) {
         drawerLayout.closeDrawers();
-        getSupportActionBar().setTitle(menuItem.getTitle());
-        refreshLayout.setRefreshing(true);
+
+        if (menuItem.getGroupId() == R.id.audio_group) {
+            getSupportActionBar().setTitle(menuItem.getTitle());
+            refreshLayout.setRefreshing(true);
+        }
+
         switch (menuItem.getItemId()) {
             case R.id.my_audio:
                 audioService.getMyAudio();
@@ -189,26 +222,24 @@ public class ListActivity extends AppCompatActivity implements
             case R.id.popular_audio:
                 audioService.getPopularAudio();
                 return true;
+            case R.id.cached_audio:
+                audioService.getCachedAudio();
+                return true;
+
+            case R.id.exit:
+                VkLogout();
+                return true;
         }
         return false;
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (audioAdapter.getList() != player.getList()) {
-            player.setList(audioAdapter.getList());
+        if (playerService != null) {
+            playerService.setPlaylist(audioAdapter.getList());
+            playerService.play(position);
         }
-        player.play(position);
-    }
-
-    @Override
-    public void onAudioChanged(int position, VKApiAudio audio) {
-        if (playerPanel.rootView.getVisibility() == View.GONE) {
-            playerPanel.rootView.setVisibility(View.VISIBLE);
-        }
-        playerPanel.progress.setProgress(0);
-        playerPanel.playPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_player_pause_grey_18dp));
-        playerPanel.setAudio(position, audio);
+        playerController.playPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_player_pause_grey_18dp));
     }
 
     @Override
@@ -221,7 +252,21 @@ public class ListActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void remove(int i) {
+        audioAdapter.getList().remove(i);
+        audioAdapter.notifyDataSetChanged();
+    }
+
+    @Override
     public void onRefresh() {
+        if (actionMode != null) {
+            actionMode.finish();
+        }
+
+        if (audioAdapter.isSortMode()) {
+            audioAdapter.setSortMode(false);
+        }
+
         audioService.repeatLastRequest();
     }
 
@@ -234,5 +279,79 @@ public class ListActivity extends AppCompatActivity implements
             return;
         }
         super.onBackPressed();
+    }
+
+    private void VkLogout() {
+        VKSdk.logout();
+        startActivity(new Intent(this, LoginActivity.class));
+        finish();
+    }
+
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        Log.i("Service", "Connected");
+        playerService = ((PlayerService.PlayerBinder) service).getPlayerService();
+        playerController.setPlayerService(playerService);
+        playerService.addPlayerEventListener(playerController);
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+        Log.i("Service", "Disconnected");
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        performCheck(position);
+        return true;
+    }
+
+    @Override
+    public void onCoverCheck(int position) {
+        performCheck(position);
+    }
+
+    public void performCheck(int position) {
+        System.out.println(listView.getCheckedItemCount());
+        audioAdapter.toggleChecked(position);
+        if (audioAdapter.getCheckedCount() > 0) {
+            if (actionMode == null) {
+                startActionMode(this);
+            }
+            actionMode.setTitle(String.valueOf(audioAdapter.getCheckedCount()));
+        } else {
+            actionMode.finish();
+        }
+    }
+
+    @Override
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        actionMode = mode;
+        mode.getMenuInflater().inflate(R.menu.menu_list_context, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        return false;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_download:
+                Intent intent = new Intent(this, DownloadService.class);
+                intent.putExtra(DownloadService.AUDIO_SET, (ArrayList<VKApiAudio>) audioAdapter.getCheckedItems());
+                startService(intent);
+                break;
+        }
+        mode.finish();
+        return true;
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
+        audioAdapter.clearChecked();
+        actionMode = null;
     }
 }

@@ -5,10 +5,13 @@
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeStyle">@style/ActionModeStyle</item>
     </style>
 
     <style name="BaseTheme.LoginActivity" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">@color/primary</item>
+        <item name="android:statusBarColor">@color/primary_dark</item>
     </style>
 
     <style name="BaseTheme.App">
@@ -19,6 +22,18 @@
         <item name="android:textColorPrimary">@color/action_bar_text_color</item>
         <item name="actionMenuTextColor">@color/action_bar_text_color</item>
         <item name="android:textColorSecondary">@color/action_bar_text_color</item>
+    </style>
+
+    <style name="ActionModeStyle" parent="Widget.AppCompat.ActionMode">
+        <item name="background">@color/action_mode_action_bar_background</item>
+        <item name="height">?android:attr/actionBarSize</item>
+    </style>
+
+    <style name="TransparentActionBarStyle">
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="windowActionBarOverlay">true</item>
+        <item name="android:textColorSecondary">@color/action_bar_text_color</item>
+        <item name="android:actionMenuTextColor">@color/activity_audio_menu_item_text_color</item>
     </style>
 
     <style name="ButtonLoginActivity">
@@ -52,6 +67,10 @@
         <item name="android:clickable">true</item>
         <item name="android:scaleType">center</item>
     </style>
+
+    <style name="BaseTheme.App.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="BaseTheme.App.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 
 </resources>
