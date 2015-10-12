@@ -76,6 +76,10 @@ public class AudioListElement extends FrameLayout implements Checkable {
         super(context, attrs, defStyleAttr);
     }
 
+    public AudioListElement(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+    }
+
     public void setTitle(String title) {
         this.title.setText(title);
     }
@@ -102,8 +106,7 @@ public class AudioListElement extends FrameLayout implements Checkable {
     }
 
     public void setDuration(int duration) {
-        durationSeconds = duration;
-        this.duration.setText(String.valueOf(duration));
+        this.duration.setText(String.format("%02d:%02d", duration / 60, duration % 60));
     }
 
     public int getDuration() {

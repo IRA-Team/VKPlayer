@@ -3,7 +3,6 @@ package com.irateam.vkplayer.viewholders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.os.AsyncTask;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -15,12 +14,6 @@ import com.irateam.vkplayer.activities.AudioActivity;
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.services.PlayerService;
 import com.vk.sdk.api.model.VKApiAudio;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.concurrent.ExecutionException;
 
 public class PlayerPanel implements Player.PlayerEventListener, Player.PlayerProgressListener {
 
@@ -36,12 +29,12 @@ public class PlayerPanel implements Player.PlayerEventListener, Player.PlayerPro
 
     public SeekBar progress;
     private boolean dragMode;
-    public boolean audioActivity = false;
 
     private Context context;
     private Resources resources;
 
     private LinearLayout headerLayout;
+    protected PlayerService playerService;
 
     public PlayerPanel(Context context, View view) {
         this.context = context;
@@ -64,6 +57,7 @@ public class PlayerPanel implements Player.PlayerEventListener, Player.PlayerPro
 
     @SuppressWarnings("deprecation")
     public void setPlayerService(final PlayerService playerService) {
+        this.playerService = playerService;
         final Resources resources = context.getResources();
         configurePanel(playerService);
 
