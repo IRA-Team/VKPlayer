@@ -58,7 +58,7 @@ public class ActivityPlayerPanel extends PlayerPanel {
     public void setAudio(int position, VKApiAudio audio) {
         super.setAudio(position, audio);
         if (audio != null) {
-            numberAudio.setText("#" + (position + 1) + "/");
+            numberAudio.setText("#" + (position + 1) + "/" + playerService.getPlaylist().size());
             try {
                 SizeTask sizeTask = new SizeTask(new URL(audio.url));
                 sizeTask.execute();

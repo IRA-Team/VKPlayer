@@ -104,7 +104,7 @@ public class AudioListElement extends FrameLayout implements Checkable {
     }
 
     public void setDuration(int duration) {
-        this.duration.setText(String.valueOf(duration));
+        this.duration.setText(String.format("%02d:%02d", duration / 60, duration % 60));
     }
 
     public int getDuration() {
