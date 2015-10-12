@@ -58,19 +58,15 @@ public class PlayerPanel implements Player.PlayerEventListener, Player.PlayerPro
     @SuppressWarnings("deprecation")
     public void setPlayerService(final PlayerService playerService) {
         this.playerService = playerService;
-        final Resources resources = context.getResources();
         configurePanel(playerService);
 
         playPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (playerService.isPlaying()) {
+                if (playerService.isPlaying())
                     playerService.pause();
-                    playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_play_grey_18dp));
-                } else {
+                else
                     playerService.resume();
-                    playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_pause_grey_18dp));
-                }
             }
         });
 
@@ -129,6 +125,13 @@ public class PlayerPanel implements Player.PlayerEventListener, Player.PlayerPro
         });
     }
 
+    public void setPlayPause(boolean play) {
+        if (play)
+            playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_pause_grey_18dp));
+        else
+            playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_play_grey_18dp));
+    }
+
     public void configurePanel(PlayerService playerService) {
         playerService.addPlayerProgressListener(this);
         VKApiAudio audio = playerService.getPlayingAudio();
@@ -145,6 +148,12 @@ public class PlayerPanel implements Player.PlayerEventListener, Player.PlayerPro
         switch (event) {
             case PLAY:
                 setAudio(position, audio);
+                break;
+            case PAUSE:
+                setPlayPause(false);
+                break;
+            case RESUME:
+                setPlayPause(true);
                 break;
         }
     }

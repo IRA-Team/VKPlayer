@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.irateam.vkplayer.R;
+import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.services.PlayerService;
 import com.vk.sdk.api.model.VKApiAudio;
 
@@ -17,7 +18,7 @@ import java.net.URLConnection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-public class ActivityPlayerPanel extends PlayerPanel {
+public class ActivityPlayerPanel extends PlayerPanel implements Player.PlayerEventListener {
 
     public TextView currentTime;
     public TextView timeToFinish;
@@ -45,14 +46,35 @@ public class ActivityPlayerPanel extends PlayerPanel {
             public void onClick(View v) {
                 if (playerService.isPlaying()) {
                     playerService.pause();
-                    playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_play_grey_24dp));
                 } else {
                     playerService.resume();
-                    playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_pause_grey_24dp));
                 }
             }
         });
+    }
 
+    @Override
+    public void onEvent(int position, VKApiAudio audio, Player.PlayerEvent event) {
+        super.onEvent(position, audio, event);
+        switch (event) {
+            case PLAY:
+                setAudio(position, audio);
+                break;
+            case PAUSE:
+                setPlayPause(false);
+                break;
+            case RESUME:
+                setPlayPause(true);
+                break;
+        }
+    }
+
+    public void setPlayPause(boolean play) {
+        super.setPlayPause(play);
+        if (play)
+            playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_pause_grey_24dp));
+        else
+            playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_play_grey_24dp));
     }
 
     public void setAudio(int position, VKApiAudio audio) {
