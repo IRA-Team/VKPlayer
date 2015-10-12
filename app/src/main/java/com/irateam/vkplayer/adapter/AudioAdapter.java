@@ -75,6 +75,10 @@ public class AudioAdapter extends BaseAdapter {
         });
         element.setDuration(audio.duration);
 
+        if (!audio.url.startsWith("https://") && !audio.url.startsWith("http://")) {
+            element.setDownloaded(true);
+        }
+
         if (checkedList.contains(position)) {
             element.setChecked(true);
         }

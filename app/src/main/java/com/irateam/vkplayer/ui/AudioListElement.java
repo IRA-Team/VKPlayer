@@ -18,9 +18,10 @@ public class AudioListElement extends FrameLayout implements Checkable {
     TextView title;
     TextView artist;
     TextView duration;
-    ImageView cover;
+    ImageView cover, downloaded;
 
-    boolean checked;
+    boolean checked, downloadedState;
+    int durationSeconds;
     private Drawable coverDrawable;
 
     public AudioListElement(Context context) {
@@ -34,6 +35,7 @@ public class AudioListElement extends FrameLayout implements Checkable {
         artist = (TextView) findViewById(R.id.player_list_element_author);
         duration = (TextView) findViewById(R.id.player_list_element_duration);
         cover = (ImageView) findViewById(R.id.player_list_element_cover);
+        downloaded = (ImageView) findViewById(R.id.player_list_element_downloaded);
 
         TypedArray a = context.getTheme().obtainStyledAttributes(
                 attrs,
@@ -74,10 +76,6 @@ public class AudioListElement extends FrameLayout implements Checkable {
         super(context, attrs, defStyleAttr);
     }
 
-    public AudioListElement(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-    }
-
     public void setTitle(String title) {
         this.title.setText(title);
     }
@@ -104,6 +102,7 @@ public class AudioListElement extends FrameLayout implements Checkable {
     }
 
     public void setDuration(int duration) {
+        durationSeconds = duration;
         this.duration.setText(String.valueOf(duration));
     }
 
@@ -122,6 +121,15 @@ public class AudioListElement extends FrameLayout implements Checkable {
         } else {
             setBackgroundColor(getResources().getColor(R.color.player_list_element_color));
             cover.setImageDrawable(coverDrawable);
+        }
+    }
+
+    public void setDownloaded(boolean downloadedState) {
+        this.downloadedState = downloadedState;
+        if (downloadedState) {
+            downloaded.setVisibility(VISIBLE);
+        } else {
+            downloaded.setVisibility(GONE);
         }
     }
 

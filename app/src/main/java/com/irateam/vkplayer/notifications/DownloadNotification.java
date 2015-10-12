@@ -15,7 +15,7 @@ public class DownloadNotification {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         builder
                 .setContentTitle(audio.artist + " " + audio.title)
-                .setSmallIcon(R.drawable.ic_player_repeat_all_light_grey_18dp)
+                .setSmallIcon(R.drawable.ic_statusbar_download_white_18dp)
                 .setContentText(audio.artist);
         return builder.build();
     }

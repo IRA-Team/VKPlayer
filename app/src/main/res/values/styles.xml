@@ -25,7 +25,7 @@
     </style>
 
     <style name="ActionModeStyle" parent="Widget.AppCompat.ActionMode">
-        <item name="background">@color/primary</item>
+        <item name="background">@color/action_mode_action_bar_background</item>
         <item name="height">?android:attr/actionBarSize</item>
     </style>
 

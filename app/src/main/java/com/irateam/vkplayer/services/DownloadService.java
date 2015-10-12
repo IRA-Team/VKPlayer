@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.irateam.vkplayer.database.AudioDatabaseHelper;
 import com.irateam.vkplayer.notifications.DownloadNotification;
 import com.vk.sdk.api.model.VKApiAudio;
 
@@ -44,11 +45,12 @@ public class DownloadService extends Service {
                 BufferedInputStream inputStream = null;
                 FileOutputStream fileOutputStream = null;
                 URLConnection connection = null;
+                File file = new File(getExternalCacheDir(), String.valueOf(audio.id));
                 try {
                     connection = new URL(audio.url).openConnection();
                     int size = connection.getContentLength();
                     inputStream = new BufferedInputStream(connection.getInputStream());
-                    fileOutputStream = new FileOutputStream(new File(getExternalCacheDir(), String.valueOf(audio.id)));
+                    fileOutputStream = new FileOutputStream(file);
                     final byte data[] = new byte[1024];
                     int count, total = 0;
                     while ((count = inputStream.read(data, 0, 1024)) != -1) {
@@ -59,6 +61,8 @@ public class DownloadService extends Service {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                audio.url = file.getAbsolutePath();
+                System.out.println(String.valueOf(new AudioDatabaseHelper(DownloadService.this).insert(audio)));
                 stopForeground(true);
             }
         });

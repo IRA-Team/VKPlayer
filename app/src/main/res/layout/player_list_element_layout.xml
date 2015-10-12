@@ -41,7 +41,7 @@
                 android:textSize="10dp" />
         </LinearLayout>
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/linearLayout2"
             android:layout_width="@dimen/player_list_element_info_width"
             android:layout_height="match_parent"
@@ -56,8 +56,21 @@
                 android:id="@+id/player_list_element_duration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:text="00:00"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
-        </LinearLayout>
+
+            <ImageView
+                android:id="@+id/player_list_element_downloaded"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/ic_list_download_light_grey_12dp"
+                android:visibility="gone" />
+        </RelativeLayout>
 
     </RelativeLayout>
 </merge>

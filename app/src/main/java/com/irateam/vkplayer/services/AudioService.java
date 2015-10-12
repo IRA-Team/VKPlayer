@@ -5,6 +5,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 import com.irateam.vkplayer.R;
+import com.irateam.vkplayer.database.AudioDatabaseHelper;
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;
@@ -60,7 +61,7 @@ public class AudioService extends VKRequest.VKRequestListener {
     public void onComplete(VKResponse response) {
         super.onComplete(response);
         try {
-            List<VKApiAudio> list = new ArrayList<>();
+            List<VKApiAudio> vkList = new ArrayList<>();
 
             //Popular audio doesn't have JSONArray items, so need to check
             JSONArray array;
@@ -70,11 +71,19 @@ public class AudioService extends VKRequest.VKRequestListener {
             } else {
                 array = response.json.getJSONArray("response");
             }
-
             for (int i = 0; i < array.length(); i++) {
-                list.add(new VKApiAudio().parse(array.getJSONObject(i)));
+                vkList.add(new VKApiAudio().parse(array.getJSONObject(i)));
             }
-            notifyAllComplete(list);
+
+            List<VKApiAudio> cachedList = new AudioDatabaseHelper(context).getAll();
+            for (int i = 0; i < vkList.size(); i++) {
+                for (VKApiAudio audio : cachedList) {
+                    if (vkList.get(i).id == audio.id) {
+                        vkList.set(i, audio);
+                    }
+                }
+            }
+            notifyAllComplete(vkList);
         } catch (JSONException e) {
             e.printStackTrace();
         }
