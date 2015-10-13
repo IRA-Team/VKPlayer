@@ -24,7 +24,8 @@
     <item name="action_mode_action_bar_background" type="color">#9e9e9e</item>
     <item name="action_mode_status_bar_background" type="color">#7e7e7e</item>
 
-    <item name="player_activity_text" type="color">#000000</item>
+    <item name="player_activity_text" type="color">#a6a6a6</item>
+    <item name="player_activity_color_background" type="color">#263239</item>
 
     <!--Login Activity-->
     <item name="login_activity_button_white" type="color">#ffffff</item>

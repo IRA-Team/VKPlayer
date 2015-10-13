@@ -19,6 +19,7 @@
     <string name="navigation_drawer_exit">Выйти</string>
 
     <string name="title_menu_sort">Сортировка</string>
+    <string name="title_menu_search">Поиск</string>
 
     <string name="error_load">Ошибка загрузки</string>
     <string name="error_no_internet_connection">Отсутствует соединение с интернетом</string>

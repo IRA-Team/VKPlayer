@@ -5,6 +5,15 @@
     android:layout_height="match_parent"
     tools:context="com.irateam.vkplayer.activities.SettingsActivity">
 
-    <include layout="@layout/toolbar" />
+    <include
+        android:id="@+id/settings_toolbar"
+        layout="@layout/toolbar" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/settings_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/settings_toolbar"
+        android:scrollbars="vertical" />
 
 </RelativeLayout>

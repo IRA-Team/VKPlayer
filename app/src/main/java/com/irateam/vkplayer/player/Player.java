@@ -20,8 +20,6 @@ import static com.irateam.vkplayer.player.Player.RepeatState.ONE_REPEAT;
 
 public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener {
 
-    public static final String proxyURL = "http://localhost:8080/";
-
     private static Player instance;
     private int pauseTime;
 
@@ -109,7 +107,9 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     public void next() {
         int nextIndex;
         if (randomState) {
-            nextIndex = random.nextInt(list.size());
+            do
+                nextIndex = random.nextInt(list.size());
+            while (getPlayingAudioIndex() == nextIndex);
             randomStack.push(playingAudio);
         } else {
             nextIndex = getPlayingAudioIndex() + 1;

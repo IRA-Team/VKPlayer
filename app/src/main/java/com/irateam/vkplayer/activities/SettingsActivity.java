@@ -2,25 +2,50 @@ package com.irateam.vkplayer.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.irateam.vkplayer.R;
+import com.irateam.vkplayer.adapter.SettingsRecyclerViewAdapter;
+import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
+
+import java.util.ArrayList;
 
 public class SettingsActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
+
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+
+    private ArrayList<String> settingsNames;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.settings_toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(getResources().getString(R.string.settings_toolbar_title));
+
+        settingsNames = new ArrayList<>();
+        settingsNames.add("Синхронизация");
+
+        mRecyclerView = (RecyclerView) findViewById(R.id.settings_recycler_view);
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(this).build());
+
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        mAdapter = new SettingsRecyclerViewAdapter(settingsNames);
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     @Override

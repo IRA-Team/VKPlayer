@@ -33,9 +33,10 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
         toolbar = (Toolbar) findViewById(R.id.toolbar_transparent);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("");
 
         imageView = (ImageView) findViewById(R.id.imageView);
-        imageView.setImageDrawable(getResources().getDrawable(R.drawable.audio_title_image));
+        imageView.setImageDrawable(getResources().getDrawable(R.drawable.player_cover));
         playerController = new ActivityPlayerController(this, findViewById(R.id.activity_player_panel));
     }
 
