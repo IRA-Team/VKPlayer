@@ -9,6 +9,7 @@
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_search"
+        android:icon="@drawable/ic_list_search_white_18dp"
         android:title="@string/title_menu_search"
-        app:showAsAction="never" />
+        app:showAsAction="ifRoom" />
 </menu>

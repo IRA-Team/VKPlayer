@@ -174,9 +174,7 @@ public class ListActivity extends AppCompatActivity implements
                 audioAdapter.setSortMode(flag);
                 refreshLayout.setEnabled(!flag);
                 return true;
-            case R.id.audio_activity:
-                startActivity(new Intent(this, AudioActivity.class));
-                finish();
+            case R.id.action_search:
                 return true;
         }
 
