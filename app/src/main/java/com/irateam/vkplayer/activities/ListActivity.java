@@ -225,7 +225,9 @@ public class ListActivity extends AppCompatActivity implements
             case R.id.cached_audio:
                 audioService.getCachedAudio();
                 return true;
-
+            case R.id.settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
             case R.id.exit:
                 VkLogout();
                 return true;

@@ -30,4 +30,6 @@
     <string name="notification_resume">Возобновить</string>
     <string name="notification_next">Следующая</string>
 
+    <string name="settings_toolbar_title">Настройки</string>
+
 </resources>

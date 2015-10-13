@@ -13,9 +13,9 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 
 import com.irateam.vkplayer.R;
-import com.irateam.vkplayer.services.PlayerService;
 import com.irateam.vkplayer.controllers.ActivityPlayerController;
 import com.irateam.vkplayer.controllers.PlayerController;
+import com.irateam.vkplayer.services.PlayerService;
 
 public class AudioActivity extends AppCompatActivity implements ServiceConnection {
 
@@ -32,6 +32,7 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
 
         toolbar = (Toolbar) findViewById(R.id.toolbar_transparent);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         imageView = (ImageView) findViewById(R.id.imageView);
         imageView.setImageDrawable(getResources().getDrawable(R.drawable.audio_title_image));
@@ -65,11 +66,12 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.home:
-                Log.i("Home", "Home");
+            case android.R.id.home:
+                finish();
                 return true;
+            default:
+                return (super.onOptionsItemSelected(item));
         }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

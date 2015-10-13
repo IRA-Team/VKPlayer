@@ -79,7 +79,11 @@ public class ActivityPlayerController extends PlayerController implements Player
         super.setAudio(position, audio);
         if (audio != null) {
             numberAudio.setText("#" + (position + 1) + "/" + playerService.getPlaylist().size());
-            new SizeTask(audio.url).execute();
+            if (!audio.url.startsWith("https://") && !audio.url.startsWith("http://")) {
+                sizeAudio.setText("SIZE");
+            } else {
+                new SizeTask(audio.url).execute();
+            }
         }
     }
 
@@ -126,7 +130,7 @@ public class ActivityPlayerController extends PlayerController implements Player
         @Override
         protected void onPostExecute(Double size) {
             super.onPostExecute(size);
-            sizeAudio.setText(size + "Mb");
+            sizeAudio.setText(String.format("%.1f", size) + "Mb");
         }
     }
 }
