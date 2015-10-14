@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/player_activity_group_height"
         android:layout_above="@+id/player_activity_actions"
-        android:background="@color/secondary"
+        android:background="@color/primary"
         android:clickable="true"
         android:gravity="center"
         android:orientation="vertical"

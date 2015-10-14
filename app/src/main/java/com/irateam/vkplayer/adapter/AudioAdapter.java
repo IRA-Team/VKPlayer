@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.ui.AudioListElement;
@@ -15,7 +17,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AudioAdapter extends BaseAdapter {
+public class AudioAdapter extends BaseAdapter implements Filterable {
 
     private Context context;
     private List<VKApiAudio> list = new ArrayList<>();
@@ -34,6 +36,7 @@ public class AudioAdapter extends BaseAdapter {
     public void setList(List<VKApiAudio> list) {
         this.checkedList = new ArrayList<>();
         this.list = list;
+        originalList = list;
     }
 
     @Override
@@ -130,6 +133,41 @@ public class AudioAdapter extends BaseAdapter {
             notifyDataSetChanged();
         }
         this.sortMode = sortMode;
+    }
+
+    List<VKApiAudio> originalList;
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                List<VKApiAudio> resultList;
+                if (constraint == "") {
+                    resultList = originalList;
+                } else {
+                    String key = constraint.toString().trim();
+                    resultList = new ArrayList<>();
+
+                    for (VKApiAudio audio : originalList) {
+                        if (audio.title.toLowerCase().contains(key) || audio.artist.toLowerCase().contains(key)) {
+                            resultList.add(audio);
+                        }
+                    }
+                }
+                FilterResults filterResults = new FilterResults();
+                filterResults.count = resultList.size();
+                filterResults.values = resultList;
+
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                list = (ArrayList<VKApiAudio>) results.values;
+                notifyDataSetChanged();
+            }
+        };
     }
 
     public interface CoverCheckListener {

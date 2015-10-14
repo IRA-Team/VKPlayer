@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="background" type="color">#ffffff</item>
-    <item name="primary" type="color">#3f51b5</item>
-    <item name="secondary" type="color">#35444c</item>
-    <item name="primary_dark" type="color">#303f9f</item>
+    <item name="primary" type="color">#455a64</item>
+    <item name="primary_dark" type="color">#37474f</item>
     <item name="accent" type="color">#ff4081</item>
 
     <item name="seekbar_track" type="color">#f3f3f3</item>

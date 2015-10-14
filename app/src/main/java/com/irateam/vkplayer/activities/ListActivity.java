@@ -13,6 +13,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ActionMode;
@@ -29,6 +30,7 @@ import com.irateam.vkplayer.services.AudioService;
 import com.irateam.vkplayer.services.DownloadService;
 import com.irateam.vkplayer.services.PlayerService;
 import com.irateam.vkplayer.ui.RoundImageView;
+import com.irateam.vkplayer.utils.NetworkUtils;
 import com.mobeta.android.dslv.DragSortListView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.vk.sdk.VKSdk;
@@ -137,7 +139,11 @@ public class ListActivity extends AppCompatActivity implements
         audioAdapter.setCoverCheckListener(this);
 
         audioService.addListener(this);
-        onNavigationItemSelected(navigationView.getMenu().getItem(0));
+        if (NetworkUtils.checkNetwork(this)) {
+            onNavigationItemSelected(navigationView.getMenu().getItem(0));
+        } else {
+            onNavigationItemSelected(navigationView.getMenu().getItem(3));
+        }
     }
 
     @Override
@@ -160,8 +166,22 @@ public class ListActivity extends AppCompatActivity implements
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.menu_list, menu);
+        final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setIconifiedByDefault(false);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                audioAdapter.getFilter().filter(newText);
+                return true;
+            }
+        });
         return true;
     }
 
@@ -323,6 +343,9 @@ public class ListActivity extends AppCompatActivity implements
             actionMode.finish();
         }
     }
+
+
+    private int statusBarColor;
 
     @Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {

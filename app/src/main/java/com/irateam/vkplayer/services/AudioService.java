@@ -1,12 +1,11 @@
 package com.irateam.vkplayer.services;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.database.AudioDatabaseHelper;
+import com.irateam.vkplayer.utils.NetworkUtils;
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;
@@ -48,8 +47,12 @@ public class AudioService extends VKRequest.VKRequestListener {
     }
 
     private void performRequest(VKRequest request) {
+        if (lastRequest != null) {
+            lastRequest.cancel();
+        }
+
         lastRequest = request;
-        if (checkNetwork()) {
+        if (NetworkUtils.checkNetwork(context)) {
             request.executeWithListener(this);
         } else {
             notifyAllError(context.getString(R.string.error_no_internet_connection));
@@ -93,6 +96,11 @@ public class AudioService extends VKRequest.VKRequestListener {
     }
 
     public void getCachedAudio() {
+        if (lastRequest != null) {
+            lastRequest.cancel();
+            lastRequest = null;
+        }
+
         new AsyncTask<Void, Void, List<VKApiAudio>>() {
             @Override
             protected List<VKApiAudio> doInBackground(Void... params) {
@@ -113,13 +121,6 @@ public class AudioService extends VKRequest.VKRequestListener {
                 notifyAllComplete(vkApiAudios);
             }
         }.execute();
-    }
-
-    private boolean checkNetwork() {
-        ConnectivityManager cm =
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isConnectedOrConnecting();
     }
 
     @Override

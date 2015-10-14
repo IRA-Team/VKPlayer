@@ -26,7 +26,7 @@
 
     <style name="ActionModeStyle" parent="Widget.AppCompat.ActionMode">
         <item name="background">@color/action_mode_action_bar_background</item>
-        <item name="height">?android:attr/actionBarSize</item>
+        <item name="height">56dp</item>
     </style>
 
     <style name="TransparentActionBarStyle">

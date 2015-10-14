@@ -22,6 +22,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     private static Player instance;
     private int pauseTime;
+    private ProgressThread currentProgressThread;
 
     public synchronized static Player getInstance() {
         if (instance == null) {
@@ -35,8 +36,6 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         setAudioStreamType(AudioManager.STREAM_MUSIC);
         setOnPreparedListener(this);
         setOnCompletionListener(this);
-        startProgress();
-        setOnBufferingUpdateListener(this);
     }
 
     private List<VKApiAudio> list;
@@ -72,9 +71,11 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         playingAudio = list.get(index);
         try {
             reset();
+            stopProgress();
+            setOnBufferingUpdateListener(null);
             setDataSource(playingAudio.url);
             prepareAsync();
-            notifyPlayerEvent(index, playingAudio, PlayerEvent.PLAY);
+            notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.PLAY);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -199,6 +200,8 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     @Override
     public void onPrepared(MediaPlayer mp) {
         start();
+        startProgress();
+        setOnBufferingUpdateListener(this);
     }
 
     //Listeners
@@ -244,24 +247,6 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     //Progress Listener
-    public void startProgress() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        if (isPlaying()) {
-                            notifyPlayerProgressChanged();
-                        }
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }).start();
-    }
-
     private List<WeakReference<PlayerProgressListener>> progressListeners = new ArrayList<>();
 
     public interface PlayerProgressListener {
@@ -299,5 +284,34 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
                 listener.onBufferingUpdate(milliseconds);
             }
         }
+    }
+
+    public void startProgress() {
+        currentProgressThread = new ProgressThread();
+        currentProgressThread.start();
+    }
+
+    public void stopProgress() {
+        if (currentProgressThread != null && !currentProgressThread.isInterrupted()) {
+            currentProgressThread.interrupt();
+        }
+    }
+
+    private class ProgressThread extends Thread {
+
+        @Override
+        public void run() {
+            while (!Thread.interrupted()) {
+                try {
+                    if (isPlaying()) {
+                        notifyPlayerProgressChanged();
+                    }
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
     }
 }

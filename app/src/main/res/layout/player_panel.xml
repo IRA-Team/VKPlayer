@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/player_panel_group_height"
         android:layout_above="@+id/linearLayout3"
-        android:background="@color/secondary"
+        android:background="@color/primary"
         android:clickable="true"
         android:gravity="center"
         android:orientation="vertical"
