@@ -39,6 +39,16 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         originalList = list;
     }
 
+    public void updateAudioById(VKApiAudio audio) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).id == audio.id) {
+                list.set(i, audio);
+                break;
+            }
+        }
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getCount() {
         return list.size();

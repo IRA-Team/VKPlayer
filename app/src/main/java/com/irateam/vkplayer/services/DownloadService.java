@@ -6,6 +6,7 @@ import android.os.IBinder;
 
 import com.irateam.vkplayer.database.AudioDatabaseHelper;
 import com.irateam.vkplayer.notifications.DownloadNotification;
+import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
 import com.vk.sdk.api.model.VKApiAudio;
 
 import java.io.BufferedInputStream;
@@ -21,6 +22,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class DownloadService extends Service {
 
     public static final String AUDIO_SET = "audio_set";
+    public static final String DOWNLOAD_FINISHED = "download_service.download_finished";
 
     private Thread currentThread;
     private Queue<VKApiAudio> queue = new ConcurrentLinkedQueue<>();
@@ -36,10 +38,10 @@ public class DownloadService extends Service {
         for (VKApiAudio audio : list) {
             queue.add(audio);
         }
-        if (currentThread == null) {
+        if (currentThread == null || !currentThread.isAlive()) {
             startDownload(queue.poll());
         }
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     private void startDownload(final VKApiAudio audio) {
@@ -74,6 +76,9 @@ public class DownloadService extends Service {
                 System.out.println(String.valueOf(new AudioDatabaseHelper(DownloadService.this).insert(audio)));
                 onFinish();
                 stopForeground(true);
+                Intent intent = new Intent(DOWNLOAD_FINISHED);
+                intent.putExtra(DownloadFinishedReceiver.AUDIO_ID, audio);
+                sendBroadcast(intent);
             }
         });
         currentThread.start();

@@ -4,7 +4,7 @@
     tools:context="com.irateam.vkplayer.activities.ListActivity">
     <item
         android:id="@+id/action_sort"
-        android:icon="@drawable/ic_list_sort_mode_white_18dp"
+        android:icon="@drawable/ic_sort_white_24dp"
         android:title="@string/title_menu_sort"
         app:showAsAction="ifRoom" />
     <item

@@ -2,6 +2,7 @@ package com.irateam.vkplayer.activities;
 
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -26,6 +27,7 @@ import android.widget.TextView;
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.adapter.AudioAdapter;
 import com.irateam.vkplayer.controllers.PlayerController;
+import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
 import com.irateam.vkplayer.services.AudioService;
 import com.irateam.vkplayer.services.DownloadService;
 import com.irateam.vkplayer.services.PlayerService;
@@ -72,6 +74,8 @@ public class ListActivity extends AppCompatActivity implements
     private PlayerService playerService;
 
     private ActionMode actionMode;
+
+    private DownloadFinishedReceiver downloadFinishedReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,6 +148,14 @@ public class ListActivity extends AppCompatActivity implements
         } else {
             onNavigationItemSelected(navigationView.getMenu().getItem(3));
         }
+
+        downloadFinishedReceiver = new DownloadFinishedReceiver() {
+            @Override
+            public void onDownloadFinished(VKApiAudio audio) {
+                audioAdapter.updateAudioById(audio);
+            }
+        };
+        registerReceiver(downloadFinishedReceiver, new IntentFilter(DownloadService.DOWNLOAD_FINISHED));
     }
 
     @Override
@@ -156,6 +168,7 @@ public class ListActivity extends AppCompatActivity implements
     protected void onDestroy() {
         super.onDestroy();
         playerService.removePlayerEventListener(playerController);
+        unregisterReceiver(downloadFinishedReceiver);
     }
 
     @Override
@@ -362,7 +375,7 @@ public class ListActivity extends AppCompatActivity implements
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_download:
+            case R.id.action_cache:
                 Intent intent = new Intent(this, DownloadService.class);
                 intent.putExtra(DownloadService.AUDIO_SET, (ArrayList<VKApiAudio>) audioAdapter.getCheckedItems());
                 startService(intent);
