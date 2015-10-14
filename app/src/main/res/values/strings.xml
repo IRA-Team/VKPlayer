@@ -15,7 +15,7 @@
     <string name="navigation_drawer_my_audio">Мои аудиозаписи</string>
     <string name="navigation_drawer_recommendation">Рекомендации</string>
     <string name="navigation_drawer_popular">Популярное</string>
-    <string name="navigation_drawer_downloaded">Загруженные</string>
+    <string name="navigation_drawer_downloaded">Cохраненные</string>
     <string name="navigation_drawer_settings">Настройки</string>
     <string name="navigation_drawer_exit">Выйти</string>
 

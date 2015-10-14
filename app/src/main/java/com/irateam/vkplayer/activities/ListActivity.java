@@ -380,6 +380,9 @@ public class ListActivity extends AppCompatActivity implements
                 intent.putExtra(DownloadService.AUDIO_SET, (ArrayList<VKApiAudio>) audioAdapter.getCheckedItems());
                 startService(intent);
                 break;
+            case R.id.action_delete:
+                audioAdapter.removeChecked();
+                break;
         }
         mode.finish();
         return true;

@@ -49,6 +49,13 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         notifyDataSetChanged();
     }
 
+    public void removeChecked() {
+        for (int i : checkedList) {
+            list.remove(i);
+        }
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getCount() {
         return list.size();
@@ -106,7 +113,6 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         } else {
             checkedList.add(position);
         }
-        System.out.println(checkedList.size());
         notifyDataSetChanged();
     }
 
