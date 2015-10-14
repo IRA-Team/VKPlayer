@@ -77,7 +77,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
-                android:src="@drawable/ic_list_download_light_grey_12dp"
+                android:src="@drawable/ic_list_cache_light_grey_18dp"
                 android:visibility="gone" />
         </RelativeLayout>
 
