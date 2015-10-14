@@ -9,16 +9,16 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 
 import com.irateam.vkplayer.R;
+import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.services.PlayerService;
 import com.irateam.vkplayer.utils.AlbumCoverUtils;
-import com.vk.sdk.api.model.VKApiAudio;
 
 public class PlayerNotification {
 
     public static final int ID = 1;
 
-    public static Notification create(Context context, int index, VKApiAudio audio, Player.PlayerEvent event) {
+    public static Notification create(Context context, int index, Audio audio, Player.PlayerEvent event) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
 
         builder
@@ -50,7 +50,7 @@ public class PlayerNotification {
 
     }
 
-    public static void update(Context context, int index, VKApiAudio audio, Player.PlayerEvent event) {
+    public static void update(Context context, int index, Audio audio, Player.PlayerEvent event) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(ID, create(context, index, audio, event));
     }

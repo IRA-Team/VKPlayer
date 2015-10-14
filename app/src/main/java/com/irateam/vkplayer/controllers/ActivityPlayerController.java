@@ -7,9 +7,9 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.irateam.vkplayer.R;
+import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.services.PlayerService;
-import com.vk.sdk.api.model.VKApiAudio;
 
 import java.io.IOException;
 import java.net.URL;
@@ -52,7 +52,7 @@ public class ActivityPlayerController extends PlayerController implements Player
     }
 
     @Override
-    public void onEvent(int position, VKApiAudio audio, Player.PlayerEvent event) {
+    public void onEvent(int position, Audio audio, Player.PlayerEvent event) {
         super.onEvent(position, audio, event);
         switch (event) {
             case PLAY:
@@ -75,7 +75,7 @@ public class ActivityPlayerController extends PlayerController implements Player
             playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_play_grey_24dp));
     }
 
-    public void setAudio(int position, VKApiAudio audio) {
+    public void setAudio(int position, Audio audio) {
         super.setAudio(position, audio);
         if (audio != null) {
             numberAudio.setText("#" + (position + 1) + "/" + playerService.getPlaylist().size());

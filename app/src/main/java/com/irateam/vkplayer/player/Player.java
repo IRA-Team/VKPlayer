@@ -5,7 +5,7 @@ import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.vk.sdk.api.model.VKApiAudio;
+import com.irateam.vkplayer.models.Audio;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -38,20 +38,20 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         setOnCompletionListener(this);
     }
 
-    private List<VKApiAudio> list;
+    private List<Audio> list;
     private RepeatState repeatState = NO_REPEAT;
 
     private boolean randomState = false;
-    private Stack<VKApiAudio> randomStack = new Stack<>();
+    private Stack<Audio> randomStack = new Stack<>();
     private Random random = new Random();
 
-    private VKApiAudio playingAudio;
+    private Audio playingAudio;
 
-    public VKApiAudio getAudio(int index) {
+    public Audio getAudio(int index) {
         return list.get(index);
     }
 
-    public VKApiAudio getPlayingAudio() {
+    public Audio getPlayingAudio() {
         return playingAudio;
     }
 
@@ -59,11 +59,11 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         return playingAudio != null ? list.indexOf(playingAudio) : null;
     }
 
-    public List<VKApiAudio> getList() {
+    public List<Audio> getList() {
         return list;
     }
 
-    public void setList(List<VKApiAudio> list) {
+    public void setList(List<Audio> list) {
         this.list = list;
     }
 
@@ -73,7 +73,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
             reset();
             stopProgress();
             setOnBufferingUpdateListener(null);
-            setDataSource(playingAudio.url);
+            setDataSource(playingAudio.getPlayingUrl());
             prepareAsync();
             notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.PLAY);
         } catch (IOException e) {
@@ -213,7 +213,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     public interface PlayerEventListener {
-        void onEvent(int position, VKApiAudio audio, PlayerEvent event);
+        void onEvent(int position, Audio audio, PlayerEvent event);
     }
 
     public void addPlayerEventListener(PlayerEventListener listener) {
@@ -224,7 +224,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         listeners.remove(listener);
     }
 
-    private void notifyPlayerEvent(int position, VKApiAudio audio, PlayerEvent event) {
+    private void notifyPlayerEvent(int position, Audio audio, PlayerEvent event) {
         for (WeakReference<PlayerEventListener> l : listeners) {
             PlayerEventListener listener = l.get();
             if (listener != null) {

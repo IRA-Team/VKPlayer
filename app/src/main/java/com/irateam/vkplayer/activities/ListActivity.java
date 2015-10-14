@@ -27,6 +27,7 @@ import android.widget.TextView;
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.adapter.AudioAdapter;
 import com.irateam.vkplayer.controllers.PlayerController;
+import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
 import com.irateam.vkplayer.services.AudioService;
 import com.irateam.vkplayer.services.DownloadService;
@@ -151,7 +152,7 @@ public class ListActivity extends AppCompatActivity implements
 
         downloadFinishedReceiver = new DownloadFinishedReceiver() {
             @Override
-            public void onDownloadFinished(VKApiAudio audio) {
+            public void onDownloadFinished(Audio audio) {
                 audioAdapter.updateAudioById(audio);
             }
         };
@@ -215,7 +216,7 @@ public class ListActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onComplete(List<VKApiAudio> list) {
+    public void onComplete(List<Audio> list) {
         refreshLayout.setRefreshing(false);
         audioAdapter.setList(list);
         audioAdapter.notifyDataSetChanged();
@@ -277,8 +278,8 @@ public class ListActivity extends AppCompatActivity implements
 
     @Override
     public void drop(int from, int to) {
-        List<VKApiAudio> list = audioAdapter.getList();
-        VKApiAudio audio = list.get(from);
+        List<Audio> list = audioAdapter.getList();
+        Audio audio = list.get(from);
         list.remove(from);
         list.add(to, audio);
         audioAdapter.notifyDataSetChanged();
@@ -377,7 +378,7 @@ public class ListActivity extends AppCompatActivity implements
         switch (item.getItemId()) {
             case R.id.action_cache:
                 Intent intent = new Intent(this, DownloadService.class);
-                intent.putExtra(DownloadService.AUDIO_SET, (ArrayList<VKApiAudio>) audioAdapter.getCheckedItems());
+                intent.putExtra(DownloadService.AUDIO_SET, (ArrayList<Audio>) audioAdapter.getCheckedItems());
                 startService(intent);
                 break;
             case R.id.action_delete:

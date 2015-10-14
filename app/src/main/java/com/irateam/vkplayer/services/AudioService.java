@@ -5,13 +5,13 @@ import android.os.AsyncTask;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.database.AudioDatabaseHelper;
+import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.utils.NetworkUtils;
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
-import com.vk.sdk.api.model.VKApiAudio;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -67,7 +67,7 @@ public class AudioService extends VKRequest.VKRequestListener {
     public void onComplete(VKResponse response) {
         super.onComplete(response);
         try {
-            List<VKApiAudio> vkList = new ArrayList<>();
+            List<Audio> vkList = new ArrayList<>();
 
             //Popular audio doesn't have JSONArray items, so need to check
             JSONArray array;
@@ -78,12 +78,12 @@ public class AudioService extends VKRequest.VKRequestListener {
                 array = response.json.getJSONArray("response");
             }
             for (int i = 0; i < array.length(); i++) {
-                vkList.add(new VKApiAudio().parse(array.getJSONObject(i)));
+                vkList.add(new Audio().parse(array.getJSONObject(i)));
             }
 
-            List<VKApiAudio> cachedList = new AudioDatabaseHelper(context).getAll();
+            List<Audio> cachedList = new AudioDatabaseHelper(context).getAll();
             for (int i = 0; i < vkList.size(); i++) {
-                for (VKApiAudio audio : cachedList) {
+                for (Audio audio : cachedList) {
                     if (vkList.get(i).id == audio.id && new File(audio.url).exists()) {
                         vkList.set(i, audio);
                     }
@@ -101,13 +101,13 @@ public class AudioService extends VKRequest.VKRequestListener {
             lastRequest = null;
         }
 
-        new AsyncTask<Void, Void, List<VKApiAudio>>() {
+        new AsyncTask<Void, Void, List<Audio>>() {
             @Override
-            protected List<VKApiAudio> doInBackground(Void... params) {
-                List<VKApiAudio> list = new AudioDatabaseHelper(context).getAll();
-                Iterator<VKApiAudio> i = list.iterator();
+            protected List<Audio> doInBackground(Void... params) {
+                List<Audio> list = new AudioDatabaseHelper(context).getAll();
+                Iterator<Audio> i = list.iterator();
                 while (i.hasNext()) {
-                    File file = new File(i.next().url);
+                    File file = new File(i.next().cachePath);
                     if (!file.exists()) {
                         i.remove();
                     }
@@ -116,9 +116,9 @@ public class AudioService extends VKRequest.VKRequestListener {
             }
 
             @Override
-            protected void onPostExecute(List<VKApiAudio> vkApiAudios) {
-                super.onPostExecute(vkApiAudios);
-                notifyAllComplete(vkApiAudios);
+            protected void onPostExecute(List<Audio> audios) {
+                super.onPostExecute(audios);
+                notifyAllComplete(audios);
             }
         }.execute();
     }
@@ -137,7 +137,7 @@ public class AudioService extends VKRequest.VKRequestListener {
         listeners.remove(listener);
     }
 
-    private void notifyAllComplete(List<VKApiAudio> list) {
+    private void notifyAllComplete(List<Audio> list) {
         for (WeakReference<Listener> l : listeners) {
             l.get().onComplete(list);
         }
@@ -150,7 +150,7 @@ public class AudioService extends VKRequest.VKRequestListener {
     }
 
     public interface Listener {
-        void onComplete(List<VKApiAudio> list);
+        void onComplete(List<Audio> list);
 
         void onError(String errorMessage);
     }

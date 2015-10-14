@@ -5,9 +5,9 @@ import android.content.Intent;
 import android.os.IBinder;
 
 import com.irateam.vkplayer.database.AudioDatabaseHelper;
+import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.notifications.DownloadNotification;
 import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
-import com.vk.sdk.api.model.VKApiAudio;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -25,7 +25,7 @@ public class DownloadService extends Service {
     public static final String DOWNLOAD_FINISHED = "download_service.download_finished";
 
     private Thread currentThread;
-    private Queue<VKApiAudio> queue = new ConcurrentLinkedQueue<>();
+    private Queue<Audio> queue = new ConcurrentLinkedQueue<>();
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -34,8 +34,8 @@ public class DownloadService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        ArrayList<VKApiAudio> list = (ArrayList<VKApiAudio>) intent.getSerializableExtra(AUDIO_SET);
-        for (VKApiAudio audio : list) {
+        ArrayList<Audio> list = (ArrayList<Audio>) intent.getSerializableExtra(AUDIO_SET);
+        for (Audio audio : list) {
             queue.add(audio);
         }
         if (currentThread == null || !currentThread.isAlive()) {
@@ -44,7 +44,7 @@ public class DownloadService extends Service {
         return START_STICKY;
     }
 
-    private void startDownload(final VKApiAudio audio) {
+    private void startDownload(final Audio audio) {
         startForeground(DownloadNotification.ID, DownloadNotification.create(this, audio, 0));
         currentThread = new Thread(new Runnable() {
             @Override
@@ -72,7 +72,7 @@ public class DownloadService extends Service {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                audio.url = file.getAbsolutePath();
+                audio.cachePath = file.getAbsolutePath();
                 System.out.println(String.valueOf(new AudioDatabaseHelper(DownloadService.this).insert(audio)));
                 onFinish();
                 stopForeground(true);
@@ -85,7 +85,7 @@ public class DownloadService extends Service {
     }
 
     private void onFinish() {
-        VKApiAudio audio = queue.poll();
+        Audio audio = queue.poll();
         if (audio != null) {
             startDownload(audio);
         }

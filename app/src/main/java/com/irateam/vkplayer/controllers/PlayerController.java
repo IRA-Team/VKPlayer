@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.activities.AudioActivity;
+import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.services.PlayerService;
 import com.vk.sdk.api.model.VKApiAudio;
@@ -134,7 +135,7 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
 
     public void configurePanel(PlayerService playerService) {
         playerService.addPlayerProgressListener(this);
-        VKApiAudio audio = playerService.getPlayingAudio();
+        Audio audio = playerService.getPlayingAudio();
         if (audio != null) {
             rootView.setVisibility(View.VISIBLE);
             setAudio(playerService.getPlayingAudioIndex(), audio);
@@ -144,7 +145,7 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
     }
 
     @Override
-    public void onEvent(int position, VKApiAudio audio, Player.PlayerEvent event) {
+    public void onEvent(int position, Audio audio, Player.PlayerEvent event) {
         switch (event) {
             case PLAY:
                 setAudio(position, audio);
@@ -158,7 +159,7 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
         }
     }
 
-    public void setAudio(int position, VKApiAudio audio) {
+    public void setAudio(int position, Audio audio) {
         if (audio != null) {
             if (rootView.getVisibility() != View.VISIBLE) {
                 rootView.setVisibility(View.VISIBLE);

@@ -49,8 +49,8 @@
     </style>
 
     <style name="ButtonLoginActivity.Blue">
-        <item name="android:background">@color/login_activity_button_blue</item>
-        <item name="android:textColor">@color/login_activity_button_blue_text</item>
+        <item name="android:background">@color/login_activity_button_blue_grey</item>
+        <item name="android:textColor">@color/login_activity_button_blue_grey_text</item>
     </style>
 
     <style name="SeekBar">

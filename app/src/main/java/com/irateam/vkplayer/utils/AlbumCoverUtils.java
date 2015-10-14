@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
+import com.irateam.vkplayer.models.Audio;
 import com.vk.sdk.api.model.VKApiAudio;
 
 public class AlbumCoverUtils {
@@ -25,12 +26,12 @@ public class AlbumCoverUtils {
         return bitmap;
     }
 
-    public static TextDrawable createFromAudio(VKApiAudio audio) {
+    public static TextDrawable createFromAudio(Audio audio) {
         return TextDrawable.builder()
                 .buildRound(String.valueOf(audio.artist.trim().charAt(0)), ColorGenerator.MATERIAL.getColor(audio.artist.trim()));
     }
 
-    public static Bitmap createBitmapFromAudio(VKApiAudio audio) {
+    public static Bitmap createBitmapFromAudio(Audio audio) {
         return drawableToBitmap(createFromAudio(audio));
     }
 }

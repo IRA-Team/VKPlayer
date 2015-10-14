@@ -5,6 +5,7 @@ CREATE TABLE audios
     title TEXT,
     duration INTEGER,
     url TEXT,
+    cache_path TEXT,
     lyrics_id INTEGER,
     album_id INTEGER,
     genre INTEGER,

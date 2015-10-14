@@ -9,9 +9,9 @@ import android.widget.Filter;
 import android.widget.Filterable;
 
 import com.irateam.vkplayer.R;
+import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.ui.AudioListElement;
 import com.irateam.vkplayer.utils.AlbumCoverUtils;
-import com.vk.sdk.api.model.VKApiAudio;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import java.util.List;
 public class AudioAdapter extends BaseAdapter implements Filterable {
 
     private Context context;
-    private List<VKApiAudio> list = new ArrayList<>();
+    private List<Audio> list = new ArrayList<>();
     private List<Integer> checkedList = new ArrayList<>();
 
     private boolean sortMode = false;
@@ -29,17 +29,17 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         this.context = context;
     }
 
-    public List<VKApiAudio> getList() {
+    public List<Audio> getList() {
         return list;
     }
 
-    public void setList(List<VKApiAudio> list) {
+    public void setList(List<Audio> list) {
         this.checkedList = new ArrayList<>();
         this.list = list;
         originalList = list;
     }
 
-    public void updateAudioById(VKApiAudio audio) {
+    public void updateAudioById(Audio audio) {
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).id == audio.id) {
                 list.set(i, audio);
@@ -78,7 +78,7 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
 
         AudioListElement element = (AudioListElement) view;
 
-        final VKApiAudio audio = list.get(position);
+        final Audio audio = list.get(position);
         audio.artist = audio.artist.trim();
 
         element.setTitle(audio.title);
@@ -94,7 +94,7 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         });
         element.setDuration(audio.duration);
 
-        if (!audio.url.startsWith("https://") && !audio.url.startsWith("http://")) {
+        if (audio.isCached()) {
             element.setDownloaded(true);
         }
         if (!sortMode) {
@@ -120,8 +120,8 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         return checkedList;
     }
 
-    public List<VKApiAudio> getCheckedItems() {
-        List<VKApiAudio> list = new ArrayList<>();
+    public List<Audio> getCheckedItems() {
+        List<Audio> list = new ArrayList<>();
         for (Integer i : checkedList) {
             list.add(this.list.get(i));
         }
@@ -151,21 +151,21 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         this.sortMode = sortMode;
     }
 
-    List<VKApiAudio> originalList;
+    List<Audio> originalList;
 
     @Override
     public Filter getFilter() {
         return new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
-                List<VKApiAudio> resultList;
+                List<Audio> resultList;
                 if (constraint == "") {
                     resultList = originalList;
                 } else {
                     String key = constraint.toString().trim();
                     resultList = new ArrayList<>();
 
-                    for (VKApiAudio audio : originalList) {
+                    for (Audio audio : originalList) {
                         if (audio.title.toLowerCase().contains(key) || audio.artist.toLowerCase().contains(key)) {
                             resultList.add(audio);
                         }
@@ -180,7 +180,7 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
 
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-                list = (ArrayList<VKApiAudio>) results.values;
+                list = (ArrayList<Audio>) results.values;
                 notifyDataSetChanged();
             }
         };

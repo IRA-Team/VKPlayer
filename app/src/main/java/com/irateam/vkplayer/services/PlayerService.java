@@ -5,9 +5,9 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 
+import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.notifications.PlayerNotification;
 import com.irateam.vkplayer.player.Player;
-import com.vk.sdk.api.model.VKApiAudio;
 
 import java.util.List;
 
@@ -69,11 +69,11 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     }
 
     //Player methods
-    public void setPlaylist(List<VKApiAudio> list) {
+    public void setPlaylist(List<Audio> list) {
         player.setList(list);
     }
 
-    public List<VKApiAudio> getPlaylist() {
+    public List<Audio> getPlaylist() {
         return player.getList();
     }
 
@@ -105,7 +105,7 @@ public class PlayerService extends Service implements Player.PlayerEventListener
         return player.isPlaying();
     }
 
-    public VKApiAudio getPlayingAudio() {
+    public Audio getPlayingAudio() {
         return player.getPlayingAudio();
     }
 
@@ -151,7 +151,7 @@ public class PlayerService extends Service implements Player.PlayerEventListener
 
     //Player callbacks
     @Override
-    public void onEvent(int position, VKApiAudio audio, Player.PlayerEvent event) {
+    public void onEvent(int position, Audio audio, Player.PlayerEvent event) {
         switch (event) {
             case PLAY:
                 startForeground(PlayerNotification.ID, PlayerNotification.create(this, position, audio, event));
