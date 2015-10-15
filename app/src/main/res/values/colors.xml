@@ -27,6 +27,7 @@
     <item name="player_activity_color_background" type="color">#263239</item>
 
     <!--Login Activity-->
+    <item name="login_activity_background" type="color">#ffffff</item>
     <item name="login_activity_button_white" type="color">#ffffff</item>
     <item name="login_activity_button_white_text" type="color">@color/primary</item>
     <item name="login_activity_button_blue_grey" type="color">@color/primary</item>

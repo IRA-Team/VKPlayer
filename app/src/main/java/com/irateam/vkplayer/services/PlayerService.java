@@ -2,8 +2,12 @@ package com.irateam.vkplayer.services;
 
 import android.app.Service;
 import android.content.Intent;
+import android.media.session.MediaController;
+import android.media.session.MediaSession;
+import android.media.session.MediaSessionManager;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.v4.media.session.MediaSessionCompat;
 
 import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.models.Settings;
@@ -21,6 +25,8 @@ public class PlayerService extends Service implements Player.PlayerEventListener
 
     private Player player = new Player();
     private Binder binder = new PlayerBinder();
+    private MediaSessionManager sessionManager;
+    private MediaSessionCompat mediaSession;
     private Settings settings;
 
     @Override
@@ -30,6 +36,8 @@ public class PlayerService extends Service implements Player.PlayerEventListener
         settings = Settings.getInstance(this);
         player.setRepeatState(settings.getPlayerRepeat());
         player.setRandomState(settings.getRandomState());
+
+        sessionManager = (MediaSessionManager) getSystemService(MEDIA_SESSION_SERVICE);
     }
 
 

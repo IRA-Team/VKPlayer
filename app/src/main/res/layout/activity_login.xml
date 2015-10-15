@@ -10,8 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="72dp"
-        android:src="@drawable/logo" />
+        android:src="@drawable/illustration_logo" />
 
     <Button
         android:id="@+id/button_github"

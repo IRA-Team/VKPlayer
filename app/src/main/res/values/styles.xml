@@ -10,7 +10,7 @@
     </style>
 
     <style name="BaseTheme.LoginActivity" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowBackground">@color/primary</item>
+        <item name="android:windowBackground">@color/login_activity_background</item>
         <item name="android:statusBarColor">@color/primary_dark</item>
     </style>
 
@@ -44,7 +44,7 @@
         <item name="android:paddingLeft">24dp</item>
         <item name="android:drawablePadding">24dp</item>
         <item name="android:height">@dimen/button_login_activity_height</item>
-        <item name="android:gravity">left|center_vertical</item>
+        <item name="android:gravity">center</item>
     </style>
 
     <style name="ButtonLoginActivity.White">
