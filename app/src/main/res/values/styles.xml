@@ -18,6 +18,10 @@
 
     </style>
 
+    <style name="AudioActivityTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/primary_dark</item>
+    </style>
+
     <style name="ActionBarStyle">
         <item name="android:textColorPrimary">@color/action_bar_text_color</item>
         <item name="actionMenuTextColor">@color/action_bar_text_color</item>

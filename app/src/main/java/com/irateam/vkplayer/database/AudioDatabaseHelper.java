@@ -31,6 +31,40 @@ public class AudioDatabaseHelper extends DatabaseHelper {
 
     public long insert(Audio audio) {
         SQLiteDatabase db = getWritableDatabase();
+        return db.insert(TABLE_NAME, null, toContentValues(audio));
+    }
+
+    public long update(Audio audio) {
+        SQLiteDatabase db = getWritableDatabase();
+        return db.update(TABLE_NAME, toContentValues(audio), "_id = " + audio.id, null);
+    }
+
+    public long cache(Audio audio) {
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor cursor = db.query(TABLE_NAME, null, "_id = " + audio.id, null, null, null, null);
+        long id;
+        if (cursor.getCount() <= 0) {
+            id = insert(audio);
+        } else {
+            id = update(audio);
+        }
+        return id;
+    }
+
+    public List<Audio> getAll() {
+        SQLiteDatabase db = getReadableDatabase();
+        List<Audio> list = new ArrayList<>();
+
+        Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            do {
+                list.add(fromCursor(cursor));
+            } while (cursor.moveToNext());
+        }
+        return list;
+    }
+
+    public static ContentValues toContentValues(Audio audio) {
         ContentValues cv = new ContentValues();
         cv.put(ID, audio.id);
         cv.put(OWNER_ID, audio.owner_id);
@@ -43,32 +77,24 @@ public class AudioDatabaseHelper extends DatabaseHelper {
         cv.put(ALBUM_ID, audio.album_id);
         cv.put(GENRE, audio.genre);
         cv.put(ACCESS_KEY, audio.access_key);
-        return db.insert(TABLE_NAME, null, cv);
+        return cv;
     }
 
-    public List<Audio> getAll() {
-        SQLiteDatabase db = getReadableDatabase();
-        List<Audio> list = new ArrayList<>();
-
-        Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            do {
-                int i = 0;
-                Audio audio = new Audio();
-                audio.id = cursor.getInt(i++);
-                audio.owner_id = cursor.getInt(i++);
-                audio.artist = cursor.getString(i++);
-                audio.title = cursor.getString(i++);
-                audio.duration = cursor.getInt(i++);
-                audio.url = cursor.getString(i++);
-                audio.cachePath = cursor.getString(i++);
-                audio.lyrics_id = cursor.getInt(i++);
-                audio.album_id = cursor.getInt(i++);
-                audio.genre = cursor.getInt(i++);
-                audio.access_key = cursor.getString(i++);
-                list.add(audio);
-            } while (cursor.moveToNext());
-        }
-        return list;
+    public static Audio fromCursor(Cursor cursor) {
+        int i = 0;
+        Audio audio = new Audio();
+        audio.id = cursor.getInt(i++);
+        audio.owner_id = cursor.getInt(i++);
+        audio.artist = cursor.getString(i++);
+        audio.title = cursor.getString(i++);
+        audio.duration = cursor.getInt(i++);
+        audio.url = cursor.getString(i++);
+        audio.cachePath = cursor.getString(i++);
+        audio.lyrics_id = cursor.getInt(i++);
+        audio.album_id = cursor.getInt(i++);
+        audio.genre = cursor.getInt(i++);
+        audio.access_key = cursor.getString(i++);
+        return audio;
     }
+
 }

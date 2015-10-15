@@ -14,7 +14,6 @@ import com.irateam.vkplayer.activities.AudioActivity;
 import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.services.PlayerService;
-import com.vk.sdk.api.model.VKApiAudio;
 
 public class PlayerController implements Player.PlayerEventListener, Player.PlayerProgressListener {
 
@@ -85,6 +84,7 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
             }
         });
 
+        setRepeatState(playerService.getRepeatState());
         repeat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,6 +92,7 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
             }
         });
 
+        setRandomState(playerService.getRandomState());
         random.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

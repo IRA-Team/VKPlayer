@@ -84,7 +84,7 @@ public class AudioService extends VKRequest.VKRequestListener {
             List<Audio> cachedList = new AudioDatabaseHelper(context).getAll();
             for (int i = 0; i < vkList.size(); i++) {
                 for (Audio audio : cachedList) {
-                    if (vkList.get(i).id == audio.id && new File(audio.url).exists()) {
+                    if (vkList.get(i).id == audio.id && new File(audio.cachePath).exists()) {
                         vkList.set(i, audio);
                     }
                 }

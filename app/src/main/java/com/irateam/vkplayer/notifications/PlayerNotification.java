@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 
 import com.irateam.vkplayer.R;
+import com.irateam.vkplayer.activities.AudioActivity;
 import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.services.PlayerService;
@@ -20,12 +21,13 @@ public class PlayerNotification {
 
     public static Notification create(Context context, int index, Audio audio, Player.PlayerEvent event) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-
+        PendingIntent intent = PendingIntent.getActivity(context, 0, new Intent(context, AudioActivity.class), 0);
         builder
                 .setContentTitle(index + 1 + ". " + audio.title)
                 .setContentText(audio.artist)
                 .setLargeIcon(AlbumCoverUtils.createBitmapFromAudio(audio))
                 .setShowWhen(false)
+                .setContentIntent(intent)
                 .addAction(R.drawable.ic_player_previous_grey_18dp,
                         context.getString(R.string.notification_previous),
                         createAction(context, PlayerService.PREVIOUS));

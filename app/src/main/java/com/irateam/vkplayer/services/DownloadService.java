@@ -73,7 +73,7 @@ public class DownloadService extends Service {
                     e.printStackTrace();
                 }
                 audio.cachePath = file.getAbsolutePath();
-                System.out.println(String.valueOf(new AudioDatabaseHelper(DownloadService.this).insert(audio)));
+                System.out.println(String.valueOf(new AudioDatabaseHelper(DownloadService.this).cache(audio)));
                 onFinish();
                 stopForeground(true);
                 Intent intent = new Intent(DOWNLOAD_FINISHED);

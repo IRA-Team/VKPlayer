@@ -6,6 +6,7 @@ import android.os.Binder;
 import android.os.IBinder;
 
 import com.irateam.vkplayer.models.Audio;
+import com.irateam.vkplayer.models.Settings;
 import com.irateam.vkplayer.notifications.PlayerNotification;
 import com.irateam.vkplayer.player.Player;
 
@@ -20,11 +21,15 @@ public class PlayerService extends Service implements Player.PlayerEventListener
 
     private Player player = new Player();
     private Binder binder = new PlayerBinder();
+    private Settings settings;
 
     @Override
     public void onCreate() {
         super.onCreate();
         player.addPlayerEventListener(this);
+        settings = Settings.getInstance(this);
+        player.setRepeatState(settings.getPlayerRepeat());
+        player.setRandomState(settings.getRandomState());
     }
 
 
@@ -113,8 +118,15 @@ public class PlayerService extends Service implements Player.PlayerEventListener
         return player.getPlayingAudioIndex();
     }
 
+    public void setRepeatState(Player.RepeatState state) {
+        settings.setPlayerRepeat(state);
+        player.setRepeatState(state);
+    }
+
     public Player.RepeatState switchRepeatState() {
-        return player.switchRepeatState();
+        Player.RepeatState state = player.switchRepeatState();
+        settings.setPlayerRepeat(state);
+        return state;
     }
 
     public Player.RepeatState getRepeatState() {
@@ -122,7 +134,9 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     }
 
     public boolean switchRandomState() {
-        return player.switchRandomState();
+        boolean state = player.switchRandomState();
+        settings.setRandomState(state);
+        return state;
     }
 
     public boolean getRandomState() {

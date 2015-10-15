@@ -1,5 +1,6 @@
 package com.irateam.vkplayer.models;
 
+import android.content.ContentValues;
 import android.os.Parcel;
 
 import com.vk.sdk.api.model.VKApiAudio;
@@ -54,6 +55,4 @@ public class Audio extends VKApiAudio {
             return new Audio[size];
         }
     };
-
-
 }
