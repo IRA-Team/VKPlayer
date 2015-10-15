@@ -20,16 +20,8 @@ import static com.irateam.vkplayer.player.Player.RepeatState.ONE_REPEAT;
 
 public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener {
 
-    private static Player instance;
     private int pauseTime;
     private ProgressThread currentProgressThread;
-
-    public synchronized static Player getInstance() {
-        if (instance == null) {
-            instance = new Player();
-        }
-        return instance;
-    }
 
     public Player() {
         super();
@@ -38,7 +30,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         setOnCompletionListener(this);
     }
 
-    private List<Audio> list;
+    private List<Audio> list = new ArrayList<>();
     private RepeatState repeatState = NO_REPEAT;
 
     private boolean randomState = false;
@@ -264,14 +256,11 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     private void notifyPlayerProgressChanged() {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                for (WeakReference<PlayerProgressListener> l : progressListeners) {
-                    PlayerProgressListener listener = l.get();
-                    if (listener != null) {
-                        listener.onProgressChanged(getCurrentPosition());
-                    }
+        new Handler(Looper.getMainLooper()).post(() -> {
+            for (WeakReference<PlayerProgressListener> l : progressListeners) {
+                PlayerProgressListener listener = l.get();
+                if (listener != null) {
+                    listener.onProgressChanged(getCurrentPosition());
                 }
             }
         });

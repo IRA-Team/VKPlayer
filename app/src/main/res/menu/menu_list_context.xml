@@ -5,12 +5,12 @@
         android:id="@+id/action_cache"
         android:icon="@drawable/ic_cache_white_24dp"
         android:title="@string/action_cache"
-        android:visible="true"
+        android:visible="false"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_remove_from_cache"
-        android:icon="@drawable/ic_cache_white_24dp"
+        android:icon="@drawable/ic_remove_cache_white_24dp"
         android:title="@string/action_cache"
         android:visible="false"
         app:showAsAction="ifRoom" />

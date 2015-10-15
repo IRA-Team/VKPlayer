@@ -60,45 +60,26 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
         this.playerService = playerService;
         configurePanel(playerService);
 
-        playPause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (playerService.isPlaying())
-                    playerService.pause();
-                else
-                    playerService.resume();
-            }
-        });
+        playPause.setOnClickListener((v -> {
+            if (playerService.isPlaying())
+                playerService.pause();
+            else
+                playerService.resume();
+        }));
 
-        previous.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playerService.previous();
-            }
-        });
+        previous.setOnClickListener((v) ->
+                playerService.previous());
 
-        next.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playerService.next();
-            }
-        });
+        next.setOnClickListener((v) ->
+                playerService.next());
 
         setRepeatState(playerService.getRepeatState());
-        repeat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setRepeatState(playerService.switchRepeatState());
-            }
-        });
+        repeat.setOnClickListener((v) ->
+                setRepeatState(playerService.switchRepeatState()));
 
         setRandomState(playerService.getRandomState());
-        random.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setRandomState(playerService.switchRandomState());
-            }
-        });
+        random.setOnClickListener((v) ->
+                setRandomState(playerService.switchRandomState()));
 
         progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -118,13 +99,8 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
             }
         });
 
-        headerLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, AudioActivity.class);
-                context.startActivity(intent);
-            }
-        });
+        headerLayout.setOnClickListener((v) ->
+                context.startActivity(new Intent(context, AudioActivity.class)));
     }
 
     public void setPlayPause(boolean play) {

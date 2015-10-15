@@ -20,19 +20,23 @@ public class PlayerNotification {
     public static final int ID = 1;
 
     public static Notification create(Context context, int index, Audio audio, Player.PlayerEvent event) {
-        PendingIntent intent = PendingIntent.getActivity(context, 0, new Intent(context, AudioActivity.class), 0);
+        Intent intent = new Intent(context, PlayerService.class);
+        intent.setAction(PlayerService.STOP);
+        PendingIntent cancelIntent = PendingIntent.getService(context, 0, intent, 0);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         NotificationCompat.Style style = new NotificationCompat.MediaStyle()
                 .setShowCancelButton(true)
-                .setCancelButtonIntent(intent);
+                .setCancelButtonIntent(cancelIntent);
 
         builder
                 .setContentTitle(index + 1 + ". " + audio.title)
                 .setContentText(audio.artist)
                 .setLargeIcon(AlbumCoverUtils.drawableToBitmap(context.getResources().getDrawable(R.drawable.player_cover)))
                 .setShowWhen(false)
+                .setOngoing(true)
                 .setStyle(style)
-                .setContentIntent(intent)
+                .setWhen(0)
+                .setContentIntent(PendingIntent.getActivity(context, 0, new Intent(context, AudioActivity.class), 0))
                 .addAction(R.drawable.ic_player_previous_grey_18dp,
                         context.getString(R.string.notification_previous),
                         createAction(context, PlayerService.PREVIOUS));

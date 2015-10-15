@@ -39,14 +39,11 @@ public class ActivityPlayerController extends PlayerController implements Player
     @SuppressWarnings("deprecation")
     public void setPlayerService(final PlayerService playerService) {
         super.setPlayerService(playerService);
-        playPause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (playerService.isPlaying()) {
-                    playerService.pause();
-                } else {
-                    playerService.resume();
-                }
+        playPause.setOnClickListener((v) -> {
+            if (playerService.isPlaying()) {
+                playerService.pause();
+            } else {
+                playerService.resume();
             }
         });
     }
@@ -114,7 +111,7 @@ public class ActivityPlayerController extends PlayerController implements Player
         @Override
         protected Double doInBackground(Void... params) {
 
-            URLConnection urlConnection = null;
+            URLConnection urlConnection;
             double size = 0;
             try {
 

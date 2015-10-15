@@ -86,11 +86,8 @@ public class ListActivity extends AppCompatActivity implements
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawerLayout.openDrawer(GravityCompat.START);
-            }
+        toolbar.setNavigationOnClickListener((v) -> {
+            drawerLayout.openDrawer(GravityCompat.START);
         });
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -143,11 +140,7 @@ public class ListActivity extends AppCompatActivity implements
         audioAdapter.setCoverCheckListener(this);
 
         audioService.addListener(this);
-        if (NetworkUtils.checkNetwork(this)) {
-            onNavigationItemSelected(navigationView.getMenu().getItem(0));
-        } else {
-            onNavigationItemSelected(navigationView.getMenu().getItem(3));
-        }
+
 
         downloadFinishedReceiver = new DownloadFinishedReceiver() {
             @Override
@@ -225,11 +218,8 @@ public class ListActivity extends AppCompatActivity implements
     public void onError(String errorMessage) {
         refreshLayout.setRefreshing(false);
         Snackbar.make(coordinatorLayout, errorMessage, Snackbar.LENGTH_LONG)
-                .setAction(getString(R.string.title_snackbar_action), new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        audioService.repeatLastRequest();
-                    }
+                .setAction(getString(R.string.title_snackbar_action), (v) -> {
+                    audioService.repeatLastRequest();
                 })
                 .show();
     }
@@ -240,10 +230,15 @@ public class ListActivity extends AppCompatActivity implements
 
         if (menuItem.getGroupId() == R.id.audio_group) {
             getSupportActionBar().setTitle(menuItem.getTitle());
-            refreshLayout.setRefreshing(true);
+            if (menuItem.getItemId() != R.id.current_playlist) {
+                refreshLayout.setRefreshing(true);
+            }
         }
 
         switch (menuItem.getItemId()) {
+            case R.id.current_playlist:
+                onComplete(playerService.getPlaylist());
+                return true;
             case R.id.my_audio:
                 audioService.getMyAudio();
                 return true;
@@ -272,6 +267,9 @@ public class ListActivity extends AppCompatActivity implements
             playerService.setPlaylist(audioAdapter.getList());
             playerService.play(position);
         }
+        MenuItem item = navigationView.getMenu().getItem(0);
+        item.setChecked(true);
+        onNavigationItemSelected(item);
         playerController.playPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_player_pause_grey_18dp));
     }
 
@@ -326,6 +324,20 @@ public class ListActivity extends AppCompatActivity implements
         playerService = ((PlayerService.PlayerBinder) service).getPlayerService();
         playerController.setPlayerService(playerService);
         playerService.addPlayerEventListener(playerController);
+
+        if (playerService.isPlaying()) {
+            MenuItem item = navigationView.getMenu().getItem(0);
+            item.setChecked(true);
+            onNavigationItemSelected(item);
+        } else if (NetworkUtils.checkNetwork(this)) {
+            MenuItem item = navigationView.getMenu().getItem(1);
+            item.setChecked(true);
+            onNavigationItemSelected(item);
+        } else {
+            MenuItem item = navigationView.getMenu().getItem(4);
+            item.setChecked(true);
+            onNavigationItemSelected(item);
+        }
     }
 
     @Override
@@ -352,13 +364,26 @@ public class ListActivity extends AppCompatActivity implements
                 startActionMode(this);
             }
             actionMode.setTitle(String.valueOf(audioAdapter.getCheckedCount()));
+
+            Menu menu = actionMode.getMenu();
+            MenuItem cacheItem = menu.findItem(R.id.action_cache);
+            MenuItem removeFromCache = menu.findItem(R.id.action_remove_from_cache);
+            if (audioAdapter.getCachedCheckedItems().size() > 0) {
+                removeFromCache.setVisible(true);
+            } else {
+                removeFromCache.setVisible(false);
+            }
+
+            if (audioAdapter.getNotCachedItems().size() > 0) {
+                cacheItem.setVisible(true);
+            } else {
+                cacheItem.setVisible(false);
+            }
+
         } else {
             actionMode.finish();
         }
     }
-
-
-    private int statusBarColor;
 
     @Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -379,6 +404,7 @@ public class ListActivity extends AppCompatActivity implements
                 Intent intent = new Intent(this, DownloadService.class);
                 intent.putExtra(DownloadService.AUDIO_SET, (ArrayList<Audio>) audioAdapter.getCheckedItems());
                 startService(intent);
+                Log.i("CLICKED", "CLICKED");
                 break;
             case R.id.action_delete:
                 audioAdapter.removeChecked();

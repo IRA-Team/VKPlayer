@@ -12,6 +12,7 @@
 
     <string name="navigation_drawer_open">Открыть</string>
     <string name="navigation_drawer_close">Закрыть</string>
+    <string name="navigation_drawer_current_playlist">Текущий плейлист</string>
     <string name="navigation_drawer_my_audio">Мои аудиозаписи</string>
     <string name="navigation_drawer_recommendation">Рекомендации</string>
     <string name="navigation_drawer_popular">Популярное</string>

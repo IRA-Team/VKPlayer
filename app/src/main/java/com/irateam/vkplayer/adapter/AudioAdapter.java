@@ -84,14 +84,12 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         element.setTitle(audio.title);
         element.setArtist(audio.artist);
         element.setCoverDrawable(AlbumCoverUtils.createFromAudio(audio));
-        element.setCoverOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!sortMode) {
-                    notifyCoverChecked(position);
-                }
+        element.setCoverOnClickListener((v) -> {
+            if (!sortMode) {
+                notifyCoverChecked(position);
             }
         });
+
         element.setDuration(audio.duration);
 
         if (audio.isCached()) {
@@ -126,6 +124,26 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
             list.add(this.list.get(i));
         }
         return list;
+    }
+
+    public List<Audio> getCachedCheckedItems() {
+        List<Audio> cachedAudios = new ArrayList<>();
+        for (Audio audio : getCheckedItems()) {
+            if (audio.isCached()) {
+                cachedAudios.add(audio);
+            }
+        }
+        return cachedAudios;
+    }
+
+    public List<Audio> getNotCachedItems() {
+        List<Audio> notCachedAudios = new ArrayList<>();
+        for (Audio audio : getCheckedItems()) {
+            if (!audio.isCached()) {
+                notCachedAudios.add(audio);
+            }
+        }
+        return notCachedAudios;
     }
 
     public int getCheckedCount() {

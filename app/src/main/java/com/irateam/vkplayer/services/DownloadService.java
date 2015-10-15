@@ -46,40 +46,37 @@ public class DownloadService extends Service {
 
     private void startDownload(final Audio audio) {
         startForeground(DownloadNotification.ID, DownloadNotification.create(this, audio, 0));
-        currentThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                BufferedInputStream inputStream = null;
-                FileOutputStream fileOutputStream = null;
-                URLConnection connection = null;
-                File file = new File(getExternalCacheDir(), String.valueOf(audio.id));
-                try {
-                    connection = new URL(audio.url).openConnection();
-                    int size = connection.getContentLength();
-                    inputStream = new BufferedInputStream(connection.getInputStream());
-                    fileOutputStream = new FileOutputStream(file);
-                    final byte data[] = new byte[1024];
-                    int count, total = 0, progress = 0, now;
-                    while ((count = inputStream.read(data, 0, 1024)) != -1) {
-                        total += count;
-                        fileOutputStream.write(data, 0, count);
-                        now = (int) ((double) total / size * 100);
-                        if (now - progress > 3) {
-                            progress = now;
-                            DownloadNotification.update(DownloadService.this, audio, progress);
-                        }
+        currentThread = new Thread(() -> {
+            BufferedInputStream inputStream = null;
+            FileOutputStream fileOutputStream = null;
+            URLConnection connection = null;
+            File file = new File(getExternalCacheDir(), String.valueOf(audio.id));
+            try {
+                connection = new URL(audio.url).openConnection();
+                int size = connection.getContentLength();
+                inputStream = new BufferedInputStream(connection.getInputStream());
+                fileOutputStream = new FileOutputStream(file);
+                final byte data[] = new byte[1024];
+                int count, total = 0, progress = 0, now;
+                while ((count = inputStream.read(data, 0, 1024)) != -1) {
+                    total += count;
+                    fileOutputStream.write(data, 0, count);
+                    now = (int) ((double) total / size * 100);
+                    if (now - progress > 3) {
+                        progress = now;
+                        DownloadNotification.update(DownloadService.this, audio, progress);
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
-                audio.cachePath = file.getAbsolutePath();
-                System.out.println(String.valueOf(new AudioDatabaseHelper(DownloadService.this).cache(audio)));
-                onFinish();
-                stopForeground(true);
-                Intent intent = new Intent(DOWNLOAD_FINISHED);
-                intent.putExtra(DownloadFinishedReceiver.AUDIO_ID, audio);
-                sendBroadcast(intent);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+            audio.cachePath = file.getAbsolutePath();
+            System.out.println(String.valueOf(new AudioDatabaseHelper(DownloadService.this).cache(audio)));
+            onFinish();
+            stopForeground(true);
+            Intent intent = new Intent(DOWNLOAD_FINISHED);
+            intent.putExtra(DownloadFinishedReceiver.AUDIO_ID, audio);
+            sendBroadcast(intent);
         });
         currentThread.start();
     }

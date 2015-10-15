@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.irateam.vkplayer.models.Audio;
 
@@ -17,7 +18,7 @@ public class AudioDatabaseHelper extends DatabaseHelper {
 
     //Audio table
     public static final String TABLE_NAME = "audios";
-    public static final String ID = "_id";
+    public static final String ID = "id";
     public static final String OWNER_ID = "owner_id";
     public static final String ARTIST = "artist";
     public static final String TITLE = "title";
@@ -28,6 +29,7 @@ public class AudioDatabaseHelper extends DatabaseHelper {
     public static final String ALBUM_ID = "album_id";
     public static final String GENRE = "genre";
     public static final String ACCESS_KEY = "access_key";
+    public static final String ORDER_POSITION = "order_position";
 
     public long insert(Audio audio) {
         SQLiteDatabase db = getWritableDatabase();
@@ -36,12 +38,12 @@ public class AudioDatabaseHelper extends DatabaseHelper {
 
     public long update(Audio audio) {
         SQLiteDatabase db = getWritableDatabase();
-        return db.update(TABLE_NAME, toContentValues(audio), "_id = " + audio.id, null);
+        return db.update(TABLE_NAME, toContentValues(audio), "id = " + audio.id, null);
     }
 
     public long cache(Audio audio) {
         SQLiteDatabase db = getWritableDatabase();
-        Cursor cursor = db.query(TABLE_NAME, null, "_id = " + audio.id, null, null, null, null);
+        Cursor cursor = db.query(TABLE_NAME, null, "id = " + audio.id, null, null, null, null);
         long id;
         if (cursor.getCount() <= 0) {
             id = insert(audio);
@@ -81,7 +83,7 @@ public class AudioDatabaseHelper extends DatabaseHelper {
     }
 
     public static Audio fromCursor(Cursor cursor) {
-        int i = 0;
+        int i = 1;
         Audio audio = new Audio();
         audio.id = cursor.getInt(i++);
         audio.owner_id = cursor.getInt(i++);

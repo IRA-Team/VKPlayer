@@ -2,10 +2,8 @@ package com.irateam.vkplayer.services;
 
 import android.app.Service;
 import android.content.Intent;
-import android.media.session.MediaSessionManager;
 import android.os.Binder;
 import android.os.IBinder;
-import android.support.v4.media.session.MediaSessionCompat;
 
 import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.models.Settings;
@@ -20,11 +18,10 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     public static final String PAUSE = "playerService.PAUSE";
     public static final String RESUME = "playerService.RESUME";
     public static final String NEXT = "playerService.NEXT";
+    public static final String STOP = "playerService.STOP";
 
     private Player player = new Player();
     private Binder binder = new PlayerBinder();
-    private MediaSessionManager sessionManager;
-    private MediaSessionCompat mediaSession;
     private Settings settings;
 
     @Override
@@ -53,6 +50,10 @@ public class PlayerService extends Service implements Player.PlayerEventListener
                     break;
                 case NEXT:
                     next();
+                    break;
+                case STOP:
+                    stop();
+                    stopForeground(true);
                     break;
             }
         }

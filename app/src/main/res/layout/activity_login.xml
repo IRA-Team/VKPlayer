@@ -31,5 +31,4 @@
         android:drawableLeft="@drawable/ic_vk_logo_white_24dp"
         android:text="@string/title_button_login_vk" />
 
-
 </RelativeLayout>
