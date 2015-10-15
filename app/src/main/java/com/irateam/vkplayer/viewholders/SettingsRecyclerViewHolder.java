@@ -10,11 +10,13 @@ import com.irateam.vkplayer.R;
 public class SettingsRecyclerViewHolder extends RecyclerView.ViewHolder {
 
     public TextView name;
+    public TextView other;
     public Switch aSwitch;
 
     public SettingsRecyclerViewHolder(View itemView) {
         super(itemView);
         name = (TextView) itemView.findViewById(R.id.settings_recycler_view_name);
+        other = (TextView) itemView.findViewById(R.id.settings_recycler_view_other);
         aSwitch = (Switch) itemView.findViewById(R.id.settings_recycler_view_switch);
     }
 }

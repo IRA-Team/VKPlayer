@@ -38,5 +38,6 @@
 
     <item name="activity_audio_menu_item_text_color" type="color">#000000</item>
 
+    <item name="settings_text_color" type="color">#000000</item>
 
 </resources>

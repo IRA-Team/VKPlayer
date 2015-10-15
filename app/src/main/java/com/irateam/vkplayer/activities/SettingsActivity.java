@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.irateam.vkplayer.R;
+import com.irateam.vkplayer.RecyclerViewSettings;
 import com.irateam.vkplayer.adapter.SettingsRecyclerViewAdapter;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
@@ -22,7 +23,7 @@ public class SettingsActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
-    private ArrayList<String> settingsNames;
+    private ArrayList<RecyclerViewSettings> settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,8 +35,8 @@ public class SettingsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(getResources().getString(R.string.settings_toolbar_title));
 
-        settingsNames = new ArrayList<>();
-        settingsNames.add("Синхронизация");
+        settings = new ArrayList<>();
+        settings.add(new RecyclerViewSettings("Синхронизация"));
 
         mRecyclerView = (RecyclerView) findViewById(R.id.settings_recycler_view);
         mRecyclerView.setHasFixedSize(true);
@@ -44,7 +45,7 @@ public class SettingsActivity extends AppCompatActivity {
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new SettingsRecyclerViewAdapter(settingsNames);
+        mAdapter = new SettingsRecyclerViewAdapter(settings);
         mRecyclerView.setAdapter(mAdapter);
     }
 

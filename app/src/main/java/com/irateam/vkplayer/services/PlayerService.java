@@ -2,8 +2,6 @@ package com.irateam.vkplayer.services;
 
 import android.app.Service;
 import android.content.Intent;
-import android.media.session.MediaController;
-import android.media.session.MediaSession;
 import android.media.session.MediaSessionManager;
 import android.os.Binder;
 import android.os.IBinder;
@@ -36,8 +34,6 @@ public class PlayerService extends Service implements Player.PlayerEventListener
         settings = Settings.getInstance(this);
         player.setRepeatState(settings.getPlayerRepeat());
         player.setRandomState(settings.getRandomState());
-
-        sessionManager = (MediaSessionManager) getSystemService(MEDIA_SESSION_SERVICE);
     }
 
 
