@@ -8,4 +8,5 @@
     android:minHeight="?attr/actionBarSize"
     app:titleMarginStart="16dp"
     app:popupTheme="@style/BaseTheme.App"
+    app:navigationIcon="?attr/homeAsUpIndicator"
     app:theme="@style/ActionBarStyle" />

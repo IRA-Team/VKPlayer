@@ -69,7 +69,9 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".activities.SettingsActivity" />
+        <activity
+            android:name=".activities.settings.SettingsActivity"
+            android:label="@string/title_activity_settings" />
     </application>
 
 </manifest>

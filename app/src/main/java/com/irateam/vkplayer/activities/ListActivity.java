@@ -25,6 +25,7 @@ import android.widget.AdapterView;
 import android.widget.TextView;
 
 import com.irateam.vkplayer.R;
+import com.irateam.vkplayer.activities.settings.SettingsActivity;
 import com.irateam.vkplayer.adapter.AudioAdapter;
 import com.irateam.vkplayer.controllers.PlayerController;
 import com.irateam.vkplayer.models.Audio;
@@ -252,7 +253,7 @@ public class ListActivity extends AppCompatActivity implements
                 audioService.getCachedAudio();
                 return true;
             case R.id.settings:
-                //startActivity(new Intent(this, SettingsActivity.class));
+                startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             case R.id.exit:
                 VkLogout();

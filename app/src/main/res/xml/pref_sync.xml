@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:key="sync_enabled"
+        android:title="@string/pref_sync_enabled"
+        android:defaultValue="false" />
+
+    <com.irateam.vkplayer.preferences.TimePreference
+        android:key="sync_time"
+        android:title="@string/pref_sync_time"
+        android:defaultValue="@string/pref_sync_time_default"
+        android:dependency="sync_enabled" />
+
+    <EditTextPreference
+        android:dependency="sync_enabled"
+        android:key="sync_count"
+        android:title="@string/pref_sync_count"
+        android:defaultValue="@integer/pref_sync_count_default"
+        android:selectAllOnFocus="true"
+        android:inputType="number"
+        android:singleLine="true"
+        android:maxLines="1" />
+
+</PreferenceScreen>
