@@ -10,8 +10,3 @@ CREATE TABLE audios
     album_id INTEGER,
     genre INTEGER,
     access_key TEXT);
-
-CREATE TABLE settings
-    (_id INTEGER PRIMARY KEY ASC,
-    param TEXT,
-    value TEXT);

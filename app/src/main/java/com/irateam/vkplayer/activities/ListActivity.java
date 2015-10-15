@@ -42,7 +42,6 @@ import com.vk.sdk.api.VKApiConst;
 import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
-import com.vk.sdk.api.model.VKApiAudio;
 import com.vk.sdk.api.model.VKApiUser;
 
 import org.json.JSONException;
@@ -258,7 +257,7 @@ public class ListActivity extends AppCompatActivity implements
                 audioService.getCachedAudio();
                 return true;
             case R.id.settings:
-                startActivity(new Intent(this, SettingsActivity.class));
+                //startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             case R.id.exit:
                 VkLogout();

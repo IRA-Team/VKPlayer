@@ -11,6 +11,8 @@ public class Settings {
     public static final String REPEAT_STATE = "repeat_state";
     public static final String RANDOM_STATE = "random_state";
 
+    public static final String SYNC_ENABLED = "sync_enabled";
+
     private static Settings instance;
 
     public static synchronized Settings getInstance(Context context) {
@@ -44,5 +46,15 @@ public class Settings {
 
     public boolean getRandomState() {
         return preferences.getBoolean(RANDOM_STATE, false);
+    }
+
+    public void setSyncEnabled(boolean enabled) {
+        preferences.edit()
+                .putBoolean(SYNC_ENABLED, enabled)
+                .apply();
+    }
+
+    public boolean getSyncEnabled() {
+        return preferences.getBoolean(SYNC_ENABLED, false);
     }
 }

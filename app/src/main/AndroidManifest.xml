@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.irateam.vkplayer">
+    package="com.irateam.vkplayer" >
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -13,11 +13,11 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/BaseTheme.App">
+        android:theme="@style/BaseTheme.App" >
         <activity
             android:name=".activities.MainActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -51,7 +51,7 @@
         <service
             android:name=".services.PlayerService"
             android:enabled="true"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="player.PLAY" />
                 <action android:name="player.PAUSE" />
@@ -65,13 +65,13 @@
             android:enabled="true"
             android:exported="true" />
 
-        <receiver android:name=".receivers.NotificationReceiver">
+        <receiver android:name=".receivers.NotificationReceiver" >
             <intent-filter>
                 <action android:name="player.STOP_SERVICE" />
             </intent-filter>
         </receiver>
 
-        <activity android:name=".activities.SettingsActivity"></activity>
+        <activity android:name=".activities.SettingsActivity" />
     </application>
 
 </manifest>
