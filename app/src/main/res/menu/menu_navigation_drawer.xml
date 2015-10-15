@@ -8,19 +8,19 @@
         <item
             android:id="@+id/my_audio"
             android:checked="false"
-            android:icon="@drawable/ic_navigation_drawer_mysound_grey_18dp"
+            android:icon="@drawable/ic_navigation_drawer_mysound_grey_24dp"
             android:title="@string/navigation_drawer_my_audio" />
 
         <item
             android:id="@+id/recommended_audio"
             android:checked="false"
-            android:icon="@drawable/ic_navigation_drawer_like_grey_18dp"
+            android:icon="@drawable/ic_navigation_drawer_like_grey_24dp"
             android:title="@string/navigation_drawer_recommendation" />
 
         <item
             android:id="@+id/popular_audio"
             android:checked="false"
-            android:icon="@drawable/ic_navigation_drawer_star_grey_18dp"
+            android:icon="@drawable/ic_navigation_drawer_star_grey_24dp"
             android:title="@string/navigation_drawer_popular" />
 
         <item
@@ -33,12 +33,12 @@
     <group android:id="@+id/secondary_group">
         <item
             android:id="@+id/settings"
-            android:icon="@drawable/ic_navigation_drawer_settings_grey_18dp"
+            android:icon="@drawable/ic_navigation_drawer_settings_grey_24dp"
             android:title="@string/navigation_drawer_settings" />
 
         <item
             android:id="@+id/exit"
-            android:icon="@drawable/ic_navigation_drawer_exit_grey_18dp"
+            android:icon="@drawable/ic_navigation_drawer_exit_grey_24dp"
             android:title="@string/navigation_drawer_exit" />
     </group>
 </menu>
