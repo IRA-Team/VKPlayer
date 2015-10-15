@@ -41,10 +41,13 @@
     </style>
 
     <style name="ButtonLoginActivity">
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:layout_marginLeft">16dp</item>
+        <item name="android:layout_marginRight">16dp</item>
         <item name="android:paddingLeft">24dp</item>
         <item name="android:drawablePadding">24dp</item>
         <item name="android:height">@dimen/button_login_activity_height</item>
-        <item name="android:gravity">center</item>
+        <item name="android:gravity">left|center_vertical</item>
     </style>
 
     <style name="ButtonLoginActivity.White">
