@@ -10,6 +10,7 @@ import android.widget.Filterable;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.models.Audio;
+import com.irateam.vkplayer.services.PlayerService;
 import com.irateam.vkplayer.ui.AudioListElement;
 import com.irateam.vkplayer.utils.AlbumCoverUtils;
 
@@ -20,6 +21,8 @@ import java.util.List;
 public class AudioAdapter extends BaseAdapter implements Filterable {
 
     private Context context;
+    private PlayerService playerService;
+
     private List<Audio> list = new ArrayList<>();
     private List<Integer> checkedList = new ArrayList<>();
 
@@ -27,6 +30,10 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
 
     public AudioAdapter(Context context) {
         this.context = context;
+    }
+
+    public void setPlayerService(PlayerService playerService) {
+        this.playerService = playerService;
     }
 
     public List<Audio> getList() {
@@ -44,6 +51,18 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
             if (list.get(i).id == audio.id) {
                 list.set(i, audio);
                 break;
+            }
+        }
+        notifyDataSetChanged();
+    }
+
+    public void updateAudiosById(List<Audio> audios) {
+        for (int i = 0; i < list.size(); i++) {
+            for (Audio audio : audios) {
+                if (list.get(i).id == audio.id) {
+                    list.set(i, audio);
+                    break;
+                }
             }
         }
         notifyDataSetChanged();

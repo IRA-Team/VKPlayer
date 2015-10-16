@@ -1,5 +1,6 @@
 package com.irateam.vkplayer.activities;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -16,7 +17,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -48,6 +48,7 @@ import com.vk.sdk.api.model.VKApiUser;
 import org.json.JSONException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ListActivity extends AppCompatActivity implements
@@ -138,10 +139,9 @@ public class ListActivity extends AppCompatActivity implements
         listView.setOnItemLongClickListener(this);
         listView.setDropListener(this);
         listView.setRemoveListener(this);
+
         audioAdapter.setCoverCheckListener(this);
-
         audioService.addListener(this);
-
 
         downloadFinishedReceiver = new DownloadFinishedReceiver() {
             @Override
@@ -150,26 +150,17 @@ public class ListActivity extends AppCompatActivity implements
             }
         };
         registerReceiver(downloadFinishedReceiver, new IntentFilter(DownloadService.DOWNLOAD_FINISHED));
-    }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unbindService(this);
+        startService(new Intent(this, PlayerService.class));
+        bindService(new Intent(this, PlayerService.class), this, BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         playerService.removePlayerEventListener(playerController);
+        unbindService(this);
         unregisterReceiver(downloadFinishedReceiver);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        startService(new Intent(this, PlayerService.class));
-        bindService(new Intent(this, PlayerService.class), this, BIND_AUTO_CREATE);
     }
 
     @Override
@@ -201,10 +192,7 @@ public class ListActivity extends AppCompatActivity implements
                 audioAdapter.setSortMode(flag);
                 refreshLayout.setEnabled(!flag);
                 return true;
-            case R.id.action_search:
-                return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -217,6 +205,7 @@ public class ListActivity extends AppCompatActivity implements
 
     @Override
     public void onError(String errorMessage) {
+        audioAdapter.setList(Collections.emptyList());
         refreshLayout.setRefreshing(false);
         Snackbar.make(coordinatorLayout, errorMessage, Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.title_snackbar_action), (v) -> {
@@ -225,20 +214,33 @@ public class ListActivity extends AppCompatActivity implements
                 .show();
     }
 
+    private BroadcastReceiver cacheUpdateReceiver;
     @Override
     public boolean onNavigationItemSelected(MenuItem menuItem) {
         drawerLayout.closeDrawers();
 
         if (menuItem.getGroupId() == R.id.audio_group) {
             getSupportActionBar().setTitle(menuItem.getTitle());
-            if (menuItem.getItemId() != R.id.current_playlist) {
-                refreshLayout.setRefreshing(true);
-            }
+            refreshLayout.setRefreshing(true);
+        }
+
+        if (menuItem.getItemId() == R.id.cached_audio && cacheUpdateReceiver == null) {
+            cacheUpdateReceiver = new DownloadFinishedReceiver() {
+                @Override
+                public void onDownloadFinished(Audio audio) {
+                    audioAdapter.getList().add(audio);
+                    audioAdapter.notifyDataSetChanged();
+                }
+            };
+            registerReceiver(cacheUpdateReceiver, new IntentFilter(DownloadService.DOWNLOAD_FINISHED));
+        } else if (cacheUpdateReceiver != null) {
+            unregisterReceiver(cacheUpdateReceiver);
+            cacheUpdateReceiver = null;
         }
 
         switch (menuItem.getItemId()) {
             case R.id.current_playlist:
-                onComplete(playerService.getPlaylist());
+                audioService.getCurrentAudio();
                 return true;
             case R.id.my_audio:
                 audioService.getMyAudio();
@@ -264,14 +266,11 @@ public class ListActivity extends AppCompatActivity implements
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if (playerService != null) {
-            playerService.setPlaylist(audioAdapter.getList());
-            playerService.play(position);
-        }
+        playerService.setPlaylist(audioAdapter.getList());
+        playerService.play(position);
         MenuItem item = navigationView.getMenu().getItem(0);
         item.setChecked(true);
         onNavigationItemSelected(item);
-        playerController.playPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_player_pause_grey_18dp));
     }
 
     @Override
@@ -321,12 +320,14 @@ public class ListActivity extends AppCompatActivity implements
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
-        Log.i("Service", "Connected");
         playerService = ((PlayerService.PlayerBinder) service).getPlayerService();
         playerController.setPlayerService(playerService);
         playerService.addPlayerEventListener(playerController);
 
-        if (playerService.isPlaying()) {
+        audioAdapter.setPlayerService(playerService);
+        audioService.setPlayerService(playerService);
+
+        if (playerService.getPlaylist().size() > 0) {
             MenuItem item = navigationView.getMenu().getItem(0);
             item.setChecked(true);
             onNavigationItemSelected(item);
@@ -343,7 +344,7 @@ public class ListActivity extends AppCompatActivity implements
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-        Log.i("Service", "Disconnected");
+        playerService = null;
     }
 
     @Override
@@ -358,7 +359,6 @@ public class ListActivity extends AppCompatActivity implements
     }
 
     public void performCheck(int position) {
-        System.out.println(listView.getCheckedItemCount());
         audioAdapter.toggleChecked(position);
         if (audioAdapter.getCheckedCount() > 0) {
             if (actionMode == null) {
@@ -405,7 +405,20 @@ public class ListActivity extends AppCompatActivity implements
                 Intent intent = new Intent(this, DownloadService.class);
                 intent.putExtra(DownloadService.AUDIO_SET, (ArrayList<Audio>) audioAdapter.getCheckedItems());
                 startService(intent);
-                Log.i("CLICKED", "CLICKED");
+                break;
+            case R.id.action_remove_from_cache:
+                List<Audio> list = audioAdapter.getCachedCheckedItems();
+                audioService.removeFromCache(list, new AudioService.Listener() {
+                    @Override
+                    public void onComplete(List<Audio> list) {
+                        audioAdapter.updateAudiosById(list);
+                    }
+
+                    @Override
+                    public void onError(String errorMessage) {
+
+                    }
+                });
                 break;
             case R.id.action_delete:
                 audioAdapter.removeChecked();

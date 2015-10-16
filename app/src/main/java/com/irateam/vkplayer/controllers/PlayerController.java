@@ -60,6 +60,7 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
         this.playerService = playerService;
         configurePanel(playerService);
 
+        setPlayPause(playerService.isPlaying());
         playPause.setOnClickListener((v -> {
             if (playerService.isPlaying())
                 playerService.pause();
@@ -81,6 +82,9 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
         random.setOnClickListener((v) ->
                 setRandomState(playerService.switchRandomState()));
 
+        if (playerService.isReady() && !playerService.isPlaying()) {
+            onProgressChanged(playerService.getPauseTime());
+        }
         progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -126,12 +130,16 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
         switch (event) {
             case PLAY:
                 setAudio(position, audio);
+                setPlayPause(true);
                 break;
             case PAUSE:
                 setPlayPause(false);
                 break;
             case RESUME:
                 setPlayPause(true);
+                break;
+            case STOP:
+                rootView.setVisibility(View.GONE);
                 break;
         }
     }

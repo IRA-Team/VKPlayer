@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import com.irateam.vkplayer.models.Audio;
 
@@ -39,6 +38,17 @@ public class AudioDatabaseHelper extends DatabaseHelper {
     public long update(Audio audio) {
         SQLiteDatabase db = getWritableDatabase();
         return db.update(TABLE_NAME, toContentValues(audio), "id = " + audio.id, null);
+    }
+
+    public long delete(Audio audio) {
+        SQLiteDatabase db = getWritableDatabase();
+        return db.delete(TABLE_NAME, "id = " + audio.id, null);
+    }
+
+    public void delete(List<Audio> list) {
+        for (Audio audio : list) {
+            delete(audio);
+        }
     }
 
     public long cache(Audio audio) {

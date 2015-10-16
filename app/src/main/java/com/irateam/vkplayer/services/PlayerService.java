@@ -115,6 +115,14 @@ public class PlayerService extends Service implements Player.PlayerEventListener
         return player.isPlaying();
     }
 
+    public boolean isReady() {
+        return player.isReady();
+    }
+
+    public int getPauseTime() {
+        return player.getPauseTime();
+    }
+
     public Audio getPlayingAudio() {
         return player.getPlayingAudio();
     }

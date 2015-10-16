@@ -4,6 +4,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import com.irateam.vkplayer.models.Audio;
 
@@ -22,6 +23,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     private int pauseTime;
     private ProgressThread currentProgressThread;
+    private boolean stateReady = false;
 
     public Player() {
         super();
@@ -74,7 +76,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     public void resume() {
-        if (playingAudio != null) {
+        if (isReady() && playingAudio != null) {
             seekTo(pauseTime);
             start();
             notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.RESUME);
@@ -82,7 +84,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     public void stop() {
-        if (isPlaying() && playingAudio != null) {
+        if (isReady() && playingAudio != null) {
             super.stop();
             notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.STOP);
             playingAudio = null;
@@ -90,11 +92,15 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     public void pause() {
-        if (isPlaying()) {
+        if (isReady() && isPlaying()) {
             super.pause();
             pauseTime = getCurrentPosition();
             notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.PAUSE);
         }
+    }
+
+    public int getPauseTime() {
+        return pauseTime;
     }
 
     public void next() {
@@ -126,6 +132,12 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         }
         reset();
         play(previousIndex);
+    }
+
+    @Override
+    public void seekTo(int msec) throws IllegalStateException {
+        super.seekTo(msec);
+        pauseTime = msec;
     }
 
     public RepeatState getRepeatState() {
@@ -191,9 +203,21 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     @Override
     public void onPrepared(MediaPlayer mp) {
+        stateReady = true;
+        Log.i("CALLED", "CALLED");
         start();
         startProgress();
         setOnBufferingUpdateListener(this);
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+        stateReady = false;
+    }
+
+    public boolean isReady() {
+        return stateReady;
     }
 
     //Listeners

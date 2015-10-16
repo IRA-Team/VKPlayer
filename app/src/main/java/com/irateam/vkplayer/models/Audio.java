@@ -7,11 +7,13 @@ import com.vk.sdk.api.model.VKApiAudio;
 
 import org.json.JSONObject;
 
+import java.io.File;
+
 public class Audio extends VKApiAudio {
     public String cachePath;
 
     public boolean isCached() {
-        return cachePath != null;
+        return cachePath != null && new File(cachePath).exists();
     }
 
     public Audio() {

@@ -27,40 +27,65 @@ public class AudioService extends VKRequest.VKRequestListener {
 
     public static final String GENRE_ID = "genre_id";
     private Context context;
-    private VKRequest lastRequest;
+    private PlayerService playerService;
     private List<WeakReference<Listener>> listeners = new ArrayList<>();
+
+    private VKRequest lastRequest;
+    private Runnable lastQuery;
 
     public AudioService(Context context) {
         this.context = context;
     }
 
+    public void setPlayerService(PlayerService playerService) {
+        this.playerService = playerService;
+    }
+
+    public void getCurrentAudio() {
+        performQuery(() -> notifyAllComplete(playerService.getPlaylist()), null);
+    }
+
     public void getMyAudio() {
-        performRequest(VKApi.audio().get());
+        VKRequest request = VKApi.audio().get();
+        performQuery(() -> request.executeWithListener(this), request);
     }
 
     public void getRecommendationAudio() {
-        performRequest(VKApi.audio().getRecommendations());
+        VKRequest request = VKApi.audio().getRecommendations();
+        performQuery(() -> request.executeWithListener(this), request);
     }
 
     public void getPopularAudio() {
-        performRequest(VKApi.audio().getPopular(VKParameters.from(GENRE_ID, 0)));
+        VKRequest request = VKApi.audio().getPopular(VKParameters.from(GENRE_ID, 0));
+        performQuery(() -> request.executeWithListener(this), request);
     }
 
-    private void performRequest(VKRequest request) {
+    public void getCachedAudio() {
+        performQuery(() -> new GetFromCacheTask().execute(), null);
+    }
+
+    private void performQuery(Runnable query, VKRequest request) {
+        lastQuery = query;
+
         if (lastRequest != null) {
             lastRequest.cancel();
         }
 
-        lastRequest = request;
-        if (NetworkUtils.checkNetwork(context)) {
-            request.executeWithListener(this);
+        if (request != null) {
+            if (NetworkUtils.checkNetwork(context)) {
+                query.run();
+            } else {
+                notifyAllError(context.getString(R.string.error_no_internet_connection));
+            }
         } else {
-            notifyAllError(context.getString(R.string.error_no_internet_connection));
+            query.run();
         }
+        lastRequest = request;
+
     }
 
     public void repeatLastRequest() {
-        performRequest(lastRequest);
+        lastQuery.run();
     }
 
     @Override
@@ -95,30 +120,27 @@ public class AudioService extends VKRequest.VKRequestListener {
         }
     }
 
-    public void getCachedAudio() {
-        if (lastRequest != null) {
-            lastRequest.cancel();
-            lastRequest = null;
-        }
+    public void removeFromCache(List<Audio> cachedList, Listener listener) {
+        new AsyncTask<Void, Void, Void>() {
 
-        new AsyncTask<Void, Void, List<Audio>>() {
             @Override
-            protected List<Audio> doInBackground(Void... params) {
-                List<Audio> list = new AudioDatabaseHelper(context).getAll();
-                Iterator<Audio> i = list.iterator();
-                while (i.hasNext()) {
-                    File file = new File(i.next().cachePath);
-                    if (!file.exists()) {
-                        i.remove();
+            protected Void doInBackground(Void... params) {
+                AudioDatabaseHelper helper = new AudioDatabaseHelper(context);
+                for (Audio audio : cachedList) {
+                    File file = new File(audio.cachePath);
+                    if (audio.isCached() && file.exists()) {
+                        file.delete();
+                        helper.delete(audio);
+                        audio.cachePath = null;
                     }
                 }
-                return list;
+                return null;
             }
 
             @Override
-            protected void onPostExecute(List<Audio> audios) {
-                super.onPostExecute(audios);
-                notifyAllComplete(audios);
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                listener.onComplete(cachedList);
             }
         }.execute();
     }
@@ -154,5 +176,28 @@ public class AudioService extends VKRequest.VKRequestListener {
 
         void onError(String errorMessage);
     }
+
+    private class GetFromCacheTask extends AsyncTask<Void, Void, List<Audio>> {
+        @Override
+        protected List<Audio> doInBackground(Void... params) {
+            List<Audio> list = new AudioDatabaseHelper(context).getAll();
+            Iterator<Audio> i = list.iterator();
+            while (i.hasNext()) {
+                File file = new File(i.next().cachePath);
+                if (!file.exists()) {
+                    i.remove();
+                }
+            }
+            return list;
+        }
+
+        @Override
+        protected void onPostExecute(List<Audio> audios) {
+            super.onPostExecute(audios);
+            notifyAllComplete(audios);
+        }
+    }
+
+    ;
 
 }
