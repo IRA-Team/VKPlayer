@@ -30,6 +30,9 @@
 
     <include
         android:id="@+id/activity_player_panel"
-        layout="@layout/activity_player_panel" />
+        layout="@layout/activity_player_panel"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/player_activity_height"
+        android:layout_marginTop="-28dp" />
 
 </LinearLayout>

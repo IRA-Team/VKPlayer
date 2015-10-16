@@ -5,11 +5,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.irateam.vkplayer.R;
+import com.irateam.vkplayer.utils.SqlUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-public class DatabaseHelper extends SQLiteOpenHelper {
+public abstract class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "vkplayer.db";
     private static final int DATABASE_VERSION = 1;
@@ -25,7 +26,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         InputStream is = context.getResources().openRawResource(R.raw.create_database);
         try {
-            for (String query : SqlParser.parseSqlFile(is)) {
+            for (String query : SqlUtils.parseSqlFile(is)) {
                 db.execSQL(query);
             }
         } catch (IOException e) {

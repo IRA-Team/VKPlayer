@@ -3,11 +3,11 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
-    <dimen name="player_panel_height">120dp</dimen>
+    <dimen name="player_panel_height">148dp</dimen>
     <dimen name="player_panel_group_height">56dp</dimen>
     <dimen name="player_seek_bar_height">22dp</dimen>
 
-    <dimen name="player_activity_height">244dp</dimen>
+    <dimen name="player_activity_height">272dp</dimen>
     <dimen name="player_activity_group_height">90dp</dimen>
     <dimen name="player_activity_actions_height">146dp</dimen>
     <dimen name="player_activity_action_height">56dp</dimen>
@@ -32,7 +32,5 @@
 
     <dimen name="navigation_drawer_header_height">174dp</dimen>
     <dimen name="navigation_drawer_header_avatar">64dp</dimen>
-    <dimen name="fab_margin">16dp</dimen>
-
 
 </resources>

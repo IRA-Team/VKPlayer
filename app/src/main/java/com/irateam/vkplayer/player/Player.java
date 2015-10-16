@@ -136,8 +136,10 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     @Override
     public void seekTo(int msec) throws IllegalStateException {
-        super.seekTo(msec);
-        pauseTime = msec;
+        if (isReady()) {
+            super.seekTo(msec);
+            pauseTime = msec;
+        }
     }
 
     public RepeatState getRepeatState() {

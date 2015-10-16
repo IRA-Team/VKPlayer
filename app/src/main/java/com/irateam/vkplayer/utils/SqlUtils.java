@@ -1,4 +1,4 @@
-package com.irateam.vkplayer.database;
+package com.irateam.vkplayer.utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SqlParser {
+public class SqlUtils {
 
     public static List<String> parseSqlFile(InputStream is) throws IOException {
         String script = removeComments(is);

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/wrapper"
     android:layout_width="wrap_content"
     android:layout_height="@dimen/player_panel_height"
@@ -91,5 +92,15 @@
         android:layout_marginTop="-8dp"
         android:progress="0" />
 
+    <com.melnykov.fab.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/linearLayout"
+        android:layout_gravity="right"
+        android:layout_marginRight="16dp"
+        android:src="@drawable/ic_fab_arrow_up_white_18dp"
+        app:fab_colorNormal="@color/accent" />
 
 </RelativeLayout>

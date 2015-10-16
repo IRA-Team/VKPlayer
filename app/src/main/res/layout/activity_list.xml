@@ -11,16 +11,17 @@
         android:layout_height="match_parent">
 
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
 
             <LinearLayout
+                android:id="@+id/linearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_above="@+id/player_panel"
                 android:orientation="vertical">
 
                 <include layout="@layout/toolbar" />
@@ -49,9 +50,10 @@
                 layout="@layout/player_panel"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/player_panel_height"
-                android:layout_alignParentBottom="true" />
+                android:layout_alignParentBottom="true"
+                android:layout_marginTop="-28dp" />
 
-        </LinearLayout>
+        </RelativeLayout>
     </android.support.design.widget.CoordinatorLayout>
 
     <android.support.design.widget.NavigationView

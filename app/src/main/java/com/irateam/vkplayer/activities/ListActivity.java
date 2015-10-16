@@ -125,6 +125,9 @@ public class ListActivity extends AppCompatActivity implements
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
         playerController = new PlayerController(this, findViewById(R.id.player_panel));
         playerController.rootView.setVisibility(View.GONE);
+        playerController.setFabOnClickListener(v -> {
+            startActivity(new Intent(this, AudioActivity.class));
+        });
 
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
         refreshLayout.setColorSchemeResources(
@@ -215,6 +218,7 @@ public class ListActivity extends AppCompatActivity implements
     }
 
     private BroadcastReceiver cacheUpdateReceiver;
+
     @Override
     public boolean onNavigationItemSelected(MenuItem menuItem) {
         drawerLayout.closeDrawers();

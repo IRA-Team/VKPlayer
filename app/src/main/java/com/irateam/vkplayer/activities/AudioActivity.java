@@ -3,7 +3,6 @@ package com.irateam.vkplayer.activities;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
@@ -11,7 +10,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageView;
 
 import com.irateam.vkplayer.R;
@@ -31,6 +29,7 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_audio);
+        overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar_transparent);
         setSupportActionBar(toolbar);
@@ -40,6 +39,7 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
         imageView = (ImageView) findViewById(R.id.imageView);
         imageView.setImageDrawable(getResources().getDrawable(R.drawable.player_cover));
         playerController = new ActivityPlayerController(this, findViewById(R.id.activity_player_panel));
+        playerController.setFabOnClickListener(v -> finish());
     }
 
     @Override
@@ -88,5 +88,11 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
     @Override
     public void onServiceDisconnected(ComponentName name) {
         Log.i("Service", "Disconnected");
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.slide_out_up_close, R.anim.slide_in_up_close);
     }
 }

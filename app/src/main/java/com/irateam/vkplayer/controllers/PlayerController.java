@@ -14,10 +14,13 @@ import com.irateam.vkplayer.activities.AudioActivity;
 import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.services.PlayerService;
+import com.melnykov.fab.FloatingActionButton;
 
 public class PlayerController implements Player.PlayerEventListener, Player.PlayerProgressListener {
 
     public View rootView;
+    public FloatingActionButton fab;
+
     public TextView songName;
     public TextView author;
 
@@ -30,8 +33,8 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
     public SeekBar progress;
     private boolean dragMode;
 
-    private Context context;
-    private Resources resources;
+    protected Context context;
+    protected Resources resources;
 
     private LinearLayout headerLayout;
     protected PlayerService playerService;
@@ -41,6 +44,8 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
         resources = context.getResources();
 
         rootView = view;
+        fab = (FloatingActionButton) view.findViewById(R.id.fab);
+
         songName = (TextView) view.findViewById(R.id.player_panel_song_name);
         author = (TextView) view.findViewById(R.id.player_panel_author);
 
@@ -123,6 +128,10 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
             setRepeatState(playerService.getRepeatState());
             setRandomState(playerService.getRandomState());
         }
+    }
+
+    public void setFabOnClickListener(View.OnClickListener listener) {
+        fab.setOnClickListener(listener);
     }
 
     @Override
