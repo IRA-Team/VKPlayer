@@ -2,6 +2,7 @@
 
     <header
         android:fragment="com.irateam.vkplayer.activities.settings.SettingsActivity$SyncPreferenceFragment"
-        android:title="@string/pref_header_sync_title" />
+        android:title="@string/pref_header_sync_title"
+        android:icon="@drawable/ic_sync_black_24dp"/>
 
 </preference-headers>

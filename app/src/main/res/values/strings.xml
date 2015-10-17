@@ -100,4 +100,6 @@
     <string name="pref_sync_time_default">18:30</string>
     <string name="pref_sync_button">Синхронизовать</string>
 
+    <string name="empty_list">Список пустой</string>
+
 </resources>

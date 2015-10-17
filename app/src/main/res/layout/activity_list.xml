@@ -31,6 +31,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
                     <com.mobeta.android.dslv.DragSortListView
                         android:id="@+id/list"
                         android:layout_width="match_parent"
@@ -40,8 +45,12 @@
                         app:float_background_color="@color/player_list_element_drag_color"
                         app:max_drag_scroll_speed="1.5"
                         app:use_default_controller="true">
-
                     </com.mobeta.android.dslv.DragSortListView>
+
+                    <include layout="@layout/empty_view" />
+
+                    </LinearLayout>
+
                 </android.support.v4.widget.SwipeRefreshLayout>
             </LinearLayout>
 
