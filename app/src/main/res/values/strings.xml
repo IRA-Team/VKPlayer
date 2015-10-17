@@ -98,5 +98,6 @@
     <string name="pref_header_sync_title">Синхронизация</string>
     <string name="pref_sync_time">Время обновления</string>
     <string name="pref_sync_time_default">18:30</string>
+    <string name="pref_sync_button">Синхронизовать</string>
 
 </resources>

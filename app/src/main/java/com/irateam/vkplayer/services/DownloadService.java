@@ -23,6 +23,7 @@ public class DownloadService extends Service {
 
     public static final String AUDIO_SET = "audio_set";
     public static final String DOWNLOAD_FINISHED = "download_service.download_finished";
+    public static final String START_SYNC = "start_sync";
 
     private Thread currentThread;
     private Queue<Audio> queue = new ConcurrentLinkedQueue<>();

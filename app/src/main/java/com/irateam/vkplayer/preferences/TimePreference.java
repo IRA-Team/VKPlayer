@@ -5,6 +5,8 @@ import android.content.res.TypedArray;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.TimePicker;
 
 public class TimePreference extends DialogPreference {
@@ -38,8 +40,15 @@ public class TimePreference extends DialogPreference {
     @Override
     protected void onBindDialogView(View v) {
         super.onBindDialogView(v);
-        picker.setCurrentHour(hour);
-        picker.setCurrentMinute(minute);
+        ViewParent oldParent = picker.getParent();
+        if (oldParent != v) {
+            if (oldParent != null) {
+                ((ViewGroup) oldParent).removeView(picker);
+            }
+            picker.setCurrentHour(hour);
+            picker.setCurrentMinute(minute);
+        }
+
     }
 
     @Override

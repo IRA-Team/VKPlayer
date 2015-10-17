@@ -22,4 +22,9 @@
         android:singleLine="true"
         android:maxLines="1" />
 
+    <Preference
+        android:dependency="sync_enabled"
+        android:key="sync_button"
+        android:title="@string/pref_sync_button"/>
+
 </PreferenceScreen>

@@ -25,6 +25,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import com.irateam.vkplayer.R;
+import com.irateam.vkplayer.services.DownloadService;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ import java.util.List;
  * handset devices, settings are presented as a single list. On tablets,
  * settings are split by category, with category headers shown to the left of
  * the list of settings.
- * <p/>
+ * <p>
  * See <a href="http://developer.android.com/design/patterns/settings.html">
  * Android Design: Settings</a> for design guidelines and the <a
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
@@ -185,18 +186,27 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class SyncPreferenceFragment extends PreferenceFragment {
 
+        private Context context;
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_sync);
             setHasOptionsMenu(true);
 
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
             bindPreferenceSummaryToValue(findPreference("sync_time"));
             bindPreferenceSummaryToValue(findPreference("sync_count"));
+            bindPreferenceSummaryToValue(findPreference("sync_button"));
+            findPreference("sync_button").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    context = getActivity();
+                    Intent intent = new Intent(context, DownloadService.class);
+                    intent.setAction(DownloadService.START_SYNC);
+                    context.startService(intent);
+                    return false;
+                }
+            });
         }
 
         @Override

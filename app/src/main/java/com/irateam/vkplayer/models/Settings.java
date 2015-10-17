@@ -12,8 +12,12 @@ public class Settings {
     public static final String RANDOM_STATE = "random_state";
 
     public static final String SYNC_ENABLED = "sync_enabled";
+    public static final String SYNC_TIME = "sync_time";
+    public static final String SYNC_COUNT = "sync_count";
 
     private static Settings instance;
+
+    private SharedPreferences preferences;
 
     public static synchronized Settings getInstance(Context context) {
         if (instance == null) {
@@ -21,8 +25,6 @@ public class Settings {
         }
         return instance;
     }
-
-    private SharedPreferences preferences;
 
     private Settings(Context context) {
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -56,5 +58,25 @@ public class Settings {
 
     public boolean getSyncEnabled() {
         return preferences.getBoolean(SYNC_ENABLED, false);
+    }
+
+    public void setSyncTime(int hour, int minutes) {
+        preferences.edit()
+                .putString(SYNC_TIME, String.format("%02d", hour) + ":" + String.format("%02d", minutes))
+                .apply();
+    }
+
+    public String getSyncTime() {
+        return preferences.getString(SYNC_TIME, "18:30");
+    }
+
+    public void setSyncCount(int count) {
+        preferences.edit()
+                .putString(SYNC_COUNT, String.valueOf(count))
+                .apply();
+    }
+
+    public String getSyncCount() {
+        return preferences.getString(SYNC_COUNT, "10");
     }
 }
