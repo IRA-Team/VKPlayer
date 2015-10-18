@@ -8,7 +8,7 @@
         <item
             android:id="@+id/current_playlist"
             android:checked="false"
-            android:icon="@drawable/ic_player_play_grey_24dp"
+            android:icon="@drawable/ic_navigation_drawer_playnow_grey_24dp"
             android:title="@string/navigation_drawer_current_playlist"
             android:visible="true" />
 

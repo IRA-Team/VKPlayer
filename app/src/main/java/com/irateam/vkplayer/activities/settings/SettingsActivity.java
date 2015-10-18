@@ -2,6 +2,8 @@ package com.irateam.vkplayer.activities.settings;
 
 
 import android.annotation.TargetApi;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -19,12 +21,13 @@ import android.preference.RingtonePreference;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.LinearLayout;
 
 import com.irateam.vkplayer.R;
+import com.irateam.vkplayer.models.Settings;
 import com.irateam.vkplayer.services.DownloadService;
 
 import java.util.List;
@@ -51,12 +54,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         toolbar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.toolbar, root, false);
         toolbar.setTitle(getResources().getString(R.string.title_activity_settings));
         root.addView(toolbar, 0); // insert at top
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        toolbar.setNavigationOnClickListener(v -> finish());
         //setupActionBar();
     }
 
@@ -88,19 +86,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+
     @Override
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void onBuildHeaders(List<Header> target) {
         loadHeadersFromResource(R.xml.pref_headers, target);
     }
 
-    /**
-     * A preference value change listener that updates the preference's summary
-     * to reflect its new value.
-     */
+
     private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
@@ -197,17 +190,44 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference("sync_time"));
             bindPreferenceSummaryToValue(findPreference("sync_count"));
             bindPreferenceSummaryToValue(findPreference("sync_button"));
-            findPreference("sync_button").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    context = getActivity();
-                    Intent intent = new Intent(context, DownloadService.class);
-                    intent.setAction(DownloadService.START_SYNC);
-                    context.startService(intent);
-                    return false;
-                }
+            findPreference("sync_button").setOnPreferenceClickListener(preference -> {
+                context = getActivity();
+                Intent intent = new Intent(context, DownloadService.class);
+                intent.setAction(DownloadService.START_SYNC);
+                context.startService(intent);
+                return false;
             });
+
+            findPreference("sync_enabled").setOnPreferenceChangeListener(((preference, newValue) -> {
+                boolean syncEnabled = (Boolean) newValue;
+                if (syncEnabled) {
+                    setSyncAlarm(getActivity());
+                    Log.i("ALARM", "SETTED!");
+                } else {
+                    cancelSyncAlarm(getActivity());
+                    Log.i("ALARM", "CANCELED!");
+                }
+                return true;
+            }));
         }
+
+        public static void setSyncAlarm(Context context) {
+            Intent intent = new Intent(context, DownloadService.class);
+            intent.setAction(DownloadService.START_SYNC);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+            System.out.println(Settings.getInstance(context).getSyncTime());
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, Settings.getInstance(context).getSyncTime().getTimeInMillis(), 1000 * 60 * 60 * 24, pendingIntent);
+        }
+
+        public static void cancelSyncAlarm(Context context) {
+            Intent intent = new Intent(context, DownloadService.class);
+            intent.setAction(DownloadService.START_SYNC);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+            alarmManager.cancel(pendingIntent);
+        }
+
 
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {

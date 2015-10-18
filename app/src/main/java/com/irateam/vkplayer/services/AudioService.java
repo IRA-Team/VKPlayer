@@ -6,16 +6,13 @@ import android.os.AsyncTask;
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.database.AudioDatabaseHelper;
 import com.irateam.vkplayer.models.Audio;
+import com.irateam.vkplayer.utils.AudioUtils;
 import com.irateam.vkplayer.utils.NetworkUtils;
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -91,33 +88,19 @@ public class AudioService extends VKRequest.VKRequestListener {
     @Override
     public void onComplete(VKResponse response) {
         super.onComplete(response);
-        try {
-            List<Audio> vkList = new ArrayList<>();
+        List<Audio> vkList = AudioUtils.parseJSONResponseToList(response);
+        List<Audio> cachedList = new AudioDatabaseHelper(context).getAll();
 
-            //Popular audio doesn't have JSONArray items, so need to check
-            JSONArray array;
-            JSONObject jsonResponse = response.json.optJSONObject("response");
-            if (jsonResponse != null) {
-                array = jsonResponse.getJSONArray("items");
-            } else {
-                array = response.json.getJSONArray("response");
-            }
-            for (int i = 0; i < array.length(); i++) {
-                vkList.add(new Audio().parse(array.getJSONObject(i)));
-            }
-
-            List<Audio> cachedList = new AudioDatabaseHelper(context).getAll();
-            for (int i = 0; i < vkList.size(); i++) {
-                for (Audio audio : cachedList) {
-                    if (vkList.get(i).id == audio.id && new File(audio.cachePath).exists()) {
-                        vkList.set(i, audio);
-                    }
+        for (int i = 0; i < vkList.size(); i++) {
+            for (Audio audio : cachedList) {
+                if (vkList.get(i).id == audio.id && new File(audio.cachePath).exists()) {
+                    vkList.set(i, audio);
                 }
             }
-            notifyAllComplete(vkList);
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
+
+        notifyAllComplete(vkList);
+
     }
 
     public void removeFromCache(List<Audio> cachedList, Listener listener) {

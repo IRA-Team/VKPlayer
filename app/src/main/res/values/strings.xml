@@ -33,6 +33,8 @@
     <string name="notification_resume">Возобновить</string>
     <string name="notification_next">Следующая</string>
 
+    <string name="notification_sync">Синхронизация</string>
+    <string name="notification_download">Сохранение</string>
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->

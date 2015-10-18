@@ -6,6 +6,11 @@ import android.preference.PreferenceManager;
 
 import com.irateam.vkplayer.player.Player;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 public class Settings {
 
     public static final String REPEAT_STATE = "repeat_state";
@@ -66,8 +71,16 @@ public class Settings {
                 .apply();
     }
 
-    public String getSyncTime() {
-        return preferences.getString(SYNC_TIME, "18:30");
+    public Calendar getSyncTime() {
+        Date date = null;
+        try {
+            date = new SimpleDateFormat("hh:mm").parse(preferences.getString(SYNC_TIME, "18:30"));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar;
     }
 
     public void setSyncCount(int count) {

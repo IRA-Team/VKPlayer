@@ -281,7 +281,9 @@ public class ListActivity extends AppCompatActivity implements
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             case R.id.exit:
-                VkLogout();
+                Intent intent = new Intent(this, DownloadService.class);
+                intent.setAction(DownloadService.START_SYNC);
+                startService(intent);
                 return true;
         }
         return false;
@@ -427,7 +429,8 @@ public class ListActivity extends AppCompatActivity implements
         switch (item.getItemId()) {
             case R.id.action_cache:
                 Intent intent = new Intent(this, DownloadService.class);
-                intent.putExtra(DownloadService.AUDIO_SET, (ArrayList<Audio>) audioAdapter.getCheckedItems());
+                intent.setAction(DownloadService.START_DOWNLOADING);
+                intent.putExtra(DownloadService.AUDIO_LIST, (ArrayList<Audio>) audioAdapter.getCheckedItems());
                 startService(intent);
                 break;
             case R.id.action_remove_from_cache:
