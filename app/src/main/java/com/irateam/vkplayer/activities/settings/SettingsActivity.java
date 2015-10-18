@@ -216,9 +216,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             intent.setAction(DownloadService.START_SYNC);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-            System.out.println(Settings.getInstance(context).getSyncTime());
+            /*System.out.println(Settings.getInstance(context).getSyncTime());
             alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, Settings.getInstance(context).getSyncTime().getTimeInMillis(), 1000 * 60 * 60 * 24, pendingIntent);
-        }
+        */}
 
         public static void cancelSyncAlarm(Context context) {
             Intent intent = new Intent(context, DownloadService.class);

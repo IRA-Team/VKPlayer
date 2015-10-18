@@ -72,14 +72,18 @@ public class Settings {
     }
 
     public Calendar getSyncTime() {
+        Calendar calendar = Calendar.getInstance();
         Date date = null;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
         try {
-            date = new SimpleDateFormat("hh:mm").parse(preferences.getString(SYNC_TIME, "18:30"));
+            date = simpleDateFormat.parse(preferences.getString(SYNC_TIME, "18:30"));
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
+        calendar.set(Calendar.HOUR, date.getHours());
+        calendar.set(Calendar.MINUTE, date.getMinutes());
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
         return calendar;
     }
 
@@ -89,7 +93,7 @@ public class Settings {
                 .apply();
     }
 
-    public String getSyncCount() {
-        return preferences.getString(SYNC_COUNT, "10");
+    public int getSyncCount() {
+        return Integer.valueOf(preferences.getString(SYNC_COUNT, "10"));
     }
 }

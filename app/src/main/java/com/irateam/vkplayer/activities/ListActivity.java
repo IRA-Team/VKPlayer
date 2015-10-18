@@ -17,6 +17,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,6 +30,7 @@ import com.irateam.vkplayer.activities.settings.SettingsActivity;
 import com.irateam.vkplayer.adapter.AudioAdapter;
 import com.irateam.vkplayer.controllers.PlayerController;
 import com.irateam.vkplayer.models.Audio;
+import com.irateam.vkplayer.models.Settings;
 import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
 import com.irateam.vkplayer.services.AudioService;
 import com.irateam.vkplayer.services.DownloadService;
@@ -47,7 +49,9 @@ import com.vk.sdk.api.model.VKApiUser;
 
 import org.json.JSONException;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
