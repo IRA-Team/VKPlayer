@@ -79,14 +79,15 @@ public class ListActivity extends AppCompatActivity implements
 
     private DownloadFinishedReceiver downloadFinishedReceiver;
 
-    private View emptyList;
+    private View emptyView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
 
-        emptyList = findViewById(R.id.empty_list_view);
+        emptyView = findViewById(R.id.empty_list_view);
+        emptyView.setVisibility(View.GONE);
 
         //Views
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -207,21 +208,13 @@ public class ListActivity extends AppCompatActivity implements
     public void onComplete(List<Audio> list) {
         refreshLayout.setRefreshing(false);
         if (list.isEmpty()) {
-            isListEmpty(true);
-        } else {
-            isListEmpty(false);
-            audioAdapter.setList(list);
-            audioAdapter.notifyDataSetChanged();
-        }
-    }
-
-    private void isListEmpty(boolean visible) {
-        if (visible) {
             listView.setVisibility(View.GONE);
-            emptyList.setVisibility(View.VISIBLE);
+            emptyView.setVisibility(View.VISIBLE);
         } else {
             listView.setVisibility(View.VISIBLE);
-            emptyList.setVisibility(View.GONE);
+            emptyView.setVisibility(View.GONE);
+            audioAdapter.setList(list);
+            audioAdapter.notifyDataSetChanged();
         }
     }
 
@@ -351,21 +344,19 @@ public class ListActivity extends AppCompatActivity implements
 
         audioAdapter.setPlayerService(playerService);
         audioService.setPlayerService(playerService);
-        if (playerService.getPlaylist().isEmpty())
-
-            if (playerService.getPlaylist().size() > 0) {
-                MenuItem item = navigationView.getMenu().getItem(0);
-                item.setChecked(true);
-                onNavigationItemSelected(item);
-            } else if (NetworkUtils.checkNetwork(this)) {
-                MenuItem item = navigationView.getMenu().getItem(1);
-                item.setChecked(true);
-                onNavigationItemSelected(item);
-            } else {
-                MenuItem item = navigationView.getMenu().getItem(4);
-                item.setChecked(true);
-                onNavigationItemSelected(item);
-            }
+        if (playerService.getPlaylist().size() > 0) {
+            MenuItem item = navigationView.getMenu().getItem(0);
+            item.setChecked(true);
+            onNavigationItemSelected(item);
+        } else if (NetworkUtils.checkNetwork(this)) {
+            MenuItem item = navigationView.getMenu().getItem(1);
+            item.setChecked(true);
+            onNavigationItemSelected(item);
+        } else {
+            MenuItem item = navigationView.getMenu().getItem(4);
+            item.setChecked(true);
+            onNavigationItemSelected(item);
+        }
     }
 
     @Override

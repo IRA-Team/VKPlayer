@@ -40,4 +40,6 @@
 
     <item name="settings_text_color" type="color">#000000</item>
 
+    <item name="empty_list_text_view_color" type="color">#d0d0d0</item>
+
 </resources>

@@ -16,6 +16,8 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/empty_list"
         android:id="@+id/empty_list_text"
+        android:textColor="@color/empty_list_text_view_color"
         android:layout_below="@+id/empty_list_image"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/empty_list_text_view_margin_top"/>
 </RelativeLayout>

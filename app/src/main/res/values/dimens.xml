@@ -33,4 +33,6 @@
     <dimen name="navigation_drawer_header_height">174dp</dimen>
     <dimen name="navigation_drawer_header_avatar">64dp</dimen>
 
+    <dimen name="empty_list_text_view_margin_top">20dp</dimen>
+
 </resources>

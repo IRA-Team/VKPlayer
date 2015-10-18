@@ -56,8 +56,6 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
         random = (ImageView) view.findViewById(R.id.player_panel_random);
 
         progress = (SeekBar) view.findViewById(R.id.progress);
-
-        headerLayout = (LinearLayout) view.findViewById(R.id.player_panel_header_layout);
     }
 
     @SuppressWarnings("deprecation")
@@ -107,9 +105,6 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
                 playerService.seekTo(progress.getProgress());
             }
         });
-
-        headerLayout.setOnClickListener((v) ->
-                context.startActivity(new Intent(context, AudioActivity.class)));
     }
 
     public void setPlayPause(boolean play) {
