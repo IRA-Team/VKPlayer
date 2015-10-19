@@ -35,6 +35,7 @@
 
     <string name="notification_sync">Синхронизация</string>
     <string name="notification_download">Сохранение</string>
+    <string name="notification_cancel">Остановить</string>
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->

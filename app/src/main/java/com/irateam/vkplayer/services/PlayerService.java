@@ -20,13 +20,14 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     public static final String NEXT = "playerService.NEXT";
     public static final String STOP = "playerService.STOP";
 
-    private Player player = new Player();
+    private Player player;
     private Binder binder = new PlayerBinder();
     private Settings settings;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        player = new Player(this);
         player.addPlayerEventListener(this);
         settings = Settings.getInstance(this);
         player.setRepeatState(settings.getPlayerRepeat());

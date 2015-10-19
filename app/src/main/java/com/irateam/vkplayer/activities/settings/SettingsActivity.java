@@ -28,6 +28,7 @@ import android.widget.LinearLayout;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.models.Settings;
+import com.irateam.vkplayer.receivers.NotificationReceiver;
 import com.irateam.vkplayer.services.DownloadService;
 
 import java.util.List;
@@ -212,18 +213,22 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
 
         public static void setSyncAlarm(Context context) {
-            Intent intent = new Intent(context, DownloadService.class);
-            intent.setAction(DownloadService.START_SYNC);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+            Intent intent = new Intent(context, NotificationReceiver.class);
+            intent.setAction("player.STOP_SERVICE");
+            PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, 0);
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-            /*System.out.println(Settings.getInstance(context).getSyncTime());
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, Settings.getInstance(context).getSyncTime().getTimeInMillis(), 1000 * 60 * 60 * 24, pendingIntent);
-        */}
+            System.out.println(System.currentTimeMillis());
+            System.out.println(Settings.getInstance(context).getSyncTime().getTimeInMillis());
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+                    Settings.getInstance(context).getSyncTime().getTimeInMillis(),
+                    AlarmManager.INTERVAL_DAY,
+                    pendingIntent);
+        }
 
         public static void cancelSyncAlarm(Context context) {
             Intent intent = new Intent(context, DownloadService.class);
             intent.setAction(DownloadService.START_SYNC);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+            PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
             alarmManager.cancel(pendingIntent);
         }

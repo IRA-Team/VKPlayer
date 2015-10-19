@@ -3,7 +3,6 @@ package com.irateam.vkplayer.services;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
 
 import com.irateam.vkplayer.database.AudioDatabaseHelper;
 import com.irateam.vkplayer.models.Audio;
@@ -60,8 +59,7 @@ public class DownloadService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("ALARM", "CALLED!");
-        if (intent.getAction() != null) {
+        if (intent != null && intent.getAction() != null) {
             switch (intent.getAction()) {
                 case START_DOWNLOADING:
                     ArrayList<Audio> list = (ArrayList<Audio>) intent.getSerializableExtra(AUDIO_LIST);
@@ -74,6 +72,7 @@ public class DownloadService extends Service {
                     break;
 
                 case STOP_DOWNLOADING:
+                    stopDownloading();
                     break;
 
                 case START_SYNC:
@@ -144,6 +143,7 @@ public class DownloadService extends Service {
                         while ((count = inputStream.read(data, 0, 1024)) != -1) {
 
                             if (Thread.interrupted()) {
+                                stopForeground(true);
                                 return;
                             }
 
@@ -155,15 +155,11 @@ public class DownloadService extends Service {
                                 DownloadNotification.update(this, audio, progress, isSync);
                             }
                         }
-                    } catch (OutOfMemoryError e) {
-                        Log.i("MEMORY", "OUT");
-                        e.printStackTrace();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                     audio.cachePath = file.getAbsolutePath();
                     databaseHelper.cache(audio);
-                    stopForeground(true);
 
                     Intent intent = new Intent(DOWNLOAD_FINISHED);
                     intent.putExtra(DownloadFinishedReceiver.AUDIO_ID, audio);
@@ -172,6 +168,12 @@ public class DownloadService extends Service {
             } while (audio != null);
         });
         currentThread.start();
+    }
+
+    public void stopDownloading() {
+        if (currentThread != null && !currentThread.isInterrupted()) {
+            currentThread.interrupt();
+        }
     }
 
     public boolean isDownloading() {

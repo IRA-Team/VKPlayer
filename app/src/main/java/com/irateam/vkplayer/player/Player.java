@@ -1,5 +1,6 @@
 package com.irateam.vkplayer.player;
 
+import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
@@ -19,17 +20,22 @@ import static com.irateam.vkplayer.player.Player.RepeatState.ALL_REPEAT;
 import static com.irateam.vkplayer.player.Player.RepeatState.NO_REPEAT;
 import static com.irateam.vkplayer.player.Player.RepeatState.ONE_REPEAT;
 
-public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener {
+public class Player extends MediaPlayer implements AudioManager.OnAudioFocusChangeListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener {
 
     private int pauseTime;
     private ProgressThread currentProgressThread;
     private boolean stateReady = false;
 
-    public Player() {
+    private AudioManager audioManager;
+
+    public Player(Context context) {
         super();
         setAudioStreamType(AudioManager.STREAM_MUSIC);
         setOnPreparedListener(this);
         setOnCompletionListener(this);
+
+        audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
     }
 
     private List<Audio> list = new ArrayList<>();
@@ -40,6 +46,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     private Random random = new Random();
 
     private Audio playingAudio;
+    private int playingIndex;
 
     public Audio getAudio(int index) {
         return list.get(index);
@@ -50,7 +57,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     public Integer getPlayingAudioIndex() {
-        return playingAudio != null ? list.indexOf(playingAudio) : null;
+        return playingIndex;
     }
 
     public List<Audio> getList() {
@@ -63,13 +70,14 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     public void play(int index) {
         playingAudio = list.get(index);
+        playingIndex = index;
         try {
             reset();
             stopProgress();
             setOnBufferingUpdateListener(null);
             setDataSource(playingAudio.getPlayingUrl());
             prepareAsync();
-            notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.PLAY);
+            notifyPlayerEvent(playingIndex, playingAudio, PlayerEvent.PLAY);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -206,7 +214,6 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     @Override
     public void onPrepared(MediaPlayer mp) {
         stateReady = true;
-        Log.i("CALLED", "CALLED");
         start();
         startProgress();
         setOnBufferingUpdateListener(this);
@@ -228,6 +235,24 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     @Override
     public void onBufferingUpdate(MediaPlayer mp, int percent) {
         notifyBufferingUpdate(percent * getDuration() / 100);
+    }
+
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        switch (focusChange) {
+            case AudioManager.AUDIOFOCUS_LOSS:
+                pause();
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                pause();
+                break;
+            /*case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                event = "AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK";
+                break;*/
+            case AudioManager.AUDIOFOCUS_GAIN:
+                resume();
+                break;
+        }
     }
 
     public interface PlayerEventListener {

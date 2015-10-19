@@ -63,11 +63,7 @@
             android:enabled="true"
             android:exported="true" />
 
-        <receiver android:name=".receivers.NotificationReceiver">
-            <intent-filter>
-                <action android:name="player.STOP_SERVICE" />
-            </intent-filter>
-        </receiver>
+        <receiver android:name=".receivers.NotificationReceiver" />
 
         <activity
             android:name=".activities.settings.SettingsActivity"
