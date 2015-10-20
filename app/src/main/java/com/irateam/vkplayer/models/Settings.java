@@ -80,10 +80,14 @@ public class Settings {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        calendar.set(Calendar.HOUR, date.getHours());
+
+        calendar.set(Calendar.HOUR_OF_DAY, date.getHours());
         calendar.set(Calendar.MINUTE, date.getMinutes());
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
+        if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
+            calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) + 1);
+        }
         return calendar;
     }
 

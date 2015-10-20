@@ -18,6 +18,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
+import android.preference.SwitchPreference;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -31,6 +32,7 @@ import com.irateam.vkplayer.models.Settings;
 import com.irateam.vkplayer.receivers.NotificationReceiver;
 import com.irateam.vkplayer.services.DownloadService;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -143,15 +145,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
     };
 
-    /**
-     * Binds a preference's summary to its value. More specifically, when the
-     * preference's value is changed, its summary (line of text below the
-     * preference title) is updated to reflect the value. The summary is also
-     * immediately updated upon calling this method. The exact display format is
-     * dependent on the type of preference.
-     *
-     * @see #sBindPreferenceSummaryToValueListener
-     */
     private static void bindPreferenceSummaryToValue(Preference preference) {
         // Set the listener to watch for value changes.
         preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
@@ -217,8 +210,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             intent.setAction("player.STOP_SERVICE");
             PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, 0);
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-            System.out.println(System.currentTimeMillis());
-            System.out.println(Settings.getInstance(context).getSyncTime().getTimeInMillis());
             alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
                     Settings.getInstance(context).getSyncTime().getTimeInMillis(),
                     AlarmManager.INTERVAL_DAY,
