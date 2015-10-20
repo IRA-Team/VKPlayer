@@ -19,7 +19,7 @@ import static com.irateam.vkplayer.player.Player.RepeatState.ALL_REPEAT;
 import static com.irateam.vkplayer.player.Player.RepeatState.NO_REPEAT;
 import static com.irateam.vkplayer.player.Player.RepeatState.ONE_REPEAT;
 
-public class Player extends MediaPlayer implements AudioManager.OnAudioFocusChangeListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener {
+public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener {
 
     private int pauseTime;
     private ProgressThread currentProgressThread;
@@ -28,16 +28,11 @@ public class Player extends MediaPlayer implements AudioManager.OnAudioFocusChan
     private boolean wasPlaying = true;
 
 
-    private AudioManager audioManager;
-
     public Player(Context context) {
         super();
         setAudioStreamType(AudioManager.STREAM_MUSIC);
         setOnPreparedListener(this);
         setOnCompletionListener(this);
-
-        audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
     }
 
     private List<Audio> list = new ArrayList<>();
@@ -237,28 +232,6 @@ public class Player extends MediaPlayer implements AudioManager.OnAudioFocusChan
     @Override
     public void onBufferingUpdate(MediaPlayer mp, int percent) {
         notifyBufferingUpdate(percent * getDuration() / 100);
-    }
-
-    @Override
-    public void onAudioFocusChange(int focusChange) {
-        switch (focusChange) {
-            case AudioManager.AUDIOFOCUS_LOSS:
-                wasPlaying = isPlaying();
-                pause();
-                break;
-            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-                wasPlaying = isPlaying();
-                pause();
-                break;
-            /*case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                event = "AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK";
-                break;*/
-            case AudioManager.AUDIOFOCUS_GAIN:
-                if (wasPlaying) {
-                    resume();
-                }
-                break;
-        }
     }
 
     public interface PlayerEventListener {

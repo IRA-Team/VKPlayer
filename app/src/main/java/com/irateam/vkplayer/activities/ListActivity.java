@@ -86,9 +86,7 @@ public class ListActivity extends AppCompatActivity implements
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setNavigationOnClickListener((v) -> {
-            drawerLayout.openDrawer(GravityCompat.START);
-        });
+        toolbar.setNavigationOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
@@ -111,38 +109,20 @@ public class ListActivity extends AppCompatActivity implements
         drawerLayout.setDrawerListener(drawerToggle);
         drawerToggle.syncState();
 
-        coordinatorLayout = (CoordinatorLayout)
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
 
-                findViewById(R.id.coordinator_layout);
-
-        playerController = new
-
-                PlayerController(this, findViewById(R.id.player_panel)
-
-        );
+        playerController = new PlayerController(this, findViewById(R.id.player_panel));
         playerController.rootView.setVisibility(View.GONE);
-        playerController.setFabOnClickListener(v ->
+        playerController.setFabOnClickListener(v -> startActivity(new Intent(this, AudioActivity.class)));
 
-                {
-                    startActivity(new Intent(this, AudioActivity.class));
-                }
-
-        );
-
-        refreshLayout = (SwipeRefreshLayout)
-
-                findViewById(R.id.refresh_layout);
-
+        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
         refreshLayout.setColorSchemeResources(
                 R.color.accent,
                 R.color.primary
         );
         refreshLayout.setOnRefreshListener(this);
 
-        listView = (DragSortListView)
-
-                findViewById(R.id.list);
-
+        listView = (DragSortListView) findViewById(R.id.list);
         listView.setAdapter(audioAdapter);
         listView.setOnItemClickListener(this);
         listView.setOnItemLongClickListener(this);
@@ -152,28 +132,16 @@ public class ListActivity extends AppCompatActivity implements
         audioAdapter.setCoverCheckListener(this);
         audioService.addListener(this);
 
-        downloadFinishedReceiver = new
+        downloadFinishedReceiver = new DownloadFinishedReceiver() {
+            @Override
+            public void onDownloadFinished(Audio audio) {
+                audioAdapter.updateAudioById(audio);
+            }
+        };
+        registerReceiver(downloadFinishedReceiver, new IntentFilter(DownloadService.DOWNLOAD_FINISHED));
 
-                DownloadFinishedReceiver() {
-                    @Override
-                    public void onDownloadFinished(Audio audio) {
-                        audioAdapter.updateAudioById(audio);
-                    }
-                }
-
-        ;
-
-        registerReceiver(downloadFinishedReceiver, new IntentFilter(DownloadService.DOWNLOAD_FINISHED)
-
-        );
-
-        startService(new Intent(this, PlayerService.class)
-
-        );
-
-        bindService(new Intent(this, PlayerService.class),
-
-                this, BIND_AUTO_CREATE);
+        startService(new Intent(this, PlayerService.class));
+        bindService(new Intent(this, PlayerService.class), this, BIND_AUTO_CREATE);
     }
 
     @Override
@@ -236,9 +204,7 @@ public class ListActivity extends AppCompatActivity implements
         audioAdapter.setList(Collections.emptyList());
         refreshLayout.setRefreshing(false);
         Snackbar.make(coordinatorLayout, errorMessage, Snackbar.LENGTH_LONG)
-                .setAction(getString(R.string.title_snackbar_action), (v) -> {
-                    audioService.repeatLastRequest();
-                })
+                .setAction(getString(R.string.title_snackbar_action), v -> audioService.repeatLastRequest())
                 .show();
     }
 

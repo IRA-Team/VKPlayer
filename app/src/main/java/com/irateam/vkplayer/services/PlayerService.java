@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.os.Binder;
 import android.os.IBinder;
 
@@ -15,7 +16,7 @@ import com.irateam.vkplayer.player.Player;
 
 import java.util.List;
 
-public class PlayerService extends Service implements Player.PlayerEventListener {
+public class PlayerService extends Service implements Player.PlayerEventListener, AudioManager.OnAudioFocusChangeListener {
 
     public static final String PREVIOUS = "playerService.PREVIOUS";
     public static final String PAUSE = "playerService.PAUSE";
@@ -26,9 +27,11 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     private Player player;
     private Binder binder = new PlayerBinder();
     private BroadcastReceiver headsetReceiver;
+    private AudioManager audioManager;
 
     private Settings settings;
     private boolean removeNotification = false;
+    private boolean wasPlaying = false;
 
     @Override
     public void onCreate() {
@@ -39,13 +42,16 @@ public class PlayerService extends Service implements Player.PlayerEventListener
         player.setRepeatState(settings.getPlayerRepeat());
         player.setRandomState(settings.getRandomState());
 
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+
         headsetReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
-                    if (intent.getIntExtra("state", -1) == 1) {
+                    if (intent.getIntExtra("state", -1) == 0) {
                         if (isPlaying()) {
-                            pause();
+                            pause(false);
                         }
                     }
                 }
@@ -87,6 +93,7 @@ public class PlayerService extends Service implements Player.PlayerEventListener
         super.onDestroy();
         player.removePlayerEventListener(this);
         unregisterReceiver(headsetReceiver);
+        audioManager.abandonAudioFocus(this);
     }
 
     @Override
@@ -212,7 +219,7 @@ public class PlayerService extends Service implements Player.PlayerEventListener
                 break;
             case PAUSE:
                 if (removeNotification) {
-                    stopForeground(false);
+                    stopForeground(true);
                 } else {
                     PlayerNotification.update(this, position, audio, Player.PlayerEvent.PAUSE);
                 }
@@ -225,4 +232,28 @@ public class PlayerService extends Service implements Player.PlayerEventListener
                 break;
         }
     }
+
+
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        switch (focusChange) {
+            case AudioManager.AUDIOFOCUS_LOSS:
+                wasPlaying = isPlaying();
+                pause(false);
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                wasPlaying = isPlaying();
+                pause(false);
+                break;
+            /*case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                event = "AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK";
+                break;*/
+            case AudioManager.AUDIOFOCUS_GAIN:
+                if (wasPlaying) {
+                    resume();
+                }
+                break;
+        }
+    }
+
 }
