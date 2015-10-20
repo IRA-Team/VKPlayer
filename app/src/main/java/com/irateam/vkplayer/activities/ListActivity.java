@@ -33,19 +33,12 @@ import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
 import com.irateam.vkplayer.services.AudioService;
 import com.irateam.vkplayer.services.DownloadService;
 import com.irateam.vkplayer.services.PlayerService;
+import com.irateam.vkplayer.services.UserService;
 import com.irateam.vkplayer.ui.RoundImageView;
 import com.irateam.vkplayer.utils.NetworkUtils;
 import com.mobeta.android.dslv.DragSortListView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.vk.sdk.VKSdk;
-import com.vk.sdk.api.VKApi;
-import com.vk.sdk.api.VKApiConst;
-import com.vk.sdk.api.VKParameters;
-import com.vk.sdk.api.VKRequest;
-import com.vk.sdk.api.VKResponse;
-import com.vk.sdk.api.model.VKApiUser;
-
-import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -104,19 +97,10 @@ public class ListActivity extends AppCompatActivity implements
         userFullName = (TextView) findViewById(R.id.navigation_drawer_header_full_name);
         userVkId = (TextView) findViewById(R.id.navigation_drawer_header_id);
 
-        VKApi.users().get(VKParameters.from(VKApiConst.FIELDS, "photo_100")).executeWithListener(new VKRequest.VKRequestListener() {
-            @Override
-            public void onComplete(VKResponse response) {
-                super.onComplete(response);
-                try {
-                    VKApiUser user = new VKApiUser().parse(response.json.getJSONArray("response").getJSONObject(0));
-                    ImageLoader.getInstance().displayImage(user.photo_100, roundImageView);
-                    userFullName.setText(user.first_name + " " + user.last_name);
-                    userVkId.setText(String.valueOf(user.id));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
+        new UserService(this).getCurrentUser((user) -> {
+            ImageLoader.getInstance().displayImage(user.photo_100, roundImageView);
+            userFullName.setText(user.first_name + " " + user.last_name);
+            userVkId.setText(String.valueOf(user.id));
         });
 
         ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
@@ -127,21 +111,38 @@ public class ListActivity extends AppCompatActivity implements
         drawerLayout.setDrawerListener(drawerToggle);
         drawerToggle.syncState();
 
-        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
-        playerController = new PlayerController(this, findViewById(R.id.player_panel));
-        playerController.rootView.setVisibility(View.GONE);
-        playerController.setFabOnClickListener(v -> {
-            startActivity(new Intent(this, AudioActivity.class));
-        });
+        coordinatorLayout = (CoordinatorLayout)
 
-        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
+                findViewById(R.id.coordinator_layout);
+
+        playerController = new
+
+                PlayerController(this, findViewById(R.id.player_panel)
+
+        );
+        playerController.rootView.setVisibility(View.GONE);
+        playerController.setFabOnClickListener(v ->
+
+                {
+                    startActivity(new Intent(this, AudioActivity.class));
+                }
+
+        );
+
+        refreshLayout = (SwipeRefreshLayout)
+
+                findViewById(R.id.refresh_layout);
+
         refreshLayout.setColorSchemeResources(
                 R.color.accent,
                 R.color.primary
         );
         refreshLayout.setOnRefreshListener(this);
 
-        listView = (DragSortListView) findViewById(R.id.list);
+        listView = (DragSortListView)
+
+                findViewById(R.id.list);
+
         listView.setAdapter(audioAdapter);
         listView.setOnItemClickListener(this);
         listView.setOnItemLongClickListener(this);
@@ -151,16 +152,28 @@ public class ListActivity extends AppCompatActivity implements
         audioAdapter.setCoverCheckListener(this);
         audioService.addListener(this);
 
-        downloadFinishedReceiver = new DownloadFinishedReceiver() {
-            @Override
-            public void onDownloadFinished(Audio audio) {
-                audioAdapter.updateAudioById(audio);
-            }
-        };
-        registerReceiver(downloadFinishedReceiver, new IntentFilter(DownloadService.DOWNLOAD_FINISHED));
+        downloadFinishedReceiver = new
 
-        startService(new Intent(this, PlayerService.class));
-        bindService(new Intent(this, PlayerService.class), this, BIND_AUTO_CREATE);
+                DownloadFinishedReceiver() {
+                    @Override
+                    public void onDownloadFinished(Audio audio) {
+                        audioAdapter.updateAudioById(audio);
+                    }
+                }
+
+        ;
+
+        registerReceiver(downloadFinishedReceiver, new IntentFilter(DownloadService.DOWNLOAD_FINISHED)
+
+        );
+
+        startService(new Intent(this, PlayerService.class)
+
+        );
+
+        bindService(new Intent(this, PlayerService.class),
+
+                this, BIND_AUTO_CREATE);
     }
 
     @Override
@@ -274,9 +287,7 @@ public class ListActivity extends AppCompatActivity implements
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             case R.id.exit:
-                Intent intent = new Intent(this, DownloadService.class);
-                intent.setAction(DownloadService.START_SYNC);
-                startService(intent);
+                VkLogout();
                 return true;
         }
         return false;

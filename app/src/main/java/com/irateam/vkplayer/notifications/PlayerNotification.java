@@ -48,8 +48,6 @@ public class PlayerNotification {
                 .setContentTitle(index + 1 + ". " + audio.title)
                 .setContentText(audio.artist)
                 .setLargeIcon(COVER)
-                .setShowWhen(false)
-                .setOngoing(true)
                 .setStyle(style)
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setWhen(0)

@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.database.AudioDatabaseHelper;
 import com.irateam.vkplayer.models.Audio;
+import com.irateam.vkplayer.services.PlayerService;
 import com.irateam.vkplayer.utils.AudioUtils;
 import com.irateam.vkplayer.utils.NetworkUtils;
 import com.vk.sdk.api.VKApi;

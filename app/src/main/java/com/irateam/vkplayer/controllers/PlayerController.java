@@ -1,8 +1,8 @@
 package com.irateam.vkplayer.controllers;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
+import android.support.v4.view.ViewCompat;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -10,7 +10,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.irateam.vkplayer.R;
-import com.irateam.vkplayer.activities.AudioActivity;
 import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.services.PlayerService;
@@ -45,7 +44,7 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
 
         rootView = view;
         fab = (FloatingActionButton) view.findViewById(R.id.fab);
-
+        
         songName = (TextView) view.findViewById(R.id.player_panel_song_name);
         author = (TextView) view.findViewById(R.id.player_panel_author);
 

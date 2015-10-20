@@ -1,7 +1,10 @@
 package com.irateam.vkplayer.services;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.IBinder;
 
@@ -22,7 +25,10 @@ public class PlayerService extends Service implements Player.PlayerEventListener
 
     private Player player;
     private Binder binder = new PlayerBinder();
+    private BroadcastReceiver headsetReceiver;
+
     private Settings settings;
+    private boolean removeNotification = false;
 
     @Override
     public void onCreate() {
@@ -32,6 +38,20 @@ public class PlayerService extends Service implements Player.PlayerEventListener
         settings = Settings.getInstance(this);
         player.setRepeatState(settings.getPlayerRepeat());
         player.setRandomState(settings.getRandomState());
+
+        headsetReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
+                    if (intent.getIntExtra("state", -1) == 1) {
+                        if (isPlaying()) {
+                            pause();
+                        }
+                    }
+                }
+            }
+        };
+        registerReceiver(headsetReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
     }
 
 
@@ -44,7 +64,7 @@ public class PlayerService extends Service implements Player.PlayerEventListener
                     previous();
                     break;
                 case PAUSE:
-                    pause();
+                    pause(false);
                     break;
                 case RESUME:
                     resume();
@@ -66,6 +86,7 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     public void onDestroy() {
         super.onDestroy();
         player.removePlayerEventListener(this);
+        unregisterReceiver(headsetReceiver);
     }
 
     @Override
@@ -97,6 +118,11 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     }
 
     public void pause() {
+        pause(true);
+    }
+
+    public void pause(boolean removeNotification) {
+        this.removeNotification = removeNotification;
         player.pause();
     }
 
@@ -185,10 +211,14 @@ public class PlayerService extends Service implements Player.PlayerEventListener
                 startForeground(PlayerNotification.ID, PlayerNotification.create(this, position, audio, event));
                 break;
             case PAUSE:
-                PlayerNotification.update(this, position, audio, Player.PlayerEvent.PAUSE);
+                if (removeNotification) {
+                    stopForeground(false);
+                } else {
+                    PlayerNotification.update(this, position, audio, Player.PlayerEvent.PAUSE);
+                }
                 break;
             case RESUME:
-                PlayerNotification.update(this, position, audio, Player.PlayerEvent.RESUME);
+                startForeground(PlayerNotification.ID, PlayerNotification.create(this, position, audio, event));
                 break;
             case STOP:
                 stopForeground(true);

@@ -5,7 +5,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import com.irateam.vkplayer.models.Audio;
 
@@ -24,7 +23,10 @@ public class Player extends MediaPlayer implements AudioManager.OnAudioFocusChan
 
     private int pauseTime;
     private ProgressThread currentProgressThread;
+
     private boolean stateReady = false;
+    private boolean wasPlaying = true;
+
 
     private AudioManager audioManager;
 
@@ -241,16 +243,20 @@ public class Player extends MediaPlayer implements AudioManager.OnAudioFocusChan
     public void onAudioFocusChange(int focusChange) {
         switch (focusChange) {
             case AudioManager.AUDIOFOCUS_LOSS:
+                wasPlaying = isPlaying();
                 pause();
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                wasPlaying = isPlaying();
                 pause();
                 break;
             /*case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
                 event = "AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK";
                 break;*/
             case AudioManager.AUDIOFOCUS_GAIN:
-                resume();
+                if (wasPlaying) {
+                    resume();
+                }
                 break;
         }
     }

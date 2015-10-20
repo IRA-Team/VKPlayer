@@ -3,6 +3,7 @@ package com.irateam.vkplayer.services;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 
 import com.irateam.vkplayer.database.AudioDatabaseHelper;
 import com.irateam.vkplayer.models.Audio;
@@ -78,11 +79,12 @@ public class DownloadService extends Service {
                     break;
 
                 case START_SYNC:
+                    Log.i("SYNC", "START");
                     sync();
                     break;
             }
         }
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
 
@@ -145,7 +147,7 @@ public class DownloadService extends Service {
                         while ((count = inputStream.read(data, 0, 1024)) != -1) {
 
                             if (Thread.interrupted()) {
-                                stopForeground(true);
+                                stopSelf();
                                 return;
                             }
 
@@ -166,8 +168,10 @@ public class DownloadService extends Service {
                     Intent intent = new Intent(DOWNLOAD_FINISHED);
                     intent.putExtra(DownloadFinishedReceiver.AUDIO_ID, audio);
                     sendBroadcast(intent);
+                    stopForeground(true);
                 }
             } while (audio != null);
+            stopSelf();
         });
         currentThread.start();
     }

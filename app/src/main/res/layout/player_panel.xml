@@ -6,6 +6,12 @@
     android:layout_height="@dimen/player_panel_height"
     android:layout_alignParentBottom="true">
 
+    <!--    <View
+            android:layout_width="match_parent"
+            android:layout_height="16dp"
+            android:layout_above="@id/player_panel_header_layout"
+            android:background="@drawable/player_shadow" />-->
+
     <LinearLayout
         android:id="@+id/player_panel_header_layout"
         android:layout_width="match_parent"
@@ -42,10 +48,10 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/player_panel_group_height"
         android:layout_alignParentBottom="true"
+        android:layout_marginBottom="1dp"
         android:layout_marginTop="7dp"
         android:background="@color/background"
-        android:orientation="horizontal"
-        android:layout_marginBottom="1dp">
+        android:orientation="horizontal">
 
         <ImageView
             android:id="@+id/player_panel_repeat"
