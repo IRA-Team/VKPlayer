@@ -33,6 +33,7 @@ public class DownloadService extends Service {
 
     public static final String AUDIO_LIST = "audio_list";
     public static final String DOWNLOAD_FINISHED = "download_service.download_finished";
+    public static final String DOWNLOAD_ONE = "download_service.download_one";
 
     public static final String START_SYNC = "start_sync";
     public static final String STOP_DOWNLOADING = "stop_downloading";
@@ -70,6 +71,7 @@ public class DownloadService extends Service {
                         download();
                     }
                     break;
+
 
                 case STOP_DOWNLOADING:
                     stopDownloading();

@@ -286,6 +286,8 @@ public class ListActivity extends AppCompatActivity implements
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         playerService.setPlaylist(audioAdapter.getList());
         playerService.play(position);
+        if (actionMode != null)
+            actionMode.finish();
         MenuItem item = navigationView.getMenu().getItem(0);
         item.setChecked(true);
         onNavigationItemSelected(item);

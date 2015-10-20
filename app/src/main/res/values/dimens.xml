@@ -21,8 +21,8 @@
     <dimen name="player_panel_song_name">16dp</dimen>
     <dimen name="player_panel_author">10dp</dimen>
 
-    <dimen name="player_activity_song_name">16dp</dimen>
-    <dimen name="player_activity_author">10dp</dimen>
+    <dimen name="player_activity_song_name">20dp</dimen>
+    <dimen name="player_activity_author">14dp</dimen>
 
     <dimen name="player_list_element_height">72dp</dimen>
     <dimen name="player_list_element_album_cover">40dp</dimen>

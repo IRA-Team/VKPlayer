@@ -15,7 +15,13 @@ import android.widget.ImageView;
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.controllers.ActivityPlayerController;
 import com.irateam.vkplayer.controllers.PlayerController;
+import com.irateam.vkplayer.models.Audio;
+import com.irateam.vkplayer.services.AudioService;
+import com.irateam.vkplayer.services.DownloadService;
 import com.irateam.vkplayer.services.PlayerService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AudioActivity extends AppCompatActivity implements ServiceConnection {
 
@@ -24,6 +30,7 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
 
     private PlayerController playerController;
     private PlayerService playerService;
+    private AudioService audioService = new AudioService(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

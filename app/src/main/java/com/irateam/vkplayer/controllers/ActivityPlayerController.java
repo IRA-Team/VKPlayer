@@ -74,6 +74,7 @@ public class ActivityPlayerController extends PlayerController implements Player
 
     public void setAudio(int position, Audio audio) {
         super.setAudio(position, audio);
+        songName.setText(audio.title);
         if (audio != null) {
             numberAudio.setText("#" + (position + 1) + "/" + playerService.getPlaylist().size());
             if (!audio.url.startsWith("https://") && !audio.url.startsWith("http://")) {
