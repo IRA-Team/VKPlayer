@@ -1,0 +1,50 @@
+<resources>
+    <string name="app_name">VKPlayer</string>
+
+    <string name="action_cache">Зберегти</string>
+    <string name="action_delete">Видалити</string>
+
+    <string name="title_activity_list">Список</string>
+    <string name="title_activity_login">Авторизація</string>
+
+    <string name="title_button_login_vk">Увійти через VK</string>
+    <string name="title_button_github">Github/IRA-Team</string>
+
+    <string name="navigation_drawer_open">Відкрити</string>
+    <string name="navigation_drawer_close">Закрити</string>
+    <string name="navigation_drawer_current_playlist">Поточний плейлист</string>
+    <string name="navigation_drawer_my_audio">Мої аудіозаписи</string>
+    <string name="navigation_drawer_recommendation">Рекомендації</string>
+    <string name="navigation_drawer_popular">Популярні</string>
+    <string name="navigation_drawer_downloaded">Збережені</string>
+    <string name="navigation_drawer_settings">Налаштування</string>
+    <string name="navigation_drawer_exit">Змінити профіль</string>
+
+    <string name="title_menu_sort">Сортування</string>
+    <string name="title_menu_search">Пошук</string>
+
+    <string name="error_load">Помилка завантаження</string>
+    <string name="error_no_internet_connection">Відсутнє з\'єднання з інтернетом</string>
+    <string name="title_snackbar_action">Повторити</string>
+
+    <string name="notification_previous">Попередня</string>
+    <string name="notification_pause">Пауза</string>
+    <string name="notification_resume">Відновити</string>
+    <string name="notification_next">Наступна</string>
+
+    <string name="notification_sync">Синхронізація</string>
+    <string name="notification_download">Збереження</string>
+    <string name="notification_cancel">Зупинити</string>
+
+    <string name="title_activity_settings">Налаштування</string>
+
+    <string name="pref_sync_enabled">Синхронізація</string>
+    <string name="pref_sync_count">Кількість аудіо</string>
+    <string name="pref_header_sync_title">Синхронізація</string>
+    <string name="pref_sync_time">Час синхронізації</string>
+    <string name="pref_sync_time_default">18:30</string>
+    <string name="pref_sync_button">Синхронізувати</string>
+
+    <string name="empty_list">Список порожній</string>
+
+</resources>

@@ -3,6 +3,7 @@ package com.irateam.vkplayer.models;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.irateam.vkplayer.player.Player;
 
