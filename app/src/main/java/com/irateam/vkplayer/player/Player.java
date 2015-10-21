@@ -25,8 +25,6 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     private ProgressThread currentProgressThread;
 
     private boolean stateReady = false;
-    private boolean wasPlaying = true;
-
 
     public Player(Context context) {
         super();
@@ -43,7 +41,6 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     private Random random = new Random();
 
     private Audio playingAudio;
-    private int playingIndex;
 
     public Audio getAudio(int index) {
         return list.get(index);
@@ -54,7 +51,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     public Integer getPlayingAudioIndex() {
-        return playingIndex;
+        return list.indexOf(playingAudio);
     }
 
     public List<Audio> getList() {
@@ -67,14 +64,13 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     public void play(int index) {
         playingAudio = list.get(index);
-        playingIndex = index;
         try {
             reset();
             stopProgress();
             setOnBufferingUpdateListener(null);
             setDataSource(playingAudio.getPlayingUrl());
             prepareAsync();
-            notifyPlayerEvent(playingIndex, playingAudio, PlayerEvent.PLAY);
+            notifyPlayerEvent(index, playingAudio, PlayerEvent.PLAY);
         } catch (IOException e) {
             e.printStackTrace();
         }

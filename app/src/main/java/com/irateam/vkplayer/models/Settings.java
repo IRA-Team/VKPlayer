@@ -1,11 +1,15 @@
 package com.irateam.vkplayer.models;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.irateam.vkplayer.player.Player;
+import com.irateam.vkplayer.services.DownloadService;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -20,6 +24,8 @@ public class Settings {
     public static final String SYNC_ENABLED = "sync_enabled";
     public static final String SYNC_TIME = "sync_time";
     public static final String SYNC_COUNT = "sync_count";
+
+    private static final int SYNC_ALARM_ID = 1;
 
     private static Settings instance;
 
@@ -62,7 +68,7 @@ public class Settings {
                 .apply();
     }
 
-    public boolean getSyncEnabled() {
+    public boolean isSyncEnabled() {
         return preferences.getBoolean(SYNC_ENABLED, false);
     }
 
@@ -100,5 +106,25 @@ public class Settings {
 
     public int getSyncCount() {
         return Integer.valueOf(preferences.getString(SYNC_COUNT, "10"));
+    }
+
+
+    public static void setSyncAlarm(Context context) {
+        Intent intent = new Intent(context, DownloadService.class);
+        intent.setAction(DownloadService.START_SYNC);
+        PendingIntent pendingIntent = PendingIntent.getService(context, SYNC_ALARM_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+                Settings.getInstance(context).getSyncTime().getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY,
+                pendingIntent);
+    }
+
+    public static void cancelSyncAlarm(Context context) {
+        Intent intent = new Intent(context, DownloadService.class);
+        intent.setAction(DownloadService.START_SYNC);
+        PendingIntent pendingIntent = PendingIntent.getService(context, SYNC_ALARM_ID, intent, 0);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(pendingIntent);
     }
 }

@@ -155,7 +155,30 @@ public class ListActivity extends AppCompatActivity implements
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.menu_list, menu);
-        final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+
+        MenuItem itemSort = menu.findItem(R.id.action_sort);
+        MenuItem itemSortDone = menu.findItem(R.id.action_sort_done);
+        MenuItem itemSearch = menu.findItem(R.id.action_search);
+
+        audioAdapter.setSortModeListener(new AudioAdapter.SortModeListener() {
+            @Override
+            public void onStartSortMode() {
+                itemSort.setVisible(false);
+                itemSortDone.setVisible(true);
+                listView.setDragEnabled(true);
+                refreshLayout.setEnabled(false);
+            }
+
+            @Override
+            public void onFinishSortMode() {
+                itemSort.setVisible(true);
+                itemSortDone.setVisible(false);
+                listView.setDragEnabled(false);
+                refreshLayout.setEnabled(true);
+            }
+        });
+
+        final SearchView searchView = (SearchView) itemSearch.getActionView();
         searchView.setIconifiedByDefault(false);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -176,10 +199,10 @@ public class ListActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_sort:
-                boolean flag = !listView.isDragEnabled();
-                listView.setDragEnabled(flag);
-                audioAdapter.setSortMode(flag);
-                refreshLayout.setEnabled(!flag);
+                audioAdapter.setSortMode(true);
+                return true;
+            case R.id.action_sort_done:
+                audioAdapter.setSortMode(false);
                 return true;
         }
         return super.onOptionsItemSelected(item);

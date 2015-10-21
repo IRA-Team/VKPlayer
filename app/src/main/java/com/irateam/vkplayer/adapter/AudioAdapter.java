@@ -186,22 +186,21 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
             notifyDataSetChanged();
         }
         this.sortMode = sortMode;
+        notifySortMode(sortMode);
     }
 
-    List<Audio> originalList;
+    List<Audio> originalList = new ArrayList<>();
 
     @Override
     public Filter getFilter() {
         return new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
-                List<Audio> resultList;
+                List<Audio> resultList = new ArrayList<>();
                 if (constraint == "") {
                     resultList = originalList;
                 } else {
                     String key = constraint.toString().trim();
-                    resultList = new ArrayList<>();
-
                     for (Audio audio : originalList) {
                         if (audio.title.toLowerCase().contains(key) || audio.artist.toLowerCase().contains(key)) {
                             resultList.add(audio);
@@ -237,5 +236,27 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         if (listener != null && listener.get() != null) {
             listener.get().onCoverCheck(position);
         }
+    }
+
+    private SortModeListener sortListeners;
+
+    public void setSortModeListener(SortModeListener listener) {
+        sortListeners = listener;
+    }
+
+    public void notifySortMode(boolean sortMode) {
+        if (sortListeners != null) {
+            if (sortMode) {
+                sortListeners.onStartSortMode();
+            } else {
+                sortListeners.onFinishSortMode();
+            }
+        }
+    }
+
+    public interface SortModeListener {
+        void onStartSortMode();
+
+        void onFinishSortMode();
     }
 }

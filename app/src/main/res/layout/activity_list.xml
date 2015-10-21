@@ -16,24 +16,31 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
+            <include layout="@layout/toolbar" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_below="@+id/toolbar"
+                android:background="@drawable/action_bar_shadow" />
 
             <LinearLayout
                 android:id="@+id/linearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_above="@+id/player_panel"
+                android:layout_below="@+id/toolbar"
                 android:orientation="vertical">
 
-                <include layout="@layout/toolbar" />
 
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                <android.support.v4.widget.SwipeRefreshLayout
-                    android:id="@+id/refresh_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    <android.support.v4.widget.SwipeRefreshLayout
+                        android:id="@+id/refresh_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
 
                         <com.mobeta.android.dslv.DragSortListView
                             android:id="@+id/list"
@@ -45,10 +52,11 @@
                             app:max_drag_scroll_speed="1.5"
                             app:use_default_controller="true" />
 
-                </android.support.v4.widget.SwipeRefreshLayout>
+                    </android.support.v4.widget.SwipeRefreshLayout>
 
-                    <include layout="@layout/empty_view"
-                        android:id="@+id/empty_list_view"/>
+                    <include
+                        android:id="@+id/empty_list_view"
+                        layout="@layout/empty_view" />
 
                 </FrameLayout>
             </LinearLayout>

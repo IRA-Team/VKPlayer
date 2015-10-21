@@ -4,13 +4,14 @@
     android:id="@+id/wrapper"
     android:layout_width="wrap_content"
     android:layout_height="@dimen/player_panel_height"
-    android:layout_alignParentBottom="true">
+    android:layout_alignParentBottom="true"
+    android:paddingBottom="2dp">
 
-    <!--    <View
-            android:layout_width="match_parent"
-            android:layout_height="16dp"
-            android:layout_above="@id/player_panel_header_layout"
-            android:background="@drawable/player_shadow" />-->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_above="@id/player_panel_header_layout"
+        android:background="@drawable/player_panel_shadow" />
 
     <LinearLayout
         android:id="@+id/player_panel_header_layout"
@@ -48,7 +49,6 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/player_panel_group_height"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="1dp"
         android:layout_marginTop="7dp"
         android:background="@color/background"
         android:orientation="horizontal">

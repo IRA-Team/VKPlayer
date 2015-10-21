@@ -16,11 +16,12 @@
     <string name="navigation_drawer_my_audio">Мои аудиозаписи</string>
     <string name="navigation_drawer_recommendation">Рекомендации</string>
     <string name="navigation_drawer_popular">Популярное</string>
-    <string name="navigation_drawer_downloaded">Cохраненные</string>
+    <string name="navigation_drawer_downloaded">Сохраненные</string>
     <string name="navigation_drawer_settings">Настройки</string>
     <string name="navigation_drawer_exit">Сменить профиль</string>
 
     <string name="title_menu_sort">Сортировка</string>
+    <string name="title_menu_sort_done">Завершить сортировку</string>
     <string name="title_menu_search">Поиск</string>
 
     <string name="error_load">Ошибка загрузки</string>
