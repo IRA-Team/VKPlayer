@@ -1,30 +1,63 @@
 package com.irateam.vkplayer.services;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.os.Binder;
 import android.os.IBinder;
 
+import com.irateam.vkplayer.models.Audio;
+import com.irateam.vkplayer.models.Settings;
 import com.irateam.vkplayer.notifications.PlayerNotification;
 import com.irateam.vkplayer.player.Player;
-import com.vk.sdk.api.model.VKApiAudio;
 
 import java.util.List;
 
-public class PlayerService extends Service implements Player.PlayerEventListener {
+public class PlayerService extends Service implements Player.PlayerEventListener, AudioManager.OnAudioFocusChangeListener {
 
     public static final String PREVIOUS = "playerService.PREVIOUS";
     public static final String PAUSE = "playerService.PAUSE";
     public static final String RESUME = "playerService.RESUME";
     public static final String NEXT = "playerService.NEXT";
+    public static final String STOP = "playerService.STOP";
 
-    private Player player = new Player();
+    private Player player;
     private Binder binder = new PlayerBinder();
+    private BroadcastReceiver headsetReceiver;
+    private AudioManager audioManager;
+
+    private Settings settings;
+    private boolean removeNotification = false;
+    private boolean wasPlaying = false;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        player = new Player(this);
         player.addPlayerEventListener(this);
+        settings = Settings.getInstance(this);
+        player.setRepeatState(settings.getPlayerRepeat());
+        player.setRandomState(settings.getRandomState());
+
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+
+        headsetReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
+                    if (intent.getIntExtra("state", -1) == 0) {
+                        if (isPlaying()) {
+                            pause(false);
+                        }
+                    }
+                }
+            }
+        };
+        registerReceiver(headsetReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
     }
 
 
@@ -37,13 +70,17 @@ public class PlayerService extends Service implements Player.PlayerEventListener
                     previous();
                     break;
                 case PAUSE:
-                    pause();
+                    pause(false);
                     break;
                 case RESUME:
                     resume();
                     break;
                 case NEXT:
                     next();
+                    break;
+                case STOP:
+                    stop();
+                    stopForeground(true);
                     break;
             }
         }
@@ -55,6 +92,8 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     public void onDestroy() {
         super.onDestroy();
         player.removePlayerEventListener(this);
+        unregisterReceiver(headsetReceiver);
+        audioManager.abandonAudioFocus(this);
     }
 
     @Override
@@ -69,11 +108,11 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     }
 
     //Player methods
-    public void setPlaylist(List<VKApiAudio> list) {
+    public void setPlaylist(List<Audio> list) {
         player.setList(list);
     }
 
-    public List<VKApiAudio> getPlaylist() {
+    public List<Audio> getPlaylist() {
         return player.getList();
     }
 
@@ -86,6 +125,11 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     }
 
     public void pause() {
+        pause(true);
+    }
+
+    public void pause(boolean removeNotification) {
+        this.removeNotification = removeNotification;
         player.pause();
     }
 
@@ -105,7 +149,15 @@ public class PlayerService extends Service implements Player.PlayerEventListener
         return player.isPlaying();
     }
 
-    public VKApiAudio getPlayingAudio() {
+    public boolean isReady() {
+        return player.isReady();
+    }
+
+    public int getPauseTime() {
+        return player.getPauseTime();
+    }
+
+    public Audio getPlayingAudio() {
         return player.getPlayingAudio();
     }
 
@@ -113,8 +165,15 @@ public class PlayerService extends Service implements Player.PlayerEventListener
         return player.getPlayingAudioIndex();
     }
 
+    public void setRepeatState(Player.RepeatState state) {
+        settings.setPlayerRepeat(state);
+        player.setRepeatState(state);
+    }
+
     public Player.RepeatState switchRepeatState() {
-        return player.switchRepeatState();
+        Player.RepeatState state = player.switchRepeatState();
+        settings.setPlayerRepeat(state);
+        return state;
     }
 
     public Player.RepeatState getRepeatState() {
@@ -122,7 +181,9 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     }
 
     public boolean switchRandomState() {
-        return player.switchRandomState();
+        boolean state = player.switchRandomState();
+        settings.setRandomState(state);
+        return state;
     }
 
     public boolean getRandomState() {
@@ -151,20 +212,48 @@ public class PlayerService extends Service implements Player.PlayerEventListener
 
     //Player callbacks
     @Override
-    public void onEvent(int position, VKApiAudio audio, Player.PlayerEvent event) {
+    public void onEvent(int position, Audio audio, Player.PlayerEvent event) {
         switch (event) {
             case PLAY:
                 startForeground(PlayerNotification.ID, PlayerNotification.create(this, position, audio, event));
                 break;
             case PAUSE:
-                PlayerNotification.update(this, position, audio, Player.PlayerEvent.PAUSE);
+                if (removeNotification) {
+                    stopForeground(true);
+                } else {
+                    PlayerNotification.update(this, position, audio, Player.PlayerEvent.PAUSE);
+                }
                 break;
             case RESUME:
-                PlayerNotification.update(this, position, audio, Player.PlayerEvent.RESUME);
+                startForeground(PlayerNotification.ID, PlayerNotification.create(this, position, audio, event));
                 break;
             case STOP:
                 stopForeground(true);
                 break;
         }
     }
+
+
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        switch (focusChange) {
+            case AudioManager.AUDIOFOCUS_LOSS:
+                wasPlaying = isPlaying();
+                pause(false);
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                wasPlaying = isPlaying();
+                pause(false);
+                break;
+            /*case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                event = "AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK";
+                break;*/
+            case AudioManager.AUDIOFOCUS_GAIN:
+                if (wasPlaying) {
+                    resume();
+                }
+                break;
+        }
+    }
+
 }

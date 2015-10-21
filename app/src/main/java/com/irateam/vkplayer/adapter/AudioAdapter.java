@@ -5,20 +5,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 
 import com.irateam.vkplayer.R;
+import com.irateam.vkplayer.models.Audio;
+import com.irateam.vkplayer.services.PlayerService;
 import com.irateam.vkplayer.ui.AudioListElement;
 import com.irateam.vkplayer.utils.AlbumCoverUtils;
-import com.vk.sdk.api.model.VKApiAudio;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AudioAdapter extends BaseAdapter {
+public class AudioAdapter extends BaseAdapter implements Filterable {
 
     private Context context;
-    private List<VKApiAudio> list = new ArrayList<>();
+    private PlayerService playerService;
+
+    private List<Audio> list = new ArrayList<>();
     private List<Integer> checkedList = new ArrayList<>();
 
     private boolean sortMode = false;
@@ -27,13 +32,47 @@ public class AudioAdapter extends BaseAdapter {
         this.context = context;
     }
 
-    public List<VKApiAudio> getList() {
+    public void setPlayerService(PlayerService playerService) {
+        this.playerService = playerService;
+    }
+
+    public List<Audio> getList() {
         return list;
     }
 
-    public void setList(List<VKApiAudio> list) {
+    public void setList(List<Audio> list) {
         this.checkedList = new ArrayList<>();
         this.list = list;
+        originalList = list;
+    }
+
+    public void updateAudioById(Audio audio) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).id == audio.id) {
+                list.set(i, audio);
+                break;
+            }
+        }
+        notifyDataSetChanged();
+    }
+
+    public void updateAudiosById(List<Audio> audios) {
+        for (int i = 0; i < list.size(); i++) {
+            for (Audio audio : audios) {
+                if (list.get(i).id == audio.id) {
+                    list.set(i, audio);
+                    break;
+                }
+            }
+        }
+        notifyDataSetChanged();
+    }
+
+    public void removeChecked() {
+        for (int i : checkedList) {
+            list.remove(i);
+        }
+        notifyDataSetChanged();
     }
 
     @Override
@@ -58,23 +97,21 @@ public class AudioAdapter extends BaseAdapter {
 
         AudioListElement element = (AudioListElement) view;
 
-        final VKApiAudio audio = list.get(position);
+        final Audio audio = list.get(position);
         audio.artist = audio.artist.trim();
 
         element.setTitle(audio.title);
         element.setArtist(audio.artist);
         element.setCoverDrawable(AlbumCoverUtils.createFromAudio(audio));
-        element.setCoverOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!sortMode) {
-                    notifyCoverChecked(position);
-                }
+        element.setCoverOnClickListener((v) -> {
+            if (!sortMode) {
+                notifyCoverChecked(position);
             }
         });
+
         element.setDuration(audio.duration);
 
-        if (!audio.url.startsWith("https://") && !audio.url.startsWith("http://")) {
+        if (audio.isCached()) {
             element.setDownloaded(true);
         }
         if (!sortMode) {
@@ -93,7 +130,6 @@ public class AudioAdapter extends BaseAdapter {
         } else {
             checkedList.add(position);
         }
-        System.out.println(checkedList.size());
         notifyDataSetChanged();
     }
 
@@ -101,12 +137,32 @@ public class AudioAdapter extends BaseAdapter {
         return checkedList;
     }
 
-    public List<VKApiAudio> getCheckedItems() {
-        List<VKApiAudio> list = new ArrayList<>();
+    public List<Audio> getCheckedItems() {
+        List<Audio> list = new ArrayList<>();
         for (Integer i : checkedList) {
             list.add(this.list.get(i));
         }
         return list;
+    }
+
+    public List<Audio> getCachedCheckedItems() {
+        List<Audio> cachedAudios = new ArrayList<>();
+        for (Audio audio : getCheckedItems()) {
+            if (audio.isCached()) {
+                cachedAudios.add(audio);
+            }
+        }
+        return cachedAudios;
+    }
+
+    public List<Audio> getNotCachedItems() {
+        List<Audio> notCachedAudios = new ArrayList<>();
+        for (Audio audio : getCheckedItems()) {
+            if (!audio.isCached()) {
+                notCachedAudios.add(audio);
+            }
+        }
+        return notCachedAudios;
     }
 
     public int getCheckedCount() {
@@ -130,6 +186,40 @@ public class AudioAdapter extends BaseAdapter {
             notifyDataSetChanged();
         }
         this.sortMode = sortMode;
+        notifySortMode(sortMode);
+    }
+
+    List<Audio> originalList = new ArrayList<>();
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                List<Audio> resultList = new ArrayList<>();
+                if (constraint == "") {
+                    resultList = originalList;
+                } else {
+                    String key = constraint.toString().trim();
+                    for (Audio audio : originalList) {
+                        if (audio.title.toLowerCase().contains(key) || audio.artist.toLowerCase().contains(key)) {
+                            resultList.add(audio);
+                        }
+                    }
+                }
+                FilterResults filterResults = new FilterResults();
+                filterResults.count = resultList.size();
+                filterResults.values = resultList;
+
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                list = (ArrayList<Audio>) results.values;
+                notifyDataSetChanged();
+            }
+        };
     }
 
     public interface CoverCheckListener {
@@ -146,5 +236,27 @@ public class AudioAdapter extends BaseAdapter {
         if (listener != null && listener.get() != null) {
             listener.get().onCoverCheck(position);
         }
+    }
+
+    private SortModeListener sortListeners;
+
+    public void setSortModeListener(SortModeListener listener) {
+        sortListeners = listener;
+    }
+
+    public void notifySortMode(boolean sortMode) {
+        if (sortListeners != null) {
+            if (sortMode) {
+                sortListeners.onStartSortMode();
+            } else {
+                sortListeners.onFinishSortMode();
+            }
+        }
+    }
+
+    public interface SortModeListener {
+        void onStartSortMode();
+
+        void onFinishSortMode();
     }
 }

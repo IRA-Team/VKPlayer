@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:id="@+id/empty_list_view">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/empty_list_image"
+        android:layout_centerInParent="true"
+        android:src="@drawable/ic_list_empty_grey_white_128dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/empty_list"
+        android:id="@+id/empty_list_text"
+        android:textColor="@color/empty_list_text_view_color"
+        android:layout_below="@+id/empty_list_image"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/empty_list_text_view_margin_top"/>
+</RelativeLayout>

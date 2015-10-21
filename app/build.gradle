@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'me.tatarka.retrolambda'
 
 android {
     compileSdkVersion 23
@@ -17,6 +18,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
@@ -28,4 +33,8 @@ dependencies {
     compile 'asia.ivity.android:drag-sort-listview:1.0'
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
+    compile 'com.android.support:recyclerview-v7:23.0.1'
+    compile 'com.yqritc:recyclerview-flexibledivider:1.2.5'
+    compile 'com.android.support:support-v4:23.0.1'
+    compile 'com.melnykov:floatingactionbutton:1.3.0'
 }

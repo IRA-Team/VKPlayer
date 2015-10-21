@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="background" type="color">#ffffff</item>
-    <item name="primary" type="color">#3f51b5</item>
-    <item name="secondary" type="color">#35444c</item>
-    <item name="primary_dark" type="color">#303f9f</item>
+    <item name="primary" type="color">#455a64</item>
+    <item name="primary_dark" type="color">#37474f</item>
     <item name="accent" type="color">#ff4081</item>
 
     <item name="seekbar_track" type="color">#f3f3f3</item>
@@ -24,18 +23,23 @@
     <item name="action_mode_action_bar_background" type="color">#9e9e9e</item>
     <item name="action_mode_status_bar_background" type="color">#7e7e7e</item>
 
-    <item name="player_activity_text" type="color">#000000</item>
+    <item name="player_activity_text" type="color">#a6a6a6</item>
+    <item name="player_activity_color_background" type="color">#263239</item>
 
     <!--Login Activity-->
+    <item name="login_activity_background" type="color">#ffffff</item>
     <item name="login_activity_button_white" type="color">#ffffff</item>
-    <item name="login_activity_button_white_text" type="color">#5c6bc0</item>
-    <item name="login_activity_button_blue" type="color">#5c6bc0</item>
-    <item name="login_activity_button_blue_text" type="color">#ffffff</item>
+    <item name="login_activity_button_white_text" type="color">@color/primary</item>
+    <item name="login_activity_button_blue_grey" type="color">@color/primary</item>
+    <item name="login_activity_button_blue_grey_text" type="color">#ffffff</item>
 
     <!--Navigation Drawer-->
     <item name="navigation_drawer_header_text_color" type="color">#ffffff</item>
 
     <item name="activity_audio_menu_item_text_color" type="color">#000000</item>
 
+    <item name="settings_text_color" type="color">#000000</item>
+
+    <item name="empty_list_text_view_color" type="color">#d0d0d0</item>
 
 </resources>

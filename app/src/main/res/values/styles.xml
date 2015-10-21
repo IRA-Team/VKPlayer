@@ -10,12 +10,16 @@
     </style>
 
     <style name="BaseTheme.LoginActivity" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowBackground">@color/primary</item>
+        <item name="android:windowBackground">@color/login_activity_background</item>
         <item name="android:statusBarColor">@color/primary_dark</item>
     </style>
 
     <style name="BaseTheme.App">
 
+    </style>
+
+    <style name="AudioActivityTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/primary_dark</item>
     </style>
 
     <style name="ActionBarStyle">
@@ -26,7 +30,7 @@
 
     <style name="ActionModeStyle" parent="Widget.AppCompat.ActionMode">
         <item name="background">@color/action_mode_action_bar_background</item>
-        <item name="height">?android:attr/actionBarSize</item>
+        <item name="height">56dp</item>
     </style>
 
     <style name="TransparentActionBarStyle">
@@ -37,6 +41,9 @@
     </style>
 
     <style name="ButtonLoginActivity">
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:layout_marginLeft">16dp</item>
+        <item name="android:layout_marginRight">16dp</item>
         <item name="android:paddingLeft">24dp</item>
         <item name="android:drawablePadding">24dp</item>
         <item name="android:height">@dimen/button_login_activity_height</item>
@@ -49,8 +56,8 @@
     </style>
 
     <style name="ButtonLoginActivity.Blue">
-        <item name="android:background">@color/login_activity_button_blue</item>
-        <item name="android:textColor">@color/login_activity_button_blue_text</item>
+        <item name="android:background">@color/login_activity_button_blue_grey</item>
+        <item name="android:textColor">@color/login_activity_button_blue_grey_text</item>
     </style>
 
     <style name="SeekBar">

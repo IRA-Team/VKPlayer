@@ -6,5 +6,7 @@
     android:layout_height="wrap_content"
     android:background="?attr/colorPrimary"
     android:minHeight="?attr/actionBarSize"
-    app:theme="@style/ActionBarStyle"
-    app:popupTheme="@style/BaseTheme.App"/>
+    app:titleMarginStart="16dp"
+    app:popupTheme="@style/BaseTheme.App"
+    app:navigationIcon="?attr/homeAsUpIndicator"
+    app:theme="@style/ActionBarStyle" />

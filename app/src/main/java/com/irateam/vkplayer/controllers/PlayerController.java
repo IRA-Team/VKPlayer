@@ -1,8 +1,8 @@
 package com.irateam.vkplayer.controllers;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
+import android.support.v4.view.ViewCompat;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -10,14 +10,16 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.irateam.vkplayer.R;
-import com.irateam.vkplayer.activities.AudioActivity;
+import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.services.PlayerService;
-import com.vk.sdk.api.model.VKApiAudio;
+import com.melnykov.fab.FloatingActionButton;
 
 public class PlayerController implements Player.PlayerEventListener, Player.PlayerProgressListener {
 
     public View rootView;
+    public FloatingActionButton fab;
+
     public TextView songName;
     public TextView author;
 
@@ -30,8 +32,8 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
     public SeekBar progress;
     private boolean dragMode;
 
-    private Context context;
-    private Resources resources;
+    protected Context context;
+    protected Resources resources;
 
     private LinearLayout headerLayout;
     protected PlayerService playerService;
@@ -41,6 +43,8 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
         resources = context.getResources();
 
         rootView = view;
+        fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        
         songName = (TextView) view.findViewById(R.id.player_panel_song_name);
         author = (TextView) view.findViewById(R.id.player_panel_author);
 
@@ -51,8 +55,6 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
         random = (ImageView) view.findViewById(R.id.player_panel_random);
 
         progress = (SeekBar) view.findViewById(R.id.progress);
-
-        headerLayout = (LinearLayout) view.findViewById(R.id.player_panel_header_layout);
     }
 
     @SuppressWarnings("deprecation")
@@ -60,44 +62,31 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
         this.playerService = playerService;
         configurePanel(playerService);
 
-        playPause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (playerService.isPlaying())
-                    playerService.pause();
-                else
-                    playerService.resume();
-            }
-        });
+        setPlayPause(playerService.isPlaying());
+        playPause.setOnClickListener((v -> {
+            if (playerService.isPlaying())
+                playerService.pause();
+            else
+                playerService.resume();
+        }));
 
-        previous.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playerService.previous();
-            }
-        });
+        previous.setOnClickListener((v) ->
+                playerService.previous());
 
-        next.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playerService.next();
-            }
-        });
+        next.setOnClickListener((v) ->
+                playerService.next());
 
-        repeat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setRepeatState(playerService.switchRepeatState());
-            }
-        });
+        setRepeatState(playerService.getRepeatState());
+        repeat.setOnClickListener((v) ->
+                setRepeatState(playerService.switchRepeatState()));
 
-        random.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setRandomState(playerService.switchRandomState());
-            }
-        });
+        setRandomState(playerService.getRandomState());
+        random.setOnClickListener((v) ->
+                setRandomState(playerService.switchRandomState()));
 
+        if (playerService.isReady() && !playerService.isPlaying()) {
+            onProgressChanged(playerService.getPauseTime());
+        }
         progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -115,14 +104,6 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
                 playerService.seekTo(progress.getProgress());
             }
         });
-
-        headerLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, AudioActivity.class);
-                context.startActivity(intent);
-            }
-        });
     }
 
     public void setPlayPause(boolean play) {
@@ -134,7 +115,7 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
 
     public void configurePanel(PlayerService playerService) {
         playerService.addPlayerProgressListener(this);
-        VKApiAudio audio = playerService.getPlayingAudio();
+        Audio audio = playerService.getPlayingAudio();
         if (audio != null) {
             rootView.setVisibility(View.VISIBLE);
             setAudio(playerService.getPlayingAudioIndex(), audio);
@@ -143,11 +124,16 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
         }
     }
 
+    public void setFabOnClickListener(View.OnClickListener listener) {
+        fab.setOnClickListener(listener);
+    }
+
     @Override
-    public void onEvent(int position, VKApiAudio audio, Player.PlayerEvent event) {
+    public void onEvent(int position, Audio audio, Player.PlayerEvent event) {
         switch (event) {
             case PLAY:
                 setAudio(position, audio);
+                setPlayPause(true);
                 break;
             case PAUSE:
                 setPlayPause(false);
@@ -155,10 +141,13 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
             case RESUME:
                 setPlayPause(true);
                 break;
+            case STOP:
+                rootView.setVisibility(View.GONE);
+                break;
         }
     }
 
-    public void setAudio(int position, VKApiAudio audio) {
+    public void setAudio(int position, Audio audio) {
         if (audio != null) {
             if (rootView.getVisibility() != View.VISIBLE) {
                 rootView.setVisibility(View.VISIBLE);

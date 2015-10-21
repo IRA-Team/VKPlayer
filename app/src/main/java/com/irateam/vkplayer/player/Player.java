@@ -1,11 +1,12 @@
 package com.irateam.vkplayer.player;
 
+import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.vk.sdk.api.model.VKApiAudio;
+import com.irateam.vkplayer.models.Audio;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -20,53 +21,44 @@ import static com.irateam.vkplayer.player.Player.RepeatState.ONE_REPEAT;
 
 public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener {
 
-    public static final String proxyURL = "http://localhost:8080/";
-
-    private static Player instance;
     private int pauseTime;
+    private ProgressThread currentProgressThread;
 
-    public synchronized static Player getInstance() {
-        if (instance == null) {
-            instance = new Player();
-        }
-        return instance;
-    }
+    private boolean stateReady = false;
 
-    public Player() {
+    public Player(Context context) {
         super();
         setAudioStreamType(AudioManager.STREAM_MUSIC);
         setOnPreparedListener(this);
         setOnCompletionListener(this);
-        startProgress();
-        setOnBufferingUpdateListener(this);
     }
 
-    private List<VKApiAudio> list;
+    private List<Audio> list = new ArrayList<>();
     private RepeatState repeatState = NO_REPEAT;
 
     private boolean randomState = false;
-    private Stack<VKApiAudio> randomStack = new Stack<>();
+    private Stack<Audio> randomStack = new Stack<>();
     private Random random = new Random();
 
-    private VKApiAudio playingAudio;
+    private Audio playingAudio;
 
-    public VKApiAudio getAudio(int index) {
+    public Audio getAudio(int index) {
         return list.get(index);
     }
 
-    public VKApiAudio getPlayingAudio() {
+    public Audio getPlayingAudio() {
         return playingAudio;
     }
 
     public Integer getPlayingAudioIndex() {
-        return playingAudio != null ? list.indexOf(playingAudio) : null;
+        return list.indexOf(playingAudio);
     }
 
-    public List<VKApiAudio> getList() {
+    public List<Audio> getList() {
         return list;
     }
 
-    public void setList(List<VKApiAudio> list) {
+    public void setList(List<Audio> list) {
         this.list = list;
     }
 
@@ -74,7 +66,9 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         playingAudio = list.get(index);
         try {
             reset();
-            setDataSource(playingAudio.url);
+            stopProgress();
+            setOnBufferingUpdateListener(null);
+            setDataSource(playingAudio.getPlayingUrl());
             prepareAsync();
             notifyPlayerEvent(index, playingAudio, PlayerEvent.PLAY);
         } catch (IOException e) {
@@ -83,7 +77,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     public void resume() {
-        if (playingAudio != null) {
+        if (isReady() && playingAudio != null) {
             seekTo(pauseTime);
             start();
             notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.RESUME);
@@ -91,7 +85,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     public void stop() {
-        if (isPlaying() && playingAudio != null) {
+        if (isReady() && playingAudio != null) {
             super.stop();
             notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.STOP);
             playingAudio = null;
@@ -99,17 +93,23 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     public void pause() {
-        if (isPlaying()) {
+        if (isReady() && isPlaying()) {
             super.pause();
             pauseTime = getCurrentPosition();
             notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.PAUSE);
         }
     }
 
+    public int getPauseTime() {
+        return pauseTime;
+    }
+
     public void next() {
         int nextIndex;
         if (randomState) {
-            nextIndex = random.nextInt(list.size());
+            do
+                nextIndex = random.nextInt(list.size());
+            while (getPlayingAudioIndex() == nextIndex);
             randomStack.push(playingAudio);
         } else {
             nextIndex = getPlayingAudioIndex() + 1;
@@ -133,6 +133,14 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         }
         reset();
         play(previousIndex);
+    }
+
+    @Override
+    public void seekTo(int msec) throws IllegalStateException {
+        if (isReady()) {
+            super.seekTo(msec);
+            pauseTime = msec;
+        }
     }
 
     public RepeatState getRepeatState() {
@@ -198,7 +206,20 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     @Override
     public void onPrepared(MediaPlayer mp) {
+        stateReady = true;
         start();
+        startProgress();
+        setOnBufferingUpdateListener(this);
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+        stateReady = false;
+    }
+
+    public boolean isReady() {
+        return stateReady;
     }
 
     //Listeners
@@ -210,7 +231,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     public interface PlayerEventListener {
-        void onEvent(int position, VKApiAudio audio, PlayerEvent event);
+        void onEvent(int position, Audio audio, PlayerEvent event);
     }
 
     public void addPlayerEventListener(PlayerEventListener listener) {
@@ -221,7 +242,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         listeners.remove(listener);
     }
 
-    private void notifyPlayerEvent(int position, VKApiAudio audio, PlayerEvent event) {
+    private void notifyPlayerEvent(int position, Audio audio, PlayerEvent event) {
         for (WeakReference<PlayerEventListener> l : listeners) {
             PlayerEventListener listener = l.get();
             if (listener != null) {
@@ -244,24 +265,6 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     //Progress Listener
-    public void startProgress() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        if (isPlaying()) {
-                            notifyPlayerProgressChanged();
-                        }
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }).start();
-    }
-
     private List<WeakReference<PlayerProgressListener>> progressListeners = new ArrayList<>();
 
     public interface PlayerProgressListener {
@@ -279,14 +282,11 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     private void notifyPlayerProgressChanged() {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                for (WeakReference<PlayerProgressListener> l : progressListeners) {
-                    PlayerProgressListener listener = l.get();
-                    if (listener != null) {
-                        listener.onProgressChanged(getCurrentPosition());
-                    }
+        new Handler(Looper.getMainLooper()).post(() -> {
+            for (WeakReference<PlayerProgressListener> l : progressListeners) {
+                PlayerProgressListener listener = l.get();
+                if (listener != null) {
+                    listener.onProgressChanged(getCurrentPosition());
                 }
             }
         });
@@ -299,5 +299,34 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
                 listener.onBufferingUpdate(milliseconds);
             }
         }
+    }
+
+    public void startProgress() {
+        currentProgressThread = new ProgressThread();
+        currentProgressThread.start();
+    }
+
+    public void stopProgress() {
+        if (currentProgressThread != null && !currentProgressThread.isInterrupted()) {
+            currentProgressThread.interrupt();
+        }
+    }
+
+    private class ProgressThread extends Thread {
+
+        @Override
+        public void run() {
+            while (!Thread.interrupted()) {
+                try {
+                    if (isPlaying()) {
+                        notifyPlayerProgressChanged();
+                    }
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
     }
 }

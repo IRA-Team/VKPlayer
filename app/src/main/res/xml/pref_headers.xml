@@ -1,0 +1,8 @@
+<preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <header
+        android:fragment="com.irateam.vkplayer.activities.settings.SettingsActivity$SyncPreferenceFragment"
+        android:title="@string/pref_header_sync_title"
+        android:icon="@drawable/ic_sync_grey_24dp"/>
+
+</preference-headers>

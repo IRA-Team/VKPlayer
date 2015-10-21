@@ -1,22 +1,19 @@
 package com.irateam.vkplayer.services;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.database.AudioDatabaseHelper;
+import com.irateam.vkplayer.models.Audio;
+import com.irateam.vkplayer.services.PlayerService;
+import com.irateam.vkplayer.utils.AudioUtils;
+import com.irateam.vkplayer.utils.NetworkUtils;
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
-import com.vk.sdk.api.model.VKApiAudio;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -28,98 +25,108 @@ public class AudioService extends VKRequest.VKRequestListener {
 
     public static final String GENRE_ID = "genre_id";
     private Context context;
-    private VKRequest lastRequest;
+    private PlayerService playerService;
     private List<WeakReference<Listener>> listeners = new ArrayList<>();
+
+    private VKRequest lastRequest;
+    private Runnable lastQuery;
 
     public AudioService(Context context) {
         this.context = context;
     }
 
+    public void setPlayerService(PlayerService playerService) {
+        this.playerService = playerService;
+    }
+
+    public void getCurrentAudio() {
+        performQuery(() -> notifyAllComplete(playerService.getPlaylist()), null);
+    }
+
     public void getMyAudio() {
-        performRequest(VKApi.audio().get());
+        VKRequest request = VKApi.audio().get();
+        performQuery(() -> request.executeWithListener(this), request);
     }
 
     public void getRecommendationAudio() {
-        performRequest(VKApi.audio().getRecommendations());
+        VKRequest request = VKApi.audio().getRecommendations();
+        performQuery(() -> request.executeWithListener(this), request);
     }
 
     public void getPopularAudio() {
-        performRequest(VKApi.audio().getPopular(VKParameters.from(GENRE_ID, 0)));
+        VKRequest request = VKApi.audio().getPopular(VKParameters.from(GENRE_ID, 0));
+        performQuery(() -> request.executeWithListener(this), request);
     }
 
-    private void performRequest(VKRequest request) {
-        lastRequest = request;
-        if (checkNetwork()) {
-            request.executeWithListener(this);
-        } else {
-            notifyAllError(context.getString(R.string.error_no_internet_connection));
+    public void getCachedAudio() {
+        performQuery(() -> new GetFromCacheTask().execute(), null);
+    }
+
+    private void performQuery(Runnable query, VKRequest request) {
+        lastQuery = query;
+
+        if (lastRequest != null) {
+            lastRequest.cancel();
         }
+
+        if (request != null) {
+            if (NetworkUtils.checkNetwork(context)) {
+                query.run();
+            } else {
+                notifyAllError(context.getString(R.string.error_no_internet_connection));
+            }
+        } else {
+            query.run();
+        }
+        lastRequest = request;
+
     }
 
     public void repeatLastRequest() {
-        performRequest(lastRequest);
+        lastQuery.run();
     }
 
     @Override
     public void onComplete(VKResponse response) {
         super.onComplete(response);
-        try {
-            List<VKApiAudio> vkList = new ArrayList<>();
+        List<Audio> vkList = AudioUtils.parseJSONResponseToList(response);
+        List<Audio> cachedList = new AudioDatabaseHelper(context).getAll();
 
-            //Popular audio doesn't have JSONArray items, so need to check
-            JSONArray array;
-            JSONObject jsonResponse = response.json.optJSONObject("response");
-            if (jsonResponse != null) {
-                array = jsonResponse.getJSONArray("items");
-            } else {
-                array = response.json.getJSONArray("response");
-            }
-            for (int i = 0; i < array.length(); i++) {
-                vkList.add(new VKApiAudio().parse(array.getJSONObject(i)));
-            }
-
-            List<VKApiAudio> cachedList = new AudioDatabaseHelper(context).getAll();
-            for (int i = 0; i < vkList.size(); i++) {
-                for (VKApiAudio audio : cachedList) {
-                    if (vkList.get(i).id == audio.id && new File(audio.url).exists()) {
-                        vkList.set(i, audio);
-                    }
+        for (int i = 0; i < vkList.size(); i++) {
+            for (Audio audio : cachedList) {
+                if (vkList.get(i).id == audio.id && new File(audio.cachePath).exists()) {
+                    vkList.set(i, audio);
                 }
             }
-            notifyAllComplete(vkList);
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
+
+        notifyAllComplete(vkList);
+
     }
 
-    public void getCachedAudio() {
-        new AsyncTask<Void, Void, List<VKApiAudio>>() {
+    public void removeFromCache(List<Audio> cachedList, Listener listener) {
+        new AsyncTask<Void, Void, Void>() {
+
             @Override
-            protected List<VKApiAudio> doInBackground(Void... params) {
-                List<VKApiAudio> list = new AudioDatabaseHelper(context).getAll();
-                Iterator<VKApiAudio> i = list.iterator();
-                while (i.hasNext()) {
-                    File file = new File(i.next().url);
-                    if (!file.exists()) {
-                        i.remove();
+            protected Void doInBackground(Void... params) {
+                AudioDatabaseHelper helper = new AudioDatabaseHelper(context);
+                for (Audio audio : cachedList) {
+                    File file = new File(audio.cachePath);
+                    if (audio.isCached() && file.exists()) {
+                        file.delete();
+                        helper.delete(audio);
+                        audio.cachePath = null;
                     }
                 }
-                return list;
+                return null;
             }
 
             @Override
-            protected void onPostExecute(List<VKApiAudio> vkApiAudios) {
-                super.onPostExecute(vkApiAudios);
-                notifyAllComplete(vkApiAudios);
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                listener.onComplete(cachedList);
             }
         }.execute();
-    }
-
-    private boolean checkNetwork() {
-        ConnectivityManager cm =
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isConnectedOrConnecting();
     }
 
     @Override
@@ -136,7 +143,7 @@ public class AudioService extends VKRequest.VKRequestListener {
         listeners.remove(listener);
     }
 
-    private void notifyAllComplete(List<VKApiAudio> list) {
+    private void notifyAllComplete(List<Audio> list) {
         for (WeakReference<Listener> l : listeners) {
             l.get().onComplete(list);
         }
@@ -149,9 +156,32 @@ public class AudioService extends VKRequest.VKRequestListener {
     }
 
     public interface Listener {
-        void onComplete(List<VKApiAudio> list);
+        void onComplete(List<Audio> list);
 
         void onError(String errorMessage);
     }
+
+    private class GetFromCacheTask extends AsyncTask<Void, Void, List<Audio>> {
+        @Override
+        protected List<Audio> doInBackground(Void... params) {
+            List<Audio> list = new AudioDatabaseHelper(context).getAll();
+            Iterator<Audio> i = list.iterator();
+            while (i.hasNext()) {
+                File file = new File(i.next().cachePath);
+                if (!file.exists()) {
+                    i.remove();
+                }
+            }
+            return list;
+        }
+
+        @Override
+        protected void onPostExecute(List<Audio> audios) {
+            super.onPostExecute(audios);
+            notifyAllComplete(audios);
+        }
+    }
+
+    ;
 
 }

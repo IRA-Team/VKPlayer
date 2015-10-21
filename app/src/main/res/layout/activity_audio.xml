@@ -9,13 +9,14 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:background="@color/player_activity_color_background">
 
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop" />
+            android:scaleType="center" />
 
         <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -28,7 +29,10 @@
     </FrameLayout>
 
     <include
+        android:id="@+id/activity_player_panel"
         layout="@layout/activity_player_panel"
-        android:id="@+id/activity_player_panel" />
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/player_activity_height"
+        android:layout_marginTop="-28dp" />
 
 </LinearLayout>

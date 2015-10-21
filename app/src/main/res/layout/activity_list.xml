@@ -11,37 +11,54 @@
         android:layout_height="match_parent">
 
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
+            <include layout="@layout/toolbar" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_below="@+id/toolbar"
+                android:background="@drawable/action_bar_shadow" />
 
             <LinearLayout
+                android:id="@+id/linearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_above="@+id/player_panel"
+                android:layout_below="@+id/toolbar"
                 android:orientation="vertical">
 
-                <include layout="@layout/toolbar" />
 
-                <android.support.v4.widget.SwipeRefreshLayout
-                    android:id="@+id/refresh_layout"
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                    <com.mobeta.android.dslv.DragSortListView
-                        android:id="@+id/list"
+                    <android.support.v4.widget.SwipeRefreshLayout
+                        android:id="@+id/refresh_layout"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        app:drag_enabled="false"
-                        app:drag_handle_id="@+id/player_list_element_cover_wrapper"
-                        app:float_background_color="@color/player_list_element_drag_color"
-                        app:max_drag_scroll_speed="1.5"
-                        app:use_default_controller="true">
+                        android:layout_height="match_parent">
 
-                    </com.mobeta.android.dslv.DragSortListView>
-                </android.support.v4.widget.SwipeRefreshLayout>
+                        <com.mobeta.android.dslv.DragSortListView
+                            android:id="@+id/list"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            app:drag_enabled="false"
+                            app:drag_handle_id="@+id/player_list_element_cover_wrapper"
+                            app:float_background_color="@color/player_list_element_drag_color"
+                            app:max_drag_scroll_speed="1.5"
+                            app:use_default_controller="true" />
+
+                    </android.support.v4.widget.SwipeRefreshLayout>
+
+                    <include
+                        android:id="@+id/empty_list_view"
+                        layout="@layout/empty_view" />
+
+                </FrameLayout>
             </LinearLayout>
 
             <include
@@ -49,9 +66,10 @@
                 layout="@layout/player_panel"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/player_panel_height"
-                android:layout_alignParentBottom="true" />
+                android:layout_alignParentBottom="true"
+                android:layout_marginTop="-28dp" />
 
-        </LinearLayout>
+        </RelativeLayout>
     </android.support.design.widget.CoordinatorLayout>
 
     <android.support.design.widget.NavigationView

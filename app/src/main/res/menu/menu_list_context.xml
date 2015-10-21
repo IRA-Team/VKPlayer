@@ -2,8 +2,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_download"
-        android:icon="@drawable/ic_selected_download_white_24dp"
-        android:title="Удалить"
+        android:id="@+id/action_cache"
+        android:icon="@drawable/ic_cache_white_24dp"
+        android:title="@string/action_cache"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_remove_from_cache"
+        android:icon="@drawable/ic_remove_cache_white_24dp"
+        android:title="@string/action_cache"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_delete"
+        android:icon="@drawable/ic_selected_delete_white_24dp"
+        android:title="@string/action_delete"
         app:showAsAction="ifRoom" />
 </menu>
