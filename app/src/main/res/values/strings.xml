@@ -47,5 +47,9 @@
     <string name="pref_sync_button">Синхронизировать</string>
 
     <string name="empty_list">Список пустой</string>
+    <string name="notification_error_sync_title">Ошибка синхронизации</string>
+    <string name="notification_successful_sync">Синхронизация завершена</string>
+    <string name="notification_error_download_title">Ошибка сохранения</string>
+    <string name="notification_successful_download">Сохранение завершено</string>
 
 </resources>

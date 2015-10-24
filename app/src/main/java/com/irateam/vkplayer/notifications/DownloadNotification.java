@@ -14,6 +14,7 @@ import com.irateam.vkplayer.services.DownloadService;
 public class DownloadNotification {
 
     public static final int ID = 2;
+    public static final int FINAL_MESSAGE_ID = 3;
 
     public static Notification create(Context context, Audio audio, int progress, boolean isSync) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
@@ -33,5 +34,21 @@ public class DownloadNotification {
     public static void update(Context context, Audio audio, int progress, boolean isSync) {
         Notification notification = create(context, audio, progress, isSync);
         ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(ID, notification);
+    }
+
+    public static void error(Context context, Audio audio, boolean isSync) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+                .setSmallIcon(R.drawable.ic_ab_done)
+                .setContentTitle(isSync ? context.getString(R.string.notification_error_sync_title) :
+                        context.getString(R.string.notification_error_download_title));
+        ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(FINAL_MESSAGE_ID, builder.build());
+    }
+
+    public static void successful(Context context, boolean isSync) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+                .setSmallIcon(R.drawable.ic_ab_done)
+                .setContentTitle(isSync ? context.getString(R.string.notification_successful_sync) :
+                        context.getString(R.string.notification_successful_download));
+        ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(FINAL_MESSAGE_ID, builder.build());
     }
 }

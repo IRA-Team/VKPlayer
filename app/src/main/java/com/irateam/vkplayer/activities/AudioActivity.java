@@ -80,7 +80,10 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
         getMenuInflater().inflate(R.menu.menu_audio, menu);
-        setCacheAction(playerService.getPlayingAudio().isCached());
+        Audio audio = playerService.getPlayingAudio();
+        if (audio != null) {
+            setCacheAction(audio.isCached());
+        }
         return true;
     }
 

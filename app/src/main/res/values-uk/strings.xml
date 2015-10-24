@@ -46,5 +46,10 @@
     <string name="pref_sync_button">Синхронізувати</string>
 
     <string name="empty_list">Список порожній</string>
+    <string name="title_menu_sort_done">Завершити сортування</string>
+    <string name="notification_error_sync_title">Помилка синхронізації</string>
+    <string name="notification_successful_sync">Синхронізацію завершено</string>
+    <string name="notification_successful_download">Збереження завершено</string>
+    <string name="notification_error_download_title">Помилка збереження</string>
 
 </resources>

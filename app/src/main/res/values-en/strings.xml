@@ -46,5 +46,10 @@
     <string name="pref_sync_button">Synchronize</string>
 
     <string name="empty_list">Empty list</string>
+    <string name="title_menu_sort_done">Stop sort</string>
+    <string name="notification_error_sync_title">Synchronization error</string>
+    <string name="notification_successful_sync">Sync successful</string>
+    <string name="notification_successful_download">Saving completed</string>
+    <string name="notification_error_download_title">Saving error</string>
 
 </resources>
