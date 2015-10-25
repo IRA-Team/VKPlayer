@@ -51,5 +51,13 @@
     <string name="notification_successful_sync">Синхронізацію завершено</string>
     <string name="notification_successful_download">Збереження завершено</string>
     <string name="notification_error_download_title">Помилка збереження</string>
+    <string name="notification_audio_count_left">Залишилось:</string>
+    <string name="notification_successful_download_count">Збережено аудіозаписів:</string>
+    <string name="notification_successful_sync_count">Синхронізовано аудіозаписів:</string>
+    <string name="action_add_to_playlist">Додати в поточний плейлист</string>
+    <string name="action_play">Грати</string>
+    <string name="action_remove_from_cache">Видалити з збережених</string>
+    <string name="snackbar_add_to_playlist">Аудіозаписи додані в поточний плейлист</string>
+    <string name="snackbar_cancel">Відмінити</string>
 
 </resources>

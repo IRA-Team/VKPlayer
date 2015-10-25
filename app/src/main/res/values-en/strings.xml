@@ -51,5 +51,13 @@
     <string name="notification_successful_sync">Sync successful</string>
     <string name="notification_successful_download">Saving completed</string>
     <string name="notification_error_download_title">Saving error</string>
+    <string name="notification_audio_count_left">Left: </string>
+    <string name="notification_successful_download_count">Saved audios:</string>
+    <string name="notification_successful_sync_count">Synchronized audios:</string>
+    <string name="action_add_to_playlist">Add to current playlist</string>
+    <string name="action_play">Play</string>
+    <string name="action_remove_from_cache">Remove from saved</string>
+    <string name="snackbar_add_to_playlist">Audios added to current playlist</string>
+    <string name="snackbar_cancel">Cancel</string>
 
 </resources>

@@ -419,13 +419,22 @@ public class ListActivity extends AppCompatActivity implements
 
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        MenuItem menuItem = navigationView.getMenu().findItem(R.id.current_playlist);
         switch (item.getItemId()) {
+            case R.id.action_play:
+                playerService.setPlaylist(audioAdapter.getCheckedItems());
+                playerService.play(0);
+                menuItem.setChecked(true);
+                onNavigationItemSelected(menuItem);
+                break;
+
             case R.id.action_cache:
                 Intent intent = new Intent(this, DownloadService.class);
                 intent.setAction(DownloadService.START_DOWNLOADING);
                 intent.putExtra(DownloadService.AUDIO_LIST, (ArrayList<Audio>) audioAdapter.getCheckedItems());
                 startService(intent);
                 break;
+
             case R.id.action_remove_from_cache:
                 List<Audio> list = audioAdapter.getCachedCheckedItems();
                 audioService.removeFromCache(list, new AudioService.Listener() {
@@ -440,8 +449,22 @@ public class ListActivity extends AppCompatActivity implements
                     }
                 });
                 break;
+
             case R.id.action_delete:
                 audioAdapter.removeChecked();
+                break;
+
+            case R.id.action_add_to_playlist:
+                List<Audio> checked = audioAdapter.getCheckedItems();
+                List<Audio> playlist = playerService.getPlaylist();
+                playlist.addAll(checked);
+                audioAdapter.notifyDataSetChanged();
+                Snackbar.make(coordinatorLayout, R.string.snackbar_add_to_playlist, Snackbar.LENGTH_LONG)
+                        .setAction(R.string.snackbar_cancel, (v -> {
+                            for (int i = 0; i < checked.size(); i++)
+                                playlist.remove(playlist.size() - 1);
+                        }))
+                        .show();
                 break;
         }
         mode.finish();

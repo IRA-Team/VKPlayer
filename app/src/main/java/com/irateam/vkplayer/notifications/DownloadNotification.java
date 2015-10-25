@@ -1,11 +1,11 @@
 package com.irateam.vkplayer.notifications;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.models.Audio;
@@ -14,41 +14,84 @@ import com.irateam.vkplayer.services.DownloadService;
 public class DownloadNotification {
 
     public static final int ID = 2;
-    public static final int FINAL_MESSAGE_ID = 3;
+    public static final int FINAL_SYNC_NOTIFICATION_ID = 3;
+    public static final int FINAL_DOWNLOAD_NOTIFICATION_ID = 4;
 
-    public static Notification create(Context context, Audio audio, int progress, boolean isSync) {
+    public static Notification create(Context context, Audio audio, int progress, int audioLeftCount, boolean isSync) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         Intent intent = new Intent(context, DownloadService.class);
         intent.setAction(DownloadService.STOP_DOWNLOADING);
         builder
                 .setContentTitle(audio.artist + " - " + audio.title)
                 .setSmallIcon(R.drawable.ic_statusbar_download_white_18dp)
-                .setContentText(isSync ? context.getString(R.string.notification_sync) : context.getString(R.string.notification_download))
-                .setProgress(100, progress, false)
+                .setContentText(isSync ? context.getString(R.string.notification_sync) : context.getString(R.string.notification_download));
+
+        if (audioLeftCount > 0) {
+            builder.setContentInfo(context.getString(R.string.notification_audio_count_left) + audioLeftCount);
+        }
+
+        builder.setProgress(100, progress, false)
                 .addAction(R.drawable.ic_notification_cancel_white_24dp,
                         context.getString(R.string.notification_cancel),
                         PendingIntent.getService(context, 0, intent, 0));
         return builder.build();
     }
 
-    public static void update(Context context, Audio audio, int progress, boolean isSync) {
-        Notification notification = create(context, audio, progress, isSync);
-        ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(ID, notification);
+    public static void update(Context context, Audio audio, int progress, int audioLeftCount, boolean isSync) {
+        Notification notification = create(context, audio, progress, audioLeftCount, isSync);
+        NotificationManagerCompat.from(context).notify(ID, notification);
     }
 
-    public static void error(Context context, Audio audio, boolean isSync) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
-                .setSmallIcon(R.drawable.ic_ab_done)
-                .setContentTitle(isSync ? context.getString(R.string.notification_error_sync_title) :
-                        context.getString(R.string.notification_error_download_title));
-        ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(FINAL_MESSAGE_ID, builder.build());
+    public static void error(Context context, boolean isSync) {
+        error(context, "", isSync);
     }
 
-    public static void successful(Context context, boolean isSync) {
+    public static void error(Context context, String error, boolean isSync) {
+        if (isSync) {
+            errorSync(context, error);
+        } else {
+            errorDownload(context, error);
+        }
+    }
+
+    public static void errorSync(Context context, String error) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ic_ab_done)
-                .setContentTitle(isSync ? context.getString(R.string.notification_successful_sync) :
-                        context.getString(R.string.notification_successful_download));
-        ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(FINAL_MESSAGE_ID, builder.build());
+                .setContentTitle(context.getString(R.string.notification_error_sync_title))
+                .setContentText(error.isEmpty() ? "" : error);
+        NotificationManagerCompat.from(context).notify(FINAL_SYNC_NOTIFICATION_ID, builder.build());
     }
+
+    public static void errorDownload(Context context, String error) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+                .setSmallIcon(R.drawable.ic_ab_done)
+                .setContentTitle(context.getString(R.string.notification_error_download_title))
+                .setContentText(error.isEmpty() ? "" : error);
+        NotificationManagerCompat.from(context).notify(FINAL_DOWNLOAD_NOTIFICATION_ID, builder.build());
+    }
+
+    public static void successful(Context context, int audioCount, boolean isSync) {
+        if (isSync) {
+            successfulSync(context, audioCount);
+        } else {
+            successfulDownload(context, audioCount);
+        }
+    }
+
+    public static void successfulSync(Context context, int audioCount) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+                .setSmallIcon(R.drawable.ic_ab_done)
+                .setContentTitle(context.getString(R.string.notification_successful_sync))
+                .setContentText(context.getString(R.string.notification_successful_sync_count) + audioCount);
+        NotificationManagerCompat.from(context).notify(FINAL_SYNC_NOTIFICATION_ID, builder.build());
+    }
+
+    public static void successfulDownload(Context context, int audioCount) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+                .setSmallIcon(R.drawable.ic_ab_done)
+                .setContentTitle(context.getString(R.string.notification_successful_download))
+                .setContentText(context.getString(R.string.notification_successful_download_count) + audioCount);
+        NotificationManagerCompat.from(context).notify(FINAL_DOWNLOAD_NOTIFICATION_ID, builder.build());
+    }
+
 }

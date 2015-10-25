@@ -15,7 +15,7 @@
     </style>
 
     <style name="BaseTheme.App">
-
+        <item name="android:textColor">@color/settings_text_color</item>
     </style>
 
     <style name="AudioActivityTheme" parent="Theme.AppCompat.Light.NoActionBar">
