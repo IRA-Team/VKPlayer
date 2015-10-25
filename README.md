@@ -4,14 +4,14 @@ VKPlayer – free open-source application that allows you to listen to music fro
 
 Main features:
 
-- **Offline mode.**
-Save your favorite tracks and listen it independently from internet connection
+- **Off-line mode.**
+Save your favorite tracks and listen them regardless of the Internet connection
 
 - **Synchronization.**
-Set comfortable time for you and VKPlayer  will keep saving the required number of your tracks
+Set convenient time and VKPlayer will save the required amount of your tracks
 
 - **Dynamic playlist.** 
-Click on the track in any list and this list will automatically become the current playlist
+Click on the track in any list and he will automatically become the current one
 
 - **User-friendly interface.** 
-A modern, simple and intuitive interface that has nothing superfluous
+Modern, easy and handy interface without unnecessary staff
