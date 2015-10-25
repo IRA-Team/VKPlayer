@@ -112,6 +112,7 @@ public class Settings {
     public static void setSyncAlarm(Context context) {
         Intent intent = new Intent(context, DownloadService.class);
         intent.setAction(DownloadService.START_SYNC);
+        intent.putExtra("fromButton", false);
         PendingIntent pendingIntent = PendingIntent.getService(context, SYNC_ALARM_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,

@@ -80,7 +80,7 @@ public class DownloadService extends Service {
                     break;
 
                 case START_SYNC:
-                    sync();
+                    sync(intent.getExtras().getBoolean("fromButton"));
                     break;
             }
         }
@@ -88,23 +88,38 @@ public class DownloadService extends Service {
     }
 
 
-    private void sync() {
-        if (NetworkUtils.checkNetwork(this)) {
-            VKApi.audio().get(VKParameters.from(VKApiConst.COUNT, settings.getSyncCount())).executeWithListener(new VKRequest.VKRequestListener() {
-                @Override
-                public void onComplete(VKResponse response) {
-                    super.onComplete(response);
-                    List<Audio> vkList = AudioUtils.parseJSONResponseToList(response);
-                    List<Audio> cachedList = new AudioDatabaseHelper(DownloadService.this).getAll();
+    private void sync(boolean fromButton) {
+        if (fromButton) {
+            if (NetworkUtils.checkNetwork(this)) {
+                getVkAudio();
+            } else {
+                Toast.makeText(this, R.string.error_no_internet_connection, Toast.LENGTH_LONG).show();
+            }
+        } else {
+            if (NetworkUtils.checkWifiNetwork(this)) {
+                getVkAudio();
+            } else {
+                Toast.makeText(this, R.string.error_no_wifi_connection, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
 
-                    for (Audio audio : cachedList) {
-                        for (Iterator<Audio> iterator = vkList.iterator(); iterator.hasNext(); ) {
-                            if (audio.id == iterator.next().id && audio.isCached()) {
-                                iterator.remove();
-                                break;
-                            }
+    private void getVkAudio() {
+        VKApi.audio().get(VKParameters.from(VKApiConst.COUNT, settings.getSyncCount())).executeWithListener(new VKRequest.VKRequestListener() {
+            @Override
+            public void onComplete(VKResponse response) {
+                super.onComplete(response);
+                List<Audio> vkList = AudioUtils.parseJSONResponseToList(response);
+                List<Audio> cachedList = new AudioDatabaseHelper(DownloadService.this).getAll();
+
+                for (Audio audio : cachedList) {
+                    for (Iterator<Audio> iterator = vkList.iterator(); iterator.hasNext(); ) {
+                        if (audio.id == iterator.next().id && audio.isCached()) {
+                            iterator.remove();
+                            break;
                         }
                     }
+                }
 
 /*                for (Iterator<Audio> iterator = vkList.iterator(); iterator.hasNext(); ) {
                     Log.i("SYNCX", "WORK");
@@ -116,25 +131,22 @@ public class DownloadService extends Service {
                         }
                     }
                 }*/
-                    syncQueue = new ConcurrentLinkedQueue<>();
-                    for (Audio audio : vkList) {
-                        syncQueue.add(audio);
-                    }
-
-                    if (!isDownloading()) {
-                        download();
-                    }
+                syncQueue = new ConcurrentLinkedQueue<>();
+                for (Audio audio : vkList) {
+                    syncQueue.add(audio);
                 }
 
-                @Override
-                public void onError(VKError error) {
-                    super.onError(error);
-                    DownloadNotification.errorSync(DownloadService.this, error.errorMessage);
+                if (!isDownloading()) {
+                    download();
                 }
-            });
-        } else {
-            Toast.makeText(this, R.string.error_no_internet_connection, Toast.LENGTH_LONG).show();
-        }
+            }
+
+            @Override
+            public void onError(VKError error) {
+                super.onError(error);
+                DownloadNotification.errorSync(DownloadService.this, error.errorMessage);
+            }
+        });
     }
 
     //TODO: Refactor this hell!
