@@ -15,3 +15,10 @@ Click on the track in any list and he will automatically become the current one
 
 - **User-friendly interface.** 
 Modern, easy and handy interface without unnecessary staff
+
+##Dependencies
+
+- **DragSortListView** - https://github.com/bauerca/drag-sort-listview
+- **TextDrawable** - https://github.com/amulyakhare/TextDrawable
+- **Universal Image Loader** - https://github.com/nostra13/Android-Universal-Image-Loader
+- **Floation Action Button** - https://github.com/makovkastar/FloatingActionButton
