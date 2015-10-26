@@ -3,14 +3,16 @@ package com.irateam.vkplayer.services;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
+import android.widget.Toast;
 
+import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.database.AudioDatabaseHelper;
 import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.models.Settings;
 import com.irateam.vkplayer.notifications.DownloadNotification;
 import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
 import com.irateam.vkplayer.utils.AudioUtils;
+import com.irateam.vkplayer.utils.NetworkUtils;
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKApiConst;
 import com.vk.sdk.api.VKError;
@@ -34,11 +36,11 @@ public class DownloadService extends Service {
 
     public static final String AUDIO_LIST = "audio_list";
     public static final String DOWNLOAD_FINISHED = "download_service.download_finished";
-    public static final String DOWNLOAD_ONE = "download_service.download_one";
 
     public static final String START_SYNC = "start_sync";
     public static final String STOP_DOWNLOADING = "stop_downloading";
     public static final String START_DOWNLOADING = "start_downloading";
+    public static final String USER_SYNC = "user_sync";
 
     private Thread currentThread;
     private Queue<Audio> downloadQueue = new ConcurrentLinkedQueue<>();
@@ -79,8 +81,23 @@ public class DownloadService extends Service {
                     break;
 
                 case START_SYNC:
-                    Log.i("SYNC", "START");
-                    sync();
+                    if (intent.getExtras().getBoolean(USER_SYNC, false)) {
+                        if (NetworkUtils.checkNetwork(this)) {
+                            sync();
+                        } else {
+                            Toast.makeText(this, R.string.error_no_internet_connection, Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        if (settings.isWifiSync()) {
+                            if (NetworkUtils.checkWifiNetwork(this)) {
+                                sync();
+                            } else {
+                                DownloadNotification.errorSync(this, getString(R.string.error_no_wifi_connection));
+                            }
+                        } else {
+                            sync();
+                        }
+                    }
                     break;
             }
         }
@@ -98,13 +115,24 @@ public class DownloadService extends Service {
 
                 for (Audio audio : cachedList) {
                     for (Iterator<Audio> iterator = vkList.iterator(); iterator.hasNext(); ) {
-                        if (audio.id == iterator.next().id) {
+                        if (audio.id == iterator.next().id && audio.isCached()) {
                             iterator.remove();
                             break;
                         }
                     }
                 }
 
+/*                for (Iterator<Audio> iterator = vkList.iterator(); iterator.hasNext(); ) {
+                    Log.i("SYNCX", "WORK");
+                    Audio audio = iterator.next();
+                    for (Audio syncAudio : syncQueue) {
+                        if (syncAudio.id == audio.id) {
+                            iterator.remove();
+                            break;
+                        }
+                    }
+                }*/
+                syncQueue = new ConcurrentLinkedQueue<>();
                 for (Audio audio : vkList) {
                     syncQueue.add(audio);
                 }
@@ -117,61 +145,87 @@ public class DownloadService extends Service {
             @Override
             public void onError(VKError error) {
                 super.onError(error);
+                DownloadNotification.errorSync(DownloadService.this, error.errorMessage);
+            }
+
+            @Override
+            public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
+                super.attemptFailed(request, attemptNumber, totalAttempts);
+                DownloadNotification.error(DownloadService.this, true);
             }
         });
     }
 
+    //TODO: Refactor this hell!
     public void download() {
         currentThread = new Thread(() -> {
             Audio audio;
+            boolean syncFlag;
+            int audioLeftCount;
+            int audioTotalCount = 0;
             do {
-                audio = syncQueue.poll();
-                boolean isSync = true;
-                if (audio == null) {
+                audioLeftCount = syncQueue.size();
+                if (audioLeftCount > 0) {
+                    audio = syncQueue.poll();
+                    syncFlag = true;
+                } else {
+                    audioLeftCount = downloadQueue.size();
                     audio = downloadQueue.poll();
-                    isSync = false;
+                    syncFlag = false;
                 }
+
                 if (audio != null) {
-                    startForeground(DownloadNotification.ID, DownloadNotification.create(this, audio, 0, isSync));
-                    BufferedInputStream inputStream = null;
-                    FileOutputStream fileOutputStream = null;
-                    URLConnection connection = null;
+                    startForeground(DownloadNotification.ID, DownloadNotification.create(this, audio, 0, audioLeftCount - 1, syncFlag));
                     File file = new File(getExternalCacheDir(), String.valueOf(audio.id));
                     try {
-                        connection = new URL(audio.url).openConnection();
-                        int size = connection.getContentLength();
-                        inputStream = new BufferedInputStream(connection.getInputStream());
-                        fileOutputStream = new FileOutputStream(file);
-                        final byte data[] = new byte[1024];
-                        int count, total = 0, progress = 0, now;
-                        while ((count = inputStream.read(data, 0, 1024)) != -1) {
+                        URLConnection connection = new URL(audio.url).openConnection();
+                        BufferedInputStream inputStream = new BufferedInputStream(connection.getInputStream());
+                        FileOutputStream fileOutputStream = new FileOutputStream(file);
 
+                        final byte buffer[] = new byte[1024];
+                        int size = connection.getContentLength();
+                        int currentBytes, currentProgress;
+                        int totalBytes = 0, totalProgress = 0;
+
+                        while ((currentBytes = inputStream.read(buffer, 0, 1024)) != -1) {
                             if (Thread.interrupted()) {
-                                stopSelf();
+                                syncQueue = new ConcurrentLinkedQueue<>();
+                                stopForeground(true);
                                 return;
                             }
 
-                            total += count;
-                            fileOutputStream.write(data, 0, count);
-                            now = (int) ((double) total / size * 100);
-                            if (now - progress > 3) {
-                                progress = now;
-                                DownloadNotification.update(this, audio, progress, isSync);
+                            fileOutputStream.write(buffer, 0, currentBytes);
+                            totalBytes += currentBytes;
+                            currentProgress = (int) ((double) totalBytes / size * 100);
+
+                            if (currentProgress - totalProgress > 3) {
+                                totalProgress = currentProgress;
+                                DownloadNotification.update(this, audio, totalProgress, audioLeftCount - 1, syncFlag);
                             }
                         }
                     } catch (IOException e) {
+                        syncQueue = new ConcurrentLinkedQueue<>();
+                        DownloadNotification.error(this, syncFlag);
+                        stopForeground(true);
                         e.printStackTrace();
+                        return;
                     }
+
                     audio.cachePath = file.getAbsolutePath();
                     databaseHelper.cache(audio);
 
                     Intent intent = new Intent(DOWNLOAD_FINISHED);
                     intent.putExtra(DownloadFinishedReceiver.AUDIO_ID, audio);
                     sendBroadcast(intent);
-                    stopForeground(true);
+
+                    audioTotalCount++;
+                    if ((syncFlag && syncQueue.size() == 0) || (!syncFlag && downloadQueue.size() == 0)) {
+                        DownloadNotification.successful(this, audioTotalCount, syncFlag);
+                        audioTotalCount = 0;
+                    }
                 }
             } while (audio != null);
-            stopSelf();
+            stopForeground(true);
         });
         currentThread.start();
     }
@@ -185,5 +239,6 @@ public class DownloadService extends Service {
     public boolean isDownloading() {
         return currentThread != null && currentThread.isAlive();
     }
+
 
 }

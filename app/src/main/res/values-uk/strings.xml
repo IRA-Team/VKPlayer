@@ -25,6 +25,7 @@
 
     <string name="error_load">Помилка завантаження</string>
     <string name="error_no_internet_connection">Відсутнє з\'єднання з інтернетом</string>
+    <string name="error_no_wifi_connection">Відсутнє з\'єднання з Wi-Fi</string>
     <string name="title_snackbar_action">Повторити</string>
 
     <string name="notification_previous">Попередня</string>
@@ -46,5 +47,21 @@
     <string name="pref_sync_button">Синхронізувати</string>
 
     <string name="empty_list">Список порожній</string>
+    <string name="title_menu_sort_done">Завершити сортування</string>
+    <string name="notification_error_sync_title">Помилка синхронізації</string>
+    <string name="notification_successful_sync">Синхронізацію завершено</string>
+    <string name="notification_successful_download">Збереження завершено</string>
+    <string name="notification_error_download_title">Помилка збереження</string>
+    <string name="notification_audio_count_left">Залишилось:</string>
+    <string name="notification_successful_download_count">Збережено аудіозаписів:</string>
+    <string name="notification_successful_sync_count">Синхронізовано аудіозаписів:</string>
+    <string name="action_add_to_playlist">Додати в поточний плейлист</string>
+    <string name="action_play">Грати</string>
+    <string name="action_remove_from_cache">Видалити з збережених</string>
+    <string name="snackbar_add_to_playlist">Аудіозаписи додані в поточний плейлист</string>
+    <string name="snackbar_cancel">Відмінити</string>
+    <string name="pref_sync_wifi">Синхронізація через Wi-Fi</string>
+    <string name="notification_error_download_message">Виникла помилка під час завантаження</string>
+    <string name="notification_error_sync_message">Виникла помилка під час синхронізації</string>
 
 </resources>

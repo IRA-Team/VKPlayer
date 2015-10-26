@@ -34,7 +34,8 @@
     <item name="login_activity_button_blue_grey_text" type="color">#ffffff</item>
 
     <!--Navigation Drawer-->
-    <item name="navigation_drawer_header_text_color" type="color">#ffffff</item>
+    <item name="navigation_drawer_header_name_color" type="color">#ffffff</item>
+    <item name="navigation_drawer_header_url_color" type="color">#b6b6b6</item>
 
     <item name="activity_audio_menu_item_text_color" type="color">#000000</item>
 

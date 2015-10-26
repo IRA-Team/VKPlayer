@@ -25,6 +25,7 @@
 
     <string name="error_load">Loading error</string>
     <string name="error_no_internet_connection">No internet connection</string>
+    <string name="error_no_wifi_connection">No Wi-Fi connection</string>
     <string name="title_snackbar_action">Repeat</string>
 
     <string name="notification_previous">Previous</string>
@@ -46,5 +47,21 @@
     <string name="pref_sync_button">Synchronize</string>
 
     <string name="empty_list">Empty list</string>
+    <string name="title_menu_sort_done">Finish sort</string>
+    <string name="notification_error_sync_title">Synchronization error</string>
+    <string name="notification_successful_sync">Sync successful</string>
+    <string name="notification_successful_download">Saving completed</string>
+    <string name="notification_error_download_title">Saving error</string>
+    <string name="notification_audio_count_left">Left: </string>
+    <string name="notification_successful_download_count">Saved audios:</string>
+    <string name="notification_successful_sync_count">Synchronized audios:</string>
+    <string name="action_add_to_playlist">Add to current playlist</string>
+    <string name="action_play">Play</string>
+    <string name="action_remove_from_cache">Remove from saved</string>
+    <string name="snackbar_add_to_playlist">Audios added to current playlist</string>
+    <string name="snackbar_cancel">Cancel</string>
+    <string name="pref_sync_wifi">Sync using Wi-Fi only</string>
+    <string name="notification_error_download_message">An error occured while downloading</string>
+    <string name="notification_error_sync_message">An error occured while synchronizing</string>
 
 </resources>

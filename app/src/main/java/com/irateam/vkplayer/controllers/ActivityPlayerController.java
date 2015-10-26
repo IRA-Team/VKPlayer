@@ -12,8 +12,6 @@ import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.services.PlayerService;
 
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.concurrent.TimeUnit;
 
 public class ActivityPlayerController extends PlayerController implements Player.PlayerEventListener {
@@ -80,7 +78,7 @@ public class ActivityPlayerController extends PlayerController implements Player
             if (!audio.url.startsWith("https://") && !audio.url.startsWith("http://")) {
                 sizeAudio.setText("SIZE");
             } else {
-                new SizeTask(audio.url).execute();
+                new SizeTask(audio).execute();
             }
         }
     }
@@ -101,24 +99,24 @@ public class ActivityPlayerController extends PlayerController implements Player
         ));
     }
 
-    class SizeTask extends AsyncTask<Void, Void, Double> {
+    class SizeTask extends AsyncTask<Void, Void, Long> {
 
-        private String url;
+        private Audio audio;
 
-        public SizeTask(String url) {
-            this.url = url;
+        public SizeTask(Audio audio) {
+            this.audio = audio;
         }
 
         @Override
-        protected Double doInBackground(Void... params) {
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
 
-            URLConnection urlConnection;
-            double size = 0;
+        @Override
+        protected Long doInBackground(Void... params) {
+            long size = 0;
             try {
-
-                urlConnection = new URL(url).openConnection();
-                urlConnection.connect();
-                size = urlConnection.getContentLength() / (double) 1024 / (double) 1024;
+                size = audio.getSize();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -126,9 +124,13 @@ public class ActivityPlayerController extends PlayerController implements Player
         }
 
         @Override
-        protected void onPostExecute(Double size) {
+        protected void onPostExecute(Long size) {
             super.onPostExecute(size);
-            sizeAudio.setText(String.format("%.1f", size) + "Mb");
+            if (size > 0) {
+                sizeAudio.setText(String.format("%.1f", size / (double) 1024 / (double) 1024) + "Mb");
+            } else {
+                sizeAudio.setText("");
+            }
         }
     }
 }

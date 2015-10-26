@@ -32,17 +32,23 @@ public class AudioDatabaseHelper extends DatabaseHelper {
 
     public long insert(Audio audio) {
         SQLiteDatabase db = getWritableDatabase();
-        return db.insert(TABLE_NAME, null, toContentValues(audio));
+        long id = db.insert(TABLE_NAME, null, toContentValues(audio));
+        db.close();
+        return id;
     }
 
     public long update(Audio audio) {
         SQLiteDatabase db = getWritableDatabase();
-        return db.update(TABLE_NAME, toContentValues(audio), "id = " + audio.id, null);
+        int id = db.update(TABLE_NAME, toContentValues(audio), "id = " + audio.id, null);
+        db.close();
+        return id;
     }
 
     public long delete(Audio audio) {
         SQLiteDatabase db = getWritableDatabase();
-        return db.delete(TABLE_NAME, "id = " + audio.id, null);
+        int id = db.delete(TABLE_NAME, "id = " + audio.id, null);
+        db.close();
+        return id;
     }
 
     public void delete(List<Audio> list) {
@@ -60,6 +66,8 @@ public class AudioDatabaseHelper extends DatabaseHelper {
         } else {
             id = update(audio);
         }
+        cursor.close();
+        db.close();
         return id;
     }
 
@@ -67,12 +75,14 @@ public class AudioDatabaseHelper extends DatabaseHelper {
         SQLiteDatabase db = getReadableDatabase();
         List<Audio> list = new ArrayList<>();
 
-        Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, null);
+        Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, ID);
         if (cursor.moveToFirst()) {
             do {
                 list.add(fromCursor(cursor));
             } while (cursor.moveToNext());
         }
+        cursor.close();
+        db.close();
         return list;
     }
 

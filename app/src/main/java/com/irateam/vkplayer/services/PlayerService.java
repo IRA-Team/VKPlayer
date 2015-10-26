@@ -60,7 +60,6 @@ public class PlayerService extends Service implements Player.PlayerEventListener
         registerReceiver(headsetReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
     }
 
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent.getAction();

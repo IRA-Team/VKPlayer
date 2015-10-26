@@ -2,8 +2,12 @@
     <string name="app_name">VKPlayer</string>
 
     <string name="action_cache">Сохранить</string>
+    <string name="action_remove_from_cache">Удалить из сохраненных</string>
     <string name="action_delete">Удалить</string>
-
+    <string name="action_play">Играть</string>
+    <string name="action_add_to_playlist">Добавить в текущий плейлист</string>
+    <string name="snackbar_add_to_playlist">Аудиозаписи добавлены в текущий плейлист</string>
+    <string name="snackbar_cancel">Отменить</string>
     <string name="title_activity_list">Список</string>
     <string name="title_activity_login">Авторизация</string>
 
@@ -26,6 +30,7 @@
 
     <string name="error_load">Ошибка загрузки</string>
     <string name="error_no_internet_connection">Отсутствует соединение с интернетом</string>
+    <string name="error_no_wifi_connection">Отсутствует соединение с Wi-Fi</string>
     <string name="title_snackbar_action">Повторить</string>
 
     <string name="notification_previous">Предыдущая</string>
@@ -38,8 +43,8 @@
     <string name="notification_cancel">Остановить</string>
 
     <string name="title_activity_settings">Настройки</string>
-
     <string name="pref_sync_enabled">Синхронизация</string>
+    <string name="pref_sync_wifi">Синхронизация через Wi-Fi</string>
     <string name="pref_sync_count">Количество аудио</string>
     <string name="pref_header_sync_title">Синхронизация</string>
     <string name="pref_sync_time">Время синхронизации</string>
@@ -47,5 +52,18 @@
     <string name="pref_sync_button">Синхронизировать</string>
 
     <string name="empty_list">Список пустой</string>
+
+    <string name="notification_error_sync_title">Ошибка синхронизации</string>
+    <string name="notification_successful_sync">Синхронизация завершена</string>
+    <string name="notification_successful_sync_count">Синхронизировано аудиозаписей: </string>
+    <string name="notification_error_sync_message">Произошла ошибка во время синхронизации</string>
+
+    <string name="notification_error_download_title">Ошибка сохранения</string>
+    <string name="notification_successful_download">Сохранение завершено</string>
+    <string name="notification_successful_download_count">Сохранено аудиозаписей: </string>
+    <string name="notification_error_download_message">Произошла ошибка во время загрузки</string>
+
+    <string name="notification_audio_count_left">Осталось: </string>
+
 
 </resources>

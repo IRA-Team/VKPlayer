@@ -80,7 +80,12 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
         getMenuInflater().inflate(R.menu.menu_audio, menu);
-        setCacheAction(playerService.getPlayingAudio().isCached());
+        if (playerService != null) {
+            Audio audio = playerService.getPlayingAudio();
+            if (audio != null) {
+                setCacheAction(audio.isCached());
+            }
+        }
         return true;
     }
 
@@ -129,6 +134,11 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
         playerService = ((PlayerService.PlayerBinder) service).getPlayerService();
         playerController.setPlayerService(playerService);
         playerService.addPlayerEventListener(playerController);
+
+        Audio audio = playerService.getPlayingAudio();
+        if (audio != null) {
+            setCacheAction(audio.isCached());
+        }
     }
 
     @Override
@@ -143,12 +153,14 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
     }
 
     public void setCacheAction(boolean isCached) {
-        if (isCached) {
-            menu.findItem(R.id.action_remove_from_cache).setVisible(true);
-            menu.findItem(R.id.action_cache).setVisible(false);
-        } else {
-            menu.findItem(R.id.action_remove_from_cache).setVisible(false);
-            menu.findItem(R.id.action_cache).setVisible(true);
+        if (menu != null) {
+            if (isCached) {
+                menu.findItem(R.id.action_remove_from_cache).setVisible(true);
+                menu.findItem(R.id.action_cache).setVisible(false);
+            } else {
+                menu.findItem(R.id.action_remove_from_cache).setVisible(false);
+                menu.findItem(R.id.action_cache).setVisible(true);
+            }
         }
     }
 }

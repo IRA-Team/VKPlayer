@@ -1,6 +1,5 @@
 package com.irateam.vkplayer.models;
 
-import android.content.ContentValues;
 import android.os.Parcel;
 
 import com.vk.sdk.api.model.VKApiAudio;
@@ -8,6 +7,8 @@ import com.vk.sdk.api.model.VKApiAudio;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
 public class Audio extends VKApiAudio {
     public String cachePath;
@@ -42,6 +43,14 @@ public class Audio extends VKApiAudio {
         this.cachePath = in.readString();
     }
 
+    public Long getSize() throws IOException {
+        if (isCached()) {
+            return new File(getPlayingUrl()).length();
+        } else {
+            return (long) new URL(url).openConnection().getContentLength();
+        }
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
@@ -57,4 +66,6 @@ public class Audio extends VKApiAudio {
             return new Audio[size];
         }
     };
+
+
 }
