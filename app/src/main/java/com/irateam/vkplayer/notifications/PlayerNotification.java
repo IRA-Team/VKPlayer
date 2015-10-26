@@ -40,6 +40,9 @@ public class PlayerNotification {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         Intent intent = new Intent(context, PlayerService.class);
         intent.setAction(PlayerService.STOP);
+
+        Intent contentIntent = new Intent(context, AudioActivity.class);
+        contentIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         NotificationCompat.MediaStyle style = new NotificationCompat.MediaStyle()
                 .setShowCancelButton(true)
                 .setCancelButtonIntent(PendingIntent.getService(context, 0, intent, 0));
@@ -51,7 +54,7 @@ public class PlayerNotification {
                 .setStyle(style)
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setWhen(0)
-                .setContentIntent(PendingIntent.getActivity(context, 0, new Intent(context, AudioActivity.class), 0))
+                .setContentIntent(PendingIntent.getActivity(context, 0, contentIntent, 0))
                 .addAction(R.drawable.ic_notification_prev_white_24dp,
                         context.getString(R.string.notification_previous),
                         createAction(context, PlayerService.PREVIOUS));

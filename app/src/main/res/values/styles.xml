@@ -11,11 +11,10 @@
 
     <style name="BaseTheme.LoginActivity" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">@color/login_activity_background</item>
-        <item name="android:statusBarColor">@color/primary_dark</item>
     </style>
 
     <style name="BaseTheme.App">
-        <item name="android:textColor">@color/settings_text_color</item>
+        <item name="actionBarPopupTheme">@style/ThemeOverlay.AppCompat.Light</item>
     </style>
 
     <style name="AudioActivityTheme" parent="Theme.AppCompat.Light.NoActionBar">
