@@ -57,6 +57,7 @@ public class PlayerService extends Service implements Player.PlayerEventListener
                 }
             }
         };
+
         registerReceiver(headsetReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
     }
 

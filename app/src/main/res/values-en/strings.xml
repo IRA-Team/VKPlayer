@@ -5,7 +5,7 @@
     <string name="action_delete">Delete</string>
 
     <string name="title_activity_list">List</string>
-    <string name="title_activity_login">Login</string>
+    <string name="title_activity_login">Sign in</string>
 
     <string name="title_button_login_vk">Sign in with VK</string>
     <string name="title_button_github">Github/IRA-Team</string>
