@@ -98,7 +98,7 @@ public class ListActivity extends AppCompatActivity implements
         new UserService(this).getCurrentUser((user) -> {
             ImageLoader.getInstance().displayImage(user.photo_100, roundImageView);
             userFullName.setText(user.first_name + " " + user.last_name);
-            userVkId.setText(String.valueOf(user.id));
+            userVkId.setText(UserService.USER_LINK + String.valueOf(user.id));
         });
 
         ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(

@@ -15,6 +15,7 @@ import org.json.JSONException;
 
 public class UserService {
 
+    public static final String USER_LINK = "http://vk.com/id";
     private static final String USER_ID = "user_id";
     private static final String USER_FIRST_NAME = "user_first_name";
     private static final String USER_SECOND_NAME = "user_second_name";

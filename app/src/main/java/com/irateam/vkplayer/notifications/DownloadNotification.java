@@ -23,7 +23,7 @@ public class DownloadNotification {
         intent.setAction(DownloadService.STOP_DOWNLOADING);
         builder
                 .setContentTitle(audio.artist + " - " + audio.title)
-                .setSmallIcon(R.drawable.ic_statusbar_download_white_18dp)
+                .setSmallIcon(isSync ? R.drawable.ic_notification_sync_white_24dp : R.drawable.ic_statusbar_download_white_18dp)
                 .setContentText(isSync ? context.getString(R.string.notification_sync) : context.getString(R.string.notification_download));
 
         if (audioLeftCount > 0) {
@@ -56,17 +56,17 @@ public class DownloadNotification {
 
     public static void errorSync(Context context, String error) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
-                .setSmallIcon(R.drawable.ic_ab_done)
+                .setSmallIcon(R.drawable.ic_notification_sync_problem_white_24dp)
                 .setContentTitle(context.getString(R.string.notification_error_sync_title))
-                .setContentText(error.isEmpty() ? "" : error);
+                .setContentText(error.isEmpty() ? context.getString(R.string.notification_error_sync_message) : error);
         NotificationManagerCompat.from(context).notify(FINAL_SYNC_NOTIFICATION_ID, builder.build());
     }
 
     public static void errorDownload(Context context, String error) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
-                .setSmallIcon(R.drawable.ic_ab_done)
+                .setSmallIcon(R.drawable.ic_error_white_24dp)
                 .setContentTitle(context.getString(R.string.notification_error_download_title))
-                .setContentText(error.isEmpty() ? "" : error);
+                .setContentText(error.isEmpty() ? context.getString(R.string.notification_error_download_message) : error);
         NotificationManagerCompat.from(context).notify(FINAL_DOWNLOAD_NOTIFICATION_ID, builder.build());
     }
 

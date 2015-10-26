@@ -56,9 +56,13 @@
     <string name="notification_error_sync_title">Ошибка синхронизации</string>
     <string name="notification_successful_sync">Синхронизация завершена</string>
     <string name="notification_successful_sync_count">Синхронизировано аудиозаписей: </string>
+    <string name="notification_error_sync_message">Произошла ошибка во время синхронизации</string>
+
     <string name="notification_error_download_title">Ошибка сохранения</string>
     <string name="notification_successful_download">Сохранение завершено</string>
     <string name="notification_successful_download_count">Сохранено аудиозаписей: </string>
+    <string name="notification_error_download_message">Произошла ошибка во время загрузки</string>
+
     <string name="notification_audio_count_left">Осталось: </string>
 
 

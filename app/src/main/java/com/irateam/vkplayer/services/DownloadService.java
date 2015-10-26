@@ -147,6 +147,12 @@ public class DownloadService extends Service {
                 super.onError(error);
                 DownloadNotification.errorSync(DownloadService.this, error.errorMessage);
             }
+
+            @Override
+            public void attemptFailed(VKRequest request, int attemptNumber, int totalAttempts) {
+                super.attemptFailed(request, attemptNumber, totalAttempts);
+                DownloadNotification.error(DownloadService.this, true);
+            }
         });
     }
 
