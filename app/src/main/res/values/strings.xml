@@ -30,7 +30,7 @@
 
     <string name="error_load">Ошибка загрузки</string>
     <string name="error_no_internet_connection">Отсутствует соединение с интернетом</string>
-    <string name="error_no_wifi_connection">Отсутствует соединение с WiFi</string>
+    <string name="error_no_wifi_connection">Отсутствует соединение с Wi-Fi</string>
     <string name="title_snackbar_action">Повторить</string>
 
     <string name="notification_previous">Предыдущая</string>
@@ -43,8 +43,8 @@
     <string name="notification_cancel">Остановить</string>
 
     <string name="title_activity_settings">Настройки</string>
-
     <string name="pref_sync_enabled">Синхронизация</string>
+    <string name="pref_sync_wifi">Синхронизация через Wi-Fi</string>
     <string name="pref_sync_count">Количество аудио</string>
     <string name="pref_header_sync_title">Синхронизация</string>
     <string name="pref_sync_time">Время синхронизации</string>

@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.services.DownloadService;
@@ -24,6 +23,7 @@ public class Settings {
     public static final String SYNC_ENABLED = "sync_enabled";
     public static final String SYNC_TIME = "sync_time";
     public static final String SYNC_COUNT = "sync_count";
+    public static final String SYNC_WIFI = "sync_wifi";
 
     private static final int SYNC_ALARM_ID = 1;
 
@@ -72,6 +72,16 @@ public class Settings {
         return preferences.getBoolean(SYNC_ENABLED, false);
     }
 
+    public void setSyncWifi(boolean isWifi) {
+        preferences.edit()
+                .putBoolean(SYNC_WIFI, isWifi)
+                .apply();
+    }
+
+    public boolean isWifiSync() {
+        return preferences.getBoolean(SYNC_WIFI, false);
+    }
+
     public void setSyncTime(int hour, int minutes) {
         preferences.edit()
                 .putString(SYNC_TIME, String.format("%02d", hour) + ":" + String.format("%02d", minutes))
@@ -112,7 +122,7 @@ public class Settings {
     public static void setSyncAlarm(Context context) {
         Intent intent = new Intent(context, DownloadService.class);
         intent.setAction(DownloadService.START_SYNC);
-        intent.putExtra("fromButton", false);
+        intent.putExtra(DownloadService.USER_SYNC, false);
         PendingIntent pendingIntent = PendingIntent.getService(context, SYNC_ALARM_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,

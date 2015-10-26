@@ -40,6 +40,7 @@ public class DownloadService extends Service {
     public static final String START_SYNC = "start_sync";
     public static final String STOP_DOWNLOADING = "stop_downloading";
     public static final String START_DOWNLOADING = "start_downloading";
+    public static final String USER_SYNC = "user_sync";
 
     private Thread currentThread;
     private Queue<Audio> downloadQueue = new ConcurrentLinkedQueue<>();
@@ -80,7 +81,23 @@ public class DownloadService extends Service {
                     break;
 
                 case START_SYNC:
-                    sync(intent.getExtras().getBoolean("fromButton"));
+                    if (intent.getExtras().getBoolean(USER_SYNC, false)) {
+                        if (NetworkUtils.checkNetwork(this)) {
+                            sync();
+                        } else {
+                            Toast.makeText(this, R.string.error_no_internet_connection, Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        if (settings.isWifiSync()) {
+                            if (NetworkUtils.checkWifiNetwork(this)) {
+                                sync();
+                            } else {
+                                DownloadNotification.errorSync(this, getString(R.string.error_no_wifi_connection));
+                            }
+                        } else {
+                            sync();
+                        }
+                    }
                     break;
             }
         }
@@ -88,23 +105,7 @@ public class DownloadService extends Service {
     }
 
 
-    private void sync(boolean fromButton) {
-        if (fromButton) {
-            if (NetworkUtils.checkNetwork(this)) {
-                getVkAudio();
-            } else {
-                Toast.makeText(this, R.string.error_no_internet_connection, Toast.LENGTH_LONG).show();
-            }
-        } else {
-            if (NetworkUtils.checkWifiNetwork(this)) {
-                getVkAudio();
-            } else {
-                Toast.makeText(this, R.string.error_no_wifi_connection, Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
-    private void getVkAudio() {
+    private void sync() {
         VKApi.audio().get(VKParameters.from(VKApiConst.COUNT, settings.getSyncCount())).executeWithListener(new VKRequest.VKRequestListener() {
             @Override
             public void onComplete(VKResponse response) {

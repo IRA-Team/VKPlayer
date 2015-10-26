@@ -25,6 +25,7 @@
 
     <string name="error_load">Loading error</string>
     <string name="error_no_internet_connection">No internet connection</string>
+    <string name="error_no_wifi_connection">No Wi-Fi connection</string>
     <string name="title_snackbar_action">Repeat</string>
 
     <string name="notification_previous">Previous</string>
@@ -59,5 +60,6 @@
     <string name="action_remove_from_cache">Remove from saved</string>
     <string name="snackbar_add_to_playlist">Audios added to current playlist</string>
     <string name="snackbar_cancel">Cancel</string>
+    <string name="pref_sync_wifi">Sync using Wi-Fi only</string>
 
 </resources>
