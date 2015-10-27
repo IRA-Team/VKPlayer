@@ -2,7 +2,7 @@
     <string name="app_name">VKPlayer</string>
 
     <string name="action_cache">Save</string>
-    <string name="action_delete">Delete</string>
+    <string name="action_remove_from_list">Remove from list</string>
 
     <string name="title_activity_list">List</string>
     <string name="title_activity_login">Sign in</string>
@@ -57,7 +57,7 @@
     <string name="notification_successful_sync_count">Synchronized audios:</string>
     <string name="action_add_to_playlist">Add to current playlist</string>
     <string name="action_play">Play</string>
-    <string name="action_remove_from_cache">Remove from saved</string>
+    <string name="action_delete_from_cache">Delete from saved</string>
     <string name="snackbar_add_to_playlist">Audios added to current playlist</string>
     <string name="snackbar_cancel">Cancel</string>
     <string name="pref_sync_wifi">Sync using Wi-Fi only</string>

@@ -115,7 +115,7 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         element.setTitle(audio.title);
         element.setArtist(audio.artist);
         element.setCoverDrawable(AlbumCoverUtils.createFromAudio(audio));
-        if (audio.id == getPlayingAudioId()) {
+        if (audio.id == getPlayingAudioId() ) {
             if (playerService.isReady()) {
                 element.setPlaying(playerService.isPlaying());
             } else {

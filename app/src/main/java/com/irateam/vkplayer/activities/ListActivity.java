@@ -246,7 +246,7 @@ public class ListActivity extends AppCompatActivity implements
             cacheUpdateReceiver = new DownloadFinishedReceiver() {
                 @Override
                 public void onDownloadFinished(Audio audio) {
-                    audioAdapter.getList().add(audio);
+                    audioAdapter.getList().add(0, audio);
                     audioAdapter.notifyDataSetChanged();
                 }
             };
@@ -457,12 +457,17 @@ public class ListActivity extends AppCompatActivity implements
             case R.id.action_add_to_playlist:
                 List<Audio> checked = audioAdapter.getCheckedItems();
                 List<Audio> playlist = playerService.getPlaylist();
-                playlist.addAll(checked);
+                List<Audio> listToAdd = new ArrayList<>();
+                for (Audio audio : checked) {
+                    listToAdd.add(audio.clone());
+                }
+                playlist.addAll(0, listToAdd);
                 audioAdapter.notifyDataSetChanged();
                 Snackbar.make(coordinatorLayout, R.string.snackbar_add_to_playlist, Snackbar.LENGTH_LONG)
                         .setAction(R.string.snackbar_cancel, (v -> {
                             for (int i = 0; i < checked.size(); i++)
-                                playlist.remove(playlist.size() - 1);
+                                playlist.remove(0);
+                            audioAdapter.notifyDataSetChanged();
                         }))
                         .show();
                 break;

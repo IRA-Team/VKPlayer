@@ -2,8 +2,8 @@
     <string name="app_name">VKPlayer</string>
 
     <string name="action_cache">Сохранить</string>
-    <string name="action_remove_from_cache">Удалить из сохраненных</string>
-    <string name="action_delete">Удалить</string>
+    <string name="action_delete_from_cache">Удалить из сохраненных</string>
+    <string name="action_remove_from_list">Удалить из списка</string>
     <string name="action_play">Играть</string>
     <string name="action_add_to_playlist">Добавить в текущий плейлист</string>
     <string name="snackbar_add_to_playlist">Аудиозаписи добавлены в текущий плейлист</string>

@@ -2,7 +2,7 @@
     <string name="app_name">VKPlayer</string>
 
     <string name="action_cache">Зберегти</string>
-    <string name="action_delete">Видалити</string>
+    <string name="action_remove_from_list">Видалити з списку</string>
 
     <string name="title_activity_list">Список</string>
     <string name="title_activity_login">Авторизація</string>
@@ -57,7 +57,7 @@
     <string name="notification_successful_sync_count">Синхронізовано аудіозаписів:</string>
     <string name="action_add_to_playlist">Додати в поточний плейлист</string>
     <string name="action_play">Грати</string>
-    <string name="action_remove_from_cache">Видалити з збережених</string>
+    <string name="action_delete_from_cache">Видалити з збережених</string>
     <string name="snackbar_add_to_playlist">Аудіозаписи додані в поточний плейлист</string>
     <string name="snackbar_cancel">Відмінити</string>
     <string name="pref_sync_wifi">Синхронізація через Wi-Fi</string>

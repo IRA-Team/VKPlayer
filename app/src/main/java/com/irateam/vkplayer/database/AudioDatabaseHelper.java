@@ -75,7 +75,7 @@ public class AudioDatabaseHelper extends DatabaseHelper {
         SQLiteDatabase db = getReadableDatabase();
         List<Audio> list = new ArrayList<>();
 
-        Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, ID);
+        Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, "_id DESC");
         if (cursor.moveToFirst()) {
             do {
                 list.add(fromCursor(cursor));
