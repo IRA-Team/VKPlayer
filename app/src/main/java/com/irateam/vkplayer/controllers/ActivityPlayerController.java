@@ -50,7 +50,7 @@ public class ActivityPlayerController extends PlayerController implements Player
     public void onEvent(int position, Audio audio, Player.PlayerEvent event) {
         super.onEvent(position, audio, event);
         switch (event) {
-            case PLAY:
+            case START:
                 setAudio(position, audio);
                 break;
             case PAUSE:

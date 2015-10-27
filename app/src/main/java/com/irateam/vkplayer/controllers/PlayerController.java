@@ -2,7 +2,6 @@ package com.irateam.vkplayer.controllers;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.support.v4.view.ViewCompat;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -131,7 +130,7 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
     @Override
     public void onEvent(int position, Audio audio, Player.PlayerEvent event) {
         switch (event) {
-            case PLAY:
+            case START:
                 setAudio(position, audio);
                 setPlayPause(true);
                 break;

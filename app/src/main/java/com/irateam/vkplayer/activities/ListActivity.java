@@ -26,7 +26,7 @@ import android.widget.TextView;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.activities.settings.SettingsActivity;
-import com.irateam.vkplayer.adapter.AudioAdapter;
+import com.irateam.vkplayer.adapters.AudioAdapter;
 import com.irateam.vkplayer.controllers.PlayerController;
 import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;

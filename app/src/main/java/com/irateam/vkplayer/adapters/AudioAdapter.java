@@ -1,4 +1,4 @@
-package com.irateam.vkplayer.adapter;
+package com.irateam.vkplayer.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,6 +10,7 @@ import android.widget.Filterable;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.models.Audio;
+import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.services.PlayerService;
 import com.irateam.vkplayer.ui.AudioListElement;
 import com.irateam.vkplayer.utils.AlbumCoverUtils;
@@ -27,6 +28,7 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
     private List<Integer> checkedList = new ArrayList<>();
 
     private boolean sortMode = false;
+    private Player.PlayerEventListener playerEventListener;
 
     public AudioAdapter(Context context) {
         this.context = context;
@@ -34,6 +36,16 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
 
     public void setPlayerService(PlayerService playerService) {
         this.playerService = playerService;
+        playerEventListener = (position, audio, event) -> notifyDataSetChanged();
+        playerService.addPlayerEventListener(playerEventListener);
+    }
+
+    public int getPlayingAudioId() {
+        if (playerService != null && playerService.getPlayingAudio() != null) {
+            return playerService.getPlayingAudio().id;
+        } else {
+            return -1;
+        }
     }
 
     public List<Audio> getList() {
@@ -103,6 +115,13 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         element.setTitle(audio.title);
         element.setArtist(audio.artist);
         element.setCoverDrawable(AlbumCoverUtils.createFromAudio(audio));
+        if (audio.id == getPlayingAudioId()) {
+            if (playerService.isReady()) {
+                element.setPlaying(playerService.isPlaying());
+            } else {
+                element.setPreparing(true);
+            }
+        }
         element.setCoverOnClickListener((v) -> {
             if (!sortMode) {
                 notifyCoverChecked(position);

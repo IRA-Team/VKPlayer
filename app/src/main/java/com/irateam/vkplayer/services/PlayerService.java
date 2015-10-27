@@ -36,7 +36,7 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     @Override
     public void onCreate() {
         super.onCreate();
-        player = new Player(this);
+        player = new Player();
         player.addPlayerEventListener(this);
         settings = Settings.getInstance(this);
         player.setRepeatState(settings.getPlayerRepeat());
@@ -214,7 +214,7 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     @Override
     public void onEvent(int position, Audio audio, Player.PlayerEvent event) {
         switch (event) {
-            case PLAY:
+            case START:
                 startForeground(PlayerNotification.ID, PlayerNotification.create(this, position, audio, event));
                 break;
             case PAUSE:

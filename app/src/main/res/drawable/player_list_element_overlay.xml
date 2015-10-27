@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/player_list_element_cover_overlay" />
+            <size
+                android:width="@dimen/player_list_element_album_cover"
+                android:height="@dimen/player_list_element_album_cover" />
+        </shape>
+    </item>
+</layer-list>

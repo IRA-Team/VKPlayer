@@ -59,7 +59,7 @@ public class PlayerNotification {
                         context.getString(R.string.notification_previous),
                         createAction(context, PlayerService.PREVIOUS));
 
-        if (event == Player.PlayerEvent.RESUME || event == Player.PlayerEvent.PLAY) {
+        if (event == Player.PlayerEvent.RESUME || event == Player.PlayerEvent.START) {
             builder.setSmallIcon(R.drawable.ic_notification_play_white_18dp)
                     .addAction(R.drawable.ic_notification_pause_white_24dp,
                             context.getString(R.string.notification_pause),

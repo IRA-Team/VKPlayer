@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.widget.Checkable;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.irateam.vkplayer.R;
@@ -18,6 +19,7 @@ public class AudioListElement extends FrameLayout implements Checkable {
     TextView title;
     TextView artist;
     TextView duration;
+    ProgressBar progressBar;
     ImageView cover, downloaded;
 
     boolean checked, downloadedState;
@@ -35,6 +37,7 @@ public class AudioListElement extends FrameLayout implements Checkable {
         artist = (TextView) findViewById(R.id.player_list_element_author);
         duration = (TextView) findViewById(R.id.player_list_element_duration);
         cover = (ImageView) findViewById(R.id.player_list_element_cover);
+        progressBar = (ProgressBar) findViewById(R.id.player_list_element_progress);
         downloaded = (ImageView) findViewById(R.id.player_list_element_downloaded);
 
         TypedArray a = context.getTheme().obtainStyledAttributes(
@@ -113,7 +116,7 @@ public class AudioListElement extends FrameLayout implements Checkable {
         if (sorted) {
             Drawable[] layers = new Drawable[2];
             layers[0] = coverDrawable;
-            layers[1] = getResources().getDrawable(R.drawable.player_list_element_cover_overlay);
+            layers[1] = getResources().getDrawable(R.drawable.player_list_element_sort_overlay);
             cover.setImageDrawable(new LayerDrawable(layers));
             findViewById(R.id.player_list_element_cover_wrapper).setClickable(false);
         }
@@ -134,6 +137,27 @@ public class AudioListElement extends FrameLayout implements Checkable {
         } else {
             setBackgroundColor(getResources().getColor(R.color.player_list_element_color));
             cover.setImageDrawable(coverDrawable);
+        }
+    }
+
+    public void setPlaying(boolean playing) {
+        Drawable[] layers = new Drawable[2];
+        layers[0] = coverDrawable;
+        if (playing) {
+            layers[1] = getResources().getDrawable(R.drawable.player_list_element_play_overlay);
+        } else {
+            layers[1] = getResources().getDrawable(R.drawable.player_list_element_pause_overlay);
+        }
+        cover.setImageDrawable(new LayerDrawable(layers));
+    }
+
+    public void setPreparing(boolean preparing) {
+        if (preparing) {
+            Drawable[] layers = new Drawable[2];
+            layers[0] = coverDrawable;
+            layers[1] = getResources().getDrawable(R.drawable.player_list_element_overlay);
+            cover.setImageDrawable(new LayerDrawable(layers));
+            progressBar.setVisibility(VISIBLE);
         }
     }
 
