@@ -2,6 +2,7 @@ package com.irateam.vkplayer.activities.settings;
 
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,9 +16,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.models.Settings;
+import com.irateam.vkplayer.services.AudioService;
 import com.irateam.vkplayer.services.DownloadService;
 
 import java.util.List;
@@ -114,6 +117,44 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
                 }
                 return true;
             }));
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            int id = item.getItemId();
+            if (id == android.R.id.home) {
+                startActivity(new Intent(getActivity(), SettingsActivity.class));
+                return true;
+            }
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static class CachePreferenceFragment extends PreferenceFragment {
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_cache);
+            setHasOptionsMenu(true);
+
+            bindPreferenceSummaryToValue(findPreference("cache_clear"));
+
+            findPreference("cache_clear").setOnPreferenceClickListener(preference -> {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(getString(R.string.clear_cache_dialog_title))
+                        .setMessage(getString(R.string.clear_cache_dialog_text))
+                        .setPositiveButton(getString(R.string.yes), (dialog, id) -> {
+                            new AudioService(getActivity()).removeAllCachedAudio();
+                            Toast.makeText(getActivity(), getString(R.string.cache_clear_complete), Toast.LENGTH_SHORT).show();
+                        })
+                        .setNegativeButton(getString(R.string.no), (dialog, id) -> {
+
+                        });
+                builder.create().show();
+                return false;
+            });
         }
 
         @Override

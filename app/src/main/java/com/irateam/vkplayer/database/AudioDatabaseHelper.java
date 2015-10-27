@@ -86,6 +86,12 @@ public class AudioDatabaseHelper extends DatabaseHelper {
         return list;
     }
 
+    public void removeAll() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_NAME, null, null);
+        db.close();
+    }
+
     public static ContentValues toContentValues(Audio audio) {
         ContentValues cv = new ContentValues();
         cv.put(ID, audio.id);

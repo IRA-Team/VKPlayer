@@ -50,6 +50,9 @@
     <string name="pref_sync_time">Время синхронизации</string>
     <string name="pref_sync_time_default">18:30</string>
     <string name="pref_sync_button">Синхронизировать</string>
+    <string name="pref_header_cache_title">Кеш</string>
+    <string name="pref_cache_clear">Очистить кеш</string>
+    <string name="cache_clear_complete">Кеш очищен</string>
 
     <string name="empty_list">Список пустой</string>
 
@@ -65,5 +68,10 @@
 
     <string name="notification_audio_count_left">Осталось: </string>
 
+    <string name="clear_cache_dialog_title">Пожалуйста, подтвердите</string>
+    <string name="clear_cache_dialog_text">Вы уверены, что хотите удалить все сохраненные аудиозаписи?</string>
+
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
 
 </resources>

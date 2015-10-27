@@ -63,5 +63,12 @@
     <string name="pref_sync_wifi">Синхронізація через Wi-Fi</string>
     <string name="notification_error_download_message">Виникла помилка під час завантаження</string>
     <string name="notification_error_sync_message">Виникла помилка під час синхронізації</string>
+    <string name="pref_header_cache_title">Кеш</string>
+    <string name="pref_cache_clear">Очистити кеш</string>
+    <string name="cache_clear_complete">Кеш очищений</string>
+    <string name="clear_cache_dialog_text">Ви впевнені, що хочете видалити всі збережені аудіозаписи?</string>
+    <string name="clear_cache_dialog_title">Будь ласка, підтвердіть</string>
+    <string name="no">Ні</string>
+    <string name="yes">Так</string>
 
 </resources>

@@ -63,5 +63,12 @@
     <string name="pref_sync_wifi">Sync using Wi-Fi only</string>
     <string name="notification_error_download_message">An error occured while downloading</string>
     <string name="notification_error_sync_message">An error occured while synchronizing</string>
+    <string name="pref_header_cache_title">Cache</string>
+    <string name="pref_cache_clear">Clear cache</string>
+    <string name="cache_clear_complete">Cache has been cleared</string>
+    <string name="clear_cache_dialog_text">Are you sure you want to delete all saved audio files?</string>
+    <string name="clear_cache_dialog_title">Please confirm</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
 
 </resources>
