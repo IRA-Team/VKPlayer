@@ -224,7 +224,6 @@ public class ListActivity extends AppCompatActivity implements
 
     @Override
     public void onError(String errorMessage) {
-        audioAdapter.setList(Collections.emptyList());
         refreshLayout.setRefreshing(false);
         Snackbar.make(coordinatorLayout, errorMessage, Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.title_snackbar_action), v -> audioService.repeatLastRequest())

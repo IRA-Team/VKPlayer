@@ -81,8 +81,8 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
     }
 
     public void removeChecked() {
-        for (int i : checkedList) {
-            list.remove(i);
+        for (Audio audio : getCheckedItems()) {
+            list.remove(audio);
         }
         notifyDataSetChanged();
     }

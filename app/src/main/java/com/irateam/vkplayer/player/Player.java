@@ -103,6 +103,10 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     public void next() {
         int nextIndex;
+        if (list == null || list.size() == 0) {
+            stop();
+            return;
+        }
         if (randomState) {
             int size = list.size();
             do
@@ -122,6 +126,10 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     public void previous() {
         int previousIndex;
+        if (list == null || list.size() == 0) {
+            stop();
+            return;
+        }
         if (randomState && !randomStack.empty()) {
             previousIndex = list.indexOf(randomStack.pop());
         } else {

@@ -143,7 +143,9 @@ public class AudioService extends VKRequest.VKRequestListener {
     @Override
     public void onError(VKError error) {
         super.onError(error);
-        notifyAllError(context.getString(R.string.error_load));
+        if (error.errorCode != VKError.VK_CANCELED) {
+            notifyAllError(context.getString(R.string.error_load));
+        }
     }
 
     public void addListener(Listener listener) {
