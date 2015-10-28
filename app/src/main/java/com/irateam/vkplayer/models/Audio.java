@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
-public class Audio extends VKApiAudio {
+public class Audio extends VKApiAudio implements Cloneable {
     public String cachePath;
 
     public boolean isCached() {
@@ -67,5 +67,19 @@ public class Audio extends VKApiAudio {
         }
     };
 
-
+    public Audio clone() {
+        Audio audio = new Audio();
+        audio.id = id;
+        audio.owner_id = owner_id;
+        audio.artist = artist;
+        audio.title = title;
+        audio.duration = duration;
+        audio.url = url;
+        audio.lyrics_id = lyrics_id;
+        audio.album_id = album_id;
+        audio.genre = genre;
+        audio.access_key = access_key;
+        audio.cachePath = cachePath;
+        return audio;
+    }
 }

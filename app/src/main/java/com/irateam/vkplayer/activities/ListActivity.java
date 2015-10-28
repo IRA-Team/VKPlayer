@@ -26,7 +26,7 @@ import android.widget.TextView;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.activities.settings.SettingsActivity;
-import com.irateam.vkplayer.adapter.AudioAdapter;
+import com.irateam.vkplayer.adapters.AudioAdapter;
 import com.irateam.vkplayer.controllers.PlayerController;
 import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
@@ -224,7 +224,6 @@ public class ListActivity extends AppCompatActivity implements
 
     @Override
     public void onError(String errorMessage) {
-        audioAdapter.setList(Collections.emptyList());
         refreshLayout.setRefreshing(false);
         Snackbar.make(coordinatorLayout, errorMessage, Snackbar.LENGTH_LONG)
                 .setAction(getString(R.string.title_snackbar_action), v -> audioService.repeatLastRequest())
@@ -246,7 +245,7 @@ public class ListActivity extends AppCompatActivity implements
             cacheUpdateReceiver = new DownloadFinishedReceiver() {
                 @Override
                 public void onDownloadFinished(Audio audio) {
-                    audioAdapter.getList().add(audio);
+                    audioAdapter.getList().add(0, audio);
                     audioAdapter.notifyDataSetChanged();
                 }
             };
@@ -457,12 +456,17 @@ public class ListActivity extends AppCompatActivity implements
             case R.id.action_add_to_playlist:
                 List<Audio> checked = audioAdapter.getCheckedItems();
                 List<Audio> playlist = playerService.getPlaylist();
-                playlist.addAll(checked);
+                List<Audio> listToAdd = new ArrayList<>();
+                for (Audio audio : checked) {
+                    listToAdd.add(audio.clone());
+                }
+                playlist.addAll(0, listToAdd);
                 audioAdapter.notifyDataSetChanged();
                 Snackbar.make(coordinatorLayout, R.string.snackbar_add_to_playlist, Snackbar.LENGTH_LONG)
                         .setAction(R.string.snackbar_cancel, (v -> {
                             for (int i = 0; i < checked.size(); i++)
-                                playlist.remove(playlist.size() - 1);
+                                playlist.remove(0);
+                            audioAdapter.notifyDataSetChanged();
                         }))
                         .show();
                 break;

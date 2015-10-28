@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.database.AudioDatabaseHelper;
 import com.irateam.vkplayer.models.Audio;
-import com.irateam.vkplayer.services.PlayerService;
 import com.irateam.vkplayer.utils.AudioUtils;
 import com.irateam.vkplayer.utils.NetworkUtils;
 import com.vk.sdk.api.VKApi;
@@ -31,8 +30,11 @@ public class AudioService extends VKRequest.VKRequestListener {
     private VKRequest lastRequest;
     private Runnable lastQuery;
 
+    AudioDatabaseHelper helper;
+
     public AudioService(Context context) {
         this.context = context;
+        helper = new AudioDatabaseHelper(context);
     }
 
     public void setPlayerService(PlayerService playerService) {
@@ -109,7 +111,6 @@ public class AudioService extends VKRequest.VKRequestListener {
 
             @Override
             protected Void doInBackground(Void... params) {
-                AudioDatabaseHelper helper = new AudioDatabaseHelper(context);
                 for (Audio audio : cachedList) {
                     File file = new File(audio.cachePath);
                     if (audio.isCached() && file.exists()) {
@@ -129,10 +130,22 @@ public class AudioService extends VKRequest.VKRequestListener {
         }.execute();
     }
 
+    public void removeAllCachedAudio() {
+        List<Audio> cachedList = helper.getAll();
+        for (Audio audio : cachedList) {
+            if (audio.isCached()) {
+                new File(audio.cachePath).delete();
+            }
+        }
+        helper.removeAll();
+    }
+
     @Override
     public void onError(VKError error) {
         super.onError(error);
-        notifyAllError(context.getString(R.string.error_load));
+        if (error.errorCode != VKError.VK_CANCELED) {
+            notifyAllError(context.getString(R.string.error_load));
+        }
     }
 
     public void addListener(Listener listener) {
@@ -181,7 +194,4 @@ public class AudioService extends VKRequest.VKRequestListener {
             notifyAllComplete(audios);
         }
     }
-
-    ;
-
 }

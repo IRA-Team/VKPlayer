@@ -75,7 +75,7 @@ public class AudioDatabaseHelper extends DatabaseHelper {
         SQLiteDatabase db = getReadableDatabase();
         List<Audio> list = new ArrayList<>();
 
-        Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, ID);
+        Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, "_id DESC");
         if (cursor.moveToFirst()) {
             do {
                 list.add(fromCursor(cursor));
@@ -84,6 +84,12 @@ public class AudioDatabaseHelper extends DatabaseHelper {
         cursor.close();
         db.close();
         return list;
+    }
+
+    public void removeAll() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_NAME, null, null);
+        db.close();
     }
 
     public static ContentValues toContentValues(Audio audio) {

@@ -18,6 +18,13 @@
                 android:layout_width="@dimen/player_list_element_album_cover"
                 android:layout_height="@dimen/player_list_element_album_cover"
                 android:layout_margin="16dp" />
+
+            <ProgressBar
+                android:id="@+id/player_list_element_progress"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:visibility="gone" />
         </FrameLayout>
 
         <LinearLayout

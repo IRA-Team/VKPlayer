@@ -1,6 +1,5 @@
 package com.irateam.vkplayer.player;
 
-import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
@@ -26,7 +25,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     private boolean stateReady = false;
 
-    public Player(Context context) {
+    public Player() {
         super();
         setAudioStreamType(AudioManager.STREAM_MUSIC);
         setOnPreparedListener(this);
@@ -70,7 +69,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
             setOnBufferingUpdateListener(null);
             setDataSource(playingAudio.getPlayingUrl());
             prepareAsync();
-            notifyPlayerEvent(index, playingAudio, PlayerEvent.PLAY);
+            notifyPlayerEvent(index, playingAudio, PlayerEvent.START);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -85,11 +84,9 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     public void stop() {
-        if (isReady() && playingAudio != null) {
-            super.stop();
-            notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.STOP);
-            playingAudio = null;
-        }
+        super.reset();
+        notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.STOP);
+        playingAudio = null;
     }
 
     public void pause() {
@@ -106,10 +103,16 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     public void next() {
         int nextIndex;
+        if (list == null || list.size() == 0) {
+            stop();
+            return;
+        }
         if (randomState) {
+            int size = list.size();
             do
-                nextIndex = random.nextInt(list.size());
-            while (getPlayingAudioIndex() == nextIndex);
+                nextIndex = random.nextInt(size);
+            while (size > 1 &&
+                    getPlayingAudioIndex() == nextIndex);
             randomStack.push(playingAudio);
         } else {
             nextIndex = getPlayingAudioIndex() + 1;
@@ -123,6 +126,10 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     public void previous() {
         int previousIndex;
+        if (list == null || list.size() == 0) {
+            stop();
+            return;
+        }
         if (randomState && !randomStack.empty()) {
             previousIndex = list.indexOf(randomStack.pop());
         } else {
@@ -210,6 +217,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         start();
         startProgress();
         setOnBufferingUpdateListener(this);
+        notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.START);
     }
 
     @Override
@@ -258,6 +266,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     public enum PlayerEvent {
+        START,
         PLAY,
         PAUSE,
         RESUME,

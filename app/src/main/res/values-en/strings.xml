@@ -2,10 +2,10 @@
     <string name="app_name">VKPlayer</string>
 
     <string name="action_cache">Save</string>
-    <string name="action_delete">Delete</string>
+    <string name="action_remove_from_list">Remove from list</string>
 
     <string name="title_activity_list">List</string>
-    <string name="title_activity_login">Login</string>
+    <string name="title_activity_login">Sign in</string>
 
     <string name="title_button_login_vk">Sign in with VK</string>
     <string name="title_button_github">Github/IRA-Team</string>
@@ -57,11 +57,18 @@
     <string name="notification_successful_sync_count">Synchronized audios:</string>
     <string name="action_add_to_playlist">Add to current playlist</string>
     <string name="action_play">Play</string>
-    <string name="action_remove_from_cache">Remove from saved</string>
+    <string name="action_delete_from_cache">Delete from saved</string>
     <string name="snackbar_add_to_playlist">Audios added to current playlist</string>
     <string name="snackbar_cancel">Cancel</string>
     <string name="pref_sync_wifi">Sync using Wi-Fi only</string>
     <string name="notification_error_download_message">An error occured while downloading</string>
     <string name="notification_error_sync_message">An error occured while synchronizing</string>
+    <string name="pref_header_cache_title">Cache</string>
+    <string name="pref_cache_clear">Clear cache</string>
+    <string name="cache_clear_complete">Cache has been cleared</string>
+    <string name="clear_cache_dialog_text">Are you sure you want to delete all saved audio files?</string>
+    <string name="clear_cache_dialog_title">Please confirm</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
 
 </resources>
