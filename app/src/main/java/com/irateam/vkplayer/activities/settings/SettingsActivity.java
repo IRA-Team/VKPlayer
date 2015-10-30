@@ -74,7 +74,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
 
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
-                || SyncPreferenceFragment.class.getName().equals(fragmentName);
+                || SyncPreferenceFragment.class.getName().equals(fragmentName)
+                || CachePreferenceFragment.class.getName().equals(fragmentName);
     }
 
     @Override
@@ -155,6 +156,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
                 builder.create().show();
                 return false;
             });
+
+
         }
 
         @Override
@@ -167,4 +170,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
             return super.onOptionsItemSelected(item);
         }
     }
+
+
 }
