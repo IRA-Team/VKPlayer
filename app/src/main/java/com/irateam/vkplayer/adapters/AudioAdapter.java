@@ -115,7 +115,7 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         element.setTitle(audio.title);
         element.setArtist(audio.artist);
         element.setCoverDrawable(AlbumCoverUtils.createFromAudio(audio));
-        if (audio.id == getPlayingAudioId() ) {
+        if (audio.id == getPlayingAudioId()) {
             if (playerService.isReady()) {
                 element.setPlaying(playerService.isPlaying());
             } else {
@@ -241,6 +241,7 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         };
     }
 
+    //Cover check listener
     public interface CoverCheckListener {
         void onCoverCheck(int position);
     }
@@ -248,7 +249,7 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
     private WeakReference<CoverCheckListener> listener;
 
     public void setCoverCheckListener(CoverCheckListener listener) {
-        this.listener = new WeakReference<CoverCheckListener>(listener);
+        this.listener = new WeakReference<>(listener);
     }
 
     public void notifyCoverChecked(int position) {
@@ -257,6 +258,8 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         }
     }
 
+
+    //Sort listener
     private SortModeListener sortListeners;
 
     public void setSortModeListener(SortModeListener listener) {

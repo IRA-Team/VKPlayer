@@ -19,7 +19,6 @@ public class MainActivity extends AppCompatActivity {
         Intent intent;
         if (VKSdk.isLoggedIn()) {
             intent = new Intent(this, ListActivity.class);
-
         } else {
             intent = new Intent(this, LoginActivity.class);
         }

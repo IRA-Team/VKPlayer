@@ -242,5 +242,4 @@ public class DownloadService extends Service {
         return currentThread != null && currentThread.isAlive();
     }
 
-
 }
