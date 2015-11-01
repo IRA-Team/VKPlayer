@@ -16,6 +16,11 @@ Click on the track in any list and he will automatically become the current one
 - **User-friendly interface.** 
 Modern, easy and handy interface without unnecessary staff
 
+##Screenshots
+
+![Main screen](https://raw.github.com/IRA-Team/VKPlayer/master/_arts/screenshot_1.png)
+![List screen](https://raw.github.com/IRA-Team/VKPlayer/master/_arts/screenshot_4.png)
+
 ##Dependencies
 
 - **DragSortListView** - https://github.com/bauerca/drag-sort-listview
