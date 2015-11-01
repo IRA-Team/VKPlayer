@@ -42,7 +42,7 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
 
     public int getPlayingAudioId() {
         if (playerService != null && playerService.getPlayingAudio() != null) {
-            return playerService.getPlayingAudio().id;
+            return playerService.getPlayingAudio().getId();
         } else {
             return -1;
         }
@@ -60,7 +60,7 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
 
     public void updateAudioById(Audio audio) {
         for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).id == audio.id) {
+            if (list.get(i).equalsId(audio)) {
                 list.set(i, audio);
                 break;
             }
@@ -71,7 +71,7 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
     public void updateAudiosById(List<Audio> audios) {
         for (int i = 0; i < list.size(); i++) {
             for (Audio audio : audios) {
-                if (list.get(i).id == audio.id) {
+                if (list.get(i).equalsId(audio)) {
                     list.set(i, audio);
                     break;
                 }
@@ -99,7 +99,7 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public long getItemId(int position) {
-        return list.get(position).id;
+        return list.get(position).getId();
     }
 
     @Override
@@ -110,12 +110,11 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         AudioListElement element = (AudioListElement) view;
 
         final Audio audio = list.get(position);
-        audio.artist = audio.artist.trim();
 
-        element.setTitle(audio.title);
-        element.setArtist(audio.artist);
+        element.setTitle(audio.getTitle());
+        element.setArtist(audio.getArtist());
         element.setCoverDrawable(AlbumCoverUtils.createFromAudio(audio));
-        if (audio.id == getPlayingAudioId()) {
+        if (audio.getId() == getPlayingAudioId()) {
             if (playerService.isReady()) {
                 element.setPlaying(playerService.isPlaying());
             } else {
@@ -128,7 +127,7 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
             }
         });
 
-        element.setDuration(audio.duration);
+        element.setDuration(audio.getDuration());
 
         if (audio.isCached()) {
             element.setDownloaded(true);
@@ -221,7 +220,7 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
                 } else {
                     String key = constraint.toString().trim();
                     for (Audio audio : originalList) {
-                        if (audio.title.toLowerCase().contains(key) || audio.artist.toLowerCase().contains(key)) {
+                        if (audio.getTitle().toLowerCase().contains(key) || audio.getArtist().toLowerCase().contains(key)) {
                             resultList.add(audio);
                         }
                     }

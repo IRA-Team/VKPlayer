@@ -48,8 +48,8 @@ public class PlayerNotification {
                 .setCancelButtonIntent(PendingIntent.getService(context, 0, intent, 0));
 
         builder
-                .setContentTitle(index + 1 + ". " + audio.title)
-                .setContentText(audio.artist)
+                .setContentTitle(index + 1 + ". " + audio.getTitle())
+                .setContentText(audio.getArtist())
                 .setLargeIcon(COVER)
                 .setStyle(style)
                 .setPriority(Notification.PRIORITY_HIGH)

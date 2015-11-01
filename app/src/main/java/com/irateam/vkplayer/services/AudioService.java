@@ -96,7 +96,7 @@ public class AudioService extends VKRequest.VKRequestListener {
 
         for (int i = 0; i < vkList.size(); i++) {
             for (Audio audio : cachedList) {
-                if (vkList.get(i).id == audio.id && new File(audio.cachePath).exists()) {
+                if (vkList.get(i).equalsId(audio) && audio.isCached()) {
                     vkList.set(i, audio);
                 }
             }
@@ -112,11 +112,9 @@ public class AudioService extends VKRequest.VKRequestListener {
             @Override
             protected Void doInBackground(Void... params) {
                 for (Audio audio : cachedList) {
-                    File file = new File(audio.cachePath);
-                    if (audio.isCached() && file.exists()) {
-                        file.delete();
+                    if (audio.isCached()) {
                         helper.delete(audio);
-                        audio.cachePath = null;
+                        audio.removeCacheFile();
                     }
                 }
                 return null;
@@ -134,7 +132,7 @@ public class AudioService extends VKRequest.VKRequestListener {
         List<Audio> cachedList = helper.getAll();
         for (Audio audio : cachedList) {
             if (audio.isCached()) {
-                new File(audio.cachePath).delete();
+                audio.removeCacheFile();
             }
         }
         helper.removeAll();
@@ -180,8 +178,7 @@ public class AudioService extends VKRequest.VKRequestListener {
             List<Audio> list = new AudioDatabaseHelper(context).getAll();
             Iterator<Audio> i = list.iterator();
             while (i.hasNext()) {
-                File file = new File(i.next().cachePath);
-                if (!file.exists()) {
+                if (i.next().isCached()) {
                     i.remove();
                 }
             }

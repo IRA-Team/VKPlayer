@@ -25,17 +25,9 @@ public class AlbumCoverUtils {
         return bitmap;
     }
 
-    //TODO: Remove after refactoring class Audio
     public static TextDrawable createFromAudio(Audio audio) {
-        String artist = audio.artist.trim();
-        String character;
-        if (artist.length() > 0) {
-            character = String.valueOf(artist.charAt(0));
-        } else {
-            character = " ";
-        }
         return TextDrawable.builder()
-                .buildRound(character, ColorGenerator.MATERIAL.getColor(audio.artist.trim()));
+                .buildRound(String.valueOf(audio.getArtist().charAt(0)), ColorGenerator.MATERIAL.getColor(audio.getArtist()));
     }
 
     public static Bitmap createBitmapFromAudio(Audio audio) {

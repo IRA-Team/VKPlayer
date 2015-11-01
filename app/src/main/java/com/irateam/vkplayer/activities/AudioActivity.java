@@ -57,7 +57,7 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
             @Override
             public void onDownloadFinished(Audio audio) {
                 setCacheAction(audio.isCached());
-                playerService.getPlayingAudio().cachePath = audio.cachePath;
+                playerService.getPlayingAudio().setCacheFile(audio.getCacheFile());
             }
         };
         registerReceiver(downloadFinishedReceiver, new IntentFilter(DownloadService.DOWNLOAD_FINISHED));

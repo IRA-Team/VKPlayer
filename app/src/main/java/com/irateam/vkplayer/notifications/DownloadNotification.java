@@ -22,7 +22,7 @@ public class DownloadNotification {
         Intent intent = new Intent(context, DownloadService.class);
         intent.setAction(DownloadService.STOP_DOWNLOADING);
         builder
-                .setContentTitle(audio.artist + " - " + audio.title)
+                .setContentTitle(audio.getArtist() + " - " + audio.getTitle())
                 .setSmallIcon(isSync ? R.drawable.ic_notification_sync_white_24dp : R.drawable.ic_statusbar_download_white_18dp)
                 .setContentText(isSync ? context.getString(R.string.notification_sync) : context.getString(R.string.notification_download));
 

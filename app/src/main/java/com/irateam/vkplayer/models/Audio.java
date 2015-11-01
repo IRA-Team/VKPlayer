@@ -1,8 +1,7 @@
 package com.irateam.vkplayer.models;
 
 import android.os.Parcel;
-
-import com.vk.sdk.api.model.VKApiAudio;
+import android.os.Parcelable;
 
 import org.json.JSONObject;
 
@@ -10,11 +9,25 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
-public class Audio extends VKApiAudio implements Cloneable {
-    public String cachePath;
+public class Audio implements Parcelable {
+
+    public static final String UNKNOWN_ARTIST = "Unknown artist";
+    public static final String UNKNOWN_TITLE = "Unknown title";
+
+    private int id;
+    private int ownerId;
+    private String artist;
+    private String title;
+    private int duration;
+    private String url;
+    private int lyricsId;
+    private int albumId;
+    private int genre;
+    private String accessKey;
+    private File cacheFile;
 
     public boolean isCached() {
-        return cachePath != null && new File(cachePath).exists();
+        return cacheFile != null && cacheFile.exists();
     }
 
     public Audio() {
@@ -26,35 +39,182 @@ public class Audio extends VKApiAudio implements Cloneable {
     }
 
     public Audio parse(JSONObject from) {
-        super.parse(from);
+        id = from.optInt("id");
+        ownerId = from.optInt("owner_id");
+        setArtist(from.optString("artist"));
+        setTitle(from.optString("title"));
+        duration = from.optInt("duration");
+        url = from.optString("url");
+        lyricsId = from.optInt("lyrics_id");
+        albumId = from.optInt("album_id");
+        genre = from.optInt("genre_id");
+        accessKey = from.optString("access_key");
         return this;
     }
 
-    public String getPlayingUrl() {
-        if (isCached()) {
-            return cachePath;
-        } else {
-            return url;
-        }
+    public Audio(Parcel in) {
+        this.id = in.readInt();
+        this.ownerId = in.readInt();
+        this.artist = in.readString();
+        this.title = in.readString();
+        this.duration = in.readInt();
+        this.url = in.readString();
+        this.lyricsId = in.readInt();
+        this.albumId = in.readInt();
+        this.genre = in.readInt();
+        this.accessKey = in.readString();
+        this.setCacheFile(in.readString());
     }
 
-    public Audio(Parcel in) {
-        super(in);
-        this.cachePath = in.readString();
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(int ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+
+    public void setArtist(String artist) {
+        artist = artist.trim();
+        this.artist = artist.length() > 0 ? artist : UNKNOWN_ARTIST;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        title = title.trim();
+        this.title = title.length() > 0 ? title : UNKNOWN_TITLE;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public int getLyricsId() {
+        return lyricsId;
+    }
+
+    public void setLyricsId(int lyricsId) {
+        this.lyricsId = lyricsId;
+    }
+
+    public int getAlbumId() {
+        return albumId;
+    }
+
+    public void setAlbumId(int albumId) {
+        this.albumId = albumId;
+    }
+
+    public int getGenre() {
+        return genre;
+    }
+
+    public void setGenre(int genre) {
+        this.genre = genre;
+    }
+
+    public String getAccessKey() {
+        return accessKey;
+    }
+
+    public void setAccessKey(String accessKey) {
+        this.accessKey = accessKey;
+    }
+
+    public String getCachePath() {
+        return cacheFile.getAbsolutePath();
+    }
+
+    public File getCacheFile() {
+        return cacheFile;
+    }
+
+    public void setCacheFile(File cacheFile) {
+        this.cacheFile = cacheFile;
+    }
+
+    public void setCacheFile(String cachePath) {
+        cacheFile = new File(cachePath);
+    }
+
+    public void removeCacheFile() {
+        cacheFile.delete();
+        cacheFile = null;
+    }
+
+    public String getPlayingUrl() {
+        return isCached() ? getCachePath() : url;
     }
 
     public Long getSize() throws IOException {
-        if (isCached()) {
-            return new File(getPlayingUrl()).length();
-        } else {
-            return (long) new URL(url).openConnection().getContentLength();
-        }
+        return isCached() ? cacheFile.length() : (long) new URL(url).openConnection().getContentLength();
+    }
+
+    public boolean equalsId(Audio audio) {
+        return id == audio.getId();
+    }
+
+    public Audio clone() {
+        Audio audio = new Audio();
+        audio.id = id;
+        audio.ownerId = ownerId;
+        audio.artist = artist;
+        audio.title = title;
+        audio.duration = duration;
+        audio.url = url;
+        audio.lyricsId = lyricsId;
+        audio.albumId = albumId;
+        audio.genre = genre;
+        audio.accessKey = accessKey;
+        audio.cacheFile = cacheFile;
+        return audio;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest, flags);
-        dest.writeString(cachePath);
+        dest.writeInt(id);
+        dest.writeInt(ownerId);
+        dest.writeString(artist);
+        dest.writeString(title);
+        dest.writeInt(duration);
+        dest.writeString(url);
+        dest.writeInt(lyricsId);
+        dest.writeInt(albumId);
+        dest.writeInt(genre);
+        dest.writeString(accessKey);
+        dest.writeString(getCachePath());
     }
 
     public static Creator<Audio> CREATOR = new Creator<Audio>() {
@@ -67,19 +227,4 @@ public class Audio extends VKApiAudio implements Cloneable {
         }
     };
 
-    public Audio clone() {
-        Audio audio = new Audio();
-        audio.id = id;
-        audio.owner_id = owner_id;
-        audio.artist = artist;
-        audio.title = title;
-        audio.duration = duration;
-        audio.url = url;
-        audio.lyrics_id = lyrics_id;
-        audio.album_id = album_id;
-        audio.genre = genre;
-        audio.access_key = access_key;
-        audio.cachePath = cachePath;
-        return audio;
-    }
 }

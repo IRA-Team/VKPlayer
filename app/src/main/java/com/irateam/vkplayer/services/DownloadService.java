@@ -116,7 +116,7 @@ public class DownloadService extends Service {
 
                 for (Audio audio : cachedList) {
                     for (Iterator<Audio> iterator = vkList.iterator(); iterator.hasNext(); ) {
-                        if (audio.id == iterator.next().id && audio.isCached()) {
+                        if (iterator.next().equalsId(audio) && audio.isCached()) {
                             iterator.remove();
                             break;
                         }
@@ -178,9 +178,9 @@ public class DownloadService extends Service {
 
                 if (audio != null) {
                     startForeground(DownloadNotification.ID, DownloadNotification.create(this, audio, 0, audioLeftCount - 1, syncFlag));
-                    File file = new File(getExternalCacheDir(), String.valueOf(audio.id));
+                    File file = new File(getExternalCacheDir(), String.valueOf(audio.getId()));
                     try {
-                        URLConnection connection = new URL(audio.url).openConnection();
+                        URLConnection connection = new URL(audio.getUrl()).openConnection();
                         BufferedInputStream inputStream = new BufferedInputStream(connection.getInputStream());
                         FileOutputStream fileOutputStream = new FileOutputStream(file);
 
@@ -213,7 +213,7 @@ public class DownloadService extends Service {
                         return;
                     }
 
-                    audio.cachePath = file.getAbsolutePath();
+                    audio.setCacheFile(file);
                     databaseHelper.cache(audio);
 
                     Intent intent = new Intent(DOWNLOAD_FINISHED);

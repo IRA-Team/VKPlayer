@@ -151,9 +151,9 @@ public class PlayerController implements Player.PlayerEventListener, Player.Play
             if (rootView.getVisibility() != View.VISIBLE) {
                 rootView.setVisibility(View.VISIBLE);
             }
-            songName.setText(position + 1 + ". " + audio.title);
-            author.setText(audio.artist);
-            progress.setMax(audio.duration * 1000);
+            songName.setText(position + 1 + ". " + audio.getTitle());
+            author.setText(audio.getArtist());
+            progress.setMax(audio.getDuration() * 1000);
             progress.setProgress(0);
             progress.setSecondaryProgress(0);
         }
