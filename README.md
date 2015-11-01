@@ -20,6 +20,13 @@ Modern, easy and handy interface without unnecessary staff
 
 ![Main screen](https://raw.github.com/IRA-Team/VKPlayer/master/_arts/screenshot_1.png)
 ![List screen](https://raw.github.com/IRA-Team/VKPlayer/master/_arts/screenshot_4.png)
+![Drawer screen](https://raw.github.com/IRA-Team/VKPlayer/master/_arts/screenshot_2.png)
+
+##Download
+
+Google Play: https://play.google.com/store/apps/details?id=com.irateam.vkplayer
+
+![QR](https://raw.github.com/IRA-Team/VKPlayer/master/_arts/qr.jpg)
 
 ##Dependencies
 
