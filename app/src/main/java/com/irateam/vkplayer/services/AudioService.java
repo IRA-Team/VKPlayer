@@ -14,7 +14,6 @@ import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
 
-import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -178,7 +177,7 @@ public class AudioService extends VKRequest.VKRequestListener {
             List<Audio> list = new AudioDatabaseHelper(context).getAll();
             Iterator<Audio> i = list.iterator();
             while (i.hasNext()) {
-                if (i.next().isCached()) {
+                if (!i.next().isCached()) {
                     i.remove();
                 }
             }

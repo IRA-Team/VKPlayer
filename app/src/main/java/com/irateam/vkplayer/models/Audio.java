@@ -2,6 +2,7 @@ package com.irateam.vkplayer.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import org.json.JSONObject;
 
@@ -149,7 +150,7 @@ public class Audio implements Parcelable {
     }
 
     public String getCachePath() {
-        return cacheFile.getAbsolutePath();
+        return cacheFile != null ? cacheFile.getAbsolutePath() : "";
     }
 
     public File getCacheFile() {
@@ -161,7 +162,7 @@ public class Audio implements Parcelable {
     }
 
     public void setCacheFile(String cachePath) {
-        cacheFile = new File(cachePath);
+        cacheFile = !cachePath.isEmpty() ? new File(cachePath) : null;
     }
 
     public void removeCacheFile() {
