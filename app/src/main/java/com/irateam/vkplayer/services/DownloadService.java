@@ -3,6 +3,7 @@ package com.irateam.vkplayer.services;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.irateam.vkplayer.R;
@@ -179,11 +180,20 @@ public class DownloadService extends Service {
                 if (audio != null) {
                     startForeground(DownloadNotification.ID, DownloadNotification.create(this, audio, 0, audioLeftCount - 1, syncFlag));
                     File file = new File(getExternalCacheDir(), String.valueOf(audio.getId()));
-                    try {
-                        URLConnection connection = new URL(audio.getUrl()).openConnection();
-                        BufferedInputStream inputStream = new BufferedInputStream(connection.getInputStream());
-                        FileOutputStream fileOutputStream = new FileOutputStream(file);
 
+                    URLConnection connection;
+                    BufferedInputStream inputStream;
+                    try {
+                        connection = new URL(audio.getUrl()).openConnection();
+                        inputStream = new BufferedInputStream(connection.getInputStream());
+                    } catch (IOException e) {
+                        Log.e("HAHAHA", "LOL");
+                        continue;
+                    }
+
+
+                    try {
+                        FileOutputStream fileOutputStream = new FileOutputStream(file);
                         final byte buffer[] = new byte[1024];
                         int size = connection.getContentLength();
                         int currentBytes, currentProgress;
@@ -241,5 +251,32 @@ public class DownloadService extends Service {
     public boolean isDownloading() {
         return currentThread != null && currentThread.isAlive();
     }
+
+/*    public URLConnection getAudioConnection(Audio audio) {
+        try {
+            return null;
+        } catch (IOException e) {
+            final URLConnection[] connection = {null};
+            VKApi.audio().getById(VKParameters.from("audios", audio.getOwnerId() + "_" + audio.getId()))
+                    .executeSyncWithListener(new VKRequest.VKRequestListener() {
+                        @Override
+                        public void onError(VKError error) {
+                            super.onError(error);
+                        }
+
+                        @Override
+                        public void onComplete(VKResponse response) {
+                            super.onComplete(response);
+                            try {
+                                String url = response.json.getJSONArray("response").getJSONObject(0).optString("url");
+                                connection[0] = new URL(url).openConnection();
+                            } catch (Exception e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    });
+            return connection[0];
+        }
+    }*/
 
 }

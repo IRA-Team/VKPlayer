@@ -87,7 +87,7 @@ public class AudioDatabaseHelper extends DatabaseHelper {
     }
 
     public void removeAll() {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDatabase();
         db.delete(TABLE_NAME, null, null);
         db.close();
     }

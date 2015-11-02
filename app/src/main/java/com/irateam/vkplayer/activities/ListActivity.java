@@ -21,7 +21,6 @@ import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.TextView;
 
 import com.irateam.vkplayer.R;
@@ -41,15 +40,13 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.vk.sdk.VKSdk;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class ListActivity extends AppCompatActivity implements
         AudioService.Listener,
         NavigationView.OnNavigationItemSelectedListener,
-        AdapterView.OnItemClickListener,
-        DragSortListView.DropListener,
-        SwipeRefreshLayout.OnRefreshListener, ServiceConnection, AdapterView.OnItemLongClickListener, AudioAdapter.CoverCheckListener, ActionMode.Callback, DragSortListView.RemoveListener {
+        ServiceConnection,
+        ActionMode.Callback {
 
     private AudioAdapter audioAdapter = new AudioAdapter(this);
     private AudioService audioService = new AudioService(this);
@@ -120,16 +117,43 @@ public class ListActivity extends AppCompatActivity implements
                 R.color.accent,
                 R.color.primary
         );
-        refreshLayout.setOnRefreshListener(this);
+        refreshLayout.setOnRefreshListener(() -> {
+            if (actionMode != null)
+                actionMode.finish();
+
+            if (audioAdapter.isSortMode())
+                audioAdapter.setSortMode(false);
+
+            audioService.repeatLastRequest();
+        });
 
         listView = (DragSortListView) findViewById(R.id.list);
         listView.setAdapter(audioAdapter);
-        listView.setOnItemClickListener(this);
-        listView.setOnItemLongClickListener(this);
-        listView.setDropListener(this);
-        listView.setRemoveListener(this);
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            playerService.setPlaylist(audioAdapter.getList());
+            playerService.play(position);
+            if (actionMode != null)
+                actionMode.finish();
 
-        audioAdapter.setCoverCheckListener(this);
+            MenuItem item = navigationView.getMenu().getItem(0);
+            if (!item.isChecked()) {
+                item.setChecked(true);
+                onNavigationItemSelected(item);
+            }
+        });
+        listView.setOnItemLongClickListener((parent, view, position, id) -> {
+            performCheck(position);
+            return true;
+        });
+        listView.setDropListener((from, to) -> {
+            List<Audio> list = audioAdapter.getList();
+            Audio audio = list.get(from);
+            list.remove(from);
+            list.add(to, audio);
+            audioAdapter.notifyDataSetChanged();
+        });
+
+        audioAdapter.setCoverCheckListener(this::performCheck);
         audioService.addListener(this);
 
         downloadFinishedReceiver = new DownloadFinishedReceiver() {
@@ -282,45 +306,6 @@ public class ListActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        playerService.setPlaylist(audioAdapter.getList());
-        playerService.play(position);
-        if (actionMode != null)
-            actionMode.finish();
-        MenuItem item = navigationView.getMenu().getItem(0);
-        item.setChecked(true);
-        onNavigationItemSelected(item);
-    }
-
-    @Override
-    public void drop(int from, int to) {
-        List<Audio> list = audioAdapter.getList();
-        Audio audio = list.get(from);
-        list.remove(from);
-        list.add(to, audio);
-        audioAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void remove(int i) {
-        audioAdapter.getList().remove(i);
-        audioAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onRefresh() {
-        if (actionMode != null) {
-            actionMode.finish();
-        }
-
-        if (audioAdapter.isSortMode()) {
-            audioAdapter.setSortMode(false);
-        }
-
-        audioService.repeatLastRequest();
-    }
-
-    @Override
     public void onBackPressed() {
         if (audioAdapter.isSortMode()) {
             audioAdapter.setSortMode(false);
@@ -345,35 +330,23 @@ public class ListActivity extends AppCompatActivity implements
 
         audioAdapter.setPlayerService(playerService);
         audioService.setPlayerService(playerService);
+
+        Menu menu = navigationView.getMenu();
+        MenuItem item;
         if (playerService.getPlaylist().size() > 0) {
-            MenuItem item = navigationView.getMenu().getItem(0);
-            item.setChecked(true);
-            onNavigationItemSelected(item);
+            item = menu.findItem(R.id.current_playlist);
         } else if (NetworkUtils.checkNetwork(this)) {
-            MenuItem item = navigationView.getMenu().getItem(1);
-            item.setChecked(true);
-            onNavigationItemSelected(item);
+            item = menu.findItem(R.id.my_audio);
         } else {
-            MenuItem item = navigationView.getMenu().getItem(4);
-            item.setChecked(true);
-            onNavigationItemSelected(item);
+            item = menu.findItem(R.id.cached_audio);
         }
+        item.setChecked(true);
+        onNavigationItemSelected(item);
     }
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
         playerService = null;
-    }
-
-    @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        performCheck(position);
-        return true;
-    }
-
-    @Override
-    public void onCoverCheck(int position) {
-        performCheck(position);
     }
 
     public void performCheck(int position) {

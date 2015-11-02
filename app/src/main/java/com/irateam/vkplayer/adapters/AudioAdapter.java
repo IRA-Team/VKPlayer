@@ -245,15 +245,15 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         void onCoverCheck(int position);
     }
 
-    private WeakReference<CoverCheckListener> listener;
+    private CoverCheckListener coverCheckListener;
 
     public void setCoverCheckListener(CoverCheckListener listener) {
-        this.listener = new WeakReference<>(listener);
+        this.coverCheckListener = listener;
     }
 
     public void notifyCoverChecked(int position) {
-        if (listener != null && listener.get() != null) {
-            listener.get().onCoverCheck(position);
+        if (coverCheckListener != null) {
+            coverCheckListener.onCoverCheck(position);
         }
     }
 

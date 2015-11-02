@@ -13,6 +13,7 @@ import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.models.Settings;
 import com.irateam.vkplayer.notifications.PlayerNotification;
 import com.irateam.vkplayer.player.Player;
+import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
 
 import java.util.List;
 
@@ -32,6 +33,7 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     private Settings settings;
     private boolean removeNotification = false;
     private boolean wasPlaying = false;
+    private DownloadFinishedReceiver downloadFinishedReceiver;
 
     @Override
     public void onCreate() {
@@ -58,7 +60,19 @@ public class PlayerService extends Service implements Player.PlayerEventListener
             }
         };
 
+        downloadFinishedReceiver = new DownloadFinishedReceiver() {
+            @Override
+            public void onDownloadFinished(Audio downloaded) {
+                for (Audio audio : getPlaylist()) {
+                    if (audio.equalsId(downloaded)) {
+                        audio.setCacheFile(downloaded.getCacheFile());
+                    }
+                }
+            }
+        };
+
         registerReceiver(headsetReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
+        registerReceiver(downloadFinishedReceiver, new IntentFilter(DownloadService.DOWNLOAD_FINISHED));
     }
 
     @Override
@@ -93,6 +107,7 @@ public class PlayerService extends Service implements Player.PlayerEventListener
         super.onDestroy();
         player.removePlayerEventListener(this);
         unregisterReceiver(headsetReceiver);
+        unregisterReceiver(downloadFinishedReceiver);
         audioManager.abandonAudioFocus(this);
     }
 
@@ -245,9 +260,6 @@ public class PlayerService extends Service implements Player.PlayerEventListener
                 wasPlaying = isPlaying();
                 pause(false);
                 break;
-            /*case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                event = "AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK";
-                break;*/
             case AudioManager.AUDIOFOCUS_GAIN:
                 if (wasPlaying) {
                     resume();
