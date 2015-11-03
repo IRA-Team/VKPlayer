@@ -79,7 +79,6 @@ public class ListActivity extends AppCompatActivity implements
         emptyView = findViewById(R.id.empty_list_view);
         emptyView.setVisibility(View.GONE);
 
-        //Views
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

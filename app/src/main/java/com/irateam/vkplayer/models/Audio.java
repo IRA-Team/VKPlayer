@@ -2,7 +2,6 @@ package com.irateam.vkplayer.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import org.json.JSONObject;
 
@@ -26,6 +25,7 @@ public class Audio implements Parcelable {
     private int genre;
     private String accessKey;
     private File cacheFile;
+    private AudioInfo audioInfo;
 
     public boolean isCached() {
         return cacheFile != null && cacheFile.exists();
@@ -174,8 +174,12 @@ public class Audio implements Parcelable {
         return isCached() ? getCachePath() : url;
     }
 
-    public Long getSize() throws IOException {
-        return isCached() ? cacheFile.length() : (long) new URL(url).openConnection().getContentLength();
+    public AudioInfo getAudioInfo() {
+        return audioInfo;
+    }
+
+    public void setAudioInfo(AudioInfo audioInfo) {
+        this.audioInfo = audioInfo;
     }
 
     public boolean equalsId(Audio audio) {

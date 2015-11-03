@@ -17,10 +17,12 @@ import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.controllers.ActivityPlayerController;
 import com.irateam.vkplayer.controllers.PlayerController;
 import com.irateam.vkplayer.models.Audio;
+import com.irateam.vkplayer.models.AudioInfo;
 import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
 import com.irateam.vkplayer.services.AudioService;
 import com.irateam.vkplayer.services.DownloadService;
 import com.irateam.vkplayer.services.PlayerService;
+import com.irateam.vkplayer.utils.AudioUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,10 +51,8 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
 
 
         imageView = (ImageView) findViewById(R.id.imageView);
-        imageView.setImageDrawable(getResources().getDrawable(R.drawable.player_cover));
         playerController = new ActivityPlayerController(this, findViewById(R.id.activity_player_panel));
         playerController.setFabOnClickListener(v -> finish());
-
         downloadFinishedReceiver = new DownloadFinishedReceiver() {
             @Override
             public void onDownloadFinished(Audio audio) {
@@ -139,6 +139,8 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
         if (audio != null) {
             setCacheAction(audio.isCached());
         }
+
+
     }
 
     @Override

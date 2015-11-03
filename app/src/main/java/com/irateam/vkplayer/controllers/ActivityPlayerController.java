@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.models.Audio;
+import com.irateam.vkplayer.models.AudioInfo;
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.services.PlayerService;
 
@@ -74,7 +75,10 @@ public class ActivityPlayerController extends PlayerController implements Player
         super.setAudio(position, audio);
         songName.setText(audio.getTitle());
         numberAudio.setText("#" + (position + 1) + "/" + playerService.getPlaylist().size());
-        new SizeTask(audio).execute();
+        AudioInfo.load(context, audio, info -> {
+            sizeAudio.setText(String.format("%.1f", info.size / (double) 1024 / (double) 1024) + "Mb");
+            sizeAudio.setText(sizeAudio.getText() + " " + info.bitrate);
+        });
     }
 
     @Override
@@ -91,40 +95,5 @@ public class ActivityPlayerController extends PlayerController implements Player
                 TimeUnit.MILLISECONDS.toSeconds(timeRemaining) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(timeRemaining))
         ));
-    }
-
-    class SizeTask extends AsyncTask<Void, Void, Long> {
-
-        private Audio audio;
-
-        public SizeTask(Audio audio) {
-            this.audio = audio;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Long doInBackground(Void... params) {
-            long size = 0;
-            try {
-                size = audio.getSize();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return size;
-        }
-
-        @Override
-        protected void onPostExecute(Long size) {
-            super.onPostExecute(size);
-            if (size > 0) {
-                sizeAudio.setText(String.format("%.1f", size / (double) 1024 / (double) 1024) + "Mb");
-            } else {
-                sizeAudio.setText("");
-            }
-        }
     }
 }

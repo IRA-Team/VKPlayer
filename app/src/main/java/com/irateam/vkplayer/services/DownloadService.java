@@ -252,31 +252,4 @@ public class DownloadService extends Service {
         return currentThread != null && currentThread.isAlive();
     }
 
-/*    public URLConnection getAudioConnection(Audio audio) {
-        try {
-            return null;
-        } catch (IOException e) {
-            final URLConnection[] connection = {null};
-            VKApi.audio().getById(VKParameters.from("audios", audio.getOwnerId() + "_" + audio.getId()))
-                    .executeSyncWithListener(new VKRequest.VKRequestListener() {
-                        @Override
-                        public void onError(VKError error) {
-                            super.onError(error);
-                        }
-
-                        @Override
-                        public void onComplete(VKResponse response) {
-                            super.onComplete(response);
-                            try {
-                                String url = response.json.getJSONArray("response").getJSONObject(0).optString("url");
-                                connection[0] = new URL(url).openConnection();
-                            } catch (Exception e1) {
-                                e1.printStackTrace();
-                            }
-                        }
-                    });
-            return connection[0];
-        }
-    }*/
-
 }
