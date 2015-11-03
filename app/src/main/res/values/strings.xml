@@ -73,5 +73,7 @@
 
     <string name="yes">Да</string>
     <string name="no">Нет</string>
+    <string name="ok">ОК</string>
+    <string name="cancel">Отмена</string>
 
 </resources>
