@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.TimePicker;
 
+import com.irateam.vkplayer.R;
+
 public class TimePreference extends DialogPreference {
     private int hour;
     private int minute;
@@ -24,12 +26,12 @@ public class TimePreference extends DialogPreference {
         return Integer.parseInt(pieces[1]);
     }
 
-    public TimePreference(Context ctxt, AttributeSet attrs) {
-        super(ctxt, attrs);
+    public TimePreference(Context context, AttributeSet attrs) {
+        super(context, attrs);
         picker = new TimePicker(getContext());
         picker.setIs24HourView(true);
-        setPositiveButtonText("OK");
-        setNegativeButtonText("Cancel");
+        setPositiveButtonText(context.getString(R.string.ok));
+        setNegativeButtonText(context.getString(R.string.cancel));
     }
 
     @Override
