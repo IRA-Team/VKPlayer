@@ -217,7 +217,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         start();
         startProgress();
         setOnBufferingUpdateListener(this);
-        notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.START);
+        notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.PLAY);
     }
 
     @Override

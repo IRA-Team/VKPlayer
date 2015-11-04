@@ -2,7 +2,7 @@ package com.irateam.vkplayer.controllers;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.os.AsyncTask;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -12,7 +12,6 @@ import com.irateam.vkplayer.models.AudioInfo;
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.services.PlayerService;
 
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class ActivityPlayerController extends PlayerController implements Player.PlayerEventListener {
@@ -50,17 +49,7 @@ public class ActivityPlayerController extends PlayerController implements Player
     @Override
     public void onEvent(int position, Audio audio, Player.PlayerEvent event) {
         super.onEvent(position, audio, event);
-        switch (event) {
-            case START:
-                setAudio(position, audio);
-                break;
-            case PAUSE:
-                setPlayPause(false);
-                break;
-            case RESUME:
-                setPlayPause(true);
-                break;
-        }
+
     }
 
     public void setPlayPause(boolean play) {
@@ -71,14 +60,38 @@ public class ActivityPlayerController extends PlayerController implements Player
             playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_play_grey_24dp));
     }
 
+    private AudioInfo.Loader loader;
+
     public void setAudio(int position, Audio audio) {
         super.setAudio(position, audio);
+        Log.i("AUDIO", "CALLED");
+        clearAudioInfo();
+
         songName.setText(audio.getTitle());
         numberAudio.setText("#" + (position + 1) + "/" + playerService.getPlaylist().size());
-        AudioInfo.load(context, audio, info -> {
-            sizeAudio.setText(String.format("%.1f", info.size / (double) 1024 / (double) 1024) + "Mb");
-            sizeAudio.setText(sizeAudio.getText() + " " + info.bitrate);
-        });
+
+        AudioInfo audioInfo = audio.getAudioInfo();
+        if (audioInfo == null) {
+            if (loader != null) loader.stop();
+            loader = new AudioInfo.Loader();
+            loader.load(context, audio, info -> {
+                audio.setAudioInfo(info);
+                setAudioInfo(info);
+            });
+        } else {
+            setAudioInfo(audioInfo);
+        }
+    }
+
+    public void clearAudioInfo() {
+        sizeAudio.setText("");
+        progress.setProgress(0);
+        progress.setSecondaryProgress(0);
+    }
+
+    public void setAudioInfo(AudioInfo info) {
+        sizeAudio.setText(String.format("%.1f", info.size / (double) 1024 / (double) 1024) + "Mb");
+        sizeAudio.setText(sizeAudio.getText() + " " + info.bitrate);
     }
 
     @Override
