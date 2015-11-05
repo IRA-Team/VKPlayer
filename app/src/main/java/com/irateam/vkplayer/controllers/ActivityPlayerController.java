@@ -64,28 +64,15 @@ public class ActivityPlayerController extends PlayerController implements Player
 
     public void setAudio(int position, Audio audio) {
         super.setAudio(position, audio);
-        Log.i("AUDIO", "CALLED");
         clearAudioInfo();
 
         songName.setText(audio.getTitle());
         numberAudio.setText("#" + (position + 1) + "/" + playerService.getPlaylist().size());
-
-        AudioInfo audioInfo = audio.getAudioInfo();
-        if (audioInfo == null) {
-            if (loader != null) loader.stop();
-            loader = new AudioInfo.Loader();
-            loader.load(context, audio, info -> {
-                audio.setAudioInfo(info);
-                setAudioInfo(info);
-            });
-        } else {
-            setAudioInfo(audioInfo);
-        }
     }
 
     public void clearAudioInfo() {
         sizeAudio.setText("");
-        progress.setProgress(0);
+        onProgressChanged(0);
         progress.setSecondaryProgress(0);
     }
 

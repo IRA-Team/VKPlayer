@@ -4,8 +4,6 @@ package com.irateam.vkplayer.models;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Handler;
-import android.os.Looper;
 
 import com.mpatric.mp3agic.ID3v2;
 import com.mpatric.mp3agic.InvalidDataException;
@@ -27,8 +25,6 @@ public class AudioInfo {
     public Bitmap cover;
 
     public static class Loader {
-
-        private Thread loaderThread;
 
         public AudioInfo getAudioInfo(Context context, Audio audio) throws Exception {
             AudioInfo info = new AudioInfo();
@@ -66,7 +62,14 @@ public class AudioInfo {
             return info;
         }
 
-        public void load(Context context, Audio audio, AudioInfoListener listener) {
+        public void load(Context context, Audio audio) {
+            /*FutureTask<AudioInfo> task = new FutureTask(() -> getAudioInfo(context, audio));
+            Executor executor = Executors.newSingleThreadExecutor();
+            ExecutorService service = Executors.newSingleThreadExecutor();
+            service.submit(task)
+            executor.execute(task);
+            CompletionService<AudioInfo> service1 = new ExecutorCompletionService<>(executor);
+            service1.
             loaderThread = new Thread(() -> {
                 try {
                     AudioInfo info = getAudioInfo(context, audio);
@@ -75,19 +78,9 @@ public class AudioInfo {
                     e.printStackTrace();
                 }
             });
-            loaderThread.start();
+            loaderThread.start();*/
         }
 
-        public void stop() {
-            if (loaderThread != null && loaderThread.isAlive()) {
-                loaderThread.interrupt();
-            }
-        }
     }
-
-    public interface AudioInfoListener {
-        void OnComplete(AudioInfo info);
-    }
-
 
 }
