@@ -23,7 +23,11 @@ public class PlayerNotification {
 
     public static void init(Context context) {
         Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.player_cover);
-        COVER = Bitmap.createScaledBitmap(bitmap,
+        COVER = scaleNotification(context, bitmap);
+    }
+
+    public static Bitmap scaleNotification(Context context, Bitmap bitmap) {
+        return Bitmap.createScaledBitmap(bitmap,
                 (int) context.getResources().getDimension(android.R.dimen.notification_large_icon_height),
                 (int) context.getResources().getDimension(android.R.dimen.notification_large_icon_width),
                 false);
@@ -50,8 +54,8 @@ public class PlayerNotification {
         builder
                 .setContentTitle(index + 1 + ". " + audio.getTitle())
                 .setContentText(audio.getArtist())
-                .setLargeIcon(COVER)
-                .setStyle(style)
+                .setLargeIcon(audio.getAudioInfo().coverNotification != null ? audio.getAudioInfo().coverNotification : COVER)
+                .setStyle(style.setShowActionsInCompactView(1, 2))
                 .setPriority(Notification.PRIORITY_HIGH)
                 .setWhen(0)
                 .setContentIntent(PendingIntent.getActivity(context, 0, contentIntent, 0))

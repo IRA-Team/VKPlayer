@@ -6,8 +6,6 @@ import android.os.Parcelable;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 
 public class Audio implements Parcelable {
 
@@ -25,7 +23,7 @@ public class Audio implements Parcelable {
     private int genre;
     private String accessKey;
     private File cacheFile;
-    private AudioInfo audioInfo;
+    private AudioInfo audioInfo = new AudioInfo();
 
     public boolean isCached() {
         return cacheFile != null && cacheFile.exists();

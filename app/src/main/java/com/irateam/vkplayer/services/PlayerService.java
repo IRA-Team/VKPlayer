@@ -5,11 +5,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
 
 import com.irateam.vkplayer.models.Audio;
+import com.irateam.vkplayer.models.AudioInfo;
 import com.irateam.vkplayer.models.Settings;
 import com.irateam.vkplayer.notifications.PlayerNotification;
 import com.irateam.vkplayer.player.Player;
@@ -17,7 +20,7 @@ import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
 
 import java.util.List;
 
-public class PlayerService extends Service implements Player.PlayerEventListener, AudioManager.OnAudioFocusChangeListener {
+public class PlayerService extends Service implements Player.PlayerEventListener, AudioManager.OnAudioFocusChangeListener, AudioInfo.AudioInfoListener {
 
     public static final String PREVIOUS = "playerService.PREVIOUS";
     public static final String PAUSE = "playerService.PAUSE";
@@ -231,6 +234,8 @@ public class PlayerService extends Service implements Player.PlayerEventListener
         switch (event) {
             case START:
                 startForeground(PlayerNotification.ID, PlayerNotification.create(this, position, audio, event));
+                audio.getAudioInfo().init(this, audio);
+                audio.getAudioInfo().getWithListener(this);
                 break;
             case PAUSE:
                 if (removeNotification) {
@@ -248,6 +253,18 @@ public class PlayerService extends Service implements Player.PlayerEventListener
         }
     }
 
+    @Override
+    public void OnComplete(AudioInfo audioInfo) {
+        if (audioInfo.cover != null) {
+        }
+        Log.e("AUDIO_INFO", String.valueOf(audioInfo.bitrate));
+        Log.e("AUDIO_INFO", String.valueOf(audioInfo.size));
+    }
+
+    @Override
+    public void OnError() {
+        Log.e("AUDIO_INFO", "ERROR");
+    }
 
     @Override
     public void onAudioFocusChange(int focusChange) {

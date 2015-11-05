@@ -11,18 +11,15 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.controllers.ActivityPlayerController;
 import com.irateam.vkplayer.controllers.PlayerController;
 import com.irateam.vkplayer.models.Audio;
-import com.irateam.vkplayer.models.AudioInfo;
 import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
 import com.irateam.vkplayer.services.AudioService;
 import com.irateam.vkplayer.services.DownloadService;
 import com.irateam.vkplayer.services.PlayerService;
-import com.irateam.vkplayer.utils.AudioUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +27,6 @@ import java.util.List;
 public class AudioActivity extends AppCompatActivity implements ServiceConnection {
 
     private Toolbar toolbar;
-    private ImageView imageView;
 
     private PlayerController playerController;
     private PlayerService playerService;
@@ -49,8 +45,6 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("");
 
-
-        imageView = (ImageView) findViewById(R.id.imageView);
         playerController = new ActivityPlayerController(this, findViewById(R.id.activity_player_panel));
         playerController.setFabOnClickListener(v -> finish());
         downloadFinishedReceiver = new DownloadFinishedReceiver() {
@@ -61,20 +55,10 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
             }
         };
         registerReceiver(downloadFinishedReceiver, new IntentFilter(DownloadService.DOWNLOAD_FINISHED));
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unbindService(this);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
         startService(new Intent(this, PlayerService.class));
         bindService(new Intent(this, PlayerService.class), this, BIND_AUTO_CREATE);
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -92,6 +76,7 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unbindService(this);
         unregisterReceiver(downloadFinishedReceiver);
     }
 
