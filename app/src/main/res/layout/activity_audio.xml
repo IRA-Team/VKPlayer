@@ -18,7 +18,7 @@
             android:id="@+id/album_art"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="fitXY"
+            android:scaleType="centerCrop"
             android:src="@drawable/player_cover" />
 
         <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
@@ -26,16 +26,24 @@
             android:id="@+id/toolbar_transparent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fitsSystemWindows="true"
             android:minHeight="?attr/actionBarSize"
             app:theme="@style/TransparentActionBarStyle" />
 
     </FrameLayout>
+
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/player_activity_height"
         android:layout_marginTop="-28dp"
         android:paddingBottom="2dp">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:layout_above="@+id/player_panel_header_layout"
+            android:background="@drawable/player_panel_shadow" />
 
         <LinearLayout
             android:id="@+id/player_panel_header_layout"

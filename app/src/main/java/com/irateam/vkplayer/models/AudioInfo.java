@@ -7,7 +7,7 @@ import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.irateam.vkplayer.notifications.PlayerNotification;
+import com.irateam.vkplayer.notifications.PlayerNotificationFactory;
 import com.mpatric.mp3agic.ID3v2;
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
@@ -66,7 +66,7 @@ public class AudioInfo {
             byte[] image = tags.getAlbumImage();
             if (image != null) {
                 cover = BitmapFactory.decodeByteArray(image, 0, image.length);
-                coverNotification = PlayerNotification.scaleNotification(context, cover);
+                coverNotification = PlayerNotificationFactory.scaleNotification(context, cover);
             }
         }
         loaded = true;

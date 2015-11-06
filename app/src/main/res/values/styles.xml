@@ -19,6 +19,7 @@
 
     <style name="AudioActivityTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:statusBarColor">@color/primary_dark</item>
+        <item name="android:windowTranslucentStatus">true</item>
     </style>
 
     <style name="ActionBarStyle">

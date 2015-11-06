@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.Binder;
 import android.os.IBinder;
@@ -14,7 +13,7 @@ import android.util.Log;
 import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.models.AudioInfo;
 import com.irateam.vkplayer.models.Settings;
-import com.irateam.vkplayer.notifications.PlayerNotification;
+import com.irateam.vkplayer.notifications.PlayerNotificationFactory;
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
 
@@ -29,6 +28,7 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     public static final String STOP = "playerService.STOP";
 
     private Player player;
+    private PlayerNotificationFactory notificationFactory;
     private Binder binder = new PlayerBinder();
     private BroadcastReceiver headsetReceiver;
     private AudioManager audioManager;
@@ -46,6 +46,7 @@ public class PlayerService extends Service implements Player.PlayerEventListener
         settings = Settings.getInstance(this);
         player.setRepeatState(settings.getPlayerRepeat());
         player.setRandomState(settings.getRandomState());
+        notificationFactory = new PlayerNotificationFactory(this);
 
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
@@ -233,7 +234,7 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     public void onEvent(int position, Audio audio, Player.PlayerEvent event) {
         switch (event) {
             case START:
-                startForeground(PlayerNotification.ID, PlayerNotification.create(this, position, audio, event));
+                startForeground(PlayerNotificationFactory.ID, notificationFactory.get(position, audio, event));
                 audio.getAudioInfo().init(this, audio);
                 audio.getAudioInfo().getWithListener(this);
                 break;
@@ -241,11 +242,11 @@ public class PlayerService extends Service implements Player.PlayerEventListener
                 if (removeNotification) {
                     stopForeground(true);
                 } else {
-                    PlayerNotification.update(this, position, audio, Player.PlayerEvent.PAUSE);
+                    notificationFactory.update(position, audio, Player.PlayerEvent.PAUSE);
                 }
                 break;
             case RESUME:
-                startForeground(PlayerNotification.ID, PlayerNotification.create(this, position, audio, event));
+                startForeground(PlayerNotificationFactory.ID, notificationFactory.get(position, audio, event));
                 break;
             case STOP:
                 stopForeground(true);
@@ -256,9 +257,8 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     @Override
     public void OnComplete(AudioInfo audioInfo) {
         if (audioInfo.cover != null) {
+            notificationFactory.update(getPlayingAudioIndex(), getPlayingAudio());
         }
-        Log.e("AUDIO_INFO", String.valueOf(audioInfo.bitrate));
-        Log.e("AUDIO_INFO", String.valueOf(audioInfo.size));
     }
 
     @Override

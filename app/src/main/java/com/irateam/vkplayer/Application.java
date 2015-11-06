@@ -1,6 +1,6 @@
 package com.irateam.vkplayer;
 
-import com.irateam.vkplayer.notifications.PlayerNotification;
+import com.irateam.vkplayer.notifications.PlayerNotificationFactory;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -20,7 +20,7 @@ public class Application extends android.app.Application {
                 .defaultDisplayImageOptions(defaultOptions)
                 .build();
         ImageLoader.getInstance().init(config);
-        PlayerNotification.init(this);
+        PlayerNotificationFactory.init(this);
     }
 
 }

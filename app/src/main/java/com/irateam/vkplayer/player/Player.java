@@ -332,7 +332,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
                     }
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    //Nothing
                 }
             }
         }
