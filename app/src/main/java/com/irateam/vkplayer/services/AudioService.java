@@ -25,6 +25,7 @@ import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.utils.AudioUtils;
 import com.irateam.vkplayer.utils.NetworkUtils;
 import com.vk.sdk.api.VKApi;
+import com.vk.sdk.api.VKApiConst;
 import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
@@ -44,6 +45,7 @@ public class AudioService extends VKRequest.VKRequestListener {
 
     private VKRequest lastRequest;
     private Runnable lastQuery;
+    private VKRequest lastSearchRequest;
 
     AudioDatabaseHelper helper;
 
@@ -118,7 +120,31 @@ public class AudioService extends VKRequest.VKRequestListener {
         }
 
         notifyAllComplete(vkList);
+    }
 
+    public void search(String query, Listener listener) {
+        cancelSearch();
+        lastSearchRequest = VKApi.audio().search(VKParameters.from(VKApiConst.Q, query));
+        lastSearchRequest.executeWithListener(new VKRequest.VKRequestListener() {
+            @Override
+            public void onComplete(VKResponse response) {
+                super.onComplete(response);
+                List<Audio> audios = AudioUtils.parseJSONResponseToList(response);
+                listener.onComplete(audios);
+            }
+
+            @Override
+            public void onError(VKError error) {
+                super.onError(error);
+                listener.onError(error.errorMessage);
+            }
+        });
+    }
+
+    public void cancelSearch() {
+        if (lastSearchRequest != null) {
+            lastSearchRequest.cancel();
+        }
     }
 
     public void removeFromCache(List<Audio> cachedList, Listener listener) {

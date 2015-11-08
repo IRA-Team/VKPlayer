@@ -105,8 +105,8 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         if (isReady() && isPlaying()) {
             super.pause();
             pauseTime = getCurrentPosition();
-            notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.PAUSE);
         }
+        notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.PAUSE);
     }
 
     public int getPauseTime() {

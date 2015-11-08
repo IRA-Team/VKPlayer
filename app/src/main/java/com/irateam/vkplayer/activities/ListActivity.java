@@ -145,13 +145,13 @@ public class ListActivity extends AppCompatActivity implements
         listView = (DragSortListView) findViewById(R.id.list);
         listView.setAdapter(audioAdapter);
         listView.setOnItemClickListener((parent, view, position, id) -> {
-            playerService.setPlaylist(audioAdapter.getList());
-            playerService.play(position);
+            playerService.setPlaylist(audioAdapter.getListByPosition(position));
+            playerService.play(audioAdapter.getPosition(position));
             if (actionMode != null)
                 actionMode.finish();
 
             MenuItem item = navigationView.getMenu().getItem(0);
-            if (!item.isChecked()) {
+            if (!item.isChecked() || audioAdapter.belongsToSearchList(position)) {
                 item.setChecked(true);
                 onNavigationItemSelected(item);
             }
@@ -160,13 +160,7 @@ public class ListActivity extends AppCompatActivity implements
             performCheck(position);
             return true;
         });
-        listView.setDropListener((from, to) -> {
-            List<Audio> list = audioAdapter.getList();
-            Audio audio = list.get(from);
-            list.remove(from);
-            list.add(to, audio);
-            audioAdapter.notifyDataSetChanged();
-        });
+        listView.setDropListener(audioAdapter::drop);
 
         audioAdapter.setCoverCheckListener(this::performCheck);
         audioService.addListener(this);

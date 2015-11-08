@@ -17,6 +17,8 @@
 package com.irateam.vkplayer.adapters;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,27 +29,32 @@ import android.widget.Filterable;
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.player.Player;
+import com.irateam.vkplayer.services.AudioService;
 import com.irateam.vkplayer.services.PlayerService;
 import com.irateam.vkplayer.ui.AudioListElement;
 import com.irateam.vkplayer.utils.AlbumCoverUtils;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class AudioAdapter extends BaseAdapter implements Filterable {
 
     private Context context;
     private PlayerService playerService;
+    private AudioService audioService;
 
     private List<Audio> list = new ArrayList<>();
+    private List<Audio> searchList = new ArrayList<>();
     private List<Integer> checkedList = new ArrayList<>();
 
     private boolean sortMode = false;
     private Player.PlayerEventListener playerEventListener;
 
+
     public AudioAdapter(Context context) {
         this.context = context;
+        audioService = new AudioService(context);
     }
 
     public void setPlayerService(PlayerService playerService) {
@@ -68,10 +75,23 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         return list;
     }
 
+    public List<Audio> getListByPosition(int position) {
+        return belongsToSearchList(position) ? searchList : list;
+    }
+
+    public boolean belongsToSearchList(int position) {
+        return position > list.size();
+    }
+
+    public int getPosition(int position) {
+        return belongsToSearchList(position) ? position - list.size() - 1 : position;
+    }
+
     public void setList(List<Audio> list) {
         this.checkedList = new ArrayList<>();
         this.list = list;
         originalList = list;
+        searchList = Collections.emptyList();
     }
 
     public void updateAudioById(Audio audio) {
@@ -79,6 +99,12 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
             if (list.get(i).equalsId(audio)) {
                 list.set(i, audio);
                 break;
+            }
+        }
+
+        for (int i = 0; i < searchList.size(); i++) {
+            if (searchList.get(i).equalsId(audio)) {
+                searchList.set(i, audio);
             }
         }
         notifyDataSetChanged();
@@ -89,6 +115,15 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
             for (Audio audio : audios) {
                 if (list.get(i).equalsId(audio)) {
                     list.set(i, audio);
+                    break;
+                }
+            }
+        }
+
+        for (int i = 0; i < searchList.size(); i++) {
+            for (Audio audio : audios) {
+                if (searchList.get(i).equalsId(audio)) {
+                    searchList.set(i, audio);
                     break;
                 }
             }
@@ -105,55 +140,77 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public int getCount() {
-        return list.size();
+        return searchList.size() > 0 ? list.size() + searchList.size() + 1 : list.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return list.get(position);
+        int listSize = list.size();
+        if (position < listSize) {
+            return list.get(position);
+        } else if (position > listSize) {
+            return searchList.get(position - listSize - 1);
+        } else {
+            return new Object();
+        }
     }
 
     @Override
     public long getItemId(int position) {
-        return list.get(position).getId();
+        int listSize = list.size();
+        if (position < listSize) {
+            return list.get(position).getId();
+        } else if (position > listSize) {
+            return searchList.get(position - listSize - 1).getId();
+        } else {
+            return -1;
+        }
+    }
+
+    @Override
+    public boolean isEnabled(int position) {
+        return position != list.size() && super.isEnabled(position);
     }
 
     @Override
     public View getView(final int position, View view, ViewGroup parent) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        view = inflater.inflate(R.layout.player_list_element, parent, false);
+        int size = list.size();
+        if (position != size) {
+            view = inflater.inflate(R.layout.player_list_element, parent, false);
 
-        AudioListElement element = (AudioListElement) view;
+            AudioListElement element = (AudioListElement) view;
+            Audio audio = (Audio) getItem(position);
 
-        final Audio audio = list.get(position);
-
-        element.setTitle(audio.getTitle());
-        element.setArtist(audio.getArtist());
-        element.setCoverDrawable(AlbumCoverUtils.createFromAudio(audio));
-        if (audio.getId() == getPlayingAudioId()) {
-            if (playerService.isReady()) {
-                element.setPlaying(playerService.isPlaying());
-            } else {
-                element.setPreparing(true);
+            element.setTitle(audio.getTitle());
+            element.setArtist(audio.getArtist());
+            element.setCoverDrawable(AlbumCoverUtils.createFromAudio(audio));
+            if (audio.getId() == getPlayingAudioId()) {
+                if (playerService.isReady()) {
+                    element.setPlaying(playerService.isPlaying());
+                } else {
+                    element.setPreparing(true);
+                }
             }
-        }
-        element.setCoverOnClickListener((v) -> {
-            if (!sortMode) {
-                notifyCoverChecked(position);
+            element.setCoverOnClickListener((v) -> {
+                if (!sortMode) {
+                    notifyCoverChecked(position);
+                }
+            });
+
+            element.setDuration(audio.getDuration());
+
+            if (audio.isCached()) {
+                element.setDownloaded(true);
             }
-        });
 
-        element.setDuration(audio.getDuration());
-
-        if (audio.isCached()) {
-            element.setDownloaded(true);
-        }
-        if (!sortMode) {
-            if (checkedList.contains(position)) {
+            if (sortMode) {
+                element.setSorted(true);
+            } else if (checkedList.contains(position)) {
                 element.setChecked(true);
             }
         } else {
-            element.setSorted(true);
+            view = inflater.inflate(R.layout.player_list_subheader, parent, false);
         }
         return view;
     }
@@ -167,14 +224,10 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         notifyDataSetChanged();
     }
 
-    public List<Integer> getCheckedIndexList() {
-        return checkedList;
-    }
-
     public List<Audio> getCheckedItems() {
         List<Audio> list = new ArrayList<>();
         for (Integer i : checkedList) {
-            list.add(this.list.get(i));
+            list.add((Audio) getItem(i));
         }
         return list;
     }
@@ -231,7 +284,10 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
                 List<Audio> resultList = new ArrayList<>();
-                if (constraint == "") {
+
+                audioService.cancelSearch();
+                searchList = Collections.emptyList();
+                if (constraint.toString().isEmpty()) {
                     resultList = originalList;
                 } else {
                     String key = constraint.toString().trim();
@@ -240,6 +296,19 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
                             resultList.add(audio);
                         }
                     }
+                    audioService.search(key, new AudioService.Listener() {
+                        @Override
+                        public void onComplete(List<Audio> list) {
+                            searchList = list;
+                            new Handler(Looper.getMainLooper()).post(() -> notifyDataSetChanged());
+
+                        }
+
+                        @Override
+                        public void onError(String errorMessage) {
+
+                        }
+                    });
                 }
                 FilterResults filterResults = new FilterResults();
                 filterResults.count = resultList.size();
@@ -254,6 +323,22 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
                 notifyDataSetChanged();
             }
         };
+    }
+
+    public void drop(int from, int to) {
+        Audio audio = (Audio) getItem(from);
+        if (!belongsToSearchList(from)) {
+            list.remove(from);
+        } else {
+            searchList.remove(getPosition(from));
+        }
+
+        if (!belongsToSearchList(to)) {
+            list.add(to, audio);
+        } else {
+            searchList.add(getPosition(to), audio);
+        }
+        notifyDataSetChanged();
     }
 
     //Cover check listener
