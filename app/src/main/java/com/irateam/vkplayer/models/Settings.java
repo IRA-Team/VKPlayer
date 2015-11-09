@@ -131,9 +131,11 @@ public class Settings {
     }
 
     public int getSyncCount() {
-        return Integer.valueOf(preferences.getString(SYNC_COUNT, "10"));
+        if (preferences.getString(SYNC_COUNT, "10").isEmpty())
+            return 10;
+        else
+            return Integer.valueOf(preferences.getString(SYNC_COUNT, "10"));
     }
-
 
     public static void setSyncAlarm(Context context) {
         Intent intent = new Intent(context, DownloadService.class);
