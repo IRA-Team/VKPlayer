@@ -42,6 +42,7 @@ public class Settings {
     public static final String SYNC_WIFI = "sync_wifi";
 
     private static final int SYNC_ALARM_ID = 1;
+    private static final int DEFAULT_SYNC_COUNT = 10;
 
     private static Settings instance;
 
@@ -131,10 +132,10 @@ public class Settings {
     }
 
     public int getSyncCount() {
-        if (preferences.getString(SYNC_COUNT, "10").isEmpty())
-            return 10;
+        if (preferences.getString(SYNC_COUNT, "").isEmpty())
+            return DEFAULT_SYNC_COUNT;
         else
-            return Integer.valueOf(preferences.getString(SYNC_COUNT, "10"));
+            return Integer.valueOf(preferences.getString(SYNC_COUNT, String.valueOf(DEFAULT_SYNC_COUNT)));
     }
 
     public static void setSyncAlarm(Context context) {
