@@ -42,27 +42,56 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
 
     private Context context;
     private PlayerService playerService;
+
+    /*
+    * AudioService uses just for performing global search
+    */
     private AudioService audioService;
 
+    /*
+    * Base list that contains audios for displaying
+    */
     private List<Audio> list = new ArrayList<>();
+
+    /*
+    * List for displaying audios from global search
+    */
     private List<Audio> searchList = new ArrayList<>();
+
+    /*
+    * List that stores position of checked audios
+    */
     private List<Integer> checkedList = new ArrayList<>();
 
-    private boolean sortMode = false;
+    /*
+    * Listener for playback event. Use field variable because listeners stores
+    * in WeakReference list
+    */
     private Player.PlayerEventListener playerEventListener;
 
+    /*
+    * Flag that defines if sort mode enabled
+    */
+    private boolean sortMode = false;
 
     public AudioAdapter(Context context) {
         this.context = context;
         audioService = new AudioService(context);
     }
 
+    /*
+    * Set player service for displaying played/paused/prepared audios
+    */
     public void setPlayerService(PlayerService playerService) {
         this.playerService = playerService;
         playerEventListener = (position, audio, event) -> notifyDataSetChanged();
         playerService.addPlayerEventListener(playerEventListener);
     }
 
+    /*
+    * Need to display played/paused audio. Just get it from player service
+    * If player service isn't defined yet return -1
+    */
     public int getPlayingAudioId() {
         if (playerService != null && playerService.getPlayingAudio() != null) {
             return playerService.getPlayingAudio().getId();
@@ -75,14 +104,23 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         return list;
     }
 
+    /*
+    * Return actual list for ListView position
+    */
     public List<Audio> getListByPosition(int position) {
         return belongsToSearchList(position) ? searchList : list;
     }
 
+    /*
+    * Check if position belongs to search list
+    */
     public boolean belongsToSearchList(int position) {
         return position > list.size();
     }
 
+    /*
+    * Adapt position for list or search list
+    */
     public int getPosition(int position) {
         return belongsToSearchList(position) ? position - list.size() - 1 : position;
     }
@@ -94,11 +132,13 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         searchList = Collections.emptyList();
     }
 
+    /*
+    * Method replace audios with same id on audio from params
+    */
     public void updateAudioById(Audio audio) {
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).equalsId(audio)) {
                 list.set(i, audio);
-                break;
             }
         }
 
@@ -131,6 +171,11 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         notifyDataSetChanged();
     }
 
+    /*
+    * Remove checked audios from lists
+    *
+    * TODO: Method doesn't remove audios from search list
+    */
     public void removeChecked() {
         for (Audio audio : getCheckedItems()) {
             list.remove(audio);
@@ -138,11 +183,24 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         notifyDataSetChanged();
     }
 
+    /*
+    * If search list not empty count will be list size + search list size + 1 element
+    * (subheader with title "Search results")
+    * else returns list size
+    */
     @Override
     public int getCount() {
         return searchList.size() > 0 ? list.size() + searchList.size() + 1 : list.size();
     }
 
+    /*
+    * Depends of position return audios from different lists
+    * If position less then list size return audio from list
+    * If position more then list size return audio from search list
+    *
+    * Subheader always have position that equals list size, so return empty Object
+    * (don't want get NullPointerException)
+    */
     @Override
     public Object getItem(int position) {
         int listSize = list.size();
@@ -155,6 +213,9 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         }
     }
 
+    /*
+    * Same as with getItem(), but for subheader return -1
+    */
     @Override
     public long getItemId(int position) {
         int listSize = list.size();
@@ -167,11 +228,19 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         }
     }
 
+    /*
+    * Because subheader always have position that equals list size
+    * disable element at this position
+    */
     @Override
     public boolean isEnabled(int position) {
         return position != list.size() && super.isEnabled(position);
     }
 
+    /*
+    * Use getItem() and cast it for get right Audio for position
+    * If position equals to list size return subheader view
+    */
     @Override
     public View getView(final int position, View view, ViewGroup parent) {
         LayoutInflater inflater = LayoutInflater.from(context);
@@ -266,7 +335,6 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         return sortMode;
     }
 
-
     public void setSortMode(boolean sortMode) {
         if (this.sortMode != sortMode) {
             checkedList = new ArrayList<>();
@@ -278,6 +346,10 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
 
     List<Audio> originalList = new ArrayList<>();
 
+    /*
+    * Every query cancel global search request and set empty global search list
+    * If constraint not empty perform new request for global search and filter list
+    */
     @Override
     public Filter getFilter() {
         return new Filter() {
@@ -325,6 +397,15 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         };
     }
 
+    /*
+    * I don't know how but it works! :)
+    *
+    * My version:
+    * 1: Get audio from right list
+    * 2: Remove it
+    * 3: Add audio to right list
+    * EASY!
+    */
     public void drop(int from, int to) {
         Audio audio = (Audio) getItem(from);
         if (!belongsToSearchList(from)) {
@@ -359,7 +440,9 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
     }
 
 
-    //Sort listener
+    /*
+    * Listener that notify about start and finish sorting
+    */
     private SortModeListener sortListeners;
 
     public void setSortModeListener(SortModeListener listener) {
