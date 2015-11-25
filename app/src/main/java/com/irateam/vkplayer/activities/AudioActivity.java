@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2015 IRA-Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.irateam.vkplayer.activities;
 
 import android.content.ComponentName;
@@ -11,7 +27,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.controllers.ActivityPlayerController;
@@ -28,7 +43,6 @@ import java.util.List;
 public class AudioActivity extends AppCompatActivity implements ServiceConnection {
 
     private Toolbar toolbar;
-    private ImageView imageView;
 
     private PlayerController playerController;
     private PlayerService playerService;
@@ -47,34 +61,20 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("");
 
-
-        imageView = (ImageView) findViewById(R.id.imageView);
-        imageView.setImageDrawable(getResources().getDrawable(R.drawable.player_cover));
         playerController = new ActivityPlayerController(this, findViewById(R.id.activity_player_panel));
         playerController.setFabOnClickListener(v -> finish());
-
         downloadFinishedReceiver = new DownloadFinishedReceiver() {
             @Override
             public void onDownloadFinished(Audio audio) {
                 setCacheAction(audio.isCached());
-                playerService.getPlayingAudio().cachePath = audio.cachePath;
+                playerService.getPlayingAudio().setCacheFile(audio.getCacheFile());
             }
         };
         registerReceiver(downloadFinishedReceiver, new IntentFilter(DownloadService.DOWNLOAD_FINISHED));
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unbindService(this);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
         startService(new Intent(this, PlayerService.class));
         bindService(new Intent(this, PlayerService.class), this, BIND_AUTO_CREATE);
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -92,6 +92,7 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unbindService(this);
         unregisterReceiver(downloadFinishedReceiver);
     }
 
@@ -139,6 +140,8 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
         if (audio != null) {
             setCacheAction(audio.isCached());
         }
+
+
     }
 
     @Override

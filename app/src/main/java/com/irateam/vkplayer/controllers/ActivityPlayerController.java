@@ -1,25 +1,42 @@
+/*
+ * Copyright (C) 2015 IRA-Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.irateam.vkplayer.controllers;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.os.AsyncTask;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.models.Audio;
+import com.irateam.vkplayer.models.AudioInfo;
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.services.PlayerService;
 
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-public class ActivityPlayerController extends PlayerController implements Player.PlayerEventListener {
+public class ActivityPlayerController extends PlayerController implements AudioInfo.AudioInfoListener {
 
     public TextView currentTime;
     public TextView timeToFinish;
     public TextView numberAudio;
     public TextView sizeAudio;
+    public ImageView albumArt;
 
     private Resources resources;
 
@@ -32,6 +49,7 @@ public class ActivityPlayerController extends PlayerController implements Player
         timeToFinish = (TextView) view.findViewById(R.id.player_panel_time_remaining);
         numberAudio = (TextView) view.findViewById(R.id.player_panel_count_audio);
         sizeAudio = (TextView) view.findViewById(R.id.player_panel_audio_size);
+        albumArt = (ImageView) view.findViewById(R.id.album_art);
     }
 
     @SuppressWarnings("deprecation")
@@ -44,6 +62,7 @@ public class ActivityPlayerController extends PlayerController implements Player
                 playerService.resume();
             }
         });
+        playerService.getPlayingAudio().getAudioInfo().getWithListener(this);
     }
 
     @Override
@@ -51,13 +70,7 @@ public class ActivityPlayerController extends PlayerController implements Player
         super.onEvent(position, audio, event);
         switch (event) {
             case START:
-                setAudio(position, audio);
-                break;
-            case PAUSE:
-                setPlayPause(false);
-                break;
-            case RESUME:
-                setPlayPause(true);
+                audio.getAudioInfo().getWithListener(this);
                 break;
         }
     }
@@ -72,14 +85,24 @@ public class ActivityPlayerController extends PlayerController implements Player
 
     public void setAudio(int position, Audio audio) {
         super.setAudio(position, audio);
-        songName.setText(audio.title);
-        if (audio != null) {
-            numberAudio.setText("#" + (position + 1) + "/" + playerService.getPlaylist().size());
-            if (!audio.url.startsWith("https://") && !audio.url.startsWith("http://")) {
-                sizeAudio.setText("SIZE");
-            } else {
-                new SizeTask(audio).execute();
-            }
+        clearAudioInfo();
+
+        songName.setText(audio.getTitle());
+        numberAudio.setText("#" + (position + 1) + "/" + playerService.getPlaylist().size());
+    }
+
+    public void clearAudioInfo() {
+        sizeAudio.setText("");
+        onProgressChanged(0);
+        progress.setSecondaryProgress(0);
+        albumArt.setImageResource(R.drawable.player_cover);
+    }
+
+    public void setAudioInfo(AudioInfo info) {
+        sizeAudio.setText(String.format("%.1f", info.size / (double) 1024 / (double) 1024) + "Mb");
+        sizeAudio.setText(sizeAudio.getText() + " " + info.bitrate);
+        if (info.cover != null) {
+            albumArt.setImageBitmap(info.cover);
         }
     }
 
@@ -99,38 +122,13 @@ public class ActivityPlayerController extends PlayerController implements Player
         ));
     }
 
-    class SizeTask extends AsyncTask<Void, Void, Long> {
+    @Override
+    public void OnComplete(AudioInfo audioInfo) {
+        setAudioInfo(audioInfo);
+    }
 
-        private Audio audio;
+    @Override
+    public void OnError() {
 
-        public SizeTask(Audio audio) {
-            this.audio = audio;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Long doInBackground(Void... params) {
-            long size = 0;
-            try {
-                size = audio.getSize();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return size;
-        }
-
-        @Override
-        protected void onPostExecute(Long size) {
-            super.onPostExecute(size);
-            if (size > 0) {
-                sizeAudio.setText(String.format("%.1f", size / (double) 1024 / (double) 1024) + "Mb");
-            } else {
-                sizeAudio.setText("");
-            }
-        }
     }
 }

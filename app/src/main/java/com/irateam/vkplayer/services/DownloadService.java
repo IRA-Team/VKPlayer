@@ -1,8 +1,25 @@
+/*
+ * Copyright (C) 2015 IRA-Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.irateam.vkplayer.services;
 
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.irateam.vkplayer.R;
@@ -116,23 +133,13 @@ public class DownloadService extends Service {
 
                 for (Audio audio : cachedList) {
                     for (Iterator<Audio> iterator = vkList.iterator(); iterator.hasNext(); ) {
-                        if (audio.id == iterator.next().id && audio.isCached()) {
+                        if (iterator.next().equalsId(audio) && audio.isCached()) {
                             iterator.remove();
                             break;
                         }
                     }
                 }
 
-/*                for (Iterator<Audio> iterator = vkList.iterator(); iterator.hasNext(); ) {
-                    Log.i("SYNCX", "WORK");
-                    Audio audio = iterator.next();
-                    for (Audio syncAudio : syncQueue) {
-                        if (syncAudio.id == audio.id) {
-                            iterator.remove();
-                            break;
-                        }
-                    }
-                }*/
                 Collections.reverse(vkList);
                 syncQueue = new ConcurrentLinkedQueue<>();
                 for (Audio audio : vkList) {
@@ -178,12 +185,21 @@ public class DownloadService extends Service {
 
                 if (audio != null) {
                     startForeground(DownloadNotification.ID, DownloadNotification.create(this, audio, 0, audioLeftCount - 1, syncFlag));
-                    File file = new File(getExternalCacheDir(), String.valueOf(audio.id));
-                    try {
-                        URLConnection connection = new URL(audio.url).openConnection();
-                        BufferedInputStream inputStream = new BufferedInputStream(connection.getInputStream());
-                        FileOutputStream fileOutputStream = new FileOutputStream(file);
+                    File file = new File(getExternalCacheDir(), String.valueOf(audio.getId()));
 
+                    URLConnection connection;
+                    BufferedInputStream inputStream;
+                    try {
+                        connection = new URL(audio.getUrl()).openConnection();
+                        inputStream = new BufferedInputStream(connection.getInputStream());
+                    } catch (IOException e) {
+                        Log.e("HAHAHA", "LOL");
+                        continue;
+                    }
+
+
+                    try {
+                        FileOutputStream fileOutputStream = new FileOutputStream(file);
                         final byte buffer[] = new byte[1024];
                         int size = connection.getContentLength();
                         int currentBytes, currentProgress;
@@ -213,7 +229,7 @@ public class DownloadService extends Service {
                         return;
                     }
 
-                    audio.cachePath = file.getAbsolutePath();
+                    audio.setCacheFile(file);
                     databaseHelper.cache(audio);
 
                     Intent intent = new Intent(DOWNLOAD_FINISHED);

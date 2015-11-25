@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2015 IRA-Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.irateam.vkplayer.database;
 
 import android.content.ContentValues;
@@ -39,14 +55,14 @@ public class AudioDatabaseHelper extends DatabaseHelper {
 
     public long update(Audio audio) {
         SQLiteDatabase db = getWritableDatabase();
-        int id = db.update(TABLE_NAME, toContentValues(audio), "id = " + audio.id, null);
+        int id = db.update(TABLE_NAME, toContentValues(audio), "id = " + audio.getId(), null);
         db.close();
         return id;
     }
 
     public long delete(Audio audio) {
         SQLiteDatabase db = getWritableDatabase();
-        int id = db.delete(TABLE_NAME, "id = " + audio.id, null);
+        int id = db.delete(TABLE_NAME, "id = " + audio.getId(), null);
         db.close();
         return id;
     }
@@ -59,7 +75,7 @@ public class AudioDatabaseHelper extends DatabaseHelper {
 
     public long cache(Audio audio) {
         SQLiteDatabase db = getWritableDatabase();
-        Cursor cursor = db.query(TABLE_NAME, null, "id = " + audio.id, null, null, null, null);
+        Cursor cursor = db.query(TABLE_NAME, null, "id = " + audio.getId(), null, null, null, null);
         long id;
         if (cursor.getCount() <= 0) {
             id = insert(audio);
@@ -87,41 +103,41 @@ public class AudioDatabaseHelper extends DatabaseHelper {
     }
 
     public void removeAll() {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDatabase();
         db.delete(TABLE_NAME, null, null);
         db.close();
     }
 
     public static ContentValues toContentValues(Audio audio) {
         ContentValues cv = new ContentValues();
-        cv.put(ID, audio.id);
-        cv.put(OWNER_ID, audio.owner_id);
-        cv.put(ARTIST, audio.artist);
-        cv.put(TITLE, audio.title);
-        cv.put(DURATION, audio.duration);
-        cv.put(URL, audio.url);
-        cv.put(CACHE_PATH, audio.cachePath);
-        cv.put(LYRICS_ID, audio.lyrics_id);
-        cv.put(ALBUM_ID, audio.album_id);
-        cv.put(GENRE, audio.genre);
-        cv.put(ACCESS_KEY, audio.access_key);
+        cv.put(ID, audio.getId());
+        cv.put(OWNER_ID, audio.getOwnerId());
+        cv.put(ARTIST, audio.getArtist());
+        cv.put(TITLE, audio.getTitle());
+        cv.put(DURATION, audio.getDuration());
+        cv.put(URL, audio.getUrl());
+        cv.put(CACHE_PATH, audio.getCachePath());
+        cv.put(LYRICS_ID, audio.getLyricsId());
+        cv.put(ALBUM_ID, audio.getAlbumId());
+        cv.put(GENRE, audio.getGenre());
+        cv.put(ACCESS_KEY, audio.getAccessKey());
         return cv;
     }
 
     public static Audio fromCursor(Cursor cursor) {
         int i = 1;
         Audio audio = new Audio();
-        audio.id = cursor.getInt(i++);
-        audio.owner_id = cursor.getInt(i++);
-        audio.artist = cursor.getString(i++);
-        audio.title = cursor.getString(i++);
-        audio.duration = cursor.getInt(i++);
-        audio.url = cursor.getString(i++);
-        audio.cachePath = cursor.getString(i++);
-        audio.lyrics_id = cursor.getInt(i++);
-        audio.album_id = cursor.getInt(i++);
-        audio.genre = cursor.getInt(i++);
-        audio.access_key = cursor.getString(i++);
+        audio.setId(cursor.getInt(i++));
+        audio.setOwnerId(cursor.getInt(i++));
+        audio.setArtist(cursor.getString(i++));
+        audio.setTitle(cursor.getString(i++));
+        audio.setDuration(cursor.getInt(i++));
+        audio.setUrl(cursor.getString(i++));
+        audio.setCacheFile(cursor.getString(i++));
+        audio.setLyricsId(cursor.getInt(i++));
+        audio.setAlbumId(cursor.getInt(i++));
+        audio.setGenre(cursor.getInt(i++));
+        audio.setAccessKey(cursor.getString(i++));
         return audio;
     }
 

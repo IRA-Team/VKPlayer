@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2015 IRA-Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.irateam.vkplayer.services;
 
 import android.content.Context;
@@ -9,12 +25,12 @@ import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.utils.AudioUtils;
 import com.irateam.vkplayer.utils.NetworkUtils;
 import com.vk.sdk.api.VKApi;
+import com.vk.sdk.api.VKApiConst;
 import com.vk.sdk.api.VKError;
 import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
 
-import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,6 +45,7 @@ public class AudioService extends VKRequest.VKRequestListener {
 
     private VKRequest lastRequest;
     private Runnable lastQuery;
+    private VKRequest lastSearchRequest;
 
     AudioDatabaseHelper helper;
 
@@ -96,14 +113,38 @@ public class AudioService extends VKRequest.VKRequestListener {
 
         for (int i = 0; i < vkList.size(); i++) {
             for (Audio audio : cachedList) {
-                if (vkList.get(i).id == audio.id && new File(audio.cachePath).exists()) {
+                if (vkList.get(i).equalsId(audio) && audio.isCached()) {
                     vkList.set(i, audio);
                 }
             }
         }
 
         notifyAllComplete(vkList);
+    }
 
+    public void search(String query, Listener listener) {
+        cancelSearch();
+        lastSearchRequest = VKApi.audio().search(VKParameters.from(VKApiConst.Q, query));
+        lastSearchRequest.executeWithListener(new VKRequest.VKRequestListener() {
+            @Override
+            public void onComplete(VKResponse response) {
+                super.onComplete(response);
+                List<Audio> audios = AudioUtils.parseJSONResponseToList(response);
+                listener.onComplete(audios);
+            }
+
+            @Override
+            public void onError(VKError error) {
+                super.onError(error);
+                listener.onError(error.errorMessage);
+            }
+        });
+    }
+
+    public void cancelSearch() {
+        if (lastSearchRequest != null) {
+            lastSearchRequest.cancel();
+        }
     }
 
     public void removeFromCache(List<Audio> cachedList, Listener listener) {
@@ -112,11 +153,9 @@ public class AudioService extends VKRequest.VKRequestListener {
             @Override
             protected Void doInBackground(Void... params) {
                 for (Audio audio : cachedList) {
-                    File file = new File(audio.cachePath);
-                    if (audio.isCached() && file.exists()) {
-                        file.delete();
+                    if (audio.isCached()) {
                         helper.delete(audio);
-                        audio.cachePath = null;
+                        audio.removeCacheFile();
                     }
                 }
                 return null;
@@ -134,7 +173,7 @@ public class AudioService extends VKRequest.VKRequestListener {
         List<Audio> cachedList = helper.getAll();
         for (Audio audio : cachedList) {
             if (audio.isCached()) {
-                new File(audio.cachePath).delete();
+                audio.removeCacheFile();
             }
         }
         helper.removeAll();
@@ -180,8 +219,7 @@ public class AudioService extends VKRequest.VKRequestListener {
             List<Audio> list = new AudioDatabaseHelper(context).getAll();
             Iterator<Audio> i = list.iterator();
             while (i.hasNext()) {
-                File file = new File(i.next().cachePath);
-                if (!file.exists()) {
+                if (!i.next().isCached()) {
                     i.remove();
                 }
             }

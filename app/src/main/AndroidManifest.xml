@@ -68,7 +68,6 @@
             android:enabled="true"
             android:exported="true" />
 
-        <receiver android:name=".receivers.NotificationReceiver" />
         <receiver android:name=".receivers.BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

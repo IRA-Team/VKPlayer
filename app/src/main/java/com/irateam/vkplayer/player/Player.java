@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2015 IRA-Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.irateam.vkplayer.player;
 
 import android.media.AudioManager;
@@ -20,10 +36,13 @@ import static com.irateam.vkplayer.player.Player.RepeatState.ONE_REPEAT;
 
 public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener {
 
-    private int pauseTime;
     private ProgressThread currentProgressThread;
 
     private boolean stateReady = false;
+    private boolean randomState = false;
+    private RepeatState repeatState = NO_REPEAT;
+
+    private int pauseTime;
 
     public Player() {
         super();
@@ -33,17 +52,10 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     private List<Audio> list = new ArrayList<>();
-    private RepeatState repeatState = NO_REPEAT;
-
-    private boolean randomState = false;
     private Stack<Audio> randomStack = new Stack<>();
     private Random random = new Random();
 
     private Audio playingAudio;
-
-    public Audio getAudio(int index) {
-        return list.get(index);
-    }
 
     public Audio getPlayingAudio() {
         return playingAudio;
@@ -93,13 +105,14 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         if (isReady() && isPlaying()) {
             super.pause();
             pauseTime = getCurrentPosition();
-            notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.PAUSE);
         }
+        notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.PAUSE);
     }
 
     public int getPauseTime() {
         return pauseTime;
     }
+
 
     public void next() {
         int nextIndex;
@@ -217,7 +230,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         start();
         startProgress();
         setOnBufferingUpdateListener(this);
-        notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.START);
+        notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.PLAY);
     }
 
     @Override
@@ -332,7 +345,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
                     }
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    //Nothing
                 }
             }
         }

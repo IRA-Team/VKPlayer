@@ -70,5 +70,7 @@
     <string name="clear_cache_dialog_title">Please confirm</string>
     <string name="no">No</string>
     <string name="yes">Yes</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">ОК</string>
 
 </resources>

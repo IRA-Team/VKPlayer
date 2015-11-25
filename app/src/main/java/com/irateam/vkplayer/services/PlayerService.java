@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2015 IRA-Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.irateam.vkplayer.services;
 
 import android.app.Service;
@@ -8,15 +24,18 @@ import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
 
 import com.irateam.vkplayer.models.Audio;
+import com.irateam.vkplayer.models.AudioInfo;
 import com.irateam.vkplayer.models.Settings;
-import com.irateam.vkplayer.notifications.PlayerNotification;
+import com.irateam.vkplayer.notifications.PlayerNotificationFactory;
 import com.irateam.vkplayer.player.Player;
+import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
 
 import java.util.List;
 
-public class PlayerService extends Service implements Player.PlayerEventListener, AudioManager.OnAudioFocusChangeListener {
+public class PlayerService extends Service implements Player.PlayerEventListener, AudioManager.OnAudioFocusChangeListener, AudioInfo.AudioInfoListener {
 
     public static final String PREVIOUS = "playerService.PREVIOUS";
     public static final String PAUSE = "playerService.PAUSE";
@@ -25,6 +44,7 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     public static final String STOP = "playerService.STOP";
 
     private Player player;
+    private PlayerNotificationFactory notificationFactory;
     private Binder binder = new PlayerBinder();
     private BroadcastReceiver headsetReceiver;
     private AudioManager audioManager;
@@ -32,6 +52,7 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     private Settings settings;
     private boolean removeNotification = false;
     private boolean wasPlaying = false;
+    private DownloadFinishedReceiver downloadFinishedReceiver;
 
     @Override
     public void onCreate() {
@@ -41,6 +62,7 @@ public class PlayerService extends Service implements Player.PlayerEventListener
         settings = Settings.getInstance(this);
         player.setRepeatState(settings.getPlayerRepeat());
         player.setRandomState(settings.getRandomState());
+        notificationFactory = new PlayerNotificationFactory(this);
 
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
@@ -58,7 +80,19 @@ public class PlayerService extends Service implements Player.PlayerEventListener
             }
         };
 
+        downloadFinishedReceiver = new DownloadFinishedReceiver() {
+            @Override
+            public void onDownloadFinished(Audio downloaded) {
+                for (Audio audio : getPlaylist()) {
+                    if (audio.equalsId(downloaded)) {
+                        audio.setCacheFile(downloaded.getCacheFile());
+                    }
+                }
+            }
+        };
+
         registerReceiver(headsetReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
+        registerReceiver(downloadFinishedReceiver, new IntentFilter(DownloadService.DOWNLOAD_FINISHED));
     }
 
     @Override
@@ -93,6 +127,7 @@ public class PlayerService extends Service implements Player.PlayerEventListener
         super.onDestroy();
         player.removePlayerEventListener(this);
         unregisterReceiver(headsetReceiver);
+        unregisterReceiver(downloadFinishedReceiver);
         audioManager.abandonAudioFocus(this);
     }
 
@@ -215,17 +250,19 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     public void onEvent(int position, Audio audio, Player.PlayerEvent event) {
         switch (event) {
             case START:
-                startForeground(PlayerNotification.ID, PlayerNotification.create(this, position, audio, event));
+                startForeground(PlayerNotificationFactory.ID, notificationFactory.get(position, audio, event));
+                audio.getAudioInfo().init(this, audio);
+                audio.getAudioInfo().getWithListener(this);
                 break;
             case PAUSE:
                 if (removeNotification) {
                     stopForeground(true);
                 } else {
-                    PlayerNotification.update(this, position, audio, Player.PlayerEvent.PAUSE);
+                    notificationFactory.update(position, audio, Player.PlayerEvent.PAUSE);
                 }
                 break;
             case RESUME:
-                startForeground(PlayerNotification.ID, PlayerNotification.create(this, position, audio, event));
+                startForeground(PlayerNotificationFactory.ID, notificationFactory.get(position, audio, event));
                 break;
             case STOP:
                 stopForeground(true);
@@ -233,6 +270,17 @@ public class PlayerService extends Service implements Player.PlayerEventListener
         }
     }
 
+    @Override
+    public void OnComplete(AudioInfo audioInfo) {
+        if (audioInfo.cover != null) {
+            notificationFactory.update(getPlayingAudioIndex(), getPlayingAudio());
+        }
+    }
+
+    @Override
+    public void OnError() {
+        Log.e("AUDIO_INFO", "ERROR");
+    }
 
     @Override
     public void onAudioFocusChange(int focusChange) {
@@ -245,9 +293,6 @@ public class PlayerService extends Service implements Player.PlayerEventListener
                 wasPlaying = isPlaying();
                 pause(false);
                 break;
-            /*case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                event = "AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK";
-                break;*/
             case AudioManager.AUDIOFOCUS_GAIN:
                 if (wasPlaying) {
                     resume();
