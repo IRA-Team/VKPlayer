@@ -72,5 +72,7 @@
     <string name="yes">Так</string>
     <string name="cancel">Відміна</string>
     <string name="ok">ОК</string>
+    <string name="pref_timer_off_enabled">Таймер</string>
+    <string name="pref_timer_off_title">Таймер відключення</string>
 
 </resources>

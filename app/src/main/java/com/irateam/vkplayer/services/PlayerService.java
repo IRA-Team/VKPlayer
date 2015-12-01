@@ -52,6 +52,7 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     private Settings settings;
     private boolean removeNotification = false;
     private boolean wasPlaying = false;
+    private boolean hasFocus = false;
     private DownloadFinishedReceiver downloadFinishedReceiver;
 
     @Override
@@ -65,7 +66,6 @@ public class PlayerService extends Service implements Player.PlayerEventListener
         notificationFactory = new PlayerNotificationFactory(this);
 
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
 
         headsetReceiver = new BroadcastReceiver() {
             @Override
@@ -128,7 +128,6 @@ public class PlayerService extends Service implements Player.PlayerEventListener
         player.removePlayerEventListener(this);
         unregisterReceiver(headsetReceiver);
         unregisterReceiver(downloadFinishedReceiver);
-        audioManager.abandonAudioFocus(this);
     }
 
     @Override
@@ -152,23 +151,39 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     }
 
     public void play(int index) {
+        if (!hasFocus()) {
+            requestFocus();
+        }
         player.play(index);
     }
 
     public void resume() {
+        if (!hasFocus()) {
+            requestFocus();
+        }
         player.resume();
     }
 
     public void pause() {
-        pause(true);
+        pause(true, true);
     }
 
     public void pause(boolean removeNotification) {
+        pause(removeNotification, true);
+    }
+
+    public void pause(boolean removeNotification, boolean abandonFocus) {
+        if (abandonFocus && hasFocus()) {
+            abandonFocus();
+        }
         this.removeNotification = removeNotification;
         player.pause();
     }
 
     public void stop() {
+        if (hasFocus()) {
+            abandonFocus();
+        }
         player.stop();
     }
 
@@ -287,11 +302,11 @@ public class PlayerService extends Service implements Player.PlayerEventListener
         switch (focusChange) {
             case AudioManager.AUDIOFOCUS_LOSS:
                 wasPlaying = isPlaying();
-                pause(false);
+                pause(false, false);
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
                 wasPlaying = isPlaying();
-                pause(false);
+                pause(false, false);
                 break;
             case AudioManager.AUDIOFOCUS_GAIN:
                 if (wasPlaying) {
@@ -299,6 +314,20 @@ public class PlayerService extends Service implements Player.PlayerEventListener
                 }
                 break;
         }
+    }
+
+    private boolean hasFocus() {
+        return hasFocus;
+    }
+
+    private void requestFocus() {
+        audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+        hasFocus = true;
+    }
+
+    private void abandonFocus() {
+        audioManager.abandonAudioFocus(this);
+        hasFocus = false;
     }
 
 }

@@ -20,6 +20,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+import com.vk.sdk.VKAccessToken;
+import com.vk.sdk.VKAccessTokenTracker;
 import com.vk.sdk.VKSdk;
 
 public class MainActivity extends AppCompatActivity {
@@ -27,13 +29,20 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent intent;
         if (VKSdk.isLoggedIn()) {
-            intent = new Intent(this, ListActivity.class);
+            new VKAccessTokenTracker() {
+                @Override
+                public void onVKAccessTokenChanged(VKAccessToken oldToken, VKAccessToken newToken) {
+                    if (newToken == null) {
+                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    } else {
+                        startActivity(new Intent(MainActivity.this, ListActivity.class));
+                    }
+                }
+            }.startTracking();
         } else {
-            intent = new Intent(this, LoginActivity.class);
+            startActivity(new Intent(this, LoginActivity.class));
         }
-        startActivity(intent);
         finish();
     }
 
