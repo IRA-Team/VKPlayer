@@ -404,7 +404,7 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
         };
     }
 
-    public void commitToOriginalList() {
+    public void setOriginalList(List<Audio> list) {
         originalList = list;
     }
 

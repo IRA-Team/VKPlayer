@@ -34,7 +34,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -156,10 +155,13 @@ public class ListActivity extends AppCompatActivity implements
                 actionMode.finish();
 
             MenuItem item = navigationView.getMenu().getItem(0);
-            if (audioAdapter.isSearchMode()) {
-                audioAdapter.commitToOriginalList();
+            boolean isFromSearch = audioAdapter.belongsToSearchList(position);
+            if (!isFromSearch) {
                 item.setChecked(true);
-                onNavigationItemSelected(item);
+                getSupportActionBar().setTitle(item.getTitle());
+            }
+            if (!isFromSearch || item.isChecked()) {
+                audioAdapter.setOriginalList(list);
             }
         });
         listView.setOnItemLongClickListener((parent, view, position, id) -> {
@@ -279,10 +281,10 @@ public class ListActivity extends AppCompatActivity implements
         drawerLayout.closeDrawers();
 
         if (menuItem.getGroupId() == R.id.audio_group) {
-            getSupportActionBar().setTitle(menuItem.getTitle());
-            if (audioAdapter.isSearchMode()) {
-                return false;
+            if (searchView != null) {
+                searchView.post(() -> MenuItemCompat.collapseActionView(toolbarMenu.findItem(R.id.action_search)));
             }
+            getSupportActionBar().setTitle(menuItem.getTitle());
             refreshLayout.setRefreshing(true);
         }
 

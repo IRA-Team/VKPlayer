@@ -185,7 +185,7 @@ public class DownloadService extends Service {
 
                 if (audio != null) {
                     startForeground(DownloadNotification.ID, DownloadNotification.create(this, audio, 0, audioLeftCount - 1, syncFlag));
-                    File file = new File(getExternalCacheDir(), String.valueOf(audio.getId()));
+                    File file = new File(settings.getAudioCacheDir(this), String.valueOf(audio.getId()));
 
                     URLConnection connection;
                     BufferedInputStream inputStream;
