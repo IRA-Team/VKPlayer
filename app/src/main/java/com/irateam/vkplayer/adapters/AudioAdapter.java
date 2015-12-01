@@ -119,6 +119,13 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
     }
 
     /*
+    * Check if search mode enabled
+    */
+    public boolean isSearchMode() {
+        return searchList.size() > 0;
+    }
+
+    /*
     * Adapt position for list or search list
     */
     public int getPosition(int position) {
@@ -395,6 +402,10 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
                 notifyDataSetChanged();
             }
         };
+    }
+
+    public void commitToOriginalList() {
+        originalList = list;
     }
 
     /*

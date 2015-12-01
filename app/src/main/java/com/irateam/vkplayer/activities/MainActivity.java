@@ -29,20 +29,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Intent intent;
         if (VKSdk.isLoggedIn()) {
-            new VKAccessTokenTracker() {
-                @Override
-                public void onVKAccessTokenChanged(VKAccessToken oldToken, VKAccessToken newToken) {
-                    if (newToken == null) {
-                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                    } else {
-                        startActivity(new Intent(MainActivity.this, ListActivity.class));
-                    }
-                }
-            }.startTracking();
+            intent = new Intent(this, ListActivity.class);
         } else {
-            startActivity(new Intent(this, LoginActivity.class));
+            intent = new Intent(this, LoginActivity.class);
         }
+        startActivity(intent);
         finish();
     }
 
