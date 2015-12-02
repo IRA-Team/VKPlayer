@@ -40,6 +40,7 @@ Google Play: https://play.google.com/store/apps/details?id=com.irateam.vkplayer
 - **TextDrawable** - https://github.com/amulyakhare/TextDrawable
 - **Universal Image Loader** - https://github.com/nostra13/Android-Universal-Image-Loader
 - **Floation Action Button** - https://github.com/makovkastar/FloatingActionButton
+- **mp3agic** - https://github.com/mpatric/mp3agic
 
 ##License
 
