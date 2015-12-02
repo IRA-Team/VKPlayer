@@ -21,11 +21,13 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.services.DownloadService;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -136,6 +138,17 @@ public class Settings {
             return DEFAULT_SYNC_COUNT;
         else
             return Integer.valueOf(preferences.getString(SYNC_COUNT, String.valueOf(DEFAULT_SYNC_COUNT)));
+    }
+
+    public File getAudioCacheDir(Context context) {
+        String state = Environment.getExternalStorageState();
+        File cacheDir;
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            cacheDir = context.getExternalFilesDir(null);
+        } else {
+            cacheDir = context.getFilesDir();
+        }
+        return cacheDir;
     }
 
     public static void setSyncAlarm(Context context) {

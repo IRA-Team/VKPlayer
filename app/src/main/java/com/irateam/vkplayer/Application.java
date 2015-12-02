@@ -16,10 +16,14 @@
 
 package com.irateam.vkplayer;
 
+import android.util.Log;
+
 import com.irateam.vkplayer.notifications.PlayerNotificationFactory;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.vk.sdk.VKAccessToken;
+import com.vk.sdk.VKAccessTokenTracker;
 import com.vk.sdk.VKSdk;
 
 public class Application extends android.app.Application {

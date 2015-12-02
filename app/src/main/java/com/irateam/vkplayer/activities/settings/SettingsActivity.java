@@ -186,5 +186,4 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
         }
     }
 
-
 }

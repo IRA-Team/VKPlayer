@@ -27,6 +27,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -86,6 +87,8 @@ public class ListActivity extends AppCompatActivity implements
     private DownloadFinishedReceiver downloadFinishedReceiver;
 
     private View emptyView;
+    private SearchView searchView;
+    private Menu toolbarMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,15 +148,20 @@ public class ListActivity extends AppCompatActivity implements
         listView = (DragSortListView) findViewById(R.id.list);
         listView.setAdapter(audioAdapter);
         listView.setOnItemClickListener((parent, view, position, id) -> {
-            playerService.setPlaylist(audioAdapter.getListByPosition(position));
+            List<Audio> list = audioAdapter.getListByPosition(position);
+            playerService.setPlaylist(list);
             playerService.play(audioAdapter.getPosition(position));
             if (actionMode != null)
                 actionMode.finish();
 
             MenuItem item = navigationView.getMenu().getItem(0);
-            if (!item.isChecked() || audioAdapter.belongsToSearchList(position)) {
+            boolean isFromSearch = audioAdapter.belongsToSearchList(position);
+            if (!isFromSearch) {
                 item.setChecked(true);
-                onNavigationItemSelected(item);
+                getSupportActionBar().setTitle(item.getTitle());
+            }
+            if (!isFromSearch || item.isChecked()) {
+                audioAdapter.setOriginalList(list);
             }
         });
         listView.setOnItemLongClickListener((parent, view, position, id) -> {
@@ -189,6 +197,8 @@ public class ListActivity extends AppCompatActivity implements
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.menu_list, menu);
 
+        toolbarMenu = menu;
+        
         MenuItem itemSort = menu.findItem(R.id.action_sort);
         MenuItem itemSortDone = menu.findItem(R.id.action_sort_done);
         MenuItem itemSearch = menu.findItem(R.id.action_search);
@@ -211,7 +221,7 @@ public class ListActivity extends AppCompatActivity implements
             }
         });
 
-        final SearchView searchView = (SearchView) itemSearch.getActionView();
+        searchView = (SearchView) itemSearch.getActionView();
         searchView.setIconifiedByDefault(false);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -243,7 +253,6 @@ public class ListActivity extends AppCompatActivity implements
 
     @Override
     public void onComplete(List<Audio> list) {
-        refreshLayout.setRefreshing(false);
         if (list.isEmpty()) {
             listView.setVisibility(View.GONE);
             emptyView.setVisibility(View.VISIBLE);
@@ -253,6 +262,8 @@ public class ListActivity extends AppCompatActivity implements
             audioAdapter.setList(list);
             audioAdapter.notifyDataSetChanged();
         }
+
+        refreshLayout.setRefreshing(false);
     }
 
     @Override
@@ -270,6 +281,9 @@ public class ListActivity extends AppCompatActivity implements
         drawerLayout.closeDrawers();
 
         if (menuItem.getGroupId() == R.id.audio_group) {
+            if (searchView != null) {
+                searchView.post(() -> MenuItemCompat.collapseActionView(toolbarMenu.findItem(R.id.action_search)));
+            }
             getSupportActionBar().setTitle(menuItem.getTitle());
             refreshLayout.setRefreshing(true);
         }
