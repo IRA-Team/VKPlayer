@@ -102,9 +102,11 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     public void pause() {
-        if (isReady() && isPlaying()) {
-            super.pause();
-            pauseTime = getCurrentPosition();
+        if (isReady()) {
+            if (isPlaying()) {
+                super.pause();
+                pauseTime = getCurrentPosition();
+            }
         }
         notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.PAUSE);
     }
@@ -146,9 +148,13 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         if (randomState && !randomStack.empty()) {
             previousIndex = list.indexOf(randomStack.pop());
         } else {
-            previousIndex = list.indexOf(playingAudio) - 1;
-            if (previousIndex == -1) {
+            previousIndex = getPlayingAudioIndex();
+            if (previousIndex == 0) {
                 previousIndex = list.size() - 1;
+            } else if (previousIndex == -1) {
+                previousIndex = 0;
+            } else {
+                previousIndex -= 1;
             }
         }
         reset();

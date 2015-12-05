@@ -184,8 +184,10 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
     * TODO: Method doesn't remove audios from search list
     */
     public void removeChecked() {
-        for (Audio audio : getCheckedItems()) {
+        List<Audio> checkedItems = getCheckedItems();
+        for (Audio audio : checkedItems) {
             list.remove(audio);
+            searchList.remove(audio);
         }
         notifyDataSetChanged();
     }
