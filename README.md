@@ -16,11 +16,9 @@ Click on the track in any list and he will automatically become the current one
 - **User-friendly interface.** 
 Modern, easy and handy interface without unnecessary staff
 
-##Last version: 1.1
+##Last version: 1.1.1
 Changelist:
-- Added global audio search
-- Added album covers
-- Fixed bugs
+- Fixed bug with removing audio from current playlist and search list
 
 ##Screenshots
 
