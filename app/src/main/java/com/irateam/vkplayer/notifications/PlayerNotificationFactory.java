@@ -17,7 +17,6 @@
 package com.irateam.vkplayer.notifications;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -29,34 +28,33 @@ import android.support.v7.app.NotificationCompat;
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.activities.AudioActivity;
 import com.irateam.vkplayer.models.Audio;
-import com.irateam.vkplayer.player.Player;
+import com.irateam.vkplayer.player.PlayerEvent;
+import com.irateam.vkplayer.player.PlayerPlayEvent;
+import com.irateam.vkplayer.player.PlayerResumeEvent;
 import com.irateam.vkplayer.services.PlayerService;
 
 public class PlayerNotificationFactory {
 
-    public static final int ID = 1;
-    private static Bitmap COVER;
+    private final Context context;
 
+    private final NotificationCompat.MediaStyle style;
+    private final NotificationCompat.Builder builder;
 
-    public static void init(Context context) {
-        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.player_cover);
-        COVER = scaleNotification(context, bitmap);
-    }
+    private final Action playerPreviousAction;
+    private final Action playerNextAction;
+    private final Action playerPauseAction;
+    private final Action playerPlayAction;
 
-    private Context context;
-    private NotificationManager notificationManager;
-    private NotificationCompat.MediaStyle style;
-    private NotificationCompat.Builder builder;
-
-    private Action playerPreviousAction;
-    private Action playerNextAction;
-    private Action playerPauseAction;
-    private Action playerPlayAction;
+    private final Bitmap defaultCover;
 
     public PlayerNotificationFactory(Context context) {
         this.context = context;
-        notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
+        //Initialize default cover
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.player_cover);
+        defaultCover = scaleNotification(context, bitmap);
+
+        //Initialize player actions
         playerPreviousAction = new Action.Builder(
                 R.drawable.ic_notification_prev_white_24dp,
                 context.getString(R.string.notification_previous),
@@ -94,11 +92,9 @@ public class PlayerNotificationFactory {
                 .addAction(playerPreviousAction)
                 .addAction(playerPlayAction)
                 .addAction(playerNextAction);
-
-
     }
 
-    public static Bitmap scaleNotification(Context context, Bitmap bitmap) {
+    private static Bitmap scaleNotification(Context context, Bitmap bitmap) {
         return Bitmap.createScaledBitmap(bitmap,
                 (int) context.getResources().getDimension(android.R.dimen.notification_large_icon_height),
                 (int) context.getResources().getDimension(android.R.dimen.notification_large_icon_width),
@@ -111,15 +107,19 @@ public class PlayerNotificationFactory {
         return PendingIntent.getService(context, 0, intent, 0);
     }
 
-    private void prepare(int index, Audio audio) {
+    private void postProcess(int index, Audio audio) {
         builder.setContentTitle(index + 1 + ". " + audio.getTitle())
                 .setContentText(audio.getArtist())
-                .setLargeIcon(audio.getAudioInfo().coverNotification != null ? audio.getAudioInfo().coverNotification : COVER);
+                .setLargeIcon(audio.getAudioInfo().coverNotification != null ? audio.getAudioInfo().coverNotification : defaultCover);
     }
 
-    private void prepare(int index, Audio audio, Player.PlayerEvent event) {
-        prepare(index, audio);
-        if (event == Player.PlayerEvent.RESUME || event == Player.PlayerEvent.START) {
+    private void postProcess(PlayerEvent e) {
+        final int index = e.getIndex();
+        final Audio audio = e.getAudio();
+
+        postProcess(index, audio);
+
+        if (e instanceof PlayerResumeEvent || e instanceof PlayerPlayEvent) {
             builder.setSmallIcon(R.drawable.ic_notification_play_white_18dp)
                     .mActions.set(1, playerPauseAction);
         } else {
@@ -129,22 +129,12 @@ public class PlayerNotificationFactory {
     }
 
     public Notification get(int index, Audio audio) {
-        prepare(index, audio);
+        postProcess(index, audio);
         return builder.build();
     }
 
-    public Notification get(int index, Audio audio, Player.PlayerEvent event) {
-        prepare(index, audio, event);
+    public Notification get(PlayerEvent e) {
+        postProcess(e);
         return builder.build();
     }
-
-    public void update(int index, Audio audio) {
-        notificationManager.notify(ID, get(index, audio));
-    }
-
-
-    public void update(int index, Audio audio, Player.PlayerEvent event) {
-        notificationManager.notify(ID, get(index, audio, event));
-    }
-
 }

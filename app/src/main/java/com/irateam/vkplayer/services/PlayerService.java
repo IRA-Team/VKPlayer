@@ -16,6 +16,8 @@
 
 package com.irateam.vkplayer.services;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -24,18 +26,27 @@ import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
 
 import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.models.AudioInfo;
 import com.irateam.vkplayer.models.Settings;
 import com.irateam.vkplayer.notifications.PlayerNotificationFactory;
 import com.irateam.vkplayer.player.Player;
+import com.irateam.vkplayer.player.PlayerEvent;
+import com.irateam.vkplayer.player.PlayerPauseEvent;
+import com.irateam.vkplayer.player.PlayerPlayEvent;
+import com.irateam.vkplayer.player.PlayerResumeEvent;
+import com.irateam.vkplayer.player.PlayerStopEvent;
 import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
-public class PlayerService extends Service implements AudioManager.OnAudioFocusChangeListener, AudioInfo.AudioInfoListener {
+public class PlayerService extends Service implements AudioManager.OnAudioFocusChangeListener {
+
+    public static final int PLAYER_NOTIFICATION_ID = 1;
 
     public static final String PREVIOUS = "playerService.PREVIOUS";
     public static final String PAUSE = "playerService.PAUSE";
@@ -43,13 +54,16 @@ public class PlayerService extends Service implements AudioManager.OnAudioFocusC
     public static final String NEXT = "playerService.NEXT";
     public static final String STOP = "playerService.STOP";
 
-    private Player player;
-    private PlayerNotificationFactory notificationFactory;
-    private Binder binder = new PlayerBinder();
+    private final Player player = Player.getInstance();
+    private final EventBus eventBus = EventBus.getDefault();
+    private final Settings settings = Settings.getInstance(this);
+    private final PlayerNotificationFactory notificationFactory = new PlayerNotificationFactory(this);
+    private final Binder binder = new PlayerBinder();
+
     private BroadcastReceiver headsetReceiver;
     private AudioManager audioManager;
+    private NotificationManager notificationManager;
 
-    private Settings settings;
     private boolean removeNotification = false;
     private boolean wasPlaying = false;
     private boolean hasFocus = false;
@@ -58,19 +72,21 @@ public class PlayerService extends Service implements AudioManager.OnAudioFocusC
     @Override
     public void onCreate() {
         super.onCreate();
-        settings = Settings.getInstance(this);
+
         player.setRepeatState(settings.getPlayerRepeat());
         player.setRandomState(settings.getRandomState());
-        notificationFactory = new PlayerNotificationFactory(this);
+
+        eventBus.register(this);
 
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         headsetReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
                     if (intent.getIntExtra("state", -1) == 0) {
-                        if (isPlaying()) {
+                        if (player.isPlaying()) {
                             pause(false);
                         }
                     }
@@ -99,20 +115,23 @@ public class PlayerService extends Service implements AudioManager.OnAudioFocusC
         if (action != null) {
             switch (action) {
                 case PREVIOUS:
-                    previous();
+                    player.previous();
                     break;
+
                 case PAUSE:
-                    pause(false);
+                    player.pause();
                     break;
+
                 case RESUME:
-                    resume();
+                    player.resume();
                     break;
+
                 case NEXT:
-                    next();
+                    player.next();
                     break;
+
                 case STOP:
-                    stop();
-                    stopForeground(true);
+                    player.stop();
                     break;
             }
         }
@@ -123,6 +142,7 @@ public class PlayerService extends Service implements AudioManager.OnAudioFocusC
     @Override
     public void onDestroy() {
         super.onDestroy();
+        eventBus.unregister(this);
         unregisterReceiver(headsetReceiver);
         unregisterReceiver(downloadFinishedReceiver);
     }
@@ -130,12 +150,6 @@ public class PlayerService extends Service implements AudioManager.OnAudioFocusC
     @Override
     public IBinder onBind(Intent intent) {
         return binder;
-    }
-
-    public class PlayerBinder extends Binder {
-        public PlayerService getPlayerService() {
-            return PlayerService.this;
-        }
     }
 
     //Player methods
@@ -184,109 +198,86 @@ public class PlayerService extends Service implements AudioManager.OnAudioFocusC
         player.stop();
     }
 
-    public void next() {
-        player.next();
-    }
-
-    public void previous() {
-        player.previous();
-    }
-
-    public boolean isPlaying() {
-        return player.isPlaying();
-    }
-
-    public boolean isReady() {
-        return player.isReady();
-    }
-
-    public int getPauseTime() {
-        return player.getPauseTime();
-    }
-
-    public Audio getPlayingAudio() {
-        return player.getPlayingAudio();
-    }
-
-    public Integer getPlayingAudioIndex() {
-        return player.getPlayingAudioIndex();
-    }
-
+/*
+TODO: settings
     public void setRepeatState(Player.RepeatState state) {
         settings.setPlayerRepeat(state);
-        player.setRepeatState(state);
     }
 
     public Player.RepeatState switchRepeatState() {
-        Player.RepeatState state = player.switchRepeatState();
         settings.setPlayerRepeat(state);
-        return state;
     }
 
-    public Player.RepeatState getRepeatState() {
-        return player.getRepeatState();
-    }
 
     public boolean switchRandomState() {
-        boolean state = player.switchRandomState();
         settings.setRandomState(state);
-        return state;
     }
+*/
 
-    public boolean getRandomState() {
-        return player.getRandomState();
-    }
-
-    public void seekTo(int milliseconds) {
-        player.seekTo(milliseconds);
-    }
 
     //Player callbacks
-    @Override
-    public void onEvent(int position, Audio audio, Player.PlayerEvent event) {
-        switch (event) {
-            case START:
-                startForeground(PlayerNotificationFactory.ID, notificationFactory.get(position, audio, event));
-                audio.getAudioInfo().init(this, audio);
-                audio.getAudioInfo().getWithListener(this);
-                break;
-            case PAUSE:
-                if (removeNotification) {
-                    stopForeground(true);
-                } else {
-                    notificationFactory.update(position, audio, Player.PlayerEvent.PAUSE);
-                }
-                break;
-            case RESUME:
-                startForeground(PlayerNotificationFactory.ID, notificationFactory.get(position, audio, event));
-                break;
-            case STOP:
-                stopForeground(true);
-                break;
+
+    @Subscribe
+    public void onPlayEvent(PlayerPlayEvent e) {
+        final Audio audio = e.getAudio();
+
+        startForeground(PLAYER_NOTIFICATION_ID, notificationFactory.get(e));
+        audio.getAudioInfo().init(this, audio);
+/*       TODO: audio.getAudioInfo().getWithListener(this);*/
+    }
+
+    @Subscribe
+    public void onPauseEvent(PlayerPauseEvent e) {
+        if (removeNotification) {
+            stopForeground(true);
+        } else {
+            updateNotification(e);
         }
     }
 
+    @Subscribe
+    public void onResumeEvent(PlayerResumeEvent e) {
+        startForeground(PLAYER_NOTIFICATION_ID, notificationFactory.get(e));
+    }
+
+    @Subscribe
+    public void onStopEvent(PlayerStopEvent e) {
+        stopForeground(true);
+    }
+
+    public void updateNotification(int index, Audio audio) {
+        Notification notification = notificationFactory.get(index, audio);
+        notificationManager.notify(PLAYER_NOTIFICATION_ID, notification);
+    }
+
+
+    public void updateNotification(PlayerEvent e) {
+        Notification notification = notificationFactory.get(e);
+        notificationManager.notify(PLAYER_NOTIFICATION_ID, notification);
+    }
+/*
+TODO: Cover update
     @Override
     public void OnComplete(AudioInfo audioInfo) {
         if (audioInfo.cover != null) {
-            notificationFactory.update(getPlayingAudioIndex(), getPlayingAudio());
+            updateNotification();
         }
     }
 
     @Override
     public void OnError() {
         Log.e("AUDIO_INFO", "ERROR");
-    }
+    }*/
 
     @Override
     public void onAudioFocusChange(int focusChange) {
         switch (focusChange) {
             case AudioManager.AUDIOFOCUS_LOSS:
-                wasPlaying = isPlaying();
+                wasPlaying = player.isPlaying();
                 pause(false, false);
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-                wasPlaying = isPlaying();
+                wasPlaying = player.isPlaying();
                 pause(false, false);
                 break;
             case AudioManager.AUDIOFOCUS_GAIN:
@@ -311,4 +302,9 @@ public class PlayerService extends Service implements AudioManager.OnAudioFocusC
         hasFocus = false;
     }
 
+    public class PlayerBinder extends Binder {
+        public PlayerService getPlayerService() {
+            return PlayerService.this;
+        }
+    }
 }

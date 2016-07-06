@@ -38,11 +38,14 @@ import static com.irateam.vkplayer.player.Player.RepeatState.ONE_REPEAT;
 
 public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener {
 
+    private static final Player instance = new Player();
+
     private final EventBus eventBus = EventBus.getDefault();
     private List<Audio> queue = new ArrayList<>();
     private final Stack<Audio> randomStack = new Stack<>();
     private final Random random = new Random();
 
+    private Audio playingAudio;
     private ProgressThread currentProgressThread;
     private int pauseTime;
 
@@ -51,14 +54,16 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     private boolean randomState = false;
     private RepeatState repeatState = NO_REPEAT;
 
-    public Player() {
+    private Player() {
         super();
         setAudioStreamType(AudioManager.STREAM_MUSIC);
         setOnPreparedListener(this);
         setOnCompletionListener(this);
     }
 
-    private Audio playingAudio;
+    public static Player getInstance() {
+        return instance;
+    }
 
     public Audio getPlayingAudio() {
         return playingAudio;
