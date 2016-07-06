@@ -29,16 +29,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.irateam.vkplayer.R;
+import com.irateam.vkplayer.api.AudioService;
+import com.irateam.vkplayer.api.SimpleCallback;
 import com.irateam.vkplayer.controllers.ActivityPlayerController;
 import com.irateam.vkplayer.controllers.PlayerController;
 import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
-import com.irateam.vkplayer.services.AudioService;
 import com.irateam.vkplayer.services.DownloadService;
 import com.irateam.vkplayer.services.PlayerService;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class AudioActivity extends AppCompatActivity implements ServiceConnection {
 
@@ -113,17 +113,9 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
             case R.id.action_remove_from_cache:
                 ArrayList removeList = new ArrayList();
                 removeList.add(playerService.getPlayingAudio());
-                audioService.removeFromCache(removeList, new AudioService.Listener() {
-                    @Override
-                    public void onComplete(List<Audio> list) {
-                        setCacheAction(false);
-                    }
-
-                    @Override
-                    public void onError(String errorMessage) {
-
-                    }
-                });
+                audioService.removeFromCache(removeList).execute(SimpleCallback.of(audios -> {
+                    setCacheAction(false);
+                }));
                 break;
         }
         return (super.onOptionsItemSelected(item));

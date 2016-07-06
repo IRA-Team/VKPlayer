@@ -27,9 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AudioDatabaseHelper extends DatabaseHelper {
-    public AudioDatabaseHelper(Context context) {
-        super(context);
-    }
 
     //Audio table
     public static final String TABLE_NAME = "audios";
@@ -45,6 +42,10 @@ public class AudioDatabaseHelper extends DatabaseHelper {
     public static final String GENRE = "genre";
     public static final String ACCESS_KEY = "access_key";
     public static final String ORDER_POSITION = "order_position";
+
+    public AudioDatabaseHelper(Context context) {
+        super(context);
+    }
 
     public long insert(Audio audio) {
         SQLiteDatabase db = getWritableDatabase();
@@ -126,19 +127,29 @@ public class AudioDatabaseHelper extends DatabaseHelper {
 
     public static Audio fromCursor(Cursor cursor) {
         int i = 1;
-        Audio audio = new Audio();
-        audio.setId(cursor.getInt(i++));
-        audio.setOwnerId(cursor.getInt(i++));
-        audio.setArtist(cursor.getString(i++));
-        audio.setTitle(cursor.getString(i++));
-        audio.setDuration(cursor.getInt(i++));
-        audio.setUrl(cursor.getString(i++));
-        audio.setCacheFile(cursor.getString(i++));
-        audio.setLyricsId(cursor.getInt(i++));
-        audio.setAlbumId(cursor.getInt(i++));
-        audio.setGenre(cursor.getInt(i++));
-        audio.setAccessKey(cursor.getString(i++));
-        return audio;
+        int id = cursor.getInt(i++);
+        int ownerId = cursor.getInt(i++);
+        String artist = cursor.getString(i++);
+        String title = cursor.getString(i++);
+        int duration = cursor.getInt(i++);
+        String url = cursor.getString(i++);
+        String cacheFile = cursor.getString(i++);
+        int lyricsId = cursor.getInt(i++);
+        int albumId = cursor.getInt(i++);
+        int genre = cursor.getInt(i++);
+        String accessKey = cursor.getString(i);
+
+        return new Audio(
+                id,
+                ownerId,
+                artist,
+                title,
+                duration,
+                url,
+                lyricsId,
+                albumId,
+                genre,
+                accessKey);
     }
 
 }

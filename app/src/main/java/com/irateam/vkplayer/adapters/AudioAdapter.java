@@ -27,9 +27,10 @@ import android.widget.Filter;
 import android.widget.Filterable;
 
 import com.irateam.vkplayer.R;
+import com.irateam.vkplayer.api.AudioService;
+import com.irateam.vkplayer.api.SimpleCallback;
 import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.player.Player;
-import com.irateam.vkplayer.services.AudioService;
 import com.irateam.vkplayer.services.PlayerService;
 import com.irateam.vkplayer.ui.AudioListElement;
 import com.irateam.vkplayer.utils.AlbumCoverUtils;
@@ -366,7 +367,7 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
             protected FilterResults performFiltering(CharSequence constraint) {
                 List<Audio> resultList = new ArrayList<>();
 
-                audioService.cancelSearch();
+                //audioService.cancelSearch();
                 searchList = Collections.emptyList();
                 if (constraint.toString().isEmpty()) {
                     resultList = originalList;
@@ -377,20 +378,12 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
                             resultList.add(audio);
                         }
                     }
-                    audioService.search(key, new AudioService.Listener() {
-                        @Override
-                        public void onComplete(List<Audio> list) {
-                            searchList = list;
-                            new Handler(Looper.getMainLooper()).post(() -> notifyDataSetChanged());
-
-                        }
-
-                        @Override
-                        public void onError(String errorMessage) {
-
-                        }
-                    });
+                    audioService.search(key).execute(SimpleCallback.of(audios -> {
+                        searchList = audios;
+                        new Handler(Looper.getMainLooper()).post(() -> notifyDataSetChanged());
+                    }));
                 }
+
                 FilterResults filterResults = new FilterResults();
                 filterResults.count = resultList.size();
                 filterResults.values = resultList;
@@ -403,7 +396,9 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
                 list = (ArrayList<Audio>) results.values;
                 notifyDataSetChanged();
             }
-        };
+        }
+
+                ;
     }
 
     public void setOriginalList(List<Audio> list) {

@@ -14,20 +14,28 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.receivers;
+package com.irateam.vkplayer.activities;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
-import com.irateam.vkplayer.models.Settings;
+import com.vk.sdk.VKSdk;
 
-public class BootReceiver extends BroadcastReceiver {
+public class ProxyActivity extends AppCompatActivity {
 
     @Override
-    public void onReceive(Context context, Intent intent) {
-        if (Settings.getInstance(context).isSyncEnabled()) {
-            Settings.setSyncAlarm(context);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Intent intent;
+        if (VKSdk.isLoggedIn()) {
+            intent = new Intent(this, MainActivity.class);
+        } else {
+            intent = new Intent(this, LoginActivity.class);
         }
+        startActivity(intent);
+        finish();
     }
+
+
 }

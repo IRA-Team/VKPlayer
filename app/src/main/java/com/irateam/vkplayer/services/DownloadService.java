@@ -28,7 +28,6 @@ import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.models.Settings;
 import com.irateam.vkplayer.notifications.DownloadNotification;
 import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
-import com.irateam.vkplayer.utils.AudioUtils;
 import com.irateam.vkplayer.utils.NetworkUtils;
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKApiConst;
@@ -128,7 +127,7 @@ public class DownloadService extends Service {
             @Override
             public void onComplete(VKResponse response) {
                 super.onComplete(response);
-                List<Audio> vkList = AudioUtils.parseJSONResponseToList(response);
+                List<Audio> vkList = Collections.EMPTY_LIST; //TODO
                 List<Audio> cachedList = new AudioDatabaseHelper(DownloadService.this).getAll();
 
                 for (Audio audio : cachedList) {

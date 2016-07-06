@@ -23,6 +23,8 @@ import android.os.Looper;
 
 import com.irateam.vkplayer.models.Audio;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -36,13 +38,18 @@ import static com.irateam.vkplayer.player.Player.RepeatState.ONE_REPEAT;
 
 public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener {
 
-    private ProgressThread currentProgressThread;
+    private final EventBus eventBus = EventBus.getDefault();
+    private List<Audio> queue = new ArrayList<>();
+    private final Stack<Audio> randomStack = new Stack<>();
+    private final Random random = new Random();
 
-    private boolean stateReady = false;
+    private ProgressThread currentProgressThread;
+    private int pauseTime;
+
+    //Player state
+    private boolean isReady = false;
     private boolean randomState = false;
     private RepeatState repeatState = NO_REPEAT;
-
-    private int pauseTime;
 
     public Player() {
         super();
@@ -51,10 +58,6 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         setOnCompletionListener(this);
     }
 
-    private List<Audio> list = new ArrayList<>();
-    private Stack<Audio> randomStack = new Stack<>();
-    private Random random = new Random();
-
     private Audio playingAudio;
 
     public Audio getPlayingAudio() {
@@ -62,26 +65,26 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     public Integer getPlayingAudioIndex() {
-        return list.indexOf(playingAudio);
+        return queue.indexOf(playingAudio);
     }
 
-    public List<Audio> getList() {
-        return list;
+    public List<Audio> getQueue() {
+        return queue;
     }
 
-    public void setList(List<Audio> list) {
-        this.list = list;
+    public void setQueue(List<Audio> queue) {
+        this.queue = queue;
     }
 
     public void play(int index) {
-        playingAudio = list.get(index);
+        playingAudio = queue.get(index);
         try {
             reset();
             stopProgress();
             setOnBufferingUpdateListener(null);
             setDataSource(playingAudio.getPlayingUrl());
             prepareAsync();
-            notifyPlayerEvent(index, playingAudio, PlayerEvent.START);
+            eventBus.post(new PlayerPlayEvent(index, playingAudio));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -91,13 +94,13 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         if (isReady() && playingAudio != null) {
             seekTo(pauseTime);
             start();
-            notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.RESUME);
+            eventBus.post(new PlayerResumeEvent(getPlayingAudioIndex(), playingAudio));
         }
     }
 
     public void stop() {
         super.reset();
-        notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.STOP);
+        eventBus.post(new PlayerStopEvent(getPlayingAudioIndex(), playingAudio));
         playingAudio = null;
     }
 
@@ -108,7 +111,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
                 pauseTime = getCurrentPosition();
             }
         }
-        notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.PAUSE);
+        eventBus.post(new PlayerPauseEvent(getPlayingAudioIndex(), playingAudio));
     }
 
     public int getPauseTime() {
@@ -118,12 +121,12 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     public void next() {
         int nextIndex;
-        if (list == null || list.size() == 0) {
+        if (queue == null || queue.size() == 0) {
             stop();
             return;
         }
         if (randomState) {
-            int size = list.size();
+            int size = queue.size();
             do
                 nextIndex = random.nextInt(size);
             while (size > 1 &&
@@ -131,7 +134,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
             randomStack.push(playingAudio);
         } else {
             nextIndex = getPlayingAudioIndex() + 1;
-            if (list.size() == nextIndex) {
+            if (queue.size() == nextIndex) {
                 nextIndex = 0;
             }
         }
@@ -141,16 +144,16 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     public void previous() {
         int previousIndex;
-        if (list == null || list.size() == 0) {
+        if (queue == null || queue.size() == 0) {
             stop();
             return;
         }
         if (randomState && !randomStack.empty()) {
-            previousIndex = list.indexOf(randomStack.pop());
+            previousIndex = queue.indexOf(randomStack.pop());
         } else {
             previousIndex = getPlayingAudioIndex();
             if (previousIndex == 0) {
-                previousIndex = list.size() - 1;
+                previousIndex = queue.size() - 1;
             } else if (previousIndex == -1) {
                 previousIndex = 0;
             } else {
@@ -199,7 +202,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     public boolean switchRandomState() {
         randomState = !randomState;
         if (randomState) {
-            randomStack = new Stack<>();
+            randomStack.clear();
         }
         return randomState;
     }
@@ -207,14 +210,14 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     public void setRandomState(boolean randomState) {
         this.randomState = randomState;
         if (randomState) {
-            randomStack = new Stack<>();
+            randomStack.clear();
         }
     }
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        if (repeatState == NO_REPEAT && playingAudio == list.get(list.size() - 1)) {
-            notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.STOP);
+        if (repeatState == NO_REPEAT && playingAudio == queue.get(queue.size() - 1)) {
+            eventBus.post(new PlayerStopEvent(getPlayingAudioIndex(), playingAudio));
             stop();
             return;
         }
@@ -232,64 +235,33 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        stateReady = true;
+        isReady = true;
         start();
         startProgress();
         setOnBufferingUpdateListener(this);
-        notifyPlayerEvent(getPlayingAudioIndex(), playingAudio, PlayerEvent.PLAY);
+
+        eventBus.post(new PlayerPlayEvent(getPlayingAudioIndex(), playingAudio));
     }
 
     @Override
     public void reset() {
         super.reset();
-        stateReady = false;
+        isReady = false;
     }
 
     public boolean isReady() {
-        return stateReady;
+        return isReady;
     }
-
-    //Listeners
-    private List<WeakReference<PlayerEventListener>> listeners = new ArrayList<>();
 
     @Override
     public void onBufferingUpdate(MediaPlayer mp, int percent) {
         notifyBufferingUpdate(percent * getDuration() / 100);
     }
 
-    public interface PlayerEventListener {
-        void onEvent(int position, Audio audio, PlayerEvent event);
-    }
-
-    public void addPlayerEventListener(PlayerEventListener listener) {
-        listeners.add(new WeakReference<>(listener));
-    }
-
-    public void removePlayerEventListener(PlayerEventListener listener) {
-        listeners.remove(listener);
-    }
-
-    private void notifyPlayerEvent(int position, Audio audio, PlayerEvent event) {
-        for (WeakReference<PlayerEventListener> l : listeners) {
-            PlayerEventListener listener = l.get();
-            if (listener != null) {
-                listener.onEvent(position, audio, event);
-            }
-        }
-    }
-
     public enum RepeatState {
         NO_REPEAT,
         ONE_REPEAT,
         ALL_REPEAT
-    }
-
-    public enum PlayerEvent {
-        START,
-        PLAY,
-        PAUSE,
-        RESUME,
-        STOP
     }
 
     //Progress Listener
@@ -303,10 +275,6 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     public void addPlayerProgressListener(PlayerProgressListener listener) {
         progressListeners.add(new WeakReference<>(listener));
-    }
-
-    public void removePlayerProgressListener(PlayerProgressListener listener) {
-        progressListeners.remove(listener);
     }
 
     private void notifyPlayerProgressChanged() {

@@ -35,7 +35,7 @@ import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
 
 import java.util.List;
 
-public class PlayerService extends Service implements Player.PlayerEventListener, AudioManager.OnAudioFocusChangeListener, AudioInfo.AudioInfoListener {
+public class PlayerService extends Service implements AudioManager.OnAudioFocusChangeListener, AudioInfo.AudioInfoListener {
 
     public static final String PREVIOUS = "playerService.PREVIOUS";
     public static final String PAUSE = "playerService.PAUSE";
@@ -58,8 +58,6 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     @Override
     public void onCreate() {
         super.onCreate();
-        player = new Player();
-        player.addPlayerEventListener(this);
         settings = Settings.getInstance(this);
         player.setRepeatState(settings.getPlayerRepeat());
         player.setRandomState(settings.getRandomState());
@@ -125,7 +123,6 @@ public class PlayerService extends Service implements Player.PlayerEventListener
     @Override
     public void onDestroy() {
         super.onDestroy();
-        player.removePlayerEventListener(this);
         unregisterReceiver(headsetReceiver);
         unregisterReceiver(downloadFinishedReceiver);
     }
@@ -143,11 +140,11 @@ public class PlayerService extends Service implements Player.PlayerEventListener
 
     //Player methods
     public void setPlaylist(List<Audio> list) {
-        player.setList(list);
+        player.setQueue(list);
     }
 
     public List<Audio> getPlaylist() {
-        return player.getList();
+        return player.getQueue();
     }
 
     public void play(int index) {
@@ -238,22 +235,6 @@ public class PlayerService extends Service implements Player.PlayerEventListener
 
     public boolean getRandomState() {
         return player.getRandomState();
-    }
-
-    public void addPlayerEventListener(Player.PlayerEventListener listener) {
-        player.addPlayerEventListener(listener);
-    }
-
-    public void removePlayerEventListener(Player.PlayerEventListener listener) {
-        player.removePlayerEventListener(listener);
-    }
-
-    public void addPlayerProgressListener(Player.PlayerProgressListener listener) {
-        player.addPlayerProgressListener(listener);
-    }
-
-    public void removePlayerProgressListener(Player.PlayerProgressListener listener) {
-        player.removePlayerProgressListener(listener);
     }
 
     public void seekTo(int milliseconds) {

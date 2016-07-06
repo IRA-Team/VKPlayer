@@ -35,7 +35,7 @@ import android.widget.Toast;
 
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.models.Settings;
-import com.irateam.vkplayer.services.AudioService;
+import com.irateam.vkplayer.api.AudioService;
 import com.irateam.vkplayer.services.DownloadService;
 
 import java.util.List;
