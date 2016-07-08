@@ -131,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements
 
         playerController = new PlayerController(this, findViewById(R.id.player_panel));
         playerController.getRootView().setVisibility(View.GONE);
+        playerController.initialize();
         playerController.setFabOnClickListener(v -> startActivity(new Intent(this, AudioActivity.class)));
 
         eventBus.register(playerController);

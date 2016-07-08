@@ -39,6 +39,8 @@ import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
 import com.irateam.vkplayer.services.DownloadService;
 import com.irateam.vkplayer.services.PlayerService;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,6 +48,7 @@ import java.util.List;
 public class AudioActivity extends AppCompatActivity implements ServiceConnection {
 
     private final Player player = Player.getInstance();
+    private final EventBus eventBus = EventBus.getDefault();
 
     private Toolbar toolbar;
 
@@ -67,6 +70,8 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
         getSupportActionBar().setTitle("");
 
         playerController = new ActivityPlayerController(this, findViewById(R.id.activity_player_panel));
+        playerController.initialize();
+        eventBus.register(playerController);
         playerController.setFabOnClickListener(v -> finish());
         downloadFinishedReceiver = new DownloadFinishedReceiver() {
             @Override

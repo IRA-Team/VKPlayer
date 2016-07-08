@@ -81,8 +81,6 @@ open class PlayerController {
         random = rootView.findViewById(R.id.player_panel_random) as ImageView
 
         progress = rootView.findViewById(R.id.progress) as SeekBar
-
-        initialize()
     }
 
     /*
