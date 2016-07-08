@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.api;
+package com.irateam.vkplayer.api.service;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -30,7 +30,7 @@ import com.vk.sdk.api.model.VKApiUser;
 
 import org.json.JSONException;
 
-public class UserService {
+public final class UserService {
 
     public static final String USER_LINK = "http://vk.com/id";
     private static final String USER_ID = "user_id";

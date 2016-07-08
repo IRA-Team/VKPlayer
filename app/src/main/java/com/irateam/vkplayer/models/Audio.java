@@ -37,7 +37,7 @@ public class Audio implements Parcelable {
     private int genre;
     private String accessKey;
     private File cacheFile;
-    private AudioInfo audioInfo = new AudioInfo();
+    private AudioInfo audioInfo;
 
     @JsonCreator
     public Audio(@JsonProperty("id") int id,

@@ -26,7 +26,6 @@ import com.irateam.vkplayer.models.Audio;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -41,6 +40,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     private static final Player instance = new Player();
 
     private final EventBus eventBus = EventBus.getDefault();
+    private final Handler uiHandler = new Handler(Looper.getMainLooper());
     private List<Audio> queue = new ArrayList<>();
     private final Stack<Audio> randomStack = new Stack<>();
     private final Random random = new Random();
@@ -122,7 +122,6 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     public int getPauseTime() {
         return pauseTime;
     }
-
 
     public void next() {
         int nextIndex;
@@ -263,43 +262,17 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         notifyBufferingUpdate(percent * getDuration() / 100);
     }
 
-    public enum RepeatState {
-        NO_REPEAT,
-        ONE_REPEAT,
-        ALL_REPEAT
-    }
-
-    //Progress Listener
-    private List<WeakReference<PlayerProgressListener>> progressListeners = new ArrayList<>();
-
-    public interface PlayerProgressListener {
-        void onProgressChanged(int milliseconds);
-
-        void onBufferingUpdate(int milliseconds);
-    }
-
-    public void addPlayerProgressListener(PlayerProgressListener listener) {
-        progressListeners.add(new WeakReference<>(listener));
-    }
-
     private void notifyPlayerProgressChanged() {
-        new Handler(Looper.getMainLooper()).post(() -> {
-            for (WeakReference<PlayerProgressListener> l : progressListeners) {
-                PlayerProgressListener listener = l.get();
-                if (listener != null) {
-                    listener.onProgressChanged(getCurrentPosition());
-                }
-            }
+        uiHandler.post(() -> {
+            final int currentPosition = getCurrentPosition();
+            eventBus.post(new PlayerProgressChangedEvent(currentPosition));
         });
     }
 
     private void notifyBufferingUpdate(int milliseconds) {
-        for (WeakReference<PlayerProgressListener> l : progressListeners) {
-            PlayerProgressListener listener = l.get();
-            if (listener != null) {
-                listener.onBufferingUpdate(milliseconds);
-            }
-        }
+        uiHandler.post(() -> {
+            eventBus.post(new PlayerBufferingUpdateEvent(milliseconds));
+        });
     }
 
     public void startProgress() {
@@ -317,17 +290,22 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
         @Override
         public void run() {
-            while (!Thread.interrupted()) {
-                try {
+
+            try {
+                while (!Thread.interrupted()) {
                     if (isPlaying()) {
                         notifyPlayerProgressChanged();
                     }
                     Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    //Nothing
                 }
+            } catch (InterruptedException ignore) {
             }
         }
+    }
 
+    public enum RepeatState {
+        NO_REPEAT,
+        ONE_REPEAT,
+        ALL_REPEAT
     }
 }

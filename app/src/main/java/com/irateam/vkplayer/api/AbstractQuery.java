@@ -34,7 +34,7 @@ public abstract class AbstractQuery<T> implements Query<T> {
         task.cancel(true);
     }
 
-    protected abstract T query();
+    protected abstract T query() throws Exception;
 
     private static class AsyncCallableAdapter<V> implements Callable<V> {
 

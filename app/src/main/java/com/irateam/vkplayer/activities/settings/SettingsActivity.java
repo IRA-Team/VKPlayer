@@ -34,8 +34,8 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.irateam.vkplayer.R;
-import com.irateam.vkplayer.models.Settings;
-import com.irateam.vkplayer.api.AudioService;
+import com.irateam.vkplayer.api.service.AudioService;
+import com.irateam.vkplayer.api.service.SettingsService;
 import com.irateam.vkplayer.services.DownloadService;
 
 import java.util.List;
@@ -95,8 +95,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(Settings.SYNC_TIME)) {
-            Settings.setSyncAlarm(this);
+        if (key.equals(SettingsService.SYNC_TIME)) {
+            SettingsService.setSyncAlarm(this);
         }
     }
 
@@ -127,9 +127,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
             findPreference("sync_enabled").setOnPreferenceChangeListener(((preference, newValue) -> {
                 boolean syncEnabled = (Boolean) newValue;
                 if (syncEnabled) {
-                    Settings.setSyncAlarm(getActivity());
+                    SettingsService.setSyncAlarm(getActivity());
                 } else {
-                    Settings.cancelSyncAlarm(getActivity());
+                    SettingsService.cancelSyncAlarm(getActivity());
                 }
                 return true;
             }));

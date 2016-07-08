@@ -1,20 +1,4 @@
-/*
- * Copyright (C) 2015 IRA-Team
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package com.irateam.vkplayer.models;
+package com.irateam.vkplayer.api.service;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -33,33 +17,33 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class Settings {
+public final class SettingsService {
+
+    private static final int SYNC_ALARM_ID = 1;
+    private static final int DEFAULT_SYNC_COUNT = 10;
 
     public static final String REPEAT_STATE = "repeat_state";
     public static final String RANDOM_STATE = "random_state";
-
     public static final String SYNC_ENABLED = "sync_enabled";
     public static final String SYNC_TIME = "sync_time";
     public static final String SYNC_COUNT = "sync_count";
     public static final String SYNC_WIFI = "sync_wifi";
 
-    private static final int SYNC_ALARM_ID = 1;
-    private static final int DEFAULT_SYNC_COUNT = 10;
+    private final SharedPreferences preferences;
 
-    private static Settings instance;
+    private static SettingsService instance;
 
-    private SharedPreferences preferences;
-
-    public static synchronized Settings getInstance(Context context) {
+    public static synchronized SettingsService getInstance(Context context) {
         if (instance == null) {
-            instance = new Settings(context);
+            instance = new SettingsService(context);
         }
         return instance;
     }
 
-    private Settings(Context context) {
+    private SettingsService(Context context) {
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
+
 
     public void setPlayerRepeat(Player.RepeatState state) {
         preferences.edit()
@@ -158,7 +142,7 @@ public class Settings {
         PendingIntent pendingIntent = PendingIntent.getService(context, SYNC_ALARM_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
-                Settings.getInstance(context).getSyncTime().getTimeInMillis(),
+                SettingsService.getInstance(context).getSyncTime().getTimeInMillis(),
                 AlarmManager.INTERVAL_DAY,
                 pendingIntent);
     }

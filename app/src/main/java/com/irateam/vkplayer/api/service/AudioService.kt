@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.api
+package com.irateam.vkplayer.api.service
 
 import android.content.Context
+import com.irateam.vkplayer.api.AbstractQuery
+import com.irateam.vkplayer.api.Query
+import com.irateam.vkplayer.api.VKAudioQuery
 import com.irateam.vkplayer.database.AudioDatabaseHelper
 import com.irateam.vkplayer.models.Audio
 import com.vk.sdk.api.VKApi

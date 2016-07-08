@@ -29,18 +29,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.irateam.vkplayer.R;
-import com.irateam.vkplayer.api.AudioService;
 import com.irateam.vkplayer.api.SimpleCallback;
+import com.irateam.vkplayer.api.service.AudioService;
 import com.irateam.vkplayer.controllers.ActivityPlayerController;
 import com.irateam.vkplayer.controllers.PlayerController;
 import com.irateam.vkplayer.models.Audio;
+import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
 import com.irateam.vkplayer.services.DownloadService;
 import com.irateam.vkplayer.services.PlayerService;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class AudioActivity extends AppCompatActivity implements ServiceConnection {
+
+    private final Player player = Player.getInstance();
 
     private Toolbar toolbar;
 
@@ -67,7 +72,7 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
             @Override
             public void onDownloadFinished(Audio audio) {
                 setCacheAction(audio.isCached());
-                playerService.getPlayingAudio().setCacheFile(audio.getCacheFile());
+                player.getPlayingAudio().setCacheFile(audio.getCacheFile());
             }
         };
         registerReceiver(downloadFinishedReceiver, new IntentFilter(DownloadService.DOWNLOAD_FINISHED));
@@ -80,11 +85,9 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
         getMenuInflater().inflate(R.menu.menu_audio, menu);
-        if (playerService != null) {
-            Audio audio = playerService.getPlayingAudio();
-            if (audio != null) {
-                setCacheAction(audio.isCached());
-            }
+        Audio audio = player.getPlayingAudio();
+        if (audio != null) {
+            setCacheAction(audio.isCached());
         }
         return true;
     }
@@ -103,16 +106,17 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
                 finish();
                 return true;
             case R.id.action_cache:
-                Intent intent = new Intent(this, DownloadService.class);
-                intent.setAction(DownloadService.START_DOWNLOADING);
-                ArrayList list = new ArrayList();
-                list.add(playerService.getPlayingAudio());
-                intent.putExtra(DownloadService.AUDIO_LIST, list);
+                ArrayList<Audio> list = new ArrayList<>();
+                list.add(player.getPlayingAudio());
+
+                Intent intent = new Intent(this, DownloadService.class)
+                        .setAction(DownloadService.START_DOWNLOADING)
+                        .putExtra(DownloadService.AUDIO_LIST, list);
+
                 startService(intent);
                 break;
             case R.id.action_remove_from_cache:
-                ArrayList removeList = new ArrayList();
-                removeList.add(playerService.getPlayingAudio());
+                List<Audio> removeList = Collections.singletonList(player.getPlayingAudio());
                 audioService.removeFromCache(removeList).execute(SimpleCallback.of(audios -> {
                     setCacheAction(false);
                 }));
@@ -125,15 +129,6 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
     public void onServiceConnected(ComponentName name, IBinder service) {
         Log.i("Service", "Connected");
         playerService = ((PlayerService.PlayerBinder) service).getPlayerService();
-        playerController.setPlayerService(playerService);
-        playerService.addPlayerEventListener(playerController);
-
-        Audio audio = playerService.getPlayingAudio();
-        if (audio != null) {
-            setCacheAction(audio.isCached());
-        }
-
-
     }
 
     @Override

@@ -40,7 +40,6 @@ public class Application extends android.app.Application {
                 .defaultDisplayImageOptions(defaultOptions)
                 .build();
         ImageLoader.getInstance().init(config);
-        PlayerNotificationFactory.init(this);
     }
 
 }

@@ -27,11 +27,10 @@ import android.widget.Filter;
 import android.widget.Filterable;
 
 import com.irateam.vkplayer.R;
-import com.irateam.vkplayer.api.AudioService;
 import com.irateam.vkplayer.api.SimpleCallback;
+import com.irateam.vkplayer.api.service.AudioService;
 import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.player.Player;
-import com.irateam.vkplayer.services.PlayerService;
 import com.irateam.vkplayer.ui.AudioListElement;
 import com.irateam.vkplayer.utils.AlbumCoverUtils;
 
@@ -41,8 +40,8 @@ import java.util.List;
 
 public class AudioAdapter extends BaseAdapter implements Filterable {
 
-    private Context context;
-    private PlayerService playerService;
+    private final Context context;
+    private final Player player = Player.getInstance();
 
     /*
     * AudioService uses just for performing global search
@@ -65,12 +64,6 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
     private List<Integer> checkedList = new ArrayList<>();
 
     /*
-    * Listener for playback event. Use field variable because listeners stores
-    * in WeakReference list
-    */
-    private Player.PlayerEventListener playerEventListener;
-
-    /*
     * Flag that defines if sort mode enabled
     */
     private boolean sortMode = false;
@@ -81,24 +74,12 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
     }
 
     /*
-    * Set player service for displaying played/paused/prepared audios
-    */
-    public void setPlayerService(PlayerService playerService) {
-        this.playerService = playerService;
-        playerEventListener = (position, audio, event) -> notifyDataSetChanged();
-        playerService.addPlayerEventListener(playerEventListener);
-    }
-
-    /*
     * Need to display played/paused audio. Just get it from player service
     * If player service isn't defined yet return -1
     */
     public int getPlayingAudioId() {
-        if (playerService != null && playerService.getPlayingAudio() != null) {
-            return playerService.getPlayingAudio().getId();
-        } else {
-            return -1;
-        }
+        Audio audio = player.getPlayingAudio();
+        return audio != null ? audio.getId() : -1;
     }
 
     public List<Audio> getList() {
@@ -265,8 +246,8 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
             element.setArtist(audio.getArtist());
             element.setCoverDrawable(AlbumCoverUtils.createFromAudio(audio));
             if (audio.getId() == getPlayingAudioId()) {
-                if (playerService.isReady()) {
-                    element.setPlaying(playerService.isPlaying());
+                if (player.isReady()) {
+                    element.setPlaying(player.isPlaying());
                 } else {
                     element.setPreparing(true);
                 }

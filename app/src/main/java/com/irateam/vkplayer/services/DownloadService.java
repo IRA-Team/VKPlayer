@@ -23,9 +23,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.irateam.vkplayer.R;
+import com.irateam.vkplayer.api.service.SettingsService;
 import com.irateam.vkplayer.database.AudioDatabaseHelper;
 import com.irateam.vkplayer.models.Audio;
-import com.irateam.vkplayer.models.Settings;
 import com.irateam.vkplayer.notifications.DownloadNotification;
 import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
 import com.irateam.vkplayer.utils.NetworkUtils;
@@ -63,15 +63,8 @@ public class DownloadService extends Service {
     private Queue<Audio> downloadQueue = new ConcurrentLinkedQueue<>();
     private Queue<Audio> syncQueue = new ConcurrentLinkedQueue<>();
 
-    private AudioDatabaseHelper databaseHelper;
-    private Settings settings;
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        databaseHelper = new AudioDatabaseHelper(this);
-        settings = Settings.getInstance(this);
-    }
+    private AudioDatabaseHelper databaseHelper = new AudioDatabaseHelper(this);
+    private SettingsService settings = SettingsService.getInstance(this);
 
     @Override
     public IBinder onBind(Intent intent) {

@@ -43,10 +43,9 @@ import android.widget.TextView;
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.activities.settings.SettingsActivity;
 import com.irateam.vkplayer.adapters.AudioAdapter;
-import com.irateam.vkplayer.api.AudioService;
+import com.irateam.vkplayer.api.service.AudioService;
 import com.irateam.vkplayer.api.Callback;
 import com.irateam.vkplayer.api.SimpleCallback;
-import com.irateam.vkplayer.api.UserService;
 import com.irateam.vkplayer.controllers.PlayerController;
 import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
@@ -55,8 +54,9 @@ import com.irateam.vkplayer.services.PlayerService;
 import com.irateam.vkplayer.ui.RoundImageView;
 import com.irateam.vkplayer.utils.NetworkUtils;
 import com.mobeta.android.dslv.DragSortListView;
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.vk.sdk.VKSdk;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements
         Callback<List<Audio>>,
         ActionMode.Callback {
 
+    private final EventBus eventBus = EventBus.getDefault();
     private AudioAdapter audioAdapter = new AudioAdapter(this);
     private AudioService audioService = new AudioService(this);
 
@@ -129,8 +130,10 @@ public class MainActivity extends AppCompatActivity implements
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
 
         playerController = new PlayerController(this, findViewById(R.id.player_panel));
-        playerController.rootView.setVisibility(View.GONE);
+        playerController.getRootView().setVisibility(View.GONE);
         playerController.setFabOnClickListener(v -> startActivity(new Intent(this, AudioActivity.class)));
+
+        eventBus.register(playerController);
 
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
         refreshLayout.setColorSchemeResources(
@@ -143,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements
 
             if (audioAdapter.isSortMode())
                 audioAdapter.setSortMode(false);
-//TODO: Repeat last
+            //TODO: Repeat last
         });
 
         listView = (DragSortListView) findViewById(R.id.list);
@@ -188,7 +191,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        playerService.removePlayerEventListener(playerController);
         unbindService(this);
         unregisterReceiver(downloadFinishedReceiver);
     }
@@ -349,10 +351,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         playerService = ((PlayerService.PlayerBinder) service).getPlayerService();
-        playerController.setPlayerService(playerService);
-        playerService.addPlayerEventListener(playerController);
-
-        audioAdapter.setPlayerService(playerService);
 
         Menu menu = navigationView.getMenu();
         MenuItem item;

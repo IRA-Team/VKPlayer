@@ -27,9 +27,10 @@ import android.media.AudioManager;
 import android.os.Binder;
 import android.os.IBinder;
 
+import com.irateam.vkplayer.api.SimpleCallback;
+import com.irateam.vkplayer.api.service.AudioInfoService;
+import com.irateam.vkplayer.api.service.SettingsService;
 import com.irateam.vkplayer.models.Audio;
-import com.irateam.vkplayer.models.AudioInfo;
-import com.irateam.vkplayer.models.Settings;
 import com.irateam.vkplayer.notifications.PlayerNotificationFactory;
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.player.PlayerEvent;
@@ -56,8 +57,9 @@ public class PlayerService extends Service implements AudioManager.OnAudioFocusC
 
     private final Player player = Player.getInstance();
     private final EventBus eventBus = EventBus.getDefault();
-    private final Settings settings = Settings.getInstance(this);
-    private final PlayerNotificationFactory notificationFactory = new PlayerNotificationFactory(this);
+    private final AudioInfoService audioInfoService = new AudioInfoService(this);
+    private SettingsService settingsService;
+    private PlayerNotificationFactory notificationFactory;
     private final Binder binder = new PlayerBinder();
 
     private BroadcastReceiver headsetReceiver;
@@ -72,9 +74,11 @@ public class PlayerService extends Service implements AudioManager.OnAudioFocusC
     @Override
     public void onCreate() {
         super.onCreate();
+        this.settingsService = SettingsService.getInstance(this);
+        this.notificationFactory = new PlayerNotificationFactory(this);
 
-        player.setRepeatState(settings.getPlayerRepeat());
-        player.setRandomState(settings.getRandomState());
+        player.setRepeatState(settingsService.getPlayerRepeat());
+        player.setRandomState(settingsService.getRandomState());
 
         eventBus.register(this);
 
@@ -219,11 +223,14 @@ TODO: settings
 
     @Subscribe
     public void onPlayEvent(PlayerPlayEvent e) {
+        final int index = e.getIndex();
         final Audio audio = e.getAudio();
 
         startForeground(PLAYER_NOTIFICATION_ID, notificationFactory.get(e));
-        audio.getAudioInfo().init(this, audio);
-/*       TODO: audio.getAudioInfo().getWithListener(this);*/
+        audioInfoService.get(audio).execute(SimpleCallback.of(info -> {
+            audio.setAudioInfo(info);
+            updateNotification(index, audio);
+        }));
     }
 
     @Subscribe
@@ -255,19 +262,6 @@ TODO: settings
         Notification notification = notificationFactory.get(e);
         notificationManager.notify(PLAYER_NOTIFICATION_ID, notification);
     }
-/*
-TODO: Cover update
-    @Override
-    public void OnComplete(AudioInfo audioInfo) {
-        if (audioInfo.cover != null) {
-            updateNotification();
-        }
-    }
-
-    @Override
-    public void OnError() {
-        Log.e("AUDIO_INFO", "ERROR");
-    }*/
 
     @Override
     public void onAudioFocusChange(int focusChange) {
