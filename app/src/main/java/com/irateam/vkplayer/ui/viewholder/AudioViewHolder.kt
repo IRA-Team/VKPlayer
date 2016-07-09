@@ -13,8 +13,9 @@ import com.amulyakhare.textdrawable.TextDrawable
 import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.models.Audio
+import com.irateam.vkplayer.ui.ItemTouchHelperViewHolder
 
-class AudioViewHolder : RecyclerView.ViewHolder {
+class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
 
     private val resources: Resources
 
@@ -34,6 +35,7 @@ class AudioViewHolder : RecyclerView.ViewHolder {
     var coverDrawable: Drawable? = null
 
     constructor(v: View) : super(v) {
+        setIsRecyclable(false)
         resources = v.context.resources
 
         title = v.findViewById(R.id.player_list_element_song_name) as TextView
@@ -43,6 +45,12 @@ class AudioViewHolder : RecyclerView.ViewHolder {
         progressBar = v.findViewById(R.id.player_list_element_progress) as ProgressBar
         coverWrapper = v.findViewById(R.id.player_list_element_cover_wrapper) as FrameLayout
         downloaded = v.findViewById(R.id.player_list_element_downloaded) as ImageView
+    }
+
+    override fun onItemSelected() {
+    }
+
+    override fun onItemClear() {
     }
 
     fun setAudio(audio: Audio) {
@@ -56,8 +64,8 @@ class AudioViewHolder : RecyclerView.ViewHolder {
     private fun setCover(audio: Audio) {
         val char = audio.artist[0].toString()
         val color = ColorGenerator.MATERIAL.getColor(audio.artist)
-        val drawable = TextDrawable.builder().buildRound(char, color)
-        cover.setImageDrawable(drawable)
+        coverDrawable = TextDrawable.builder().buildRound(char, color)
+        cover.setImageDrawable(coverDrawable)
     }
 
     fun isChecked(): Boolean {
@@ -118,7 +126,7 @@ class AudioViewHolder : RecyclerView.ViewHolder {
         }
     }
 
-    fun setCoverOnClickListener(listener: View.OnClickListener) {
+    fun setOnCoverClickListener(listener: View.OnClickListener) {
         coverWrapper.setOnClickListener(listener)
     }
 }

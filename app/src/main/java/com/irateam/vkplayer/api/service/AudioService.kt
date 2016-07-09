@@ -74,7 +74,7 @@ class AudioService {
     //Queries
     private inner class CachedAudioQuery : AbstractQuery<List<Audio>>() {
 
-        override fun query(): List<Audio> = helper.all.filter { !it.isCached }
+        override fun query(): List<Audio> = helper.all.filter { it.isCached }
     }
 
     private inner class RemoveFromCacheQuery(val audios: Collection<Audio>) :

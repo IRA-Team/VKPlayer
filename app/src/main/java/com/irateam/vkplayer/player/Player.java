@@ -244,7 +244,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         startProgress();
         setOnBufferingUpdateListener(this);
 
-        eventBus.post(new PlayerPlayEvent(getPlayingAudioIndex(), playingAudio));
+        eventBus.post(new PlayerStartEvent(getPlayingAudioIndex(), playingAudio));
     }
 
     @Override

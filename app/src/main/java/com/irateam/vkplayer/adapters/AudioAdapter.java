@@ -359,7 +359,7 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
                             resultList.add(audio);
                         }
                     }
-                    audioService.search(key).execute(SimpleCallback.of(audios -> {
+                    audioService.search(key).execute(SimpleCallback.success(audios -> {
                         searchList = audios;
                         new Handler(Looper.getMainLooper()).post(() -> notifyDataSetChanged());
                     }));

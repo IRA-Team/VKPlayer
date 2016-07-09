@@ -29,11 +29,4 @@
         android:textColor="@color/navigation_drawer_header_name_color"
         android:textSize="16sp" />
 
-    <com.irateam.vkplayer.ui.RoundImageView
-        android:id="@+id/navigation_drawer_header_avatar"
-        android:layout_width="@dimen/navigation_drawer_header_avatar"
-        android:layout_height="@dimen/navigation_drawer_header_avatar"
-        android:layout_above="@+id/navigation_drawer_header_full_name"
-        android:layout_marginBottom="8dp" />
-
 </RelativeLayout>

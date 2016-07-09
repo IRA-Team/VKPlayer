@@ -227,7 +227,7 @@ TODO: settings
         final Audio audio = e.getAudio();
 
         startForeground(PLAYER_NOTIFICATION_ID, notificationFactory.get(e));
-        audioInfoService.get(audio).execute(SimpleCallback.of(info -> {
+        audioInfoService.get(audio).execute(SimpleCallback.success(info -> {
             audio.setAudioInfo(info);
             updateNotification(index, audio);
         }));

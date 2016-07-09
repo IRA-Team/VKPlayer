@@ -122,7 +122,7 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
                 break;
             case R.id.action_remove_from_cache:
                 List<Audio> removeList = Collections.singletonList(player.getPlayingAudio());
-                audioService.removeFromCache(removeList).execute(SimpleCallback.of(audios -> {
+                audioService.removeFromCache(removeList).execute(SimpleCallback.success(audios -> {
                     setCacheAction(false);
                 }));
                 break;
@@ -131,9 +131,9 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
     }
 
     @Override
-    public void onServiceConnected(ComponentName name, IBinder service) {
+    public void onServiceConnected(ComponentName name, IBinder binder) {
         Log.i("Service", "Connected");
-        playerService = ((PlayerService.PlayerBinder) service).getPlayerService();
+        playerService = ((PlayerService.PlayerBinder) binder).getPlayerService();
     }
 
     @Override
