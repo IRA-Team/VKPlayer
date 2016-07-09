@@ -160,7 +160,7 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
                 coverOverlay.visibility = View.VISIBLE
             }
             PAUSE -> {
-                coverOverlay.setBackgroundResource(R.drawable.overlay_item_audio_play)
+                coverOverlay.setBackgroundResource(R.drawable.overlay_item_audio_pause)
                 progressBar.visibility = View.GONE
                 coverOverlay.visibility = View.VISIBLE
             }

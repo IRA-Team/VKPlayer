@@ -147,6 +147,11 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     }
 
     @Subscribe
+    fun onResumeEvent(e: PlayerResumeEvent) {
+        notifyEvent(e)
+    }
+
+    @Subscribe
     fun onPauseEvent(e: PlayerPauseEvent) {
         notifyEvent(e)
     }
