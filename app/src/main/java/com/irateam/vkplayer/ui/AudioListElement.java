@@ -48,12 +48,12 @@ public class AudioListElement extends FrameLayout implements Checkable {
 
     public AudioListElement(Context context, AttributeSet attrs) {
         super(context, attrs);
-        LayoutInflater.from(context).inflate(R.layout.player_list_element_layout, this);
+        LayoutInflater.from(context).inflate(R.layout.item_audio, this);
         title = (TextView) findViewById(R.id.player_list_element_song_name);
         artist = (TextView) findViewById(R.id.player_list_element_author);
         duration = (TextView) findViewById(R.id.player_list_element_duration);
-        cover = (ImageView) findViewById(R.id.player_list_element_cover);
-        progressBar = (ProgressBar) findViewById(R.id.player_list_element_progress);
+        cover = (ImageView) findViewById(R.id.cover);
+        progressBar = (ProgressBar) findViewById(R.id.preparing_progress);
         downloaded = (ImageView) findViewById(R.id.player_list_element_downloaded);
 
         TypedArray a = context.getTheme().obtainStyledAttributes(
@@ -132,9 +132,9 @@ public class AudioListElement extends FrameLayout implements Checkable {
         if (sorted) {
             Drawable[] layers = new Drawable[2];
             layers[0] = coverDrawable;
-            layers[1] = getResources().getDrawable(R.drawable.player_list_element_sort_overlay);
+            layers[1] = getResources().getDrawable(R.drawable.overlay_item_audio_sorting);
             cover.setImageDrawable(new LayerDrawable(layers));
-            findViewById(R.id.player_list_element_cover_wrapper).setClickable(false);
+            findViewById(R.id.cover_holder).setClickable(false);
         }
     }
 
@@ -148,7 +148,7 @@ public class AudioListElement extends FrameLayout implements Checkable {
             setBackgroundColor(getResources().getColor(R.color.player_list_element_checked_color));
             Drawable[] layers = new Drawable[2];
             layers[0] = coverDrawable;
-            layers[1] = getResources().getDrawable(R.drawable.player_list_element_check_overlay);
+            layers[1] = getResources().getDrawable(R.drawable.overlay_item_audio_checked);
             cover.setImageDrawable(new LayerDrawable(layers));
         } else {
             setBackgroundColor(getResources().getColor(R.color.player_list_element_color));
@@ -160,9 +160,9 @@ public class AudioListElement extends FrameLayout implements Checkable {
         Drawable[] layers = new Drawable[2];
         layers[0] = coverDrawable;
         if (playing) {
-            layers[1] = getResources().getDrawable(R.drawable.player_list_element_play_overlay);
+            layers[1] = getResources().getDrawable(R.drawable.overlay_item_audio_play);
         } else {
-            layers[1] = getResources().getDrawable(R.drawable.player_list_element_pause_overlay);
+            layers[1] = getResources().getDrawable(R.drawable.overlay_item_audio_pause);
         }
         cover.setImageDrawable(new LayerDrawable(layers));
     }
@@ -171,7 +171,7 @@ public class AudioListElement extends FrameLayout implements Checkable {
         if (preparing) {
             Drawable[] layers = new Drawable[2];
             layers[0] = coverDrawable;
-            layers[1] = getResources().getDrawable(R.drawable.player_list_element_overlay);
+            layers[1] = getResources().getDrawable(R.drawable.overlay_item_audio);
             cover.setImageDrawable(new LayerDrawable(layers));
             progressBar.setVisibility(VISIBLE);
         }
@@ -198,6 +198,6 @@ public class AudioListElement extends FrameLayout implements Checkable {
     }
 
     public void setCoverOnClickListener(OnClickListener listener) {
-        findViewById(R.id.player_list_element_cover_wrapper).setOnClickListener(listener);
+        findViewById(R.id.cover_holder).setOnClickListener(listener);
     }
 }

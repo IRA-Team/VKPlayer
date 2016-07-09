@@ -5,9 +5,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapters.AudioRecyclerViewAdapter
 import com.irateam.vkplayer.api.Query
@@ -24,6 +22,7 @@ class AudioListFragment : Fragment() {
     private lateinit var query: Query<List<Audio>>
     private lateinit var recyclerView: RecyclerView
     private lateinit var refreshLayout: SwipeRefreshLayout
+    private lateinit var menu: Menu
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +58,26 @@ class AudioListFragment : Fragment() {
             if (audioAdapter.isSortMode())
                 audioAdapter.setSortMode(false);
         }); */
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        this.menu = menu
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.action_sort -> {
+            adapter.setSortMode(true)
+            item.isVisible = false
+            menu.findItem(R.id.action_sort_done).isVisible = true
+            true
+        }
+        R.id.action_sort_done -> {
+            adapter.setSortMode(false)
+            item.isVisible = false
+            menu.findItem(R.id.action_sort).isVisible = true
+            true
+        }
+        else -> false
     }
 
     override fun onStop() {

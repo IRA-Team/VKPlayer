@@ -120,18 +120,6 @@ class MainActivity : AppCompatActivity(),
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_sort ->
-                //TODO:   audioAdapter.setSortMode(true);
-                return true
-            R.id.action_sort_done ->
-                //TODO:  audioAdapter.setSortMode(false);
-                return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
     fun setAudioList(list: List<Audio>) {
         /*TODO: if (list.isEmpty()) {
             listView.setVisibility(View.GONE);

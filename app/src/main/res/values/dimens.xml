@@ -1,4 +1,10 @@
 <resources>
+    <!-- Basic margins -->
+    <dimen name="margin_normal">16dp</dimen>
+
+    <!-- Basic paddings -->
+    <dimen name="padding_normal">16dp</dimen>
+
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
@@ -34,5 +40,9 @@
     <dimen name="navigation_drawer_header_avatar">64dp</dimen>
 
     <dimen name="empty_list_text_view_margin_top">20dp</dimen>
+
+    <!--v2.0 resolved dimens-->
+    <dimen name="item_audio_cover_holder_size">72dp</dimen>
+    <dimen name="item_audio_cover_size">40dp</dimen>
 
 </resources>

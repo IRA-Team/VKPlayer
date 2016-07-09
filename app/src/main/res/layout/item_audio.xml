@@ -1,35 +1,47 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/player_list_element"
-    android:layout_width="match_parent"
-    android:layout_height="@dimen/player_list_element_height"
-    android:duplicateParentState="true"
-    android:orientation="horizontal">
+                android:id="@+id/player_list_element"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/player_list_element_height"
+                android:duplicateParentState="true"
+                android:orientation="horizontal">
 
     <FrameLayout
-        android:id="@+id/player_list_element_cover_wrapper"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:id="@+id/cover_holder"
+        android:layout_width="@dimen/item_audio_cover_holder_size"
+        android:layout_height="@dimen/item_audio_cover_holder_size"
+        android:padding="@dimen/margin_normal">
 
         <ImageView
-            android:id="@+id/player_list_element_cover"
-            android:layout_width="@dimen/player_list_element_album_cover"
-            android:layout_height="@dimen/player_list_element_album_cover"
-            android:layout_margin="16dp" />
+            android:id="@+id/cover"
+            android:layout_width="@dimen/item_audio_cover_size"
+            android:layout_height="@dimen/item_audio_cover_size"/>
+
+        <View
+            android:id="@+id/cover_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
         <ProgressBar
-            android:id="@+id/player_list_element_progress"
+            android:id="@+id/preparing_progress"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_gravity="center"
-            android:visibility="gone" />
+            android:visibility="gone"/>
+
+        <View
+            android:id="@+id/cover_checked_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/overlay_item_audio_checked"
+            android:visibility="gone"/>
+
     </FrameLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_toLeftOf="@+id/linearLayout2"
-        android:layout_toRightOf="@+id/player_list_element_cover_wrapper"
+        android:layout_toRightOf="@+id/cover_holder"
         android:layout_toStartOf="@+id/linearLayout2"
         android:gravity="center"
         android:orientation="vertical">
@@ -41,7 +53,7 @@
             android:singleLine="true"
             android:text="Paradise"
             android:textColor="@color/player_list_element_song_name"
-            android:textSize="16dp" />
+            android:textSize="16dp"/>
 
         <TextView
             android:id="@+id/player_list_element_author"
@@ -49,7 +61,7 @@
             android:layout_height="wrap_content"
             android:text="Coldplay"
             android:textColor="@color/player_list_element_author"
-            android:textSize="10dp" />
+            android:textSize="10dp"/>
     </LinearLayout>
 
     <RelativeLayout
@@ -74,7 +86,7 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:text="00:00"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"/>
 
         <ImageView
             android:id="@+id/player_list_element_downloaded"
@@ -83,7 +95,7 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:src="@drawable/ic_list_cache_light_grey_18dp"
-            android:visibility="gone" />
+            android:visibility="gone"/>
     </RelativeLayout>
 
 </RelativeLayout>

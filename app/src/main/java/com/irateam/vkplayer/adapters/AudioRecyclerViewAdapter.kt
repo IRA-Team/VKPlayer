@@ -5,7 +5,6 @@ import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.LayoutInflater
 import android.view.MotionEvent
-import android.view.View
 import android.view.ViewGroup
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.models.Audio
@@ -13,6 +12,7 @@ import com.irateam.vkplayer.player.*
 import com.irateam.vkplayer.ui.ItemTouchHelperAdapter
 import com.irateam.vkplayer.ui.SimpleItemTouchHelperCallback
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder
+import com.irateam.vkplayer.ui.viewholder.AudioViewHolder.State.*
 import org.greenrobot.eventbus.Subscribe
 import java.util.*
 
@@ -23,6 +23,7 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     private val TYPE_AUDIO = 2;
     private val player = Player.getInstance()
 
+    private var sortMode = false
     private val itemTouchHelper: ItemTouchHelper
 
     private var data = ArrayList<Any>()
@@ -44,47 +45,27 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         val inflater = LayoutInflater.from(parent.context)
         when (viewType) {
             else -> {
-                val v = inflater.inflate(R.layout.player_list_element_layout, parent, false)
+                val v = inflater.inflate(R.layout.item_audio, parent, false)
                 return AudioViewHolder(v)
             }
         }
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) = when (holder) {
-        is AudioViewHolder -> {
-            val audio = data[position] as Audio
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (holder) {
+            is AudioViewHolder -> {
+                val audio = data[position] as Audio
 
-            holder.setAudio(audio)
-
-            val playingAudio = player.playingAudio
-            if (audio.id == playingAudio?.id) {
-                if (player.isReady) {
-                    holder.setPlaying(player.isPlaying)
-                } else {
-                    holder.setPreparing(true)
-                }
-            }
-
-            holder.setChecked(checkedAudios.contains(audio))
-            holder.itemView.setOnClickListener {
-                player.queue = audios
-                player.play(audios.indexOf(audio))
-            }
-            holder.setOnCoverClickListener(View.OnClickListener {
-                holder.toggleChecked()
-                if (holder.isChecked()) checkedAudios.add(audio) else checkedAudios.remove(audio)
-                notifyDataSetChanged()
-            })
-            holder.itemView.setOnTouchListener { v, e ->
-                if (MotionEventCompat.getActionMasked(e) == MotionEvent.ACTION_DOWN) {
-                    itemTouchHelper.startDrag(holder)
-                }
-                false
+                configureAudio(holder, audio)
+                configurePlayingState(holder, audio)
+                configureCheckedState(holder, audio)
+                configureSortMode(holder, audio)
             }
         }
-        else -> {
+    }
 
-        }
+    override fun getItemCount(): Int {
+        return data.size
     }
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView?) {
@@ -102,9 +83,50 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         notifyItemRemoved(position);
     }
 
+    private fun configureAudio(holder: AudioViewHolder, audio: Audio) {
+        holder.setAudio(audio)
+        holder.itemView.setOnClickListener {
+            player.queue = audios
+            player.play(audios.indexOf(audio))
+        }
+    }
 
-    override fun getItemCount(): Int {
-        return data.size
+    private fun configurePlayingState(holder: AudioViewHolder, audio: Audio) {
+        val playingAudio = player.playingAudio
+        if (audio.id == playingAudio?.id) {
+            val state = when {
+                !player.isReady -> PREPARE
+                player.isReady && player.isPlaying -> PLAY
+                player.isReady && !player.isPlaying -> PAUSE
+                else -> NONE
+            }
+            holder.setPlayingState(state)
+        }
+    }
+
+    private fun configureCheckedState(holder: AudioViewHolder, audio: Audio) {
+        holder.setChecked(checkedAudios.contains(audio))
+        holder.coverHolder.setOnClickListener {
+            holder.toggleChecked()
+            if (holder.isChecked()) checkedAudios.add(audio) else checkedAudios.remove(audio)
+        }
+    }
+
+    private fun configureSortMode(holder: AudioViewHolder, audio: Audio) {
+        holder.setSorting(sortMode)
+        if (sortMode) {
+            holder.coverHolder.setOnTouchListener { v, e ->
+                if (MotionEventCompat.getActionMasked(e) == MotionEvent.ACTION_DOWN) {
+                    itemTouchHelper.startDrag(holder)
+                }
+                false
+            }
+        }
+    }
+
+    fun setSortMode(enabled: Boolean) {
+        sortMode = enabled
+        notifyDataSetChanged()
     }
 
     fun setAudios(audios: List<Audio>) {
@@ -116,20 +138,20 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
 
     @Subscribe
     fun onStartEvent(e: PlayerStartEvent) {
-        findAndNotify(e)
+        notifyEvent(e)
     }
 
     @Subscribe
     fun onPlayEvent(e: PlayerPlayEvent) {
-        findAndNotify(e)
+        notifyEvent(e)
     }
 
     @Subscribe
     fun onPauseEvent(e: PlayerPauseEvent) {
-        findAndNotify(e)
+        notifyEvent(e)
     }
 
-    private fun findAndNotify(e: PlayerEvent) {
+    private fun notifyEvent(e: PlayerEvent) {
         notifyDataSetChanged()
     }
 }

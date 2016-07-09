@@ -1,8 +1,23 @@
+/*
+ * Copyright (C) 2016 IRA-Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.irateam.vkplayer.ui.viewholder
 
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.LayerDrawable
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.FrameLayout
@@ -14,22 +29,56 @@ import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.ui.ItemTouchHelperViewHolder
+import com.irateam.vkplayer.ui.viewholder.AudioViewHolder.State.*
 
+/**
+ * Main ViewHolder for Audio model. Contains title, artist, duration of audio.
+ * Also shows different states of audio. States of audio shows in this hierarchy:
+ * 1. Cover of audio that contains first letter of artist and material background
+ * 2. Preparing/Playing/Paused state that shows above cover with dark overlay and icon
+ * 3. Checked state with solid grey overlay and icon
+ * 4. Sorting state that shows above cover with dark overlay and icon. When this state active
+ * checked and playing states are invisible.
+ *
+ * @author Artem Glugovsky
+ */
 class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
 
     private val resources: Resources
 
-    private val title: TextView
-    private val artist: TextView
-    private val duration: TextView
-    private val downloaded: ImageView
+    val title: TextView
+    val artist: TextView
+    val duration: TextView
+    val downloaded: ImageView
 
-    //Cover views
-    private val cover: ImageView
-    private val progressBar: ProgressBar
-    private val coverWrapper: FrameLayout
+    /**
+     * ImageView that contains rounded cover with one char and material background
+     */
+    val cover: ImageView
 
-    private var checked: Boolean = false
+    /**
+     * View that contains overlays for different states of item
+     */
+    val coverOverlay: View
+
+    /**
+     * View that contains overlay for checked state of item
+     */
+    val coverCheckedOverlay: View
+
+    /**
+     * ProgressBar that shows when audio item is preparing
+     */
+    val progressBar: ProgressBar
+
+    /**
+     * FrameLayout that holds all cover views
+     */
+    val coverHolder: FrameLayout
+
+    private var state: State = NONE
+    private var checked = false
+    private var sorting = false
 
     var downloadedState: Boolean = false
     var coverDrawable: Drawable? = null
@@ -41,9 +90,11 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
         title = v.findViewById(R.id.player_list_element_song_name) as TextView
         artist = v.findViewById(R.id.player_list_element_author) as TextView
         duration = v.findViewById(R.id.player_list_element_duration) as TextView
-        cover = v.findViewById(R.id.player_list_element_cover) as ImageView
-        progressBar = v.findViewById(R.id.player_list_element_progress) as ProgressBar
-        coverWrapper = v.findViewById(R.id.player_list_element_cover_wrapper) as FrameLayout
+        cover = v.findViewById(R.id.cover) as ImageView
+        coverOverlay = v.findViewById(R.id.cover_overlay)
+        coverCheckedOverlay = v.findViewById(R.id.cover_checked_overlay)
+        progressBar = v.findViewById(R.id.preparing_progress) as ProgressBar
+        coverHolder = v.findViewById(R.id.cover_holder) as FrameLayout
         downloaded = v.findViewById(R.id.player_list_element_downloaded) as ImageView
     }
 
@@ -53,6 +104,10 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
     override fun onItemClear() {
     }
 
+    /**
+     * Configure item for concrete audio
+     * @param audio - Concrete audio
+     */
     fun setAudio(audio: Audio) {
         title.text = audio.title
         artist.text = audio.artist
@@ -61,6 +116,11 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
         setCover(audio)
     }
 
+    /**
+     * Configure cover of audio. Basically consists with material colored background and first
+     * letter of artist.
+     * @param audio - Audio for configuring cover
+     */
     private fun setCover(audio: Audio) {
         val char = audio.artist[0].toString()
         val color = ColorGenerator.MATERIAL.getColor(audio.artist)
@@ -68,27 +128,64 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
         cover.setImageDrawable(coverDrawable)
     }
 
-    fun isChecked(): Boolean {
-        return checked
+    /**
+     * Set up playing state of audio item
+     * @param state - Playing state of item
+     *
+     * NONE - Default state of item. Invisible cover overlays and progress bar.
+     *
+     * PREPARE - State of loading audio item. Visible dark overlay and progress bar.
+     *
+     * PLAY - State of playing audio item. Visible dark overlay with play icon, invisible progress
+     * bar.
+     *
+     * PAUSE - State of paused audio item. Visible dark overlay with pause icon, invisible progress
+     * bar.
+     */
+    fun setPlayingState(state: State) {
+        this.state = state
+        when (state) {
+            NONE -> {
+                coverOverlay.visibility = View.GONE
+                progressBar.visibility = View.GONE
+            }
+            PREPARE -> {
+                coverOverlay.setBackgroundResource(R.drawable.overlay_item_audio)
+                progressBar.visibility = View.VISIBLE
+                coverOverlay.visibility = View.VISIBLE
+            }
+            PLAY -> {
+                coverOverlay.setBackgroundResource(R.drawable.overlay_item_audio_play)
+                progressBar.visibility = View.GONE
+                coverOverlay.visibility = View.VISIBLE
+            }
+            PAUSE -> {
+                coverOverlay.setBackgroundResource(R.drawable.overlay_item_audio_play)
+                progressBar.visibility = View.GONE
+                coverOverlay.visibility = View.VISIBLE
+            }
+        }
     }
 
+    /**
+     * Set up checked state of item. Checked overlay always displays above playing state.
+     * @param checked - determine if item checked
+     */
     fun setChecked(checked: Boolean) {
         this.checked = checked
         if (checked) {
+            coverCheckedOverlay.visibility = View.VISIBLE
             val color = resources.getColor(R.color.player_list_element_checked_color)
             itemView.setBackgroundColor(color)
-
-            val layers = arrayOfNulls<Drawable>(2)
-            layers[0] = coverDrawable
-            layers[1] = resources.getDrawable(R.drawable.player_list_element_check_overlay)
-
-            cover.setImageDrawable(LayerDrawable(layers))
         } else {
+            coverCheckedOverlay.visibility = View.GONE
             val color = resources.getColor(R.color.player_list_element_color)
             itemView.setBackgroundColor(color)
-
-            cover.setImageDrawable(coverDrawable)
         }
+    }
+
+    fun isChecked(): Boolean {
+        return checked
     }
 
     fun toggleChecked() {
@@ -96,24 +193,15 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
         setChecked(checked)
     }
 
-    fun setPlaying(playing: Boolean) {
-        val layers = arrayOfNulls<Drawable>(2)
-        layers[0] = coverDrawable
-        if (playing) {
-            layers[1] = resources.getDrawable(R.drawable.player_list_element_play_overlay)
+    fun setSorting(sorting: Boolean) {
+        this.sorting = sorting
+        if (sorting) {
+            coverCheckedOverlay.visibility = View.GONE
+            coverOverlay.setBackgroundResource(R.drawable.overlay_item_audio_sorting)
+            coverOverlay.visibility = View.VISIBLE
         } else {
-            layers[1] = resources.getDrawable(R.drawable.player_list_element_pause_overlay)
-        }
-        cover.setImageDrawable(LayerDrawable(layers))
-    }
-
-    fun setPreparing(preparing: Boolean) {
-        if (preparing) {
-            val layers = arrayOfNulls<Drawable>(2)
-            layers[0] = coverDrawable
-            layers[1] = resources.getDrawable(R.drawable.player_list_element_overlay)
-            cover.setImageDrawable(LayerDrawable(layers))
-            progressBar.visibility = View.VISIBLE
+            setPlayingState(state)
+            setChecked(checked)
         }
     }
 
@@ -126,7 +214,10 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
         }
     }
 
-    fun setOnCoverClickListener(listener: View.OnClickListener) {
-        coverWrapper.setOnClickListener(listener)
+    /**
+     * Playing state of item
+     */
+    enum class State {
+        NONE, PREPARE, PLAY, PAUSE
     }
 }
