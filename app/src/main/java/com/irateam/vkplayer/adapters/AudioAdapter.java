@@ -270,7 +270,7 @@ public class AudioAdapter extends BaseAdapter implements Filterable {
                 element.setChecked(true);
             }
         } else {
-            view = inflater.inflate(R.layout.player_list_subheader, parent, false);
+            view = inflater.inflate(R.layout.item_header, parent, false);
         }
         return view;
     }

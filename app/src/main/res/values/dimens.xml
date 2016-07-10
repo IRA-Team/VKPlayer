@@ -54,4 +54,6 @@
     <dimen name="item_audio_preparing_progress_size">24dp</dimen>
     <dimen name="item_audio_secondary_info_width">40dp</dimen>
 
+    <dimen name="item_header_height">48dp</dimen>
+
 </resources>

@@ -24,11 +24,13 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.models.Audio
+import com.irateam.vkplayer.models.Header
 import com.irateam.vkplayer.player.*
 import com.irateam.vkplayer.ui.ItemTouchHelperAdapter
 import com.irateam.vkplayer.ui.SimpleItemTouchHelperCallback
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder.State.*
+import com.irateam.vkplayer.ui.viewholder.HeaderViewHolder
 import org.greenrobot.eventbus.Subscribe
 import java.util.*
 
@@ -42,13 +44,14 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     private val TYPE_AUDIO = 2
     private val player = Player.getInstance()
 
-    private var sortMode = false
-    private var searchQuery: String? = null
-
     private val itemTouchHelper: ItemTouchHelper
 
+    private var sortMode = false
     private var data = ArrayList<Any>()
     private var audios: List<Audio> = ArrayList()
+
+    private var searchQuery: String? = null
+    private var searchAudios: List<Audio> = ArrayList()
 
     var checkedAudios: HashSet<Audio> = LinkedHashSet()
 
@@ -61,6 +64,7 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     }
 
     override fun getItemViewType(position: Int): Int = when (data[position]) {
+        is Header -> TYPE_HEADER
         is Audio -> TYPE_AUDIO
         else -> -1
     }
@@ -68,10 +72,15 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         when (viewType) {
-            else -> {
+            TYPE_HEADER -> {
+                val v = inflater.inflate(R.layout.item_header, parent, false)
+                return HeaderViewHolder(v)
+            }
+            TYPE_AUDIO -> {
                 val v = inflater.inflate(R.layout.item_audio, parent, false)
                 return AudioViewHolder(v)
             }
+            else -> throw IllegalStateException("Illegal view type")
         }
     }
 
@@ -84,6 +93,10 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
                 configurePlayingState(holder, audio)
                 configureCheckedState(holder, audio)
                 configureSortMode(holder, audio)
+            }
+            is HeaderViewHolder -> {
+                val header = data[position] as Header
+                holder.setHeader(header)
             }
         }
     }
@@ -183,6 +196,12 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
 
         data.clear()
         data.addAll(filtered)
+        notifyDataSetChanged()
+    }
+
+    fun setSearchAudios(searchAudios: List<Audio>) {
+        data.add(Header("Search result"))
+        data.addAll(searchAudios)
         notifyDataSetChanged()
     }
 

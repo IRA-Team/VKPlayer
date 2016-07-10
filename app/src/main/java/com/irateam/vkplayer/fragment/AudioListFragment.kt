@@ -27,6 +27,7 @@ import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapters.AudioRecyclerViewAdapter
 import com.irateam.vkplayer.api.Query
 import com.irateam.vkplayer.api.SimpleCallback
+import com.irateam.vkplayer.api.service.AudioService
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.ui.CustomItemAnimator
 import org.greenrobot.eventbus.EventBus
@@ -34,17 +35,19 @@ import org.greenrobot.eventbus.EventBus
 /**
  * @author Artem Glugovsky
  */
-class AudioListFragment : Fragment(), ActionMode.Callback {
+class AudioListFragment : Fragment(), ActionMode.Callback, SearchView.OnQueryTextListener {
 
     private val eventBus = EventBus.getDefault()
     private val adapter = AudioRecyclerViewAdapter()
 
+    private lateinit var audioService: AudioService
     private lateinit var query: Query<List<Audio>>
     private lateinit var recyclerView: RecyclerView
     private lateinit var refreshLayout: SwipeRefreshLayout
     private lateinit var menu: Menu
     private lateinit var searchView: SearchView
 
+    private var previousSearchQuery: Query<List<Audio>>? = null
     private var actionMode: ActionMode? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,6 +91,7 @@ class AudioListFragment : Fragment(), ActionMode.Callback {
             }
         }
 
+        audioService = AudioService(context)
         eventBus.register(adapter)
         executeQuery()
     }
@@ -103,14 +107,18 @@ class AudioListFragment : Fragment(), ActionMode.Callback {
 
         searchView = itemSearch.actionView as SearchView
         searchView.setIconifiedByDefault(false)
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String) = false
+        searchView.setOnQueryTextListener(this)
+    }
 
-            override fun onQueryTextChange(query: String): Boolean {
-                adapter.setSearchQuery(query)
-                return true
-            }
-        })
+    override fun onQueryTextSubmit(query: String) = false
+
+    override fun onQueryTextChange(query: String): Boolean {
+        adapter.setSearchQuery(query)
+        previousSearchQuery?.cancel()
+        previousSearchQuery = audioService.search(query)
+        previousSearchQuery?.execute(SimpleCallback.success { adapter.setSearchAudios(it) })
+
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {

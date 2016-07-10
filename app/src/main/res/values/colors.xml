@@ -46,4 +46,7 @@
     <!-- v2.0 resolved colors -->
     <item name="item_audio_title" type="color">#000000</item>
     <item name="item_audio_artist" type="color">#b6b6b6</item>
+
+    <item name="item_header_delimiter" type="color">#d7d5d5</item>
+    <item name="item_header_title" type="color">#b6b6b6</item>
 </resources>
