@@ -43,6 +43,8 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     private val player = Player.getInstance()
 
     private var sortMode = false
+    private var searchQuery: String? = null
+
     private val itemTouchHelper: ItemTouchHelper
 
     private var data = ArrayList<Any>()
@@ -107,6 +109,8 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
 
     private fun configureAudio(holder: AudioViewHolder, audio: Audio) {
         holder.setAudio(audio)
+        val searchQuery = searchQuery
+        if (searchQuery != null) holder.setQuery(searchQuery)
         holder.itemView.setOnClickListener {
             player.queue = audios
             player.play(audios.indexOf(audio))
@@ -128,7 +132,7 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
 
     private fun configureCheckedState(holder: AudioViewHolder, audio: Audio) {
         holder.setChecked(checkedAudios.contains(audio))
-        holder.coverHolder.setOnClickListener {
+        holder.cover.setOnClickListener {
             holder.toggleChecked()
             if (holder.isChecked()) checkedAudios.add(audio) else checkedAudios.remove(audio)
             checkedListener?.invoke(audio, checkedAudios)
@@ -165,6 +169,27 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         data.clear()
         data.addAll(audios)
         this.audios = audios
+        notifyDataSetChanged()
+    }
+
+    fun setSearchQuery(query: String) {
+        val lowerQuery = query.toLowerCase()
+        searchQuery = query
+
+        val filtered = audios.filter {
+            it.title.toLowerCase().contains(lowerQuery)
+                    || it.artist.toLowerCase().contains(lowerQuery)
+        }
+
+        data.clear()
+        data.addAll(filtered)
+        notifyDataSetChanged()
+    }
+
+    fun clearSearchQuery() {
+        searchQuery = null
+        data.clear()
+        data.addAll(audios)
         notifyDataSetChanged()
     }
 

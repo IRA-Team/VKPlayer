@@ -21,6 +21,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.SearchView
 import android.view.*
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapters.AudioRecyclerViewAdapter
@@ -42,6 +43,7 @@ class AudioListFragment : Fragment(), ActionMode.Callback {
     private lateinit var recyclerView: RecyclerView
     private lateinit var refreshLayout: SwipeRefreshLayout
     private lateinit var menu: Menu
+    private lateinit var searchView: SearchView
 
     private var actionMode: ActionMode? = null
 
@@ -97,6 +99,18 @@ class AudioListFragment : Fragment(), ActionMode.Callback {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         this.menu = menu
+        val itemSearch = menu.findItem(R.id.action_search)
+
+        searchView = itemSearch.actionView as SearchView
+        searchView.setIconifiedByDefault(false)
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String) = false
+
+            override fun onQueryTextChange(query: String): Boolean {
+                adapter.setSearchQuery(query)
+                return true
+            }
+        })
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {

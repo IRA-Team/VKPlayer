@@ -17,7 +17,11 @@
 package com.irateam.vkplayer.ui.viewholder
 
 import android.content.res.Resources
+import android.graphics.Color
 import android.support.v7.widget.RecyclerView
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.BackgroundColorSpan
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -207,6 +211,40 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
     fun setCached(cached: Boolean) {
         this.cached = cached
         cachedIcon.visibility = if (cached) VISIBLE else GONE
+    }
+
+    fun setQuery(query: String) = if (!query.isEmpty()) {
+        val spannableTitle = SpannableString(title.text)
+        findAndSetSpans(spannableTitle, query)
+        title.text = spannableTitle
+
+        val spannableArtist = SpannableString(artist.text)
+        findAndSetSpans(spannableArtist, query)
+        artist.text = spannableArtist
+    } else {
+        clearQuery()
+    }
+
+    private fun findAndSetSpans(spannable: Spannable, query: String) {
+        var index = 0
+        val lowerString = spannable.toString().toLowerCase()
+        while (index != -1) {
+            index = lowerString.indexOf(query, index)
+            if (index != -1) {
+                setSpanMatches(spannable, index, index + query.length)
+                index += query.length
+            }
+        }
+    }
+
+    private fun setSpanMatches(spannable: Spannable, start: Int, end: Int) {
+        val span = BackgroundColorSpan(Color.parseColor("#FF0000"))
+        spannable.setSpan(span, start, end, 0)
+    }
+
+    fun clearQuery() {
+        title.text = title.text.toString()
+        artist.text = artist.text.toString()
     }
 
     /**

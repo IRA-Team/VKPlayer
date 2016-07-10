@@ -22,7 +22,6 @@ import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.NavigationView
 import android.support.v4.app.Fragment
 import android.support.v4.view.GravityCompat
-import android.support.v4.view.MenuItemCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
@@ -54,12 +53,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //Player helpers
     private lateinit var playerController: PlayerController
-    private var playerService: PlayerService? = null
-
-    //Menus
-    private lateinit var toolbarMenu: Menu
-    private lateinit var searchView: SearchView
-    private var actionMode: ActionMode? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,25 +88,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_list, menu)
-
-        toolbarMenu = menu
-
-        val itemSort = menu.findItem(R.id.action_sort)
-        val itemSortDone = menu.findItem(R.id.action_sort_done)
-        val itemSearch = menu.findItem(R.id.action_search)
-
-        searchView = itemSearch.actionView as SearchView
-        searchView.setIconifiedByDefault(false)
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String): Boolean {
-                return false
-            }
-
-            override fun onQueryTextChange(newText: String): Boolean {
-                //TODO:  audioAdapter.getFilter().filter(newText);
-                return true
-            }
-        })
         return true
     }
 
@@ -124,11 +98,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val groupId = menuItem.groupId
 
         if (groupId == R.id.audio_group) {
-            searchView.post { MenuItemCompat.collapseActionView(toolbarMenu.findItem(R.id.action_search)) }
             supportActionBar?.title = menuItem.title
-        }
-
-        if (groupId == R.id.audio_group) {
             // @formatter:off
             val query = when (itemId) {
                 R.id.current_playlist  -> audioService.getCurrent()
