@@ -21,8 +21,11 @@ import android.os.Parcelable;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.irateam.vkplayer.adapters.AudioRecyclerViewAdapter;
 
 import java.io.File;
+
+import kotlin.Unit;
 
 public class Audio implements Parcelable {
 

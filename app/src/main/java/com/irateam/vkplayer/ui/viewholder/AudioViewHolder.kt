@@ -17,9 +17,10 @@
 package com.irateam.vkplayer.ui.viewholder
 
 import android.content.res.Resources
-import android.graphics.drawable.Drawable
 import android.support.v7.widget.RecyclerView
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -49,7 +50,7 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
     val title: TextView
     val artist: TextView
     val duration: TextView
-    val downloaded: ImageView
+    val cachedIcon: ImageView
 
     /**
      * ImageView that contains rounded cover with one char and material background
@@ -69,7 +70,7 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
     /**
      * ProgressBar that shows when audio item is preparing
      */
-    val progressBar: ProgressBar
+    val preparingProgress: ProgressBar
 
     /**
      * FrameLayout that holds all cover views
@@ -79,23 +80,21 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
     private var state: State = NONE
     private var checked = false
     private var sorting = false
-
-    var downloadedState: Boolean = false
-    var coverDrawable: Drawable? = null
+    private var cached = false
 
     constructor(v: View) : super(v) {
         setIsRecyclable(false)
         resources = v.context.resources
 
-        title = v.findViewById(R.id.player_list_element_song_name) as TextView
-        artist = v.findViewById(R.id.player_list_element_author) as TextView
-        duration = v.findViewById(R.id.player_list_element_duration) as TextView
+        title = v.findViewById(R.id.title) as TextView
+        artist = v.findViewById(R.id.artist) as TextView
+        duration = v.findViewById(R.id.duration) as TextView
         cover = v.findViewById(R.id.cover) as ImageView
         coverOverlay = v.findViewById(R.id.cover_overlay)
         coverCheckedOverlay = v.findViewById(R.id.cover_checked_overlay)
-        progressBar = v.findViewById(R.id.preparing_progress) as ProgressBar
+        preparingProgress = v.findViewById(R.id.preparing_progress) as ProgressBar
         coverHolder = v.findViewById(R.id.cover_holder) as FrameLayout
-        downloaded = v.findViewById(R.id.player_list_element_downloaded) as ImageView
+        cachedIcon = v.findViewById(R.id.cached_icon) as ImageView
     }
 
     override fun onItemSelected() {
@@ -124,7 +123,7 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
     private fun setCover(audio: Audio) {
         val char = audio.artist[0].toString()
         val color = ColorGenerator.MATERIAL.getColor(audio.artist)
-        coverDrawable = TextDrawable.builder().buildRound(char, color)
+        val coverDrawable = TextDrawable.builder().buildRound(char, color)
         cover.setImageDrawable(coverDrawable)
     }
 
@@ -146,23 +145,23 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
         this.state = state
         when (state) {
             NONE -> {
-                coverOverlay.visibility = View.GONE
-                progressBar.visibility = View.GONE
+                coverOverlay.visibility = GONE
+                preparingProgress.visibility = GONE
             }
             PREPARE -> {
                 coverOverlay.setBackgroundResource(R.drawable.overlay_item_audio)
-                progressBar.visibility = View.VISIBLE
-                coverOverlay.visibility = View.VISIBLE
+                preparingProgress.visibility = VISIBLE
+                coverOverlay.visibility = VISIBLE
             }
             PLAY -> {
                 coverOverlay.setBackgroundResource(R.drawable.overlay_item_audio_play)
-                progressBar.visibility = View.GONE
-                coverOverlay.visibility = View.VISIBLE
+                preparingProgress.visibility = GONE
+                coverOverlay.visibility = VISIBLE
             }
             PAUSE -> {
                 coverOverlay.setBackgroundResource(R.drawable.overlay_item_audio_pause)
-                progressBar.visibility = View.GONE
-                coverOverlay.visibility = View.VISIBLE
+                preparingProgress.visibility = GONE
+                coverOverlay.visibility = VISIBLE
             }
         }
     }
@@ -174,11 +173,11 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
     fun setChecked(checked: Boolean) {
         this.checked = checked
         if (checked) {
-            coverCheckedOverlay.visibility = View.VISIBLE
+            coverCheckedOverlay.visibility = VISIBLE
             val color = resources.getColor(R.color.player_list_element_checked_color)
             itemView.setBackgroundColor(color)
         } else {
-            coverCheckedOverlay.visibility = View.GONE
+            coverCheckedOverlay.visibility = GONE
             val color = resources.getColor(R.color.player_list_element_color)
             itemView.setBackgroundColor(color)
         }
@@ -196,22 +195,18 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
     fun setSorting(sorting: Boolean) {
         this.sorting = sorting
         if (sorting) {
-            coverCheckedOverlay.visibility = View.GONE
+            coverCheckedOverlay.visibility = GONE
             coverOverlay.setBackgroundResource(R.drawable.overlay_item_audio_sorting)
-            coverOverlay.visibility = View.VISIBLE
+            coverOverlay.visibility = VISIBLE
         } else {
             setPlayingState(state)
             setChecked(checked)
         }
     }
 
-    fun setDownloaded(downloadedState: Boolean) {
-        this.downloadedState = downloadedState
-        if (downloadedState) {
-            downloaded.visibility = View.VISIBLE
-        } else {
-            downloaded.visibility = View.GONE
-        }
+    fun setCached(cached: Boolean) {
+        this.cached = cached
+        cachedIcon.visibility = if (cached) VISIBLE else GONE
     }
 
     /**

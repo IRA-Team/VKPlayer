@@ -1,9 +1,17 @@
 <resources>
     <!-- Basic margins -->
+    <dimen name="margin_small">8dp</dimen>
     <dimen name="margin_normal">16dp</dimen>
 
-    <!-- Basic paddings -->
+    <!-- Basic padding -->
+    <dimen name="padding_small">8dp</dimen>
     <dimen name="padding_normal">16dp</dimen>
+
+    <!-- Basic font sizes -->
+    <dimen name="font_tiny">10sp</dimen>
+    <dimen name="font_small">12sp</dimen>
+    <dimen name="font_normal">14sp</dimen>
+    <dimen name="font_medium">16sp</dimen>
 
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
@@ -32,7 +40,6 @@
 
     <dimen name="player_list_element_height">72dp</dimen>
     <dimen name="player_list_element_album_cover">40dp</dimen>
-    <dimen name="player_list_element_info_width">40dp</dimen>
 
     <dimen name="button_login_activity_height">56dp</dimen>
 
@@ -44,5 +51,7 @@
     <!--v2.0 resolved dimens-->
     <dimen name="item_audio_cover_holder_size">72dp</dimen>
     <dimen name="item_audio_cover_size">40dp</dimen>
+    <dimen name="item_audio_preparing_progress_size">24dp</dimen>
+    <dimen name="item_audio_secondary_info_width">40dp</dimen>
 
 </resources>

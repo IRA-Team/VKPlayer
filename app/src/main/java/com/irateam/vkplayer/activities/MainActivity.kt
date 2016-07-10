@@ -37,14 +37,11 @@ import com.irateam.vkplayer.activities.settings.SettingsActivity
 import com.irateam.vkplayer.api.service.AudioService
 import com.irateam.vkplayer.controllers.PlayerController
 import com.irateam.vkplayer.fragment.AudioListFragment
-import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.services.PlayerService
 import com.vk.sdk.VKSdk
 import org.greenrobot.eventbus.EventBus
 
-class MainActivity : AppCompatActivity(),
-        NavigationView.OnNavigationItemSelectedListener,
-        ActionMode.Callback {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private val eventBus = EventBus.getDefault()
     private val audioService = AudioService(this)
@@ -118,20 +115,6 @@ class MainActivity : AppCompatActivity(),
             }
         })
         return true
-    }
-
-    fun setAudioList(list: List<Audio>) {
-        /*TODO: if (list.isEmpty()) {
-            listView.setVisibility(View.GONE);
-            emptyView.setVisibility(View.VISIBLE);
-        } else {
-            listView.setVisibility(View.VISIBLE);
-            emptyView.setVisibility(View.GONE);
-            audioAdapter.setList(list);
-            audioAdapter.notifyDataSetChanged();
-        }
-
-        refreshLayout.setRefreshing(false); */
     }
 
     override fun onNavigationItemSelected(menuItem: MenuItem): Boolean {
@@ -221,17 +204,7 @@ class MainActivity : AppCompatActivity(),
         }*/
     }
 
-    override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-        actionMode = mode
-        mode.menuInflater.inflate(R.menu.menu_list_context, menu)
-        return true
-    }
-
-    override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-        return false
-    }
-
-    override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+    fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
         val menuItem = navigationView.menu.findItem(R.id.current_playlist)
         /*TODO: switch (item.getItemId()) {
             case R.id.action_play:
@@ -277,10 +250,5 @@ class MainActivity : AppCompatActivity(),
         }
         mode.finish();*/
         return true
-    }
-
-    override fun onDestroyActionMode(mode: ActionMode) {
-        //TODO:  audioAdapter.clearChecked();
-        actionMode = null
     }
 }

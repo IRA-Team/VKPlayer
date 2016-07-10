@@ -49,12 +49,12 @@ public class AudioListElement extends FrameLayout implements Checkable {
     public AudioListElement(Context context, AttributeSet attrs) {
         super(context, attrs);
         LayoutInflater.from(context).inflate(R.layout.item_audio, this);
-        title = (TextView) findViewById(R.id.player_list_element_song_name);
-        artist = (TextView) findViewById(R.id.player_list_element_author);
-        duration = (TextView) findViewById(R.id.player_list_element_duration);
+        title = (TextView) findViewById(R.id.title);
+        artist = (TextView) findViewById(R.id.artist);
+        duration = (TextView) findViewById(R.id.duration);
         cover = (ImageView) findViewById(R.id.cover);
         progressBar = (ProgressBar) findViewById(R.id.preparing_progress);
-        downloaded = (ImageView) findViewById(R.id.player_list_element_downloaded);
+        downloaded = (ImageView) findViewById(R.id.cached_icon);
 
         TypedArray a = context.getTheme().obtainStyledAttributes(
                 attrs,

@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2016 IRA-Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.irateam.vkplayer.fragment
 
 import android.os.Bundle
@@ -14,7 +30,10 @@ import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.ui.CustomItemAnimator
 import org.greenrobot.eventbus.EventBus
 
-class AudioListFragment : Fragment() {
+/**
+ * @author Artem Glugovsky
+ */
+class AudioListFragment : Fragment(), ActionMode.Callback {
 
     private val eventBus = EventBus.getDefault()
     private val adapter = AudioRecyclerViewAdapter()
@@ -23,6 +42,8 @@ class AudioListFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var refreshLayout: SwipeRefreshLayout
     private lateinit var menu: Menu
+
+    private var actionMode: ActionMode? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,18 +67,32 @@ class AudioListFragment : Fragment() {
         refreshLayout.setColorSchemeResources(
                 R.color.accent,
                 R.color.primary)
-        refreshLayout.setOnRefreshListener { executeQuery() }
+        refreshLayout.setOnRefreshListener {
+            actionMode?.finish()
+            if (adapter.isSortMode()) {
+                adapter.setSortMode(false)
+            }
+            executeQuery()
+        }
+
+        adapter.checkedListener = { audio, checked ->
+            if (actionMode == null && checked.size > 0) {
+                actionMode = activity.startActionMode(this)
+            }
+            actionMode?.title = checked.size.toString()
+
+            if (actionMode != null && checked.isEmpty()) {
+                actionMode?.finish()
+            }
+        }
 
         eventBus.register(adapter)
         executeQuery()
-        /*TODO:
-        refreshLayout.setOnRefreshListener(() -> {
-            if (actionMode != null)
-                actionMode.finish();
+    }
 
-            if (audioAdapter.isSortMode())
-                audioAdapter.setSortMode(false);
-        }); */
+    override fun onStop() {
+        super.onStop()
+        eventBus.unregister(adapter)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -80,9 +115,29 @@ class AudioListFragment : Fragment() {
         else -> false
     }
 
-    override fun onStop() {
-        super.onStop()
-        eventBus.unregister(adapter)
+    override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+        actionMode = mode
+        mode.menuInflater.inflate(R.menu.menu_list_context, menu)
+        return true
+    }
+
+    override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+        return false
+    }
+
+    //TODO: Implement
+    override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean = when (item.itemId) {
+        R.id.action_play -> false
+        R.id.action_cache -> false
+        R.id.action_remove_from_cache -> false
+        R.id.action_delete -> false
+        R.id.action_add_to_playlist -> false
+        else -> false
+    }
+
+    override fun onDestroyActionMode(mode: ActionMode) {
+        adapter.clearChecked()
+        actionMode = null
     }
 
     private fun executeQuery() {
@@ -91,6 +146,7 @@ class AudioListFragment : Fragment() {
                 .success { audios: List<Audio> -> adapter.setAudios(audios) }
                 .finish { refreshLayout.isRefreshing = false })
     }
+
 
     companion object {
 

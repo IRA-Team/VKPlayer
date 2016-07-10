@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2016 IRA-Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.irateam.vkplayer.adapters
 
 import android.support.v4.view.MotionEventCompat
@@ -16,11 +32,14 @@ import com.irateam.vkplayer.ui.viewholder.AudioViewHolder.State.*
 import org.greenrobot.eventbus.Subscribe
 import java.util.*
 
+/**
+ * @author Artem Glugovsky
+ */
 class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
         ItemTouchHelperAdapter {
 
-    private val TYPE_HEADER = 1;
-    private val TYPE_AUDIO = 2;
+    private val TYPE_HEADER = 1
+    private val TYPE_AUDIO = 2
     private val player = Player.getInstance()
 
     private var sortMode = false
@@ -30,6 +49,9 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     private var audios: List<Audio> = ArrayList()
 
     var checkedAudios: HashSet<Audio> = LinkedHashSet()
+
+    //Listeners
+    var checkedListener: ((audio: Audio, checked: HashSet<Audio>) -> Unit)? = null
 
     init {
         val callback = SimpleItemTouchHelperCallback(this)
@@ -74,13 +96,13 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
 
     override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
         Collections.swap(data, fromPosition, toPosition)
-        notifyItemMoved(fromPosition, toPosition);
-        return true;
+        notifyItemMoved(fromPosition, toPosition)
+        return true
     }
 
     override fun onItemDismiss(position: Int) {
         data.remove(position)
-        notifyItemRemoved(position);
+        notifyItemRemoved(position)
     }
 
     private fun configureAudio(holder: AudioViewHolder, audio: Audio) {
@@ -109,6 +131,7 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         holder.coverHolder.setOnClickListener {
             holder.toggleChecked()
             if (holder.isChecked()) checkedAudios.add(audio) else checkedAudios.remove(audio)
+            checkedListener?.invoke(audio, checkedAudios)
         }
     }
 
@@ -124,9 +147,18 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         }
     }
 
+    fun clearChecked() {
+        checkedAudios.clear()
+        notifyDataSetChanged()
+    }
+
     fun setSortMode(enabled: Boolean) {
         sortMode = enabled
         notifyDataSetChanged()
+    }
+
+    fun isSortMode(): Boolean {
+        return sortMode
     }
 
     fun setAudios(audios: List<Audio>) {
