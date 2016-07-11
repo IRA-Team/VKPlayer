@@ -28,9 +28,8 @@ Changelist:
 
 ##Download
 
-Google Play: https://play.google.com/store/apps/details?id=com.irateam.vkplayer
-
-![QR](https://raw.github.com/IRA-Team/VKPlayer/master/_arts/qr.jpg)
+Github: https://github.com/IRA-Team/VKPlayer/releases/download/v1.1.1/v1.1.1.apk
+Currently not aviable on Google Play
 
 ##Dependencies
 
