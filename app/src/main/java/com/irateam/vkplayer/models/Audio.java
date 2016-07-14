@@ -19,9 +19,6 @@ package com.irateam.vkplayer.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.io.File;
 
 public class Audio implements Parcelable {
@@ -39,17 +36,16 @@ public class Audio implements Parcelable {
     private File cacheFile;
     private AudioInfo audioInfo;
 
-    @JsonCreator
-    public Audio(@JsonProperty("id") int id,
-                 @JsonProperty("owner_id") int ownerId,
-                 @JsonProperty("artist") String artist,
-                 @JsonProperty("title") String title,
-                 @JsonProperty("duration") int duration,
-                 @JsonProperty("url") String url,
-                 @JsonProperty("lyrics_id") int lyricsId,
-                 @JsonProperty("album_id") int albumId,
-                 @JsonProperty("genre_id") int genre,
-                 @JsonProperty("access_key") String accessKey) {
+    public Audio(int id,
+                 int ownerId,
+                 String artist,
+                 String title,
+                 int duration,
+                 String url,
+                 int lyricsId,
+                 int albumId,
+                 int genre,
+                 String accessKey) {
 
         this.id = id;
         this.ownerId = ownerId;

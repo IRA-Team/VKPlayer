@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<com.irateam.vkplayer.ui.AudioListElement xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="@dimen/player_list_element_height" />
