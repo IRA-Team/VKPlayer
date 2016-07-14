@@ -25,31 +25,43 @@ import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.SearchView
 import android.support.v7.widget.Toolbar
-import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.activities.settings.SettingsActivity
+import com.irateam.vkplayer.api.SimpleCallback
 import com.irateam.vkplayer.api.service.AudioService
+import com.irateam.vkplayer.api.service.UserService
 import com.irateam.vkplayer.controllers.PlayerController
 import com.irateam.vkplayer.fragment.AudioListFragment
+import com.irateam.vkplayer.models.User
 import com.irateam.vkplayer.services.PlayerService
+import com.irateam.vkplayer.utils.setRoundImageURL
 import com.vk.sdk.VKSdk
 import org.greenrobot.eventbus.EventBus
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private val eventBus = EventBus.getDefault()
-    private val audioService = AudioService(this)
+
+    //Services
+    private lateinit var userService: UserService
+    private lateinit var audioService: AudioService
 
     //Views
     private lateinit var toolbar: Toolbar
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var coordinatorLayout: CoordinatorLayout
+
+    //User views
+    private lateinit var userPhoto: ImageView
+    private lateinit var userFullName: TextView
+    private lateinit var userVkLink: TextView
 
     //Player helpers
     private lateinit var playerController: PlayerController
@@ -75,6 +87,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         navigationView = findViewById(R.id.navigation_view) as NavigationView
         navigationView.setNavigationItemSelectedListener(this)
 
+        val header = navigationView.getHeaderView(0)
+        userPhoto = header.findViewById(R.id.user_photo) as ImageView
+        userFullName = header.findViewById(R.id.user_full_name) as TextView
+        userVkLink = header.findViewById(R.id.user_vk_link) as TextView
+
         coordinatorLayout = findViewById(R.id.coordinator_layout) as CoordinatorLayout
 
         playerController = PlayerController(this, findViewById(R.id.player_panel)!!)
@@ -82,8 +99,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val listener = View.OnClickListener { startActivity(Intent(this, AudioActivity::class.java)) }
         playerController.setFabOnClickListener(listener)
 
+        audioService = AudioService(this)
+        userService = UserService(this)
+
         eventBus.register(playerController)
         startService(Intent(this, PlayerService::class.java))
+
+        initializeUser()
+        initializeFragment()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -110,7 +133,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             // @formatter:on
             val fragment = AudioListFragment.newInstance(query)
-            showFragment(fragment)
+            setFragment(fragment)
             return true
 
         } else if (groupId == R.id.secondary_group) {
@@ -124,101 +147,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return false
     }
 
-    fun showFragment(fragment: Fragment) {
+    private fun initializeUser() {
+        userService.getCurrent().execute(SimpleCallback.success { setUser(it) })
+    }
+
+    private fun setUser(user: User) {
+        userPhoto.setRoundImageURL(user.photo100px)
+        userFullName.text = user.fullName
+        userVkLink.text = "http://vk.com/id" + user.id
+    }
+
+    private fun initializeFragment() {
+        val item = navigationView.menu.findItem(R.id.my_audio)
+        item.isChecked = true
+        onNavigationItemSelected(item)
+    }
+
+    fun setFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
                 .replace(R.id.container, fragment)
                 .commit()
-    }
-
-    override fun onBackPressed() {
-        /* TODO: if (audioAdapter.isSortMode()) {
-            audioAdapter.setSortMode(false);
-            listView.setDragEnabled(false);
-            refreshLayout.setEnabled(true);
-            return;
-        }*/
-        super.onBackPressed()
     }
 
     private fun VkLogout() {
         VKSdk.logout()
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
-    }
-
-    fun performCheck(position: Int) {
-        /*TODO: audioAdapter.toggleChecked(position);
-        if (audioAdapter.getCheckedCount() > 0) {
-            if (actionMode == null) {
-                startActionMode(this);
-            }
-            actionMode.setTitle(String.valueOf(audioAdapter.getCheckedCount()));
-
-            Menu menu = actionMode.getMenu();
-            MenuItem cacheItem = menu.findItem(R.id.action_cache);
-            MenuItem removeFromCache = menu.findItem(R.id.action_remove_from_cache);
-            if (audioAdapter.getCachedCheckedItems().size() > 0) {
-                removeFromCache.setVisible(true);
-            } else {
-                removeFromCache.setVisible(false);
-            }
-
-            if (audioAdapter.getNotCachedItems().size() > 0) {
-                cacheItem.setVisible(true);
-            } else {
-                cacheItem.setVisible(false);
-            }
-
-        } else {
-            actionMode.finish();
-        }*/
-    }
-
-    fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-        val menuItem = navigationView.menu.findItem(R.id.current_playlist)
-        /*TODO: switch (item.getItemId()) {
-            case R.id.action_play:
-                playerService.setPlaylist(audioAdapter.getCheckedItems());
-                playerService.play(0);
-                menuItem.setChecked(true);
-                onNavigationItemSelected(menuItem);
-                break;
-
-            case R.id.action_cache:
-                Intent intent = new Intent(this, DownloadService.class);
-                intent.setAction(DownloadService.START_DOWNLOADING);
-                intent.putExtra(DownloadService.AUDIO_LIST, (ArrayList<Audio>) audioAdapter.getCheckedItems());
-                startService(intent);
-                break;
-
-            case R.id.action_remove_from_cache:
-                List<Audio> list = audioAdapter.getCachedCheckedItems();
-                audioService.removeFromCache(list).execute(SimpleCallback.of(audioAdapter::updateAudiosById));
-                break;
-
-            case R.id.action_delete:
-                audioAdapter.removeChecked();
-                break;
-
-            case R.id.action_add_to_playlist:
-                List<Audio> checked = audioAdapter.getCheckedItems();
-                List<Audio> playlist = playerService.getPlaylist();
-                List<Audio> listToAdd = new ArrayList<>();
-                for (Audio audio : checked) {
-                    listToAdd.add(audio.clone());
-                }
-                playlist.addAll(0, listToAdd);
-                audioAdapter.notifyDataSetChanged();
-                Snackbar.make(coordinatorLayout, R.string.snackbar_add_to_playlist, Snackbar.LENGTH_LONG)
-                        .setAction(R.string.snackbar_cancel, (v -> {
-                            for (int i = 0; i < checked.size(); i++)
-                                playlist.remove(0);
-                            audioAdapter.notifyDataSetChanged();
-                        }))
-                        .show();
-                break;
-        }
-        mode.finish();*/
-        return true
     }
 }

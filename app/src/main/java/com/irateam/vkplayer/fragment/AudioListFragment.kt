@@ -30,6 +30,7 @@ import com.irateam.vkplayer.api.SimpleCallback
 import com.irateam.vkplayer.api.service.AudioService
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.ui.CustomItemAnimator
+import com.irateam.vkplayer.utils.isVisible
 import org.greenrobot.eventbus.EventBus
 
 /**
@@ -44,6 +45,7 @@ class AudioListFragment : Fragment(), ActionMode.Callback, SearchView.OnQueryTex
     private lateinit var query: Query<List<Audio>>
     private lateinit var recyclerView: RecyclerView
     private lateinit var refreshLayout: SwipeRefreshLayout
+    private lateinit var emptyView: View
     private lateinit var menu: Menu
     private lateinit var searchView: SearchView
 
@@ -79,6 +81,8 @@ class AudioListFragment : Fragment(), ActionMode.Callback, SearchView.OnQueryTex
             }
             executeQuery()
         }
+
+        emptyView = view.findViewById(R.id.empty_view)
 
         adapter.checkedListener = { audio, checked ->
             if (actionMode == null && checked.size > 0) {
@@ -163,10 +167,13 @@ class AudioListFragment : Fragment(), ActionMode.Callback, SearchView.OnQueryTex
     }
 
     private fun executeQuery() {
-        refreshLayout.isRefreshing = true
+        refreshLayout.post { refreshLayout.isRefreshing = true }
         query.execute(SimpleCallback
-                .success { audios: List<Audio> -> adapter.setAudios(audios) }
-                .finish { refreshLayout.isRefreshing = false })
+                .success { audios: List<Audio> ->
+                    adapter.setAudios(audios)
+                    emptyView.isVisible = audios.isEmpty()
+                }
+                .finish { refreshLayout.post { refreshLayout.isRefreshing = false } })
     }
 
 
@@ -179,30 +186,5 @@ class AudioListFragment : Fragment(), ActionMode.Callback, SearchView.OnQueryTex
             return fragment
         }
     }
-
-    /*listView = (DragSortListView) findViewById(R.id.list);
-        listView.setAdapter(audioAdapter);
-        listView.setOnItemClickListener((parent, view, position, id) -> {
-            List<Audio> list = audioAdapter.getListByPosition(position);
-            playerService.setPlaylist(list);
-            playerService.play(audioAdapter.getPosition(position));
-            if (actionMode != null)
-                actionMode.finish();
-
-            MenuItem item = navigationView.getMenu().getItem(0);
-            boolean isFromSearch = audioAdapter.belongsToSearchList(position);
-            if (!isFromSearch) {
-                item.setChecked(true);
-                getSupportActionBar().setTitle(item.getTitle());
-            }
-            if (!isFromSearch || item.isChecked()) {
-                audioAdapter.setOriginalList(list);
-            }
-        });
-        listView.setOnItemLongClickListener((parent, view, position, id) -> {
-            performCheck(position);
-            return true;
-        });
-        listView.setDropListener(audioAdapter::drop);*/
 
 }

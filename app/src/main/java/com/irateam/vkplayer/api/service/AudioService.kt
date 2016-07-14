@@ -22,6 +22,7 @@ import com.irateam.vkplayer.api.Query
 import com.irateam.vkplayer.api.VKAudioQuery
 import com.irateam.vkplayer.database.AudioDatabaseHelper
 import com.irateam.vkplayer.models.Audio
+import com.irateam.vkplayer.player.Player
 import com.vk.sdk.api.VKApi
 import com.vk.sdk.api.VKApiConst
 import com.vk.sdk.api.VKParameters
@@ -35,8 +36,7 @@ class AudioService {
     }
 
     fun getCurrent(): Query<List<Audio>> {
-        val request = VKApi.audio().get()
-        return VKAudioQuery(request)
+        return CurrentAudioQuery()
     }
 
     fun getMy(): Query<List<Audio>> {
@@ -55,7 +55,7 @@ class AudioService {
     }
 
     fun getCached(): Query<List<Audio>> {
-        return CachedAudioQuery();
+        return CachedAudioQuery()
     }
 
     fun search(query: String): Query<List<Audio>> {
@@ -77,23 +77,27 @@ class AudioService {
         override fun query(): List<Audio> = helper.all.filter { it.isCached }
     }
 
+    private inner class CurrentAudioQuery : AbstractQuery<List<Audio>>() {
+        override fun query(): List<Audio> = Player.getInstance().queue
+    }
+
     private inner class RemoveFromCacheQuery(val audios: Collection<Audio>) :
             AbstractQuery<List<Audio>>() {
 
         override fun query(): List<Audio> = audios.filter { it.isCached }
                 .map { helper.delete(it); it }
                 .map { it.removeCacheFile(); it }
-                .toList();
+                .toList()
     }
 
     private inner class RemoveAllFromCacheQuery : AbstractQuery<List<Audio>>() {
 
         override fun query(): List<Audio> {
             val audios = helper.all
-            helper.removeAll();
+            helper.removeAll()
             return audios.filter { it.isCached }
                     .map { it.removeCacheFile(); it }
-                    .toList();
+                    .toList()
         }
     }
 

@@ -21,11 +21,8 @@ import android.os.Parcelable;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.irateam.vkplayer.adapters.AudioRecyclerViewAdapter;
 
 import java.io.File;
-
-import kotlin.Unit;
 
 public class Audio implements Parcelable {
 
@@ -66,7 +63,7 @@ public class Audio implements Parcelable {
         this.accessKey = accessKey;
     }
 
-    private Audio(Parcel in) {
+    protected Audio(Parcel in) {
         this.id = in.readInt();
         this.ownerId = in.readInt();
         this.artist = in.readString();

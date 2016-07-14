@@ -9,43 +9,42 @@
             android:id="@+id/current_playlist"
             android:checked="false"
             android:icon="@drawable/ic_navigation_drawer_playnow_grey_24dp"
-            android:title="@string/navigation_drawer_current_playlist"
-            android:visible="true" />
+            android:title="@string/navigation_drawer_current_playlist"/>
 
         <item
             android:id="@+id/my_audio"
             android:checked="false"
             android:icon="@drawable/ic_navigation_drawer_mysound_grey_24dp"
-            android:title="@string/navigation_drawer_my_audio" />
+            android:title="@string/navigation_drawer_my_audio"/>
 
         <item
             android:id="@+id/recommended_audio"
             android:checked="false"
             android:icon="@drawable/ic_navigation_drawer_like_grey_24dp"
-            android:title="@string/navigation_drawer_recommendation" />
+            android:title="@string/navigation_drawer_recommendation"/>
 
         <item
             android:id="@+id/popular_audio"
             android:checked="false"
             android:icon="@drawable/ic_navigation_drawer_star_grey_24dp"
-            android:title="@string/navigation_drawer_popular" />
+            android:title="@string/navigation_drawer_popular"/>
 
         <item
             android:id="@+id/cached_audio"
             android:checked="false"
             android:icon="@drawable/ic_navigation_drawer_cache_grey_24dp"
-            android:title="@string/navigation_drawer_downloaded" />
+            android:title="@string/navigation_drawer_downloaded"/>
     </group>
 
     <group android:id="@+id/secondary_group">
         <item
             android:id="@+id/settings"
             android:icon="@drawable/ic_navigation_drawer_settings_grey_24dp"
-            android:title="@string/navigation_drawer_settings" />
+            android:title="@string/navigation_drawer_settings"/>
 
         <item
             android:id="@+id/exit"
             android:icon="@drawable/ic_navigation_drawer_exit_grey_24dp"
-            android:title="@string/navigation_drawer_exit" />
+            android:title="@string/navigation_drawer_exit"/>
     </group>
 </menu>

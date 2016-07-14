@@ -21,11 +21,12 @@ import android.view.View
 import android.widget.TextView
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.models.Header
+import com.irateam.vkplayer.ui.ItemTouchHelperViewHolder
 
 /**
  * @author Artem Glugovsky
  */
-class HeaderViewHolder : RecyclerView.ViewHolder {
+class HeaderViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
 
     val title: TextView
 
@@ -35,5 +36,11 @@ class HeaderViewHolder : RecyclerView.ViewHolder {
 
     fun setHeader(header: Header) {
         title.text = header.title
+    }
+
+    override fun onItemSelected() {
+    }
+
+    override fun onItemClear() {
     }
 }

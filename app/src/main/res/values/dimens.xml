@@ -43,12 +43,14 @@
 
     <dimen name="button_login_activity_height">56dp</dimen>
 
-    <dimen name="navigation_drawer_header_height">174dp</dimen>
-    <dimen name="navigation_drawer_header_avatar">64dp</dimen>
+
 
     <dimen name="empty_list_text_view_margin_top">20dp</dimen>
 
     <!--v2.0 resolved dimens-->
+    <dimen name="navigation_drawer_header_height">174dp</dimen>
+    <dimen name="navigation_drawer_header_user_photo">64dp</dimen>
+
     <dimen name="item_audio_cover_holder_size">72dp</dimen>
     <dimen name="item_audio_cover_size">40dp</dimen>
     <dimen name="item_audio_preparing_progress_size">24dp</dimen>

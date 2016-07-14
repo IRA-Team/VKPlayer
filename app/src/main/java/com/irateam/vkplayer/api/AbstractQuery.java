@@ -1,5 +1,8 @@
 package com.irateam.vkplayer.api;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -9,7 +12,10 @@ import java.util.concurrent.Future;
 public abstract class AbstractQuery<T> implements Query<T> {
 
     private static final int THREAD_COUNT = 3;
-    private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(THREAD_COUNT);
+    private static final ExecutorService EXECUTOR_SERVICE =
+            Executors.newFixedThreadPool(THREAD_COUNT);
+    private static final Handler uiHandler = new Handler(Looper.getMainLooper());
+
 
     private Future<T> task;
 
@@ -60,13 +66,13 @@ public abstract class AbstractQuery<T> implements Query<T> {
 
         private void notifyComplete(V result) {
             if (callback != null) {
-                callback.onComplete(result);
+                uiHandler.post(() -> callback.onComplete(result));
             }
         }
 
         private void notifyError() {
             if (callback != null) {
-                callback.onError();
+                uiHandler.post(callback::onError);
             }
         }
     }
