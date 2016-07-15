@@ -86,7 +86,7 @@ class AudioService {
 
         override fun query(): List<Audio> = audios.filter { it.isCached }
                 .map { helper.delete(it); it }
-                .map { it.removeCacheFile(); it }
+                .map { it.removeFromCache(); it }
                 .toList()
     }
 
@@ -96,7 +96,7 @@ class AudioService {
             val audios = helper.all
             helper.removeAll()
             return audios.filter { it.isCached }
-                    .map { it.removeCacheFile(); it }
+                    .map { it.removeFromCache(); it }
                     .toList()
         }
     }

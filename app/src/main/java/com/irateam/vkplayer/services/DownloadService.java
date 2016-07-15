@@ -17,6 +17,7 @@
 package com.irateam.vkplayer.services;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
@@ -43,6 +44,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -65,6 +67,14 @@ public class DownloadService extends Service {
 
     private AudioDatabaseHelper databaseHelper = new AudioDatabaseHelper(this);
     private SettingsService settings = SettingsService.getInstance(this);
+
+    public static void download(Context context, Collection<Audio> audios) {
+        Intent intent = new Intent(context, DownloadService.class)
+                .setAction(START_DOWNLOADING)
+                .putParcelableArrayListExtra(AUDIO_LIST, new ArrayList<>(audios));
+
+        context.startService(intent);
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -221,7 +231,7 @@ public class DownloadService extends Service {
                         return;
                     }
 
-                    audio.setCacheFile(file);
+                    audio.setCachePath(file.getPath());
                     databaseHelper.cache(audio);
 
                     Intent intent = new Intent(DOWNLOAD_FINISHED);

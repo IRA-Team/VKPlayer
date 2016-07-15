@@ -103,7 +103,7 @@ public class PlayerService extends Service implements AudioManager.OnAudioFocusC
             public void onDownloadFinished(Audio downloaded) {
                 for (Audio audio : getPlaylist()) {
                     if (audio.equalsId(downloaded)) {
-                        audio.setCacheFile(downloaded.getCacheFile());
+                        audio.setCachePath(downloaded.getCachePath());
                     }
                 }
             }

@@ -27,6 +27,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.Stack;
@@ -81,13 +82,24 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         this.queue = queue;
     }
 
+    public void addToQueue(Collection<Audio> audios) {
+        List<Audio> listToAdd = new ArrayList<>();
+        for (Audio audio : audios) {
+            listToAdd.add(audio.clone());
+        }
+
+        queue.addAll(0, listToAdd);
+    }
+
     public void play(int index) {
         playingAudio = queue.get(index);
         try {
             reset();
             stopProgress();
             setOnBufferingUpdateListener(null);
-            setDataSource(playingAudio.getPlayingUrl());
+
+            String source = playingAudio.isCached() ? playingAudio.getCachePath() : playingAudio.getUrl();
+            setDataSource(source);
             prepareAsync();
             eventBus.post(new PlayerPlayEvent(index, playingAudio));
         } catch (IOException e) {

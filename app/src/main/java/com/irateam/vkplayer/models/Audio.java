@@ -23,16 +23,18 @@ import java.io.File;
 
 public class Audio implements Parcelable {
 
-    private int id;
-    private int ownerId;
-    private String artist;
-    private String title;
-    private int duration;
-    private String url;
-    private int lyricsId;
-    private int albumId;
-    private int genre;
-    private String accessKey;
+    private final int id;
+    private final int ownerId;
+    private final String artist;
+    private final String title;
+    private final int duration;
+    private final String url;
+    private final int lyricsId;
+    private final int albumId;
+    private final int genre;
+    private final String accessKey;
+
+    private String cachePath;
     private File cacheFile;
     private AudioInfo audioInfo;
 
@@ -70,7 +72,6 @@ public class Audio implements Parcelable {
         this.albumId = in.readInt();
         this.genre = in.readInt();
         this.accessKey = in.readString();
-        this.setCacheFile(in.readString());
     }
 
     public int getId() {
@@ -114,28 +115,28 @@ public class Audio implements Parcelable {
     }
 
     public String getCachePath() {
-        return cacheFile != null ? cacheFile.getAbsolutePath() : "";
+        return cachePath;
+    }
+
+    public void setCachePath(String cachePath) {
+        this.cachePath = cachePath;
+        if (cachePath != null && !cachePath.isEmpty()) {
+            this.cacheFile = new File(cachePath);
+        }
     }
 
     public File getCacheFile() {
         return cacheFile;
     }
 
-    public void setCacheFile(File cacheFile) {
-        this.cacheFile = cacheFile;
+    public boolean isCached() {
+        return cacheFile != null && cacheFile.exists();
     }
 
-    public void setCacheFile(String cachePath) {
-        cacheFile = !cachePath.isEmpty() ? new File(cachePath) : null;
-    }
-
-    public void removeCacheFile() {
-        cacheFile.delete();
-        cacheFile = null;
-    }
-
-    public String getPlayingUrl() {
-        return isCached() ? getCachePath() : url;
+    public void removeFromCache() {
+        if (cacheFile != null && cacheFile.delete()) {
+            cachePath = null;
+        }
     }
 
     public AudioInfo getAudioInfo() {
@@ -150,12 +151,9 @@ public class Audio implements Parcelable {
         return id == audio.getId();
     }
 
-    public boolean isCached() {
-        return cacheFile != null && cacheFile.exists();
-    }
-
+    @SuppressWarnings("CloneDoesntCallSuperClone")
     public Audio clone() {
-        return new Audio(
+        Audio audio = new Audio(
                 id,
                 ownerId,
                 artist,
@@ -166,6 +164,9 @@ public class Audio implements Parcelable {
                 albumId,
                 genre,
                 accessKey);
+
+        audio.setCachePath(cachePath);
+        return audio;
     }
 
     @Override
@@ -185,7 +186,6 @@ public class Audio implements Parcelable {
         dest.writeInt(albumId);
         dest.writeInt(genre);
         dest.writeString(accessKey);
-        dest.writeString(getCachePath());
     }
 
     public static Creator<Audio> CREATOR = new Creator<Audio>() {

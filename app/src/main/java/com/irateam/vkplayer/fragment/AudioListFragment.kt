@@ -29,6 +29,8 @@ import com.irateam.vkplayer.api.Query
 import com.irateam.vkplayer.api.SimpleCallback
 import com.irateam.vkplayer.api.service.AudioService
 import com.irateam.vkplayer.models.Audio
+import com.irateam.vkplayer.player.Player
+import com.irateam.vkplayer.services.DownloadService
 import com.irateam.vkplayer.ui.CustomItemAnimator
 import com.irateam.vkplayer.utils.isVisible
 import org.greenrobot.eventbus.EventBus
@@ -42,6 +44,7 @@ class AudioListFragment : Fragment(),
         SearchView.OnQueryTextListener,
         AudioRecyclerViewAdapter.CheckedListener {
 
+    private val player = Player.getInstance()
     private val eventBus = EventBus.getDefault()
     private val adapter = AudioRecyclerViewAdapter()
 
@@ -168,25 +171,30 @@ class AudioListFragment : Fragment(),
         return false
     }
 
-    //TODO: Implement
-    override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean = when (item.itemId) {
-        R.id.action_play -> false
-        R.id.action_cache -> {
-            val nonCached = adapter.checkedAudios.filter { !it.isCached }
-            println(nonCached)
-            true
+    override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_play -> {
+                player.queue = ArrayList(adapter.checkedAudios)
+                player.play(0)
+            }
+            R.id.action_cache -> {
+                val nonCached = adapter.checkedAudios.filter { !it.isCached }
+                DownloadService.download(context, nonCached)
+            }
+            R.id.action_remove_from_cache -> {
+                val cached = adapter.checkedAudios.filter { it.isCached }
+                audioService.removeFromCache(cached)
+            }
+            R.id.action_delete -> {
+                //TODO:
+                adapter.removeChecked()
+            }
+            R.id.action_add_to_queue -> {
+                player.addToQueue(adapter.checkedAudios)
+            }
         }
-        R.id.action_remove_from_cache -> {
-            val cached = adapter.checkedAudios.filter { it.isCached }
-            println(cached)
-            true
-        }
-        R.id.action_delete -> {
-            adapter.removeChecked()
-            true
-        }
-        R.id.action_add_to_playlist -> false
-        else -> false
+        mode.finish()
+        return true
     }
 
     override fun onDestroyActionMode(mode: ActionMode) {
