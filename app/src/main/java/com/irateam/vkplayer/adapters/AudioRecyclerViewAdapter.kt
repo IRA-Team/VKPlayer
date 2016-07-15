@@ -56,7 +56,7 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     var checkedAudios: HashSet<Audio> = LinkedHashSet()
 
     //Listeners
-    var checkedListener: ((audio: Audio, checked: HashSet<Audio>) -> Unit)? = null
+    var checkedListener: CheckedListener? = null
 
     init {
         val callback = SimpleItemTouchHelperCallback(this)
@@ -91,8 +91,13 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
 
                 configureAudio(holder, audio)
                 configurePlayingState(holder, audio)
-                configureCheckedState(holder, audio)
-                configureSortMode(holder, audio)
+
+                if (sortMode) {
+                    configureSortMode(holder, audio)
+                } else {
+                    configureCheckedState(holder, audio)
+                }
+
             }
             is HeaderViewHolder -> {
                 val header = data[position] as Header
@@ -124,7 +129,7 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         holder.setAudio(audio)
         val searchQuery = searchQuery
         if (searchQuery != null) holder.setQuery(searchQuery)
-        holder.itemView.setOnClickListener {
+        holder.contentHolder.setOnClickListener {
             player.queue = audios
             player.play(audios.indexOf(audio))
         }
@@ -145,10 +150,10 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
 
     private fun configureCheckedState(holder: AudioViewHolder, audio: Audio) {
         holder.setChecked(checkedAudios.contains(audio))
-        holder.cover.setOnClickListener {
+        holder.coverHolder.setOnClickListener {
             holder.toggleChecked()
             if (holder.isChecked()) checkedAudios.add(audio) else checkedAudios.remove(audio)
-            checkedListener?.invoke(audio, checkedAudios)
+            checkedListener?.onChanged(audio, checkedAudios)
         }
     }
 
@@ -167,6 +172,16 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     fun clearChecked() {
         checkedAudios.clear()
         notifyDataSetChanged()
+    }
+
+    fun removeChecked() {
+        val forIterate = ArrayList(checkedAudios)
+        forIterate.forEach {
+            val index = data.indexOf(it)
+            data.removeAt(index)
+            checkedAudios.remove(it)
+            notifyItemRemoved(index)
+        }
     }
 
     fun setSortMode(enabled: Boolean) {
@@ -234,5 +249,10 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
 
     private fun notifyEvent(e: PlayerEvent) {
         notifyDataSetChanged()
+    }
+
+    interface CheckedListener {
+
+        fun onChanged(audio: Audio, checked: HashSet<Audio>)
     }
 }

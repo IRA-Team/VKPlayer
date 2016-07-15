@@ -48,7 +48,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LinearLayout root = (LinearLayout) findViewById(android.R.id.list).getParent().getParent().getParent();
-        toolbar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.toolbar, root, false);
+        toolbar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.content_toolbar, root, false);
         toolbar.setTitle(getResources().getString(R.string.title_activity_settings));
         root.addView(toolbar, 0);
         toolbar.setNavigationOnClickListener(v -> finish());

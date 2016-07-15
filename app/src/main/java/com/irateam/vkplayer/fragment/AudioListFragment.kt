@@ -32,11 +32,15 @@ import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.ui.CustomItemAnimator
 import com.irateam.vkplayer.utils.isVisible
 import org.greenrobot.eventbus.EventBus
+import java.util.*
 
 /**
  * @author Artem Glugovsky
  */
-class AudioListFragment : Fragment(), ActionMode.Callback, SearchView.OnQueryTextListener {
+class AudioListFragment : Fragment(),
+        ActionMode.Callback,
+        SearchView.OnQueryTextListener,
+        AudioRecyclerViewAdapter.CheckedListener {
 
     private val eventBus = EventBus.getDefault()
     private val adapter = AudioRecyclerViewAdapter()
@@ -84,16 +88,7 @@ class AudioListFragment : Fragment(), ActionMode.Callback, SearchView.OnQueryTex
 
         emptyView = view.findViewById(R.id.empty_view)
 
-        adapter.checkedListener = { audio, checked ->
-            if (actionMode == null && checked.size > 0) {
-                actionMode = activity.startActionMode(this)
-            }
-            actionMode?.title = checked.size.toString()
-
-            if (actionMode != null && checked.isEmpty()) {
-                actionMode?.finish()
-            }
-        }
+        adapter.checkedListener = this
 
         audioService = AudioService(context)
         eventBus.register(adapter)
@@ -141,6 +136,28 @@ class AudioListFragment : Fragment(), ActionMode.Callback, SearchView.OnQueryTex
         else -> false
     }
 
+    override fun onChanged(audio: Audio, checked: HashSet<Audio>) {
+        if (actionMode == null && checked.size > 0) {
+            actionMode = activity.startActionMode(this)
+        }
+
+        if (actionMode != null && checked.isEmpty()) {
+            actionMode?.finish()
+            return
+        }
+
+        val actionMode = actionMode
+        if (actionMode != null) {
+            actionMode.title = checked.size.toString()
+
+            val itemCache = actionMode.menu.findItem(R.id.action_cache)
+            itemCache.isVisible = checked.filter { !it.isCached }.isNotEmpty()
+
+            val itemRemoveFromCache = actionMode.menu.findItem(R.id.action_remove_from_cache)
+            itemRemoveFromCache.isVisible = checked.filter { it.isCached }.isNotEmpty()
+        }
+    }
+
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         actionMode = mode
         mode.menuInflater.inflate(R.menu.menu_list_context, menu)
@@ -154,9 +171,20 @@ class AudioListFragment : Fragment(), ActionMode.Callback, SearchView.OnQueryTex
     //TODO: Implement
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean = when (item.itemId) {
         R.id.action_play -> false
-        R.id.action_cache -> false
-        R.id.action_remove_from_cache -> false
-        R.id.action_delete -> false
+        R.id.action_cache -> {
+            val nonCached = adapter.checkedAudios.filter { !it.isCached }
+            println(nonCached)
+            true
+        }
+        R.id.action_remove_from_cache -> {
+            val cached = adapter.checkedAudios.filter { it.isCached }
+            println(cached)
+            true
+        }
+        R.id.action_delete -> {
+            adapter.removeChecked()
+            true
+        }
         R.id.action_add_to_playlist -> false
         else -> false
     }

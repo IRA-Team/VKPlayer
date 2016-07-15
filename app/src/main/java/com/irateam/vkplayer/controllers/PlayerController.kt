@@ -35,7 +35,7 @@ import org.greenrobot.eventbus.Subscribe
 open class PlayerController {
 
     protected val resources: Resources
-    protected val player = Player.getInstance();
+    protected val player: Player = Player.getInstance()
 
     /*
     * Views
@@ -57,7 +57,7 @@ open class PlayerController {
     /*
     * Flag that indicates user holds progress bar
     */
-    var dragMode: Boolean = false;
+    var dragMode: Boolean = false
 
 
     /*

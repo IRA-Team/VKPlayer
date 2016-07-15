@@ -25,10 +25,7 @@ import android.text.style.BackgroundColorSpan
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 import com.amulyakhare.textdrawable.TextDrawable
 import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.irateam.vkplayer.R
@@ -55,6 +52,7 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
     val artist: TextView
     val duration: TextView
     val cachedIcon: ImageView
+    val contentHolder: RelativeLayout
 
     /**
      * ImageView that contains rounded cover with one char and material background
@@ -93,12 +91,14 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
         title = v.findViewById(R.id.title) as TextView
         artist = v.findViewById(R.id.artist) as TextView
         duration = v.findViewById(R.id.duration) as TextView
+        cachedIcon = v.findViewById(R.id.cached_icon) as ImageView
+        contentHolder = v.findViewById(R.id.content_holder) as RelativeLayout
+
         cover = v.findViewById(R.id.cover) as ImageView
         coverOverlay = v.findViewById(R.id.cover_overlay)
         coverCheckedOverlay = v.findViewById(R.id.cover_checked_overlay)
         preparingProgress = v.findViewById(R.id.preparing_progress) as ProgressBar
         coverHolder = v.findViewById(R.id.cover_holder) as FrameLayout
-        cachedIcon = v.findViewById(R.id.cached_icon) as ImageView
     }
 
     override fun onItemSelected() {

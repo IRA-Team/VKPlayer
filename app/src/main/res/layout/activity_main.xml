@@ -16,7 +16,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <include layout="@layout/toolbar"/>
+            <include layout="@layout/content_toolbar"/>
 
             <View
                 android:layout_width="match_parent"
@@ -40,7 +40,7 @@
 
             <include
                 android:id="@+id/player_panel"
-                layout="@layout/player_panel"
+                layout="@layout/content_player_panel"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/player_panel_height"
                 android:layout_alignParentBottom="true"
