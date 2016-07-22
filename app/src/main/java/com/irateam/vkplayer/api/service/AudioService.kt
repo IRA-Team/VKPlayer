@@ -44,6 +44,12 @@ class AudioService {
         return VKAudioQuery(request)
     }
 
+    fun getMy(count: Int): Query<List<Audio>> {
+        val params = VKParameters.from(VKApiConst.COUNT, count)
+        val request = VKApi.audio().get(params)
+        return VKAudioQuery(request)
+    }
+
     fun getRecommendation(): Query<List<Audio>> {
         val request = VKApi.audio().recommendations
         return VKAudioQuery(request)

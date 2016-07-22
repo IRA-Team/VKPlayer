@@ -29,6 +29,7 @@ public final class SettingsService {
     public static final String SYNC_COUNT = "sync_count";
     public static final String SYNC_WIFI = "sync_wifi";
 
+    private final Context context;
     private final SharedPreferences preferences;
 
     private static SettingsService instance;
@@ -41,7 +42,8 @@ public final class SettingsService {
     }
 
     private SettingsService(Context context) {
-        preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        this.context = context;
+        this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
 
@@ -124,7 +126,7 @@ public final class SettingsService {
             return Integer.valueOf(preferences.getString(SYNC_COUNT, String.valueOf(DEFAULT_SYNC_COUNT)));
     }
 
-    public File getAudioCacheDir(Context context) {
+    public File getAudioCacheDir() {
         String state = Environment.getExternalStorageState();
         File cacheDir;
         if (Environment.MEDIA_MOUNTED.equals(state)) {
