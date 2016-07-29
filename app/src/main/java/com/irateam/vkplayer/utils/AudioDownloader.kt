@@ -18,25 +18,23 @@ package com.irateam.vkplayer.utils
 
 import android.content.Context
 import com.irateam.vkplayer.api.service.SettingsService
-import com.irateam.vkplayer.event.DownloadErrorEvent
-import com.irateam.vkplayer.event.DownloadFinishedEvent
-import com.irateam.vkplayer.event.DownloadProgressChangedEvent
-import com.irateam.vkplayer.event.DownloadTerminatedEvent
 import com.irateam.vkplayer.models.Audio
-import org.greenrobot.eventbus.EventBus
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.URL
 import java.util.concurrent.Executors
+import java.util.concurrent.Future
 
 class AudioDownloader {
 
     private val context: Context
     private val settings: SettingsService
     private val executor = Executors.newSingleThreadExecutor()
-    private val eventBus = EventBus.getDefault()
+
+    private var currentFuture: Future<*>? = null
+    var listener: Listener? = null
 
     constructor(context: Context) {
         this.context = context
@@ -45,7 +43,12 @@ class AudioDownloader {
 
     fun download(audio: Audio) {
         val runnable = prepareRunnable(audio)
-        executor.execute(runnable)
+        currentFuture = executor.submit(runnable)
+    }
+
+    fun isDownloading(): Boolean {
+        val isDone = currentFuture?.let { !it.isDone }
+        return isDone ?: false
     }
 
     fun stop() {
@@ -92,19 +95,29 @@ class AudioDownloader {
     }
 
     private fun notifyTerminated(audio: Audio) {
-        eventBus.post(DownloadTerminatedEvent(audio))
+        listener?.onDownloadTerminated(audio)
     }
 
     private fun notifyDownloadFinished(audio: Audio) {
-        eventBus.post(DownloadFinishedEvent(audio))
+        listener?.onDownloadFinished(audio)
     }
 
     private fun notifyDownloadError(audio: Audio, cause: Throwable) {
-        eventBus.post(DownloadErrorEvent(audio, cause))
+        listener?.onDownloadError(audio, cause)
     }
 
     private fun notifyDownloadProgressChanged(audio: Audio, progress: Int) {
-        eventBus.post(DownloadProgressChangedEvent(audio, progress))
+        listener?.onDownloadProgressChanged(audio, progress)
+    }
+
+    interface Listener {
+        fun onDownloadProgressChanged(audio: Audio, progress: Int)
+
+        fun onDownloadFinished(audio: Audio)
+
+        fun onDownloadError(audio: Audio, cause: Throwable)
+
+        fun onDownloadTerminated(audio: Audio)
     }
 
 }

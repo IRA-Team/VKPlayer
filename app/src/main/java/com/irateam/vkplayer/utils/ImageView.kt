@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("ImageViewUtils")
+
 package com.irateam.vkplayer.utils
 
 import android.widget.ImageView

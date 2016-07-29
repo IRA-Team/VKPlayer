@@ -16,15 +16,10 @@
 
 package com.irateam.vkplayer.activities;
 
-import android.content.ComponentName;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -35,17 +30,16 @@ import com.irateam.vkplayer.controllers.ActivityPlayerController;
 import com.irateam.vkplayer.controllers.PlayerController;
 import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.player.Player;
-import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
 import com.irateam.vkplayer.services.DownloadService;
 import com.irateam.vkplayer.services.PlayerService;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class AudioActivity extends AppCompatActivity implements ServiceConnection {
+public class AudioActivity extends AppCompatActivity {
 
     private final Player player = Player.getInstance();
     private final EventBus eventBus = EventBus.getDefault();
@@ -53,9 +47,7 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
     private Toolbar toolbar;
 
     private PlayerController playerController;
-    private PlayerService playerService;
     private AudioService audioService = new AudioService(this);
-    private DownloadFinishedReceiver downloadFinishedReceiver;
     private Menu menu;
 
     @Override
@@ -73,16 +65,8 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
         playerController.initialize();
         eventBus.register(playerController);
         playerController.setFabOnClickListener(v -> finish());
-        downloadFinishedReceiver = new DownloadFinishedReceiver() {
-            @Override
-            public void onDownloadFinished(Audio audio) {
-                setCacheAction(audio.isCached());
-                player.getPlayingAudio().setCachePath(audio.getCachePath());
-            }
-        };
-        registerReceiver(downloadFinishedReceiver, new IntentFilter(DownloadService.DOWNLOAD_FINISHED));
+
         startService(new Intent(this, PlayerService.class));
-        bindService(new Intent(this, PlayerService.class), this, BIND_AUTO_CREATE);
     }
 
 
@@ -98,47 +82,26 @@ public class AudioActivity extends AppCompatActivity implements ServiceConnectio
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unbindService(this);
-        unregisterReceiver(downloadFinishedReceiver);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
                 return true;
+
             case R.id.action_cache:
-                ArrayList<Audio> list = new ArrayList<>();
-                list.add(player.getPlayingAudio());
-
-                Intent intent = new Intent(this, DownloadService.class)
-                        .setAction(DownloadService.START_DOWNLOADING)
-                        .putExtra(DownloadService.AUDIO_LIST, list);
-
-                startService(intent);
+                List<Audio> list = Arrays.asList(player.getPlayingAudio());
+                DownloadService.download(this, list);
                 break;
+
             case R.id.action_remove_from_cache:
                 List<Audio> removeList = Collections.singletonList(player.getPlayingAudio());
                 audioService.removeFromCache(removeList).execute(SimpleCallback.success(audios -> {
                     setCacheAction(false);
                 }));
                 break;
+
         }
-        return (super.onOptionsItemSelected(item));
-    }
-
-    @Override
-    public void onServiceConnected(ComponentName name, IBinder binder) {
-        Log.i("Service", "Connected");
-        playerService = ((PlayerService.PlayerBinder) binder).getPlayerService();
-    }
-
-    @Override
-    public void onServiceDisconnected(ComponentName name) {
-        Log.i("Service", "Disconnected");
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

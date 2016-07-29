@@ -22,7 +22,6 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.os.Binder;
 import android.os.IBinder;
@@ -108,9 +107,6 @@ public class PlayerService extends Service implements AudioManager.OnAudioFocusC
                 }
             }
         };
-
-        registerReceiver(headsetReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
-        registerReceiver(downloadFinishedReceiver, new IntentFilter(DownloadService.DOWNLOAD_FINISHED));
     }
 
     @Override

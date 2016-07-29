@@ -78,9 +78,7 @@ class AudioListFragment : Fragment(),
         recyclerView.itemAnimator = CustomItemAnimator()
 
         refreshLayout = view.findViewById(R.id.refresh_layout) as SwipeRefreshLayout
-        refreshLayout.setColorSchemeResources(
-                R.color.accent,
-                R.color.primary)
+        refreshLayout.setColorSchemeResources(R.color.accent, R.color.primary)
         refreshLayout.setOnRefreshListener {
             actionMode?.finish()
             if (adapter.isSortMode()) {
@@ -205,11 +203,13 @@ class AudioListFragment : Fragment(),
     private fun executeQuery() {
         refreshLayout.post { refreshLayout.isRefreshing = true }
         query.execute(SimpleCallback
-                .success { audios: List<Audio> ->
-                    adapter.setAudios(audios)
-                    emptyView.isVisible = audios.isEmpty()
+                .success<List<Audio>> {
+                    adapter.setAudios(it)
+                    emptyView.isVisible = it.isEmpty()
                 }
-                .finish { refreshLayout.post { refreshLayout.isRefreshing = false } })
+                .finish {
+                    refreshLayout.post { refreshLayout.isRefreshing = false }
+                })
     }
 
 

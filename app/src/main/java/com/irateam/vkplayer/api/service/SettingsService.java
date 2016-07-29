@@ -138,10 +138,12 @@ public final class SettingsService {
     }
 
     public static void setSyncAlarm(Context context) {
-        Intent intent = new Intent(context, DownloadService.class);
-        intent.setAction(DownloadService.START_SYNC);
-        intent.putExtra(DownloadService.USER_SYNC, false);
-        PendingIntent pendingIntent = PendingIntent.getService(context, SYNC_ALARM_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent intent = DownloadService.startSyncIntent(context, false);
+        PendingIntent pendingIntent = PendingIntent.getService(context,
+                SYNC_ALARM_ID,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
                 SettingsService.getInstance(context).getSyncTime().getTimeInMillis(),
@@ -150,9 +152,12 @@ public final class SettingsService {
     }
 
     public static void cancelSyncAlarm(Context context) {
-        Intent intent = new Intent(context, DownloadService.class);
-        intent.setAction(DownloadService.START_SYNC);
-        PendingIntent pendingIntent = PendingIntent.getService(context, SYNC_ALARM_ID, intent, 0);
+        Intent intent = DownloadService.startSyncIntent(context, false);
+        PendingIntent pendingIntent = PendingIntent.getService(context,
+                SYNC_ALARM_ID,
+                intent,
+                0);
+
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pendingIntent);
     }

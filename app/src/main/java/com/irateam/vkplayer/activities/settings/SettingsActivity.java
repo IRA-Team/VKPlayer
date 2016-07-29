@@ -117,9 +117,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
 
             findPreference("sync_button").setOnPreferenceClickListener(preference -> {
                 context = getActivity();
-                Intent intent = new Intent(context, DownloadService.class);
-                intent.putExtra(DownloadService.USER_SYNC, true);
-                intent.setAction(DownloadService.START_SYNC);
+                Intent intent = DownloadService.startSyncIntent(context, true);
                 context.startService(intent);
                 return false;
             });

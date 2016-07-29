@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("ViewUtils")
+
 package com.irateam.vkplayer.utils
 
 import android.view.View

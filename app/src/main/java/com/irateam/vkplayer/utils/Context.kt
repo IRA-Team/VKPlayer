@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+@file:JvmName("ContextUtils")
 package com.irateam.vkplayer.utils
 
 import android.content.Context

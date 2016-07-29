@@ -115,9 +115,11 @@ class PlayerNotificationFactory {
         postProcess(index, audio)
 
         if (e is PlayerResumeEvent || e is PlayerPlayEvent) {
-            builder.setSmallIcon(R.drawable.ic_notification_play_white_18dp).mActions[1] = playerPauseAction
+            builder.setSmallIcon(R.drawable.ic_notification_play_white_18dp)
+                    .mActions[1] = playerPauseAction
         } else {
-            builder.setSmallIcon(R.drawable.ic_notification_pause_white_18dp).mActions[1] = playerPlayAction
+            builder.setSmallIcon(R.drawable.ic_notification_pause_white_18dp)
+                    .mActions[1] = playerPlayAction
         }
     }
 
