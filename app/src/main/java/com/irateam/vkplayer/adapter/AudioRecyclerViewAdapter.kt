@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.adapters
+package com.irateam.vkplayer.adapter
 
 import android.support.v4.view.MotionEventCompat
 import android.support.v7.widget.RecyclerView
@@ -23,6 +23,10 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewGroup
 import com.irateam.vkplayer.R
+import com.irateam.vkplayer.event.DownloadFinishedEvent
+import com.irateam.vkplayer.event.Event
+import com.irateam.vkplayer.event.ItemRemovedFromCacheEvent
+import com.irateam.vkplayer.event.ItemUncheckedEvent
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.models.Header
 import com.irateam.vkplayer.player.*
@@ -32,6 +36,7 @@ import com.irateam.vkplayer.ui.viewholder.AudioViewHolder
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder.State.*
 import com.irateam.vkplayer.ui.viewholder.HeaderViewHolder
 import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.util.*
 
 /**
@@ -51,7 +56,6 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     private var audios: List<Audio> = ArrayList()
 
     private var searchQuery: String? = null
-    private var searchAudios: List<Audio> = ArrayList()
 
     var checkedAudios: HashSet<Audio> = LinkedHashSet()
 
@@ -84,26 +88,49 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         }
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
+        throw UnsupportedOperationException("not implemented")
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder,
+                                  position: Int,
+                                  payload: MutableList<Any>?) {
+
         when (holder) {
-            is AudioViewHolder -> {
-                val audio = data[position] as Audio
+            is AudioViewHolder -> bindAudioViewHolder(holder, position, payload)
+            is HeaderViewHolder -> bindHeaderViewHolder(holder, position, payload)
+            else -> throw IllegalStateException("${holder.javaClass} is not supported!")
+        }
+    }
 
-                configureAudio(holder, audio)
-                configurePlayingState(holder, audio)
+    private fun bindAudioViewHolder(holder: AudioViewHolder,
+                                    position: Int,
+                                    payload: MutableList<Any>?) {
 
-                if (sortMode) {
-                    configureSortMode(holder, audio)
-                } else {
-                    configureCheckedState(holder, audio)
-                }
+        if (payload?.isEmpty() ?: true) {
+            val audio = data[position] as Audio
+            configureAudio(holder, audio)
+            configurePlayingState(holder, audio)
 
+            if (sortMode) {
+                configureSortMode(holder, audio)
+            } else {
+                configureCheckedState(holder, audio)
             }
-            is HeaderViewHolder -> {
-                val header = data[position] as Header
-                holder.setHeader(header)
+        } else {
+            payload?.let {
+                val events = it.filterIsInstance<Event>()
+                dispatchEvents(holder, position, events)
             }
         }
+    }
+
+    private fun bindHeaderViewHolder(holder: HeaderViewHolder,
+                                     position: Int,
+                                     payload: MutableList<Any>?) {
+
+        val header = data[position] as Header
+        holder.setHeader(header)
     }
 
     override fun getItemCount(): Int {
@@ -125,12 +152,32 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         notifyItemRemoved(position)
     }
 
+    private fun dispatchEvents(holder: AudioViewHolder,
+                               position: Int,
+                               events: Collection<Event>) {
+        events.forEach {
+            when (it) {
+                is DownloadFinishedEvent -> {
+                    data[position] = it.audio
+                    holder.setCached(cached = true, shouldAnimate = true)
+                }
+                is ItemRemovedFromCacheEvent -> {
+                    holder.setCached(cached = false, shouldAnimate = true)
+                }
+                is ItemUncheckedEvent -> {
+                    holder.setChecked(checked = false, shouldAnimate = true)
+                }
+            }
+        }
+    }
+
     private fun configureAudio(holder: AudioViewHolder, audio: Audio) {
         holder.setAudio(audio)
+        holder.setCached(audio.isCached)
         val searchQuery = searchQuery
         if (searchQuery != null) holder.setQuery(searchQuery)
         holder.contentHolder.setOnClickListener {
-            player.queue = audios
+            player.queue = data.filterIsInstance<Audio>()
             player.play(audios.indexOf(audio))
         }
     }
@@ -151,7 +198,7 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     private fun configureCheckedState(holder: AudioViewHolder, audio: Audio) {
         holder.setChecked(checkedAudios.contains(audio))
         holder.coverHolder.setOnClickListener {
-            holder.toggleChecked()
+            holder.toggleChecked(true)
             if (holder.isChecked()) checkedAudios.add(audio) else checkedAudios.remove(audio)
             checkedListener?.onChanged(audio, checkedAudios)
         }
@@ -170,8 +217,17 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     }
 
     fun clearChecked() {
+        checkedAudios.forEach {
+            notifyItemChanged(data.indexOf(it), ItemUncheckedEvent())
+        }
         checkedAudios.clear()
-        notifyDataSetChanged()
+    }
+
+    fun removeFromCache(audios: Collection<Audio>) {
+        audios.forEach {
+            val index = data.indexOf(it)
+            notifyItemChanged(index, ItemRemovedFromCacheEvent())
+        }
     }
 
     fun removeChecked() {
@@ -245,6 +301,18 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     @Subscribe
     fun onPauseEvent(e: PlayerPauseEvent) {
         notifyEvent(e)
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onDownloadFinished(e: DownloadFinishedEvent) {
+        val audio = e.audio
+        data.filter { it is Audio }
+                .map { it as Audio }
+                .filter { it.id == audio.id }
+                .forEach {
+                    val index = data.indexOf(it)
+                    notifyItemChanged(index, e)
+                }
     }
 
     private fun notifyEvent(e: PlayerEvent) {

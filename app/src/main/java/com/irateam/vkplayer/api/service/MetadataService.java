@@ -7,7 +7,7 @@ import android.graphics.BitmapFactory;
 import com.irateam.vkplayer.api.AbstractQuery;
 import com.irateam.vkplayer.api.Query;
 import com.irateam.vkplayer.models.Audio;
-import com.irateam.vkplayer.models.AudioInfo;
+import com.irateam.vkplayer.models.Metadata;
 import com.irateam.vkplayer.notifications.PlayerNotificationFactory;
 import com.mpatric.mp3agic.ID3v2;
 import com.mpatric.mp3agic.InvalidDataException;
@@ -19,31 +19,31 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-public final class AudioInfoService {
+public final class MetadataService {
 
     public static final int BUFFER_SIZE = 2048;
     public static final String AUDIO_INFO_PREFIX = "AUDIO_INFO_";
 
     private final Context context;
 
-    public AudioInfoService(Context context) {
+    public MetadataService(Context context) {
         this.context = context;
     }
 
-    public Query<AudioInfo> get(Audio audio) {
-        return new GetAudioInfoQuery(audio);
+    public Query<Metadata> get(Audio audio) {
+        return new GetMetadataQuery(audio);
     }
 
-    private class GetAudioInfoQuery extends AbstractQuery<AudioInfo> {
+    private class GetMetadataQuery extends AbstractQuery<Metadata> {
 
         private final Audio audio;
 
-        public GetAudioInfoQuery(Audio audio) {
+        public GetMetadataQuery(Audio audio) {
             this.audio = audio;
         }
 
         @Override
-        protected AudioInfo query() throws Exception {
+        protected Metadata query() throws Exception {
             int bitrate;
             long size;
             ID3v2 tags;
@@ -83,7 +83,7 @@ public final class AudioInfoService {
                 }
             }
 
-            return new AudioInfo(
+            return new Metadata(
                     bitrate,
                     size,
                     tags,

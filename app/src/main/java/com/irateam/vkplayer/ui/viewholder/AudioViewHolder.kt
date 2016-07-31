@@ -25,6 +25,7 @@ import android.text.style.BackgroundColorSpan
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.view.animation.Animation
 import android.widget.*
 import com.amulyakhare.textdrawable.TextDrawable
 import com.amulyakhare.textdrawable.util.ColorGenerator
@@ -32,6 +33,8 @@ import com.irateam.vkplayer.R
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.ui.ItemTouchHelperViewHolder
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder.State.*
+import com.irateam.vkplayer.utils.getAnimation
+import com.irateam.vkplayer.utils.isVisible
 
 /**
  * Main ViewHolder for Audio model. Contains title, artist, duration of audio.
@@ -174,16 +177,31 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
      * Set up checked state of item. Checked overlay always displays above playing state.
      * @param checked - determine if item checked
      */
-    fun setChecked(checked: Boolean) {
+    fun setChecked(checked: Boolean, shouldAnimate: Boolean = false) {
         this.checked = checked
         if (checked) {
-            coverCheckedOverlay.visibility = VISIBLE
+            coverCheckedOverlay.isVisible = true
             val color = resources.getColor(R.color.player_list_element_checked_color)
             itemView.setBackgroundColor(color)
+
+            if (shouldAnimate) {
+                val flipIn = itemView.context.getAnimation(R.anim.flip_in_checked_overlay)
+                flipIn.duration = 200
+                coverHolder.startAnimation(flipIn)
+            }
+
+
         } else {
-            coverCheckedOverlay.visibility = GONE
+            coverCheckedOverlay.isVisible = false
             val color = resources.getColor(R.color.player_list_element_color)
             itemView.setBackgroundColor(color)
+
+            if (shouldAnimate) {
+                val flipOut = itemView.context.getAnimation(R.anim.flip_out_checked_overlay)
+                flipOut.duration = 100
+                flipOut.repeatMode = Animation.REVERSE
+                coverHolder.startAnimation(flipOut)
+            }
         }
     }
 
@@ -191,9 +209,9 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
         return checked
     }
 
-    fun toggleChecked() {
+    fun toggleChecked(shouldAnimate: Boolean = false) {
         checked = !checked
-        setChecked(checked)
+        setChecked(checked, shouldAnimate)
     }
 
     fun setSorting(sorting: Boolean) {
@@ -208,9 +226,21 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
         }
     }
 
-    fun setCached(cached: Boolean) {
+    fun setCached(cached: Boolean, shouldAnimate: Boolean = false) {
         this.cached = cached
-        cachedIcon.visibility = if (cached) VISIBLE else GONE
+        if (cached) {
+            if (shouldAnimate) {
+                val fadeIn = itemView.context.getAnimation(R.anim.fade_in_cached_icon)
+                cachedIcon.startAnimation(fadeIn)
+            }
+        } else {
+            if (shouldAnimate) {
+                val fadeOut = itemView.context.getAnimation(R.anim.fade_out_cached_icon)
+                cachedIcon.startAnimation(fadeOut)
+            }
+        }
+
+        cachedIcon.isVisible = cached
     }
 
     fun setQuery(query: String) = if (!query.isEmpty()) {

@@ -22,7 +22,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.models.Audio
-import com.irateam.vkplayer.models.AudioInfo
+import com.irateam.vkplayer.models.Metadata
 import com.irateam.vkplayer.player.PlayerProgressChangedEvent
 import com.irateam.vkplayer.player.PlayerStartEvent
 import org.greenrobot.eventbus.Subscribe
@@ -80,7 +80,7 @@ class ActivityPlayerController : PlayerController {
         albumArt.setImageResource(R.drawable.player_cover)
     }
 
-    fun setAudioInfo(info: AudioInfo) {
+    fun setAudioInfo(info: Metadata) {
         sizeAudio.text = String.format("%.1f", info.size.toDouble() / 1024.toDouble() / 1024.toDouble()) + "Mb" + " " + info.bitrate
         if (info.cover != null) {
             albumArt.setImageBitmap(info.cover)
@@ -100,8 +100,8 @@ class ActivityPlayerController : PlayerController {
 
     }
 
-    fun OnComplete(audioInfo: AudioInfo) {
-        setAudioInfo(audioInfo)
+    fun OnComplete(metadata: Metadata) {
+        setAudioInfo(metadata)
     }
 
     fun OnError() {

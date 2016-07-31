@@ -14,20 +14,7 @@
  * limitations under the License.
  */
 
-@file:JvmName("ViewUtils")
+package com.irateam.vkplayer.event
 
-package com.irateam.vkplayer.utils
-
-import android.support.annotation.IdRes
-import android.view.View
-
-var View.isVisible: Boolean
-    get() = this.visibility == View.VISIBLE
-    set(value) {
-        this.visibility = if (value) View.VISIBLE else View.GONE
-    }
-
-@Suppress("unchecked_cast")
-fun <V : View> View.getViewById(@IdRes id: Int): V {
-    return findViewById(id) as V
+interface Event {
 }

@@ -24,7 +24,7 @@ import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
 import android.view.*
 import com.irateam.vkplayer.R
-import com.irateam.vkplayer.adapters.AudioRecyclerViewAdapter
+import com.irateam.vkplayer.adapter.AudioRecyclerViewAdapter
 import com.irateam.vkplayer.api.Query
 import com.irateam.vkplayer.api.SimpleCallback
 import com.irateam.vkplayer.api.service.AudioService
@@ -181,7 +181,11 @@ class AudioListFragment : Fragment(),
             }
             R.id.action_remove_from_cache -> {
                 val cached = adapter.checkedAudios.filter { it.isCached }
-                audioService.removeFromCache(cached)
+                audioService.removeFromCache(cached).execute(SimpleCallback
+                        .success {
+                            adapter.removeChecked()
+                            adapter.removeFromCache(it)
+                        })
             }
             R.id.action_delete -> {
                 //TODO:

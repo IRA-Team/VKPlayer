@@ -17,8 +17,14 @@
 @file:JvmName("ContextUtils")
 package com.irateam.vkplayer.utils
 
+import android.animation.Animator
+import android.animation.AnimatorInflater
 import android.content.Context
 import android.net.ConnectivityManager
+import android.support.annotation.AnimRes
+import android.support.annotation.AnimatorRes
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 
 fun Context.isNetworkAvailable(): Boolean {
     val connectivityService = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -30,4 +36,17 @@ fun Context.isWifiNetworkAvailable(): Boolean {
     val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     val networkInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
     return networkInfo != null && networkInfo.isConnectedOrConnecting
+}
+
+fun Context.getAnimation(@AnimRes id: Int): Animation {
+    return AnimationUtils.loadAnimation(this, id)
+}
+
+fun Context.getAnimator(@AnimatorRes id: Int): Animator {
+    return AnimatorInflater.loadAnimator(this, id)
+}
+
+@Suppress("unchecked_cast")
+fun <T> Context.getSystemService(name: String): T {
+    return getSystemService(name) as T
 }

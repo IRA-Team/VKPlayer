@@ -133,13 +133,13 @@ public class AudioDatabaseHelper extends DatabaseHelper {
         String title = cursor.getString(i++);
         int duration = cursor.getInt(i++);
         String url = cursor.getString(i++);
-        String cacheFile = cursor.getString(i++);
+        String cachePath = cursor.getString(i++);
         int lyricsId = cursor.getInt(i++);
         int albumId = cursor.getInt(i++);
         int genre = cursor.getInt(i++);
         String accessKey = cursor.getString(i);
 
-        return new Audio(
+        Audio audio = new Audio(
                 id,
                 ownerId,
                 artist,
@@ -150,6 +150,8 @@ public class AudioDatabaseHelper extends DatabaseHelper {
                 albumId,
                 genre,
                 accessKey);
+        audio.setCachePath(cachePath);
+        return audio;
     }
 
 }

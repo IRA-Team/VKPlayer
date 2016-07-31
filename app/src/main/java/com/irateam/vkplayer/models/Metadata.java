@@ -20,7 +20,7 @@ import android.graphics.Bitmap;
 
 import com.mpatric.mp3agic.ID3v2;
 
-public class AudioInfo {
+public class Metadata {
 
     private int bitrate;
     private long size;
@@ -28,7 +28,7 @@ public class AudioInfo {
     private Bitmap cover;
     private Bitmap coverNotification;
 
-    public AudioInfo(int bitrate, long size, ID3v2 tags, Bitmap cover, Bitmap coverNotification) {
+    public Metadata(int bitrate, long size, ID3v2 tags, Bitmap cover, Bitmap coverNotification) {
         this.bitrate = bitrate;
         this.size = size;
         this.tags = tags;

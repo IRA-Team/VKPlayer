@@ -23,6 +23,7 @@ import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
 import com.irateam.vkplayer.R
+import com.irateam.vkplayer.event.*
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.player.*
 import com.irateam.vkplayer.player.Player.RepeatState.*

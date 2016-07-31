@@ -23,11 +23,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
-import android.os.Binder;
 import android.os.IBinder;
 
 import com.irateam.vkplayer.api.SimpleCallback;
-import com.irateam.vkplayer.api.service.AudioInfoService;
+import com.irateam.vkplayer.api.service.MetadataService;
 import com.irateam.vkplayer.api.service.SettingsService;
 import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.notifications.PlayerNotificationFactory;
@@ -37,7 +36,6 @@ import com.irateam.vkplayer.player.PlayerPauseEvent;
 import com.irateam.vkplayer.player.PlayerPlayEvent;
 import com.irateam.vkplayer.player.PlayerResumeEvent;
 import com.irateam.vkplayer.player.PlayerStopEvent;
-import com.irateam.vkplayer.receivers.DownloadFinishedReceiver;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -56,19 +54,17 @@ public class PlayerService extends Service implements AudioManager.OnAudioFocusC
 
     private final Player player = Player.getInstance();
     private final EventBus eventBus = EventBus.getDefault();
-    private final AudioInfoService audioInfoService = new AudioInfoService(this);
+    private final MetadataService metadataService = new MetadataService(this);
+    private final BroadcastReceiver headsetReceiver = new HeadsetReceiver();
+
     private SettingsService settingsService;
     private PlayerNotificationFactory notificationFactory;
-    private final Binder binder = new PlayerBinder();
-
-    private BroadcastReceiver headsetReceiver;
     private AudioManager audioManager;
     private NotificationManager notificationManager;
 
     private boolean removeNotification = false;
     private boolean wasPlaying = false;
     private boolean hasFocus = false;
-    private DownloadFinishedReceiver downloadFinishedReceiver;
 
     @Override
     public void onCreate() {
@@ -84,29 +80,6 @@ public class PlayerService extends Service implements AudioManager.OnAudioFocusC
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        headsetReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
-                    if (intent.getIntExtra("state", -1) == 0) {
-                        if (player.isPlaying()) {
-                            pause(false);
-                        }
-                    }
-                }
-            }
-        };
-
-        downloadFinishedReceiver = new DownloadFinishedReceiver() {
-            @Override
-            public void onDownloadFinished(Audio downloaded) {
-                for (Audio audio : getPlaylist()) {
-                    if (audio.equalsId(downloaded)) {
-                        audio.setCachePath(downloaded.getCachePath());
-                    }
-                }
-            }
-        };
     }
 
     @Override
@@ -144,12 +117,11 @@ public class PlayerService extends Service implements AudioManager.OnAudioFocusC
         super.onDestroy();
         eventBus.unregister(this);
         unregisterReceiver(headsetReceiver);
-        unregisterReceiver(downloadFinishedReceiver);
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        return binder;
+        throw new UnsupportedOperationException("Binding not supported. Use EventBus instead");
     }
 
     //Player methods
@@ -223,10 +195,11 @@ TODO: settings
         final Audio audio = e.getAudio();
 
         startForeground(PLAYER_NOTIFICATION_ID, notificationFactory.get(e));
-        audioInfoService.get(audio).execute(SimpleCallback.success(info -> {
-            audio.setAudioInfo(info);
-            updateNotification(index, audio);
-        }));
+        metadataService.get(audio).execute(SimpleCallback
+                .success(info -> {
+                    audio.setMetadata(info);
+                    updateNotification(index, audio);
+                }));
     }
 
     @Subscribe
@@ -252,7 +225,6 @@ TODO: settings
         Notification notification = notificationFactory.get(index, audio);
         notificationManager.notify(PLAYER_NOTIFICATION_ID, notification);
     }
-
 
     public void updateNotification(PlayerEvent e) {
         Notification notification = notificationFactory.get(e);
@@ -292,9 +264,16 @@ TODO: settings
         hasFocus = false;
     }
 
-    public class PlayerBinder extends Binder {
-        public PlayerService getPlayerService() {
-            return PlayerService.this;
+    private class HeadsetReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)
+                    && intent.getIntExtra("state", -1) == 0
+                    && player.isPlaying()) {
+
+                pause(false);
+            }
         }
     }
 }

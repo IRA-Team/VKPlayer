@@ -36,7 +36,7 @@ public class Audio implements Parcelable {
 
     private String cachePath;
     private File cacheFile;
-    private AudioInfo audioInfo;
+    private Metadata metadata;
 
     public Audio(int id,
                  int ownerId,
@@ -139,12 +139,12 @@ public class Audio implements Parcelable {
         }
     }
 
-    public AudioInfo getAudioInfo() {
-        return audioInfo;
+    public Metadata getMetadata() {
+        return metadata;
     }
 
-    public void setAudioInfo(AudioInfo audioInfo) {
-        this.audioInfo = audioInfo;
+    public void setMetadata(Metadata metadata) {
+        this.metadata = metadata;
     }
 
     public boolean equalsId(Audio audio) {

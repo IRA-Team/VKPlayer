@@ -18,7 +18,7 @@ package com.irateam.vkplayer.event
 
 import com.irateam.vkplayer.models.Audio
 
-abstract class DownloadEvent {
+abstract class DownloadEvent : Event {
 
     val audio: Audio
 

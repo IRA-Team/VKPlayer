@@ -100,7 +100,7 @@ class PlayerNotificationFactory {
     }
 
     private fun postProcess(index: Int, audio: Audio) {
-        val info = audio.audioInfo
+        val info = audio.metadata
         val position = (index + 1).toString()
 
         builder.setContentTitle(position + ". " + audio.title)
