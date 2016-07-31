@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.services
+package com.irateam.vkplayer.service
 
 import android.app.Service
 import android.content.Context
@@ -32,10 +32,10 @@ import com.irateam.vkplayer.event.DownloadFinishedEvent
 import com.irateam.vkplayer.event.DownloadProgressChangedEvent
 import com.irateam.vkplayer.event.DownloadTerminatedEvent
 import com.irateam.vkplayer.models.Audio
-import com.irateam.vkplayer.notifications.DownloadNotificationFactory
-import com.irateam.vkplayer.utils.AudioDownloader
-import com.irateam.vkplayer.utils.isNetworkAvailable
-import com.irateam.vkplayer.utils.isWifiNetworkAvailable
+import com.irateam.vkplayer.notification.DownloadNotificationFactory
+import com.irateam.vkplayer.util.AudioDownloader
+import com.irateam.vkplayer.util.isNetworkAvailable
+import com.irateam.vkplayer.util.isWifiNetworkAvailable
 import org.greenrobot.eventbus.EventBus
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue

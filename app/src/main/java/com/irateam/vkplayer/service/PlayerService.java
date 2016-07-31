@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.services;
+package com.irateam.vkplayer.service;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -28,8 +28,9 @@ import android.os.IBinder;
 import com.irateam.vkplayer.api.SimpleCallback;
 import com.irateam.vkplayer.api.service.MetadataService;
 import com.irateam.vkplayer.api.service.SettingsService;
+import com.irateam.vkplayer.event.MetadataLoadedEvent;
 import com.irateam.vkplayer.models.Audio;
-import com.irateam.vkplayer.notifications.PlayerNotificationFactory;
+import com.irateam.vkplayer.notification.PlayerNotificationFactory;
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.player.PlayerEvent;
 import com.irateam.vkplayer.player.PlayerPauseEvent;
@@ -188,7 +189,6 @@ TODO: settings
 
 
     //Player callbacks
-
     @Subscribe
     public void onPlayEvent(PlayerPlayEvent e) {
         final int index = e.getIndex();
@@ -196,8 +196,9 @@ TODO: settings
 
         startForeground(PLAYER_NOTIFICATION_ID, notificationFactory.get(e));
         metadataService.get(audio).execute(SimpleCallback
-                .success(info -> {
-                    audio.setMetadata(info);
+                .success(metadata -> {
+                    audio.setMetadata(metadata);
+                    eventBus.post(new MetadataLoadedEvent(audio, metadata));
                     updateNotification(index, audio);
                 }));
     }

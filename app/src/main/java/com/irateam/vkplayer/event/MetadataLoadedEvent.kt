@@ -14,20 +14,10 @@
  * limitations under the License.
  */
 
-@file:JvmName("ViewUtils")
+package com.irateam.vkplayer.event
 
-package com.irateam.vkplayer.utils
+import com.irateam.vkplayer.models.Audio
+import com.irateam.vkplayer.models.Metadata
 
-import android.support.annotation.IdRes
-import android.view.View
-
-var View.isVisible: Boolean
-    get() = this.visibility == View.VISIBLE
-    set(value) {
-        this.visibility = if (value) View.VISIBLE else View.GONE
-    }
-
-@Suppress("unchecked_cast")
-fun <V : View> View.getViewById(@IdRes id: Int): V {
-    return findViewById(id) as V
-}
+class MetadataLoadedEvent(val audio: Audio,
+                          val metadata: Metadata) : Event

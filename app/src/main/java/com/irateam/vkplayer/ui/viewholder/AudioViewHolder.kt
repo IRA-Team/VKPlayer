@@ -33,8 +33,8 @@ import com.irateam.vkplayer.R
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.ui.ItemTouchHelperViewHolder
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder.State.*
-import com.irateam.vkplayer.utils.getAnimation
-import com.irateam.vkplayer.utils.isVisible
+import com.irateam.vkplayer.util.getAnimation
+import com.irateam.vkplayer.util.isVisible
 
 /**
  * Main ViewHolder for Audio model. Contains title, artist, duration of audio.

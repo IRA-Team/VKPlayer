@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.activities.settings;
+package com.irateam.vkplayer.activity.settings;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -36,7 +36,7 @@ import android.widget.Toast;
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.api.service.AudioService;
 import com.irateam.vkplayer.api.service.SettingsService;
-import com.irateam.vkplayer.services.DownloadService;
+import com.irateam.vkplayer.service.DownloadService;
 
 import java.util.List;
 

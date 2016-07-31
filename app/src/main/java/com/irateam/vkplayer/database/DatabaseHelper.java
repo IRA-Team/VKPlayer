@@ -21,7 +21,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.irateam.vkplayer.R;
-import com.irateam.vkplayer.utils.SqlUtils;
+import com.irateam.vkplayer.util.SqlUtils;
 
 import java.io.IOException;
 import java.io.InputStream;

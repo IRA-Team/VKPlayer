@@ -8,7 +8,7 @@ import com.irateam.vkplayer.api.AbstractQuery;
 import com.irateam.vkplayer.api.Query;
 import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.models.Metadata;
-import com.irateam.vkplayer.notifications.PlayerNotificationFactory;
+import com.irateam.vkplayer.notification.PlayerNotificationFactory;
 import com.mpatric.mp3agic.ID3v2;
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;

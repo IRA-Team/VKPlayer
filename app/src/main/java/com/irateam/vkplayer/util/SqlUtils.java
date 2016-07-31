@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.utils;
+package com.irateam.vkplayer.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;

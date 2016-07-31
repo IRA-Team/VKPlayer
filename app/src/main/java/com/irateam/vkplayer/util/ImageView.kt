@@ -16,19 +16,20 @@
 
 @file:JvmName("ImageViewUtils")
 
-package com.irateam.vkplayer.utils
+package com.irateam.vkplayer.util
 
 import android.widget.ImageView
 import com.nostra13.universalimageloader.core.DisplayImageOptions
 import com.nostra13.universalimageloader.core.ImageLoader
 import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer
 
+val roundImageOptions: DisplayImageOptions = DisplayImageOptions.Builder()
+        .displayer(RoundedBitmapDisplayer(10000))
+        .cacheInMemory(true)
+        .cacheOnDisk(true)
+        .build()
 
 fun ImageView.setRoundImageURL(url: String) {
-    val roundImageOptions = DisplayImageOptions.Builder()
-            .displayer(RoundedBitmapDisplayer(10000))
-            .build()
-
     ImageLoader.getInstance().displayImage(url, this, roundImageOptions)
 }
 

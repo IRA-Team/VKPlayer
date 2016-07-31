@@ -30,9 +30,9 @@ import com.irateam.vkplayer.api.SimpleCallback
 import com.irateam.vkplayer.api.service.AudioService
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.player.Player
-import com.irateam.vkplayer.services.DownloadService
+import com.irateam.vkplayer.service.DownloadService
 import com.irateam.vkplayer.ui.CustomItemAnimator
-import com.irateam.vkplayer.utils.isVisible
+import com.irateam.vkplayer.util.isVisible
 import org.greenrobot.eventbus.EventBus
 import java.util.*
 

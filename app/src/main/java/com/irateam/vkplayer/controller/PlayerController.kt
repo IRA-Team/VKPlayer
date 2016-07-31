@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.controllers
+package com.irateam.vkplayer.controller
 
 import android.content.Context
 import android.content.res.Resources
@@ -23,10 +23,10 @@ import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
 import com.irateam.vkplayer.R
-import com.irateam.vkplayer.event.*
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.player.*
 import com.irateam.vkplayer.player.Player.RepeatState.*
+import com.irateam.vkplayer.util.isVisible
 import com.melnykov.fab.FloatingActionButton
 import org.greenrobot.eventbus.Subscribe
 
@@ -35,6 +35,7 @@ import org.greenrobot.eventbus.Subscribe
 */
 open class PlayerController {
 
+    protected val context: Context
     protected val resources: Resources
     protected val player: Player = Player.getInstance()
 
@@ -67,6 +68,7 @@ open class PlayerController {
     * Root view that contains views for playback controls
     */
     constructor(context: Context, view: View) {
+        this.context = context
         resources = context.resources
 
         rootView = view
@@ -132,6 +134,18 @@ open class PlayerController {
         fab.setOnClickListener(listener)
     }
 
+    fun show() {
+        rootView.isVisible = true
+    }
+
+    fun hide() {
+        rootView.isVisible = false
+    }
+
+    fun isVisible() : Boolean {
+        return rootView.isVisible
+    }
+
     @Subscribe
     open fun onPlayEvent(e: PlayerPlayEvent) {
         val index = e.index
@@ -153,7 +167,7 @@ open class PlayerController {
 
     @Subscribe
     open fun onStopEvent(e: PlayerStopEvent) {
-        rootView.visibility = View.GONE
+        hide()
     }
 
     @Subscribe
@@ -166,20 +180,18 @@ open class PlayerController {
         progress.secondaryProgress = e.milliseconds
     }
 
-    open fun setAudio(index: Int, audio: Audio?) {
-        if (audio != null) {
-            val position = (index + 1).toString()
+    open fun setAudio(index: Int, audio: Audio?) = audio?.let {
+        val position = (index + 1).toString()
 
-            if (rootView.visibility != View.VISIBLE) {
-                rootView.visibility = View.VISIBLE
-            }
-
-            songName.text = position + ". " + audio.title
-            author.text = audio.artist
-            progress.max = audio.duration * 1000
-            progress.progress = 0
-            progress.secondaryProgress = 0
+        if (!isVisible()) {
+            show()
         }
+
+        songName.text = position + ". " + audio.title
+        author.text = audio.artist
+        progress.max = audio.duration * 1000
+        progress.progress = 0
+        progress.secondaryProgress = 0
     }
 
     open fun setProgress(milliseconds: Int) {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.utils
+package com.irateam.vkplayer.util
 
 import android.content.Context
 import com.irateam.vkplayer.api.service.SettingsService

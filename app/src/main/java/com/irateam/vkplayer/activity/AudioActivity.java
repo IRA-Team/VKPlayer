@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.activities;
+package com.irateam.vkplayer.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,12 +26,12 @@ import android.view.MenuItem;
 import com.irateam.vkplayer.R;
 import com.irateam.vkplayer.api.SimpleCallback;
 import com.irateam.vkplayer.api.service.AudioService;
-import com.irateam.vkplayer.controllers.ActivityPlayerController;
-import com.irateam.vkplayer.controllers.PlayerController;
+import com.irateam.vkplayer.controller.ActivityPlayerController;
+import com.irateam.vkplayer.controller.PlayerController;
 import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.player.Player;
-import com.irateam.vkplayer.services.DownloadService;
-import com.irateam.vkplayer.services.PlayerService;
+import com.irateam.vkplayer.service.DownloadService;
+import com.irateam.vkplayer.service.PlayerService;
 
 import org.greenrobot.eventbus.EventBus;
 

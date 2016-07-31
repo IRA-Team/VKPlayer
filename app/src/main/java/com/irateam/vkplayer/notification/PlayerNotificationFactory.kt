@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.notifications
+package com.irateam.vkplayer.notification
 
 import android.app.Notification
 import android.app.PendingIntent
@@ -25,12 +25,12 @@ import android.graphics.BitmapFactory
 import android.support.v4.app.NotificationCompat.Action
 import android.support.v7.app.NotificationCompat
 import com.irateam.vkplayer.R
-import com.irateam.vkplayer.activities.AudioActivity
+import com.irateam.vkplayer.activity.AudioActivity
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.player.PlayerEvent
 import com.irateam.vkplayer.player.PlayerPlayEvent
 import com.irateam.vkplayer.player.PlayerResumeEvent
-import com.irateam.vkplayer.services.PlayerService
+import com.irateam.vkplayer.service.PlayerService
 
 class PlayerNotificationFactory {
 

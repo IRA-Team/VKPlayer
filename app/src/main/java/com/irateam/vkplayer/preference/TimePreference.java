@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.preferences;
+package com.irateam.vkplayer.preference;
 
 import android.content.Context;
 import android.content.res.TypedArray;

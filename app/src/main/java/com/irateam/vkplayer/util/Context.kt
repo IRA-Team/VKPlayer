@@ -15,7 +15,7 @@
  */
 
 @file:JvmName("ContextUtils")
-package com.irateam.vkplayer.utils
+package com.irateam.vkplayer.util
 
 import android.animation.Animator
 import android.animation.AnimatorInflater

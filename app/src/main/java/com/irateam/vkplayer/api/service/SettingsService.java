@@ -9,7 +9,7 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 
 import com.irateam.vkplayer.player.Player;
-import com.irateam.vkplayer.services.DownloadService;
+import com.irateam.vkplayer.service.DownloadService;
 
 import java.io.File;
 import java.text.ParseException;

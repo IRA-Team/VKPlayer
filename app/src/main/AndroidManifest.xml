@@ -14,7 +14,7 @@
         android:label="@string/app_name"
         android:theme="@style/BaseTheme.App">
         <activity
-            android:name=".activities.ProxyActivity"
+            android:name=".activity.ProxyActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -34,25 +34,25 @@
             android:screenOrientation="portrait"
             android:theme="@style/VK.Transparent" />
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".activity.MainActivity"
             android:label="@string/title_activity_list"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activities.LoginActivity"
+            android:name=".activity.LoginActivity"
             android:label="@string/title_activity_login"
             android:screenOrientation="portrait"
             android:theme="@style/BaseTheme.LoginActivity" />
         <activity
-            android:name=".activities.AudioActivity"
+            android:name=".activity.AudioActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AudioActivityTheme" />
         <activity
-            android:name=".activities.settings.SettingsActivity"
+            android:name=".activity.settings.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:theme="@style/BaseTheme" />
 
         <service
-            android:name=".services.PlayerService"
+            android:name=".service.PlayerService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -64,11 +64,11 @@
             </intent-filter>
         </service>
         <service
-            android:name=".services.DownloadService"
+            android:name=".service.DownloadService"
             android:enabled="true"
             android:exported="true" />
 
-        <receiver android:name=".receivers.BootReceiver">
+        <receiver android:name=".receiver.BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>

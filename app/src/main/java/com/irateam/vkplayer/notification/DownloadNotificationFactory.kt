@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.notifications
+package com.irateam.vkplayer.notification
 
 import android.app.Notification
 import android.app.PendingIntent
@@ -23,8 +23,8 @@ import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
 import android.support.v4.app.NotificationCompat
 import com.irateam.vkplayer.R
-import com.irateam.vkplayer.services.DownloadService
-import com.irateam.vkplayer.services.DownloadService.Session
+import com.irateam.vkplayer.service.DownloadService
+import com.irateam.vkplayer.service.DownloadService.Session
 
 class DownloadNotificationFactory {
 

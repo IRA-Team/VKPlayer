@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.activities
+package com.irateam.vkplayer.activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -32,15 +32,15 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import com.irateam.vkplayer.R
-import com.irateam.vkplayer.activities.settings.SettingsActivity
+import com.irateam.vkplayer.activity.settings.SettingsActivity
 import com.irateam.vkplayer.api.SimpleCallback
 import com.irateam.vkplayer.api.service.AudioService
 import com.irateam.vkplayer.api.service.UserService
-import com.irateam.vkplayer.controllers.PlayerController
+import com.irateam.vkplayer.controller.PlayerController
 import com.irateam.vkplayer.fragment.AudioListFragment
 import com.irateam.vkplayer.models.User
-import com.irateam.vkplayer.services.PlayerService
-import com.irateam.vkplayer.utils.setRoundImageURL
+import com.irateam.vkplayer.service.PlayerService
+import com.irateam.vkplayer.util.setRoundImageURL
 import com.vk.sdk.VKSdk
 import org.greenrobot.eventbus.EventBus
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.activities;
+package com.irateam.vkplayer.activity;
 
 import android.content.Intent;
 import android.net.Uri;
