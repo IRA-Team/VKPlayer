@@ -83,7 +83,7 @@ class AudioService {
     }
 
     private fun processCache(audios: List<Audio>): List<Audio> {
-        val cached = helper.all
+        val cached = helper.getAll()
         cached.forEach {
             val cachedAudio = it
             audios.filter { it.id == cachedAudio.id }
@@ -95,7 +95,7 @@ class AudioService {
     //Queries
     private inner class CachedAudioQuery : AbstractQuery<List<Audio>>() {
 
-        override fun query(): List<Audio> = helper.all.filter { it.isCached }
+        override fun query(): List<Audio> = helper.getAll().filter { it.isCached }
     }
 
     private inner class CurrentAudioQuery : AbstractQuery<List<Audio>>() {
@@ -114,7 +114,7 @@ class AudioService {
     private inner class RemoveAllFromCacheQuery : AbstractQuery<List<Audio>>() {
 
         override fun query(): List<Audio> {
-            val audios = helper.all
+            val audios = helper.getAll()
             helper.removeAll()
             return audios.filter { it.isCached }
                     .map { it.removeFromCache(); it }

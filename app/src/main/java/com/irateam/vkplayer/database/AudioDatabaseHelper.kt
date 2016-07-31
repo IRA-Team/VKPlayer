@@ -24,100 +24,80 @@ import java.util.*
 
 class AudioDatabaseHelper(context: Context) : DatabaseHelper(context) {
 
-    fun insert(audio: Audio): Long {
-        val db = writableDatabase
-        val id = db.insert(Tables.Audio.NAME, null, toContentValues(audio))
-        db.close()
-        return id
+    fun insert(audio: Audio): Long = writableDatabase.use {
+        it.insert(Tables.Audio.NAME, null, audio.toContentValues())
     }
 
-    fun update(audio: Audio): Long {
-        val db = writableDatabase
-        val id = db.update(Tables.Audio.NAME, toContentValues(audio), "id = " + audio.id, null)
-        db.close()
-        return id.toLong()
+
+    fun update(audio: Audio): Long = writableDatabase.use {
+        val id = it.update(Tables.Audio.NAME, audio.toContentValues(), "id = " + audio.id, null)
+        id.toLong()
     }
 
-    fun delete(audio: Audio): Long {
-        val db = writableDatabase
-        val id = db.delete(Tables.Audio.NAME, "id = " + audio.id, null)
-        db.close()
-        return id.toLong()
+    fun delete(audio: Audio): Long = writableDatabase.use {
+        val id = it.delete(Tables.Audio.NAME, "id = " + audio.id, null)
+        id.toLong()
     }
 
-    fun delete(list: List<Audio>) {
-        for (audio in list) {
-            delete(audio)
-        }
+    fun cache(audio: Audio): Long = writableDatabase.use { db ->
+        db.query(Tables.Audio.NAME, null, "id = " + audio.id, null, null, null, null)
+                .use { cursor ->
+                    if (cursor.count <= 0) {
+                        insert(audio)
+                    } else {
+                        update(audio)
+                    }
+                }
     }
 
-    fun cache(audio: Audio): Long {
-        val db = writableDatabase
-        val cursor = db.query(Tables.Audio.NAME, null, "id = " + audio.id, null, null, null, null)
-        val id: Long
-        if (cursor.count <= 0) {
-            id = insert(audio)
-        } else {
-            id = update(audio)
-        }
-        cursor.close()
-        db.close()
-        return id
+    fun getAll(): List<Audio> = readableDatabase.use { db ->
+        db.query(Tables.Audio.NAME, null, null, null, null, null, "_id DESC")
+                .use { cursor ->
+                    val audios = ArrayList<Audio>()
+                    if (cursor.moveToFirst()) {
+                        do {
+                            audios.add(cursor.toAudio())
+                        } while (cursor.moveToNext())
+                    }
+                    audios
+                }
     }
 
-    val all: List<Audio>
-        get() {
-            val db = readableDatabase
-            val list = ArrayList<Audio>()
-
-            val cursor = db.query(Tables.Audio.NAME, null, null, null, null, null, "_id DESC")
-            if (cursor.moveToFirst()) {
-                do {
-                    list.add(fromCursor(cursor))
-                } while (cursor.moveToNext())
-            }
-            cursor.close()
-            db.close()
-            return list
-        }
-
-    fun removeAll() {
-        val db = writableDatabase
-        db.delete(Tables.Audio.NAME, null, null)
-        db.close()
+    fun removeAll(): Unit = writableDatabase.use {
+        it.delete(Tables.Audio.NAME, null, null)
     }
 
     companion object {
 
-        fun toContentValues(audio: Audio): ContentValues {
+        fun Audio.toContentValues(): ContentValues {
             val cv = ContentValues()
-            cv.put(Tables.Audio.Columns.ID, audio.id)
-            cv.put(Tables.Audio.Columns.OWNER_ID, audio.ownerId)
-            cv.put(Tables.Audio.Columns.ARTIST, audio.artist)
-            cv.put(Tables.Audio.Columns.TITLE, audio.title)
-            cv.put(Tables.Audio.Columns.DURATION, audio.duration)
-            cv.put(Tables.Audio.Columns.URL, audio.url)
-            cv.put(Tables.Audio.Columns.CACHE_PATH, audio.cachePath)
-            cv.put(Tables.Audio.Columns.LYRICS_ID, audio.lyricsId)
-            cv.put(Tables.Audio.Columns.ALBUM_ID, audio.albumId)
-            cv.put(Tables.Audio.Columns.GENRE, audio.genre)
-            cv.put(Tables.Audio.Columns.ACCESS_KEY, audio.accessKey)
+            cv.put(Tables.Audio.Columns.ID, id)
+            cv.put(Tables.Audio.Columns.OWNER_ID, ownerId)
+            cv.put(Tables.Audio.Columns.ARTIST, artist)
+            cv.put(Tables.Audio.Columns.TITLE, title)
+            cv.put(Tables.Audio.Columns.DURATION, duration)
+            cv.put(Tables.Audio.Columns.URL, url)
+            cv.put(Tables.Audio.Columns.CACHE_PATH, cachePath)
+            cv.put(Tables.Audio.Columns.LYRICS_ID, lyricsId)
+            cv.put(Tables.Audio.Columns.ALBUM_ID, albumId)
+            cv.put(Tables.Audio.Columns.GENRE, genre)
+            cv.put(Tables.Audio.Columns.ACCESS_KEY, accessKey)
             return cv
         }
 
-        fun fromCursor(cursor: Cursor): Audio {
+        fun Cursor.toAudio(): Audio {
             var i = 1
-            val id = cursor.getInt(i++)
-            val ownerId = cursor.getInt(i++)
-            val artist = cursor.getString(i++)
-            val title = cursor.getString(i++)
-            val duration = cursor.getInt(i++)
-            val url = cursor.getString(i++)
-            val cachePath = cursor.getString(i++)
-            val lyricsId = cursor.getInt(i++)
-            val albumId = cursor.getInt(i++)
-            val genre = cursor.getInt(i++)
-            val accessKey = cursor.getString(i)
+            val id = getInt(i++)
+            val ownerId = getInt(i++)
+            val artist = getString(i++)
+            val title = getString(i++)
+            val duration = getInt(i++)
+            val url = getString(i++)
+            val cachePath = getString(i++)
+            val lyricsId = getInt(i++)
+            val albumId = getInt(i++)
+            val genre = getInt(i++)
+            val accessKey = getString(i)
 
             val audio = Audio(
                     id,

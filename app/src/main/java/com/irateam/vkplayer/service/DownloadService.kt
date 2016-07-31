@@ -103,7 +103,7 @@ class DownloadService : Service(), AudioDownloader.Listener {
         audioService.getMy(count).execute(SimpleCallback
                 .success<List<Audio>> {
                     val vkList = it
-                    val cachedIds = database.all.map { it.id }
+                    val cachedIds = database.getAll().map { it.id }
                     val nonCached = vkList.filter { cachedIds.contains(it.id) }.asReversed()
 
                     syncQueue.clear()
