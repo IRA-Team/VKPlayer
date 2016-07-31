@@ -32,7 +32,7 @@ import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.service.DownloadService
 import com.irateam.vkplayer.ui.CustomItemAnimator
-import com.irateam.vkplayer.util.isVisible
+import com.irateam.vkplayer.util.extension.isVisible
 import org.greenrobot.eventbus.EventBus
 import java.util.*
 

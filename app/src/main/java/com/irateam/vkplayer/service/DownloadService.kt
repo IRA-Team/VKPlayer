@@ -34,8 +34,8 @@ import com.irateam.vkplayer.event.DownloadTerminatedEvent
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.notification.DownloadNotificationFactory
 import com.irateam.vkplayer.util.AudioDownloader
-import com.irateam.vkplayer.util.isNetworkAvailable
-import com.irateam.vkplayer.util.isWifiNetworkAvailable
+import com.irateam.vkplayer.util.extension.isNetworkAvailable
+import com.irateam.vkplayer.util.extension.isWifiNetworkAvailable
 import org.greenrobot.eventbus.EventBus
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue

@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit.MINUTES
 
 object Formatters {
 
+    @JvmStatic
     fun duration(duration: Int): String {
         val value = duration.toLong()
         val minutes = MILLISECONDS.toMinutes(value)
@@ -28,6 +29,7 @@ object Formatters {
         return "%02d:%02d".format(minutes, seconds)
     }
 
+    @JvmStatic
     fun size(bytes: Long): String {
         val unit = 1024
         if (bytes < unit) return "$bytes B"

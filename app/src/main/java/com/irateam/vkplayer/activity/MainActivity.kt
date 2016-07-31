@@ -40,7 +40,7 @@ import com.irateam.vkplayer.controller.PlayerController
 import com.irateam.vkplayer.fragment.AudioListFragment
 import com.irateam.vkplayer.models.User
 import com.irateam.vkplayer.service.PlayerService
-import com.irateam.vkplayer.util.setRoundImageURL
+import com.irateam.vkplayer.util.extension.setRoundImageURL
 import com.vk.sdk.VKSdk
 import org.greenrobot.eventbus.EventBus
 

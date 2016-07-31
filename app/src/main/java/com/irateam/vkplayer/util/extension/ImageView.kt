@@ -16,7 +16,7 @@
 
 @file:JvmName("ImageViewUtils")
 
-package com.irateam.vkplayer.util
+package com.irateam.vkplayer.util.extension
 
 import android.widget.ImageView
 import com.nostra13.universalimageloader.core.DisplayImageOptions

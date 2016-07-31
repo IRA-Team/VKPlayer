@@ -26,7 +26,7 @@ import com.irateam.vkplayer.R
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.player.*
 import com.irateam.vkplayer.player.Player.RepeatState.*
-import com.irateam.vkplayer.util.isVisible
+import com.irateam.vkplayer.util.extension.isVisible
 import com.melnykov.fab.FloatingActionButton
 import org.greenrobot.eventbus.Subscribe
 

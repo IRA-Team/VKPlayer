@@ -16,7 +16,7 @@
 
 @file:JvmName("ViewUtils")
 
-package com.irateam.vkplayer.util
+package com.irateam.vkplayer.util.extension
 
 import android.support.annotation.IdRes
 import android.view.View

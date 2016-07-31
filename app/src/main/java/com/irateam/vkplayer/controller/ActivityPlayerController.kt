@@ -17,6 +17,7 @@
 package com.irateam.vkplayer.controller
 
 import android.content.Context
+import android.support.annotation.DrawableRes
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -25,7 +26,7 @@ import com.irateam.vkplayer.event.MetadataLoadedEvent
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.models.Metadata
 import com.irateam.vkplayer.util.Formatters
-import com.irateam.vkplayer.util.getViewById
+import com.irateam.vkplayer.util.extension.getViewById
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 
@@ -52,11 +53,13 @@ class ActivityPlayerController : PlayerController {
 
     override fun setPlayPause(play: Boolean) {
         super.setPlayPause(play)
-        if (play) {
-            playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_pause_grey_24dp))
+        @DrawableRes val drawableRes = if (play) {
+            R.drawable.ic_player_pause_grey_24dp
         } else {
-            playPause.setImageDrawable(resources.getDrawable(R.drawable.ic_player_play_grey_24dp))
+            R.drawable.ic_player_play_grey_24dp
         }
+        val drawable = resources.getDrawable(drawableRes, context.theme)
+        playPause.setImageDrawable(drawable)
     }
 
     override fun setAudio(index: Int, audio: Audio?) = audio?.let {
