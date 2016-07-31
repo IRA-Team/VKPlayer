@@ -99,7 +99,6 @@ public class AudioActivity extends AppCompatActivity {
                     setCacheAction(false);
                 }));
                 break;
-
         }
         return super.onOptionsItemSelected(item);
     }
