@@ -89,7 +89,7 @@ class DownloadService : Service(), AudioDownloader.Listener {
     }
 
     private fun startScheduledSync() {
-        val isWifiOnly = settings.isWifiSync
+        val isWifiOnly = settings.loadWifiSync()
         if ((isWifiOnly && isWifiNetworkAvailable()) || (!isWifiOnly && isNetworkAvailable())) {
             prepareToSync()
         } else {
@@ -98,7 +98,7 @@ class DownloadService : Service(), AudioDownloader.Listener {
     }
 
     private fun prepareToSync() {
-        val count = settings.syncCount
+        val count = settings.loadSyncCount()
         audioService.getMy(count).execute(SimpleCallback
                 .success<List<Audio>> {
                     val vkList = it

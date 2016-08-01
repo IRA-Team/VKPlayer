@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.player;
+package com.irateam.vkplayer.player
 
-import com.irateam.vkplayer.models.Audio;
+import com.irateam.vkplayer.models.Audio
 
-public class PlayerResumeEvent extends PlayerEvent {
+class PlayerPauseEvent : PlayerEvent {
 
-    protected PlayerResumeEvent(int index, Audio audio) {
-        super(index, audio);
+    val shouldStopForeground: Boolean
+
+    @JvmOverloads
+    protected constructor(index: Int,
+                          audio: Audio,
+                          shouldStopForeground: Boolean = false) : super(index, audio) {
+        this.shouldStopForeground = shouldStopForeground
     }
 }

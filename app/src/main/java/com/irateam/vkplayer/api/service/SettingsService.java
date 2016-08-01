@@ -41,59 +41,59 @@ public final class SettingsService {
         return instance;
     }
 
-    private SettingsService(Context context) {
+    public SettingsService(Context context) {
         this.context = context;
         this.preferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
 
-    public void setPlayerRepeat(Player.RepeatState state) {
+    public void saveRepeatState(Player.RepeatState state) {
         preferences.edit()
                 .putString(REPEAT_STATE, state.name())
                 .apply();
     }
 
-    public Player.RepeatState getPlayerRepeat() {
+    public Player.RepeatState loadRepeatState() {
         return Player.RepeatState.valueOf(preferences.getString(REPEAT_STATE, Player.RepeatState.NO_REPEAT.name()));
     }
 
-    public void setRandomState(boolean state) {
+    public void saveRandomState(boolean state) {
         preferences.edit()
                 .putBoolean(RANDOM_STATE, state)
                 .apply();
     }
 
-    public boolean getRandomState() {
+    public boolean loadRandomState() {
         return preferences.getBoolean(RANDOM_STATE, false);
     }
 
-    public void setSyncEnabled(boolean enabled) {
+    public void saveSyncEnabled(boolean enabled) {
         preferences.edit()
                 .putBoolean(SYNC_ENABLED, enabled)
                 .apply();
     }
 
-    public boolean isSyncEnabled() {
+    public boolean loadSyncEnabled() {
         return preferences.getBoolean(SYNC_ENABLED, false);
     }
 
-    public void setSyncWifi(boolean isWifi) {
+    public void saveWifiSync(boolean isWifi) {
         preferences.edit()
                 .putBoolean(SYNC_WIFI, isWifi)
                 .apply();
     }
 
-    public boolean isWifiSync() {
+    public boolean loadWifiSync() {
         return preferences.getBoolean(SYNC_WIFI, false);
     }
 
-    public void setSyncTime(int hour, int minutes) {
+    public void saveSyncTime(int hour, int minutes) {
         preferences.edit()
                 .putString(SYNC_TIME, String.format("%02d", hour) + ":" + String.format("%02d", minutes))
                 .apply();
     }
 
-    public Calendar getSyncTime() {
+    public Calendar loadSyncTime() {
         Calendar calendar = Calendar.getInstance();
         Date date = null;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
@@ -113,13 +113,13 @@ public final class SettingsService {
         return calendar;
     }
 
-    public void setSyncCount(int count) {
+    public void saveSyncCount(int count) {
         preferences.edit()
                 .putString(SYNC_COUNT, String.valueOf(count))
                 .apply();
     }
 
-    public int getSyncCount() {
+    public int loadSyncCount() {
         if (preferences.getString(SYNC_COUNT, "").isEmpty())
             return DEFAULT_SYNC_COUNT;
         else
@@ -137,7 +137,7 @@ public final class SettingsService {
         return cacheDir;
     }
 
-    public static void setSyncAlarm(Context context) {
+    public void setSyncAlarm() {
         Intent intent = DownloadService.startSyncIntent(context, false);
         PendingIntent pendingIntent = PendingIntent.getService(context,
                 SYNC_ALARM_ID,
@@ -146,12 +146,12 @@ public final class SettingsService {
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
-                SettingsService.getInstance(context).getSyncTime().getTimeInMillis(),
+                loadSyncTime().getTimeInMillis(),
                 AlarmManager.INTERVAL_DAY,
                 pendingIntent);
     }
 
-    public static void cancelSyncAlarm(Context context) {
+    public void cancelSyncAlarm() {
         Intent intent = DownloadService.startSyncIntent(context, false);
         PendingIntent pendingIntent = PendingIntent.getService(context,
                 SYNC_ALARM_ID,

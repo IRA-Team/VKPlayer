@@ -18,6 +18,7 @@ package com.irateam.vkplayer.controller
 
 import android.content.Context
 import android.content.res.Resources
+import android.support.annotation.DrawableRes
 import android.view.View
 import android.widget.ImageView
 import android.widget.SeekBar
@@ -89,7 +90,6 @@ open class PlayerController {
     /*
     * Configuring view events when playerService is set up
     */
-    @SuppressWarnings("deprecation")
     open fun initialize() {
         configurePanel()
 
@@ -100,10 +100,10 @@ open class PlayerController {
         next.setOnClickListener { player.next() }
 
         setRepeatState(player.repeatState)
-        repeat.setOnClickListener { setRepeatState(player.repeatState) }
+        repeat.setOnClickListener { player.switchRepeatState() }
 
         setRandomState(player.randomState)
-        random.setOnClickListener { setRandomState(player.randomState) }
+        random.setOnClickListener { player.switchRandomState() }
 
         if (player.isReady && !player.isPlaying) {
             progress.progress = player.pauseTime
@@ -114,8 +114,12 @@ open class PlayerController {
 
     @Suppress("deprecation")
     open fun setPlayPause(play: Boolean) {
-        val drawable = if (play) R.drawable.ic_player_pause_grey_18dp else R.drawable.ic_player_play_grey_18dp
-        playPause.setImageDrawable(resources.getDrawable(drawable))
+        val drawable = if (play) {
+            R.drawable.ic_player_pause_grey_18dp
+        } else {
+            R.drawable.ic_player_play_grey_18dp
+        }
+        playPause.setImageDrawable(resources.getDrawable(drawable, context.theme))
     }
 
     fun configurePanel() {
@@ -180,6 +184,16 @@ open class PlayerController {
         progress.secondaryProgress = e.milliseconds
     }
 
+    @Subscribe
+    open fun onPlayerRandomChangedEvent(e: PlayerRandomChangedEvent) {
+        setRandomState(e.randomState)
+    }
+
+    @Subscribe
+    open fun onPlayerRepeatChangedEvent(e: PlayerRepeatChangedEvent) {
+        setRepeatState(e.repeatState)
+    }
+
     open fun setAudio(index: Int, audio: Audio?) = audio?.let {
         val position = (index + 1).toString()
 
@@ -200,22 +214,22 @@ open class PlayerController {
         }
     }
 
-    @Suppress("deprecation")
     fun setRepeatState(repeatState: Player.RepeatState) {
-        when (repeatState) {
-            NO_REPEAT -> repeat.setImageDrawable(resources.getDrawable(R.drawable.ic_player_repeat_light_grey_18dp))
-            ALL_REPEAT -> repeat.setImageDrawable(resources.getDrawable(R.drawable.ic_player_repeat_all_light_grey_18dp))
-            ONE_REPEAT -> repeat.setImageDrawable(resources.getDrawable(R.drawable.ic_player_repeat_one_light_grey_18dp))
+        @DrawableRes val drawableRes = when (repeatState) {
+            NO_REPEAT -> R.drawable.ic_player_repeat_light_grey_18dp
+            ALL_REPEAT -> R.drawable.ic_player_repeat_all_light_grey_18dp
+            ONE_REPEAT -> R.drawable.ic_player_repeat_one_light_grey_18dp
         }
+        repeat.setImageDrawable(resources.getDrawable(drawableRes, context.theme))
     }
 
-    @Suppress("deprecation")
     fun setRandomState(randomState: Boolean) {
-        if (randomState) {
-            random.setImageDrawable(resources.getDrawable(R.drawable.ic_player_random_on_light_grey_18dp))
+        @DrawableRes val drawableRes = if (randomState) {
+            R.drawable.ic_player_random_on_light_grey_18dp
         } else {
-            random.setImageDrawable(resources.getDrawable(R.drawable.ic_player_random_light_grey_18dp))
+            R.drawable.ic_player_random_light_grey_18dp
         }
+        random.setImageDrawable(resources.getDrawable(drawableRes, context.theme))
     }
 
     private inner class ProgressBarChangeListener : SeekBar.OnSeekBarChangeListener {

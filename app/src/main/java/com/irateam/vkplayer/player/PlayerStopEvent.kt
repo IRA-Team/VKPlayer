@@ -14,26 +14,11 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.player;
+package com.irateam.vkplayer.player
 
-import com.irateam.vkplayer.event.Event;
-import com.irateam.vkplayer.models.Audio;
+import com.irateam.vkplayer.models.Audio
 
-public abstract class PlayerEvent implements Event {
+class PlayerStopEvent : PlayerEvent {
 
-    private final int index;
-    private final Audio audio;
-
-    protected PlayerEvent(int index, Audio audio) {
-        this.index = index;
-        this.audio = audio;
-    }
-
-    public int getIndex() {
-        return index;
-    }
-
-    public Audio getAudio() {
-        return audio;
-    }
+    protected constructor(index: Int, audio: Audio) : super(index, audio)
 }

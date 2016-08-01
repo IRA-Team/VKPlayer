@@ -198,13 +198,15 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     public RepeatState switchRepeatState() {
         switch (repeatState) {
             case NO_REPEAT:
-                repeatState = ALL_REPEAT;
+                setRepeatState(ALL_REPEAT);
                 break;
+
             case ALL_REPEAT:
-                repeatState = ONE_REPEAT;
+                setRepeatState(ONE_REPEAT);
                 break;
+
             case ONE_REPEAT:
-                repeatState = NO_REPEAT;
+                setRepeatState(NO_REPEAT);
                 break;
         }
         return repeatState;
@@ -212,18 +214,15 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     public void setRepeatState(RepeatState repeatState) {
         this.repeatState = repeatState;
+        eventBus.post(new PlayerRepeatChangedEvent(repeatState));
     }
 
     public boolean getRandomState() {
         return randomState;
     }
 
-    public boolean switchRandomState() {
-        randomState = !randomState;
-        if (randomState) {
-            randomStack.clear();
-        }
-        return randomState;
+    public void switchRandomState() {
+        setRandomState(!randomState);
     }
 
     public void setRandomState(boolean randomState) {
@@ -231,6 +230,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
         if (randomState) {
             randomStack.clear();
         }
+        eventBus.post(new PlayerRandomChangedEvent(randomState));
     }
 
     @Override

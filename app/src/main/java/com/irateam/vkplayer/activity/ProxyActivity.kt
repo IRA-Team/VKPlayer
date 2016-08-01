@@ -14,27 +14,25 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.activity;
+package com.irateam.vkplayer.activity
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.content.Intent
+import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 
-import com.vk.sdk.VKSdk;
+import com.vk.sdk.VKSdk
 
-public class ProxyActivity extends AppCompatActivity {
+class ProxyActivity : AppCompatActivity() {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Intent intent;
-        if (VKSdk.isLoggedIn()) {
-            intent = new Intent(this, MainActivity.class);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val intent = if (VKSdk.isLoggedIn()) {
+            Intent(this, MainActivity::class.java)
         } else {
-            intent = new Intent(this, LoginActivity.class);
+            Intent(this, LoginActivity::class.java)
         }
-        startActivity(intent);
-        finish();
+        startActivity(intent)
+        finish()
     }
 
 

@@ -27,8 +27,8 @@ public class BootReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (SettingsService.getInstance(context).isSyncEnabled()) {
-            SettingsService.setSyncAlarm(context);
+        if (SettingsService.getInstance(context).loadSyncEnabled()) {
+            SettingsService.getInstance(context).setSyncAlarm();
         }
     }
 }

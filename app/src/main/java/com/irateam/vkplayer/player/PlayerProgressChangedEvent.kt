@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.player;
+package com.irateam.vkplayer.player
 
-public class PlayerBufferingUpdateEvent {
+import com.irateam.vkplayer.event.Event
 
-    private final int milliseconds;
+class PlayerProgressChangedEvent : Event {
 
-    public PlayerBufferingUpdateEvent(int milliseconds) {
-        this.milliseconds = milliseconds;
-    }
+    val milliseconds: Int
 
-    public int getMilliseconds() {
-        return milliseconds;
+    constructor(milliseconds: Int) {
+        this.milliseconds = milliseconds
     }
 }

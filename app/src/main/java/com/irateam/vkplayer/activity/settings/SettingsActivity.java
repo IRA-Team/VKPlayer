@@ -42,11 +42,15 @@ import java.util.List;
 
 public class SettingsActivity extends AppCompatPreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+    private SettingsService settingsService;
+
     private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        settingsService = SettingsService.getInstance(this);
+
         LinearLayout root = (LinearLayout) findViewById(android.R.id.list).getParent().getParent().getParent();
         toolbar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.content_toolbar, root, false);
         toolbar.setTitle(getResources().getString(R.string.title_activity_settings));
@@ -96,7 +100,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(SettingsService.SYNC_TIME)) {
-            SettingsService.setSyncAlarm(this);
+            settingsService.setSyncAlarm();
         }
     }
 
@@ -104,10 +108,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
     public static class SyncPreferenceFragment extends PreferenceFragment {
 
         private Context context;
+        private SettingsService settingsService;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+            context = getActivity();
+            settingsService = SettingsService.getInstance(context);
             addPreferencesFromResource(R.xml.pref_sync);
             setHasOptionsMenu(true);
 
@@ -116,7 +123,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
             bindPreferenceSummaryToValue(findPreference("sync_button"));
 
             findPreference("sync_button").setOnPreferenceClickListener(preference -> {
-                context = getActivity();
                 Intent intent = DownloadService.startSyncIntent(context, true);
                 context.startService(intent);
                 return false;
@@ -125,9 +131,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
             findPreference("sync_enabled").setOnPreferenceChangeListener(((preference, newValue) -> {
                 boolean syncEnabled = (Boolean) newValue;
                 if (syncEnabled) {
-                    SettingsService.setSyncAlarm(getActivity());
+                    settingsService.setSyncAlarm();
                 } else {
-                    SettingsService.cancelSyncAlarm(getActivity());
+                    settingsService.cancelSyncAlarm();
                 }
                 return true;
             }));

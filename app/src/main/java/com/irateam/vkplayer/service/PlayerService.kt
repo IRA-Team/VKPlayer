@@ -53,8 +53,8 @@ class PlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
         this.settingsService = SettingsService.getInstance(this)
         this.notificationFactory = PlayerNotificationFactory(this)
 
-        player.repeatState = settingsService.playerRepeat
-        player.randomState = settingsService.randomState
+        player.repeatState = settingsService.loadRepeatState()
+        player.randomState = settingsService.loadRandomState()
 
         EventBus.register(this)
 
@@ -107,7 +107,7 @@ class PlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
     @Subscribe
     fun onPauseEvent(e: PlayerPauseEvent) {
         abandonFocus()
-        if (e.isShouldStopForeground) {
+        if (e.shouldStopForeground) {
             stopForeground(true)
         } else {
             updateNotification(e)
@@ -124,6 +124,16 @@ class PlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
     fun onStopEvent(e: PlayerStopEvent) {
         abandonFocus()
         stopForeground(true)
+    }
+
+    @Subscribe
+    fun onRepeatChangedEvent(e: PlayerRepeatChangedEvent) {
+        settingsService.saveRepeatState(e.repeatState)
+    }
+
+    @Subscribe
+    fun onRandomChangedEvent(e: PlayerRandomChangedEvent) {
+        settingsService.saveRandomState(e.randomState)
     }
 
     fun updateNotification(index: Int, audio: Audio) {

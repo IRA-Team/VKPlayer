@@ -177,6 +177,7 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
      * Set up checked state of item. Checked overlay always displays above playing state.
      * @param checked - determine if item checked
      */
+    @JvmOverloads
     fun setChecked(checked: Boolean, shouldAnimate: Boolean = false) {
         this.checked = checked
         if (checked) {
@@ -209,6 +210,7 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
         return checked
     }
 
+    @JvmOverloads
     fun toggleChecked(shouldAnimate: Boolean = false) {
         checked = !checked
         setChecked(checked, shouldAnimate)
@@ -226,6 +228,7 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
         }
     }
 
+    @JvmOverloads
     fun setCached(cached: Boolean, shouldAnimate: Boolean = false) {
         this.cached = cached
         if (cached) {

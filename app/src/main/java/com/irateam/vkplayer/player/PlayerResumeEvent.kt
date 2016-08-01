@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.player;
+package com.irateam.vkplayer.player
 
-import com.irateam.vkplayer.models.Audio;
+import com.irateam.vkplayer.models.Audio
 
-public class PlayerStopEvent extends PlayerEvent{
+class PlayerResumeEvent : PlayerEvent {
 
-    protected PlayerStopEvent(int index, Audio audio) {
-        super(index, audio);
-    }
+    protected constructor(index: Int, audio: Audio) : super(index, audio)
 }

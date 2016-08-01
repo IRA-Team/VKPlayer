@@ -187,7 +187,6 @@ class AudioListFragment : Fragment(),
                         })
             }
             R.id.action_delete -> {
-                //TODO:
                 adapter.removeChecked()
             }
             R.id.action_add_to_queue -> {
