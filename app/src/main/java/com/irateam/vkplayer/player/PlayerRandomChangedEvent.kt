@@ -22,7 +22,7 @@ class PlayerRandomChangedEvent : Event {
 
     val randomState: Boolean
 
-    protected constructor(randomState: Boolean) {
-        this.randomState = randomState
+    protected constructor(repeatState: Boolean) {
+        this.randomState = repeatState
     }
 }
