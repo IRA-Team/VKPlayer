@@ -44,7 +44,7 @@ class DownloadService : Service(), AudioDownloader.Listener {
 
     private val audioService = AudioService(this)
     private val database = AudioDatabaseHelper(this)
-    private val settings = SettingsService.getInstance(this)
+    private val settings = SettingsService(this)
     private val notificationFactory = DownloadNotificationFactory(this)
     private val downloadQueue = ConcurrentLinkedQueue<Audio>()
     private val syncQueue = ConcurrentLinkedQueue<Audio>()

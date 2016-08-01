@@ -38,7 +38,7 @@ class AudioDownloader {
 
     constructor(context: Context) {
         this.context = context
-        this.settings = SettingsService.getInstance(context)
+        this.settings = SettingsService(context)
     }
 
     fun download(audio: Audio) {
@@ -60,7 +60,7 @@ class AudioDownloader {
             val source = URL(audio.url).openConnection()
             val input = BufferedInputStream(source.inputStream)
 
-            val destination = File(settings.audioCacheDir, audio.id.toString())
+            val destination = File(settings.getAudioCacheDir(), audio.id.toString())
             val output = FileOutputStream(destination)
 
             val size = source.contentLength

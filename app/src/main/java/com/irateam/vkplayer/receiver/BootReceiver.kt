@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.receiver;
+package com.irateam.vkplayer.receiver
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
 
-import com.irateam.vkplayer.api.service.SettingsService;
+import com.irateam.vkplayer.api.service.SettingsService
 
 
-public class BootReceiver extends BroadcastReceiver {
+class BootReceiver : BroadcastReceiver() {
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        if (SettingsService.getInstance(context).loadSyncEnabled()) {
-            SettingsService.getInstance(context).setSyncAlarm();
+    override fun onReceive(context: Context, intent: Intent) {
+        val settingsService = SettingsService(context)
+        if (settingsService.loadSyncEnabled()) {
+            settingsService.setSyncAlarm()
         }
     }
 }

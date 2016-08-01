@@ -50,7 +50,7 @@ class PlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
 
     override fun onCreate() {
         super.onCreate()
-        this.settingsService = SettingsService.getInstance(this)
+        this.settingsService = SettingsService(this)
         this.notificationFactory = PlayerNotificationFactory(this)
 
         player.repeatState = settingsService.loadRepeatState()

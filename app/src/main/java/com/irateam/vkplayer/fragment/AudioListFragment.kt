@@ -95,8 +95,8 @@ class AudioListFragment : Fragment(),
         executeQuery()
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onDestroy() {
+        super.onDestroy()
         EventBus.unregister(adapter)
     }
 

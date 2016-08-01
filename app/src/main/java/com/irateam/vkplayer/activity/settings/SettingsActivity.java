@@ -49,7 +49,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        settingsService = SettingsService.getInstance(this);
+        settingsService = new SettingsService(this);
 
         LinearLayout root = (LinearLayout) findViewById(android.R.id.list).getParent().getParent().getParent();
         toolbar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.content_toolbar, root, false);
@@ -114,7 +114,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             context = getActivity();
-            settingsService = SettingsService.getInstance(context);
+            settingsService = new SettingsService(context);
             addPreferencesFromResource(R.xml.pref_sync);
             setHasOptionsMenu(true);
 
