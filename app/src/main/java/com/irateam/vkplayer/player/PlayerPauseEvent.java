@@ -20,7 +20,20 @@ import com.irateam.vkplayer.models.Audio;
 
 public class PlayerPauseEvent extends PlayerEvent {
 
+    private final boolean shouldStopForeground;
+
     protected PlayerPauseEvent(int index, Audio audio) {
+        this(index, audio, false);
+    }
+
+    protected PlayerPauseEvent(int index,
+                               Audio audio,
+                               boolean shouldStopForeground) {
         super(index, audio);
+        this.shouldStopForeground = shouldStopForeground;
+    }
+
+    public boolean isShouldStopForeground() {
+        return shouldStopForeground;
     }
 }

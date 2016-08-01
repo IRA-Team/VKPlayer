@@ -95,9 +95,9 @@ open class PlayerController {
 
         setPlayPause(player.isPlaying)
 
-        playPause.setOnClickListener { if (player.isPlaying) player.pause() else player.resume() }
+        playPause.setOnClickListener { if (player.isPlaying) player.pause(true) else player.resume() }
         previous.setOnClickListener { player.previous() }
-        next.setOnClickListener { v -> player.next() }
+        next.setOnClickListener { player.next() }
 
         setRepeatState(player.repeatState)
         repeat.setOnClickListener { setRepeatState(player.repeatState) }
@@ -142,7 +142,7 @@ open class PlayerController {
         rootView.isVisible = false
     }
 
-    fun isVisible() : Boolean {
+    fun isVisible(): Boolean {
         return rootView.isVisible
     }
 

@@ -122,13 +122,17 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
     }
 
     public void pause() {
+        pause(false);
+    }
+
+    public void pause(boolean shouldStopForeground) {
         if (isReady()) {
             if (isPlaying()) {
                 super.pause();
                 pauseTime = getCurrentPosition();
             }
         }
-        eventBus.post(new PlayerPauseEvent(getPlayingAudioIndex(), playingAudio));
+        eventBus.post(new PlayerPauseEvent(getPlayingAudioIndex(), playingAudio, shouldStopForeground));
     }
 
     public int getPauseTime() {

@@ -123,12 +123,12 @@ class PlayerNotificationFactory {
         }
     }
 
-    operator fun get(index: Int, audio: Audio): Notification {
+    fun get(index: Int, audio: Audio): Notification {
         postProcess(index, audio)
         return builder.build()
     }
 
-    operator fun get(e: PlayerEvent): Notification {
+    fun get(e: PlayerEvent): Notification {
         postProcess(e)
         return builder.build()
     }
