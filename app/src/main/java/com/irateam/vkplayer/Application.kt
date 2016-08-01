@@ -14,27 +14,29 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer;
+package com.irateam.vkplayer
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.vk.sdk.VKSdk;
+import com.nostra13.universalimageloader.core.DisplayImageOptions
+import com.nostra13.universalimageloader.core.ImageLoader
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
+import com.vk.sdk.VKSdk
 
-public class Application extends android.app.Application {
+class Application : android.app.Application() {
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        VKSdk.initialize(this);
-        DisplayImageOptions options = new DisplayImageOptions.Builder()
+    override fun onCreate() {
+        super.onCreate()
+        VKSdk.initialize(this)
+
+        val options = DisplayImageOptions.Builder()
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
-                .build();
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
+                .build()
+
+        val config = ImageLoaderConfiguration.Builder(this)
                 .defaultDisplayImageOptions(options)
-                .build();
-        ImageLoader.getInstance().init(config);
+                .build()
+
+        ImageLoader.getInstance().init(config)
     }
 
 }

@@ -28,7 +28,6 @@ import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.player.*
 import com.irateam.vkplayer.player.Player.RepeatState.*
 import com.irateam.vkplayer.util.extension.isVisible
-import com.melnykov.fab.FloatingActionButton
 import org.greenrobot.eventbus.Subscribe
 
 /*
@@ -55,7 +54,6 @@ open class PlayerController {
     val random: ImageView
 
     val progress: SeekBar
-    val fab: FloatingActionButton
 
     /*
     * Flag that indicates user holds progress bar
@@ -73,7 +71,6 @@ open class PlayerController {
         resources = context.resources
 
         rootView = view
-        fab = rootView.findViewById(R.id.fab) as FloatingActionButton
 
         songName = rootView.findViewById(R.id.player_panel_song_name) as TextView
         author = rootView.findViewById(R.id.player_panel_author) as TextView
@@ -132,10 +129,6 @@ open class PlayerController {
             setRepeatState(player.repeatState)
             setRandomState(player.randomState)
         }
-    }
-
-    fun setFabOnClickListener(listener: View.OnClickListener) {
-        fab.setOnClickListener(listener)
     }
 
     fun show() {
