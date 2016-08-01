@@ -34,9 +34,9 @@ import com.irateam.vkplayer.event.DownloadTerminatedEvent
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.notification.DownloadNotificationFactory
 import com.irateam.vkplayer.util.AudioDownloader
+import com.irateam.vkplayer.util.EventBus
 import com.irateam.vkplayer.util.extension.isNetworkAvailable
 import com.irateam.vkplayer.util.extension.isWifiNetworkAvailable
-import org.greenrobot.eventbus.EventBus
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -44,7 +44,6 @@ class DownloadService : Service(), AudioDownloader.Listener {
 
     private val audioService = AudioService(this)
     private val database = AudioDatabaseHelper(this)
-    private val eventBus = EventBus.getDefault()
     private val settings = SettingsService.getInstance(this)
     private val notificationFactory = DownloadNotificationFactory(this)
     private val downloadQueue = ConcurrentLinkedQueue<Audio>()
@@ -165,7 +164,7 @@ class DownloadService : Service(), AudioDownloader.Listener {
     }
 
     override fun onDownloadProgressChanged(audio: Audio, progress: Int) {
-        eventBus.post(DownloadProgressChangedEvent(audio, progress))
+        EventBus.post(DownloadProgressChangedEvent(audio, progress))
         currentSession?.let {
             currentSession = it.copy(progress = progress)
             notifyDownloading()
@@ -174,7 +173,7 @@ class DownloadService : Service(), AudioDownloader.Listener {
 
     override fun onDownloadFinished(audio: Audio) {
         database.cache(audio)
-        eventBus.post(DownloadFinishedEvent(audio))
+        EventBus.post(DownloadFinishedEvent(audio))
         currentSession?.let {
             val newSession = it.copy(audioCount = it.audioCount + 1)
             currentSession = newSession
@@ -189,13 +188,13 @@ class DownloadService : Service(), AudioDownloader.Listener {
     }
 
     override fun onDownloadError(audio: Audio, cause: Throwable) {
-        eventBus.post(DownloadErrorEvent(audio, cause))
+        EventBus.post(DownloadErrorEvent(audio, cause))
         stopForeground(true)
         clearCurrentSession()
     }
 
     override fun onDownloadTerminated(audio: Audio) {
-        eventBus.post(DownloadTerminatedEvent(audio))
+        EventBus.post(DownloadTerminatedEvent(audio))
         stopForeground(true)
         clearCurrentSession()
     }

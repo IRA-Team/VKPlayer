@@ -32,8 +32,8 @@ import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.service.DownloadService
 import com.irateam.vkplayer.ui.CustomItemAnimator
+import com.irateam.vkplayer.util.EventBus
 import com.irateam.vkplayer.util.extension.isVisible
-import org.greenrobot.eventbus.EventBus
 import java.util.*
 
 /**
@@ -45,7 +45,6 @@ class AudioListFragment : Fragment(),
         AudioRecyclerViewAdapter.CheckedListener {
 
     private val player = Player.getInstance()
-    private val eventBus = EventBus.getDefault()
     private val adapter = AudioRecyclerViewAdapter()
 
     private lateinit var audioService: AudioService
@@ -92,13 +91,13 @@ class AudioListFragment : Fragment(),
         adapter.checkedListener = this
 
         audioService = AudioService(context)
-        eventBus.register(adapter)
+        EventBus.register(adapter)
         executeQuery()
     }
 
     override fun onStop() {
         super.onStop()
-        eventBus.unregister(adapter)
+        EventBus.unregister(adapter)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

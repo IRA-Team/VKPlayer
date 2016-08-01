@@ -22,8 +22,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.irateam.vkplayer.models.Audio;
-
-import org.greenrobot.eventbus.EventBus;
+import com.irateam.vkplayer.util.EventBus;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,7 +39,7 @@ public class Player extends MediaPlayer implements MediaPlayer.OnCompletionListe
 
     private static final Player instance = new Player();
 
-    private final EventBus eventBus = EventBus.getDefault();
+    private final EventBus eventBus = EventBus.INSTANCE;
     private final Handler uiHandler = new Handler(Looper.getMainLooper());
     private List<Audio> queue = new ArrayList<>();
     private final Stack<Audio> randomStack = new Stack<>();

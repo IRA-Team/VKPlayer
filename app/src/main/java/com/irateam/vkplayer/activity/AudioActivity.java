@@ -32,8 +32,7 @@ import com.irateam.vkplayer.models.Audio;
 import com.irateam.vkplayer.player.Player;
 import com.irateam.vkplayer.service.DownloadService;
 import com.irateam.vkplayer.service.PlayerService;
-
-import org.greenrobot.eventbus.EventBus;
+import com.irateam.vkplayer.util.EventBus;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,7 +41,7 @@ import java.util.List;
 public class AudioActivity extends AppCompatActivity {
 
     private final Player player = Player.getInstance();
-    private final EventBus eventBus = EventBus.getDefault();
+    private final EventBus eventBus = EventBus.INSTANCE;
 
     private Toolbar toolbar;
 

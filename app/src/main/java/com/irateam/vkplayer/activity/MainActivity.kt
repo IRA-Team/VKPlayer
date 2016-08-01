@@ -40,13 +40,11 @@ import com.irateam.vkplayer.controller.PlayerController
 import com.irateam.vkplayer.fragment.AudioListFragment
 import com.irateam.vkplayer.models.User
 import com.irateam.vkplayer.service.PlayerService
+import com.irateam.vkplayer.util.EventBus
 import com.irateam.vkplayer.util.extension.setRoundImageURL
 import com.vk.sdk.VKSdk
-import org.greenrobot.eventbus.EventBus
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-
-    private val eventBus = EventBus.getDefault()
 
     //Services
     private lateinit var userService: UserService
@@ -102,11 +100,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         audioService = AudioService(this)
         userService = UserService(this)
 
-        eventBus.register(playerController)
+        EventBus.register(playerController)
         startService(Intent(this, PlayerService::class.java))
 
         initializeUser()
         initializeFragment()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        EventBus.unregister(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

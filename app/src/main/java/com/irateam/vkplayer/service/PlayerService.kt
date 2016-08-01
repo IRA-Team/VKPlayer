@@ -31,13 +31,12 @@ import com.irateam.vkplayer.event.MetadataLoadedEvent
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.notification.PlayerNotificationFactory
 import com.irateam.vkplayer.player.*
-import org.greenrobot.eventbus.EventBus
+import com.irateam.vkplayer.util.EventBus
 import org.greenrobot.eventbus.Subscribe
 
 class PlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
 
     private val player = Player.getInstance()
-    private val eventBus = EventBus.getDefault()
     private val metadataService = MetadataService(this)
     private val headsetReceiver = HeadsetReceiver()
 
@@ -57,7 +56,7 @@ class PlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
         player.repeatState = settingsService.playerRepeat
         player.randomState = settingsService.randomState
 
-        eventBus.register(this)
+        EventBus.register(this)
 
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -74,13 +73,13 @@ class PlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
                 STOP -> player.stop()
             }
         }
-        return Service.START_NOT_STICKY
+        return START_NOT_STICKY
     }
 
 
     override fun onDestroy() {
         super.onDestroy()
-        eventBus.unregister(this)
+        EventBus.unregister(this)
         unregisterReceiver(headsetReceiver)
     }
 
@@ -100,7 +99,7 @@ class PlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
         metadataService.get(audio).execute(SimpleCallback
                 .success {
                     audio.metadata = it
-                    eventBus.post(MetadataLoadedEvent(audio, it))
+                    EventBus.post(MetadataLoadedEvent(audio, it))
                     updateNotification(index, audio)
                 })
     }
