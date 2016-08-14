@@ -24,13 +24,12 @@ import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.player.Player.RepeatState.*
 import com.irateam.vkplayer.util.EventBus
 import java.util.*
+import kotlin.properties.Delegates.observable
 
 object Player : MediaPlayer(),
         MediaPlayer.OnCompletionListener,
         MediaPlayer.OnPreparedListener,
         MediaPlayer.OnBufferingUpdateListener {
-
-    private val uiHandler = Handler(Looper.getMainLooper())
 
     /**
      * Queues
@@ -69,6 +68,15 @@ object Player : MediaPlayer(),
     fun setQueue(audios: Collection<Audio>) {
         mainPart.clear()
         mainPart.addAll(audios)
+        setupQueues()
+    }
+
+    fun addToQueue(audios: Collection<Audio>) {
+        mainPart.addAll(0, audios.map { it.clone() })
+        setupQueues()
+    }
+
+    private fun setupQueues() {
         setupPlayingQueue()
         if (randomState) {
             setupShuffledQueue()
@@ -106,37 +114,33 @@ object Player : MediaPlayer(),
     }
 
     /**
-     * Other
+     * Player state
      */
-    private var currentProgressThread: ProgressThread? = null
     var pauseTime: Int = 0
         private set
 
-    //Player state
     var isReady = false
         private set
 
-    var randomState = false
-        set(randomState) {
-            field = randomState
-            setupShuffledQueue(randomState)
-            EventBus.post(PlayerRandomChangedEvent(randomState))
-        }
+    var randomState by observable(false) { property, oldValue, newValue ->
+        setupShuffledQueue(randomState = newValue)
+        EventBus.post(PlayerRandomChangedEvent(newValue))
+    }
 
-    var repeatState = NO_REPEAT
-        set(repeatState) {
-            field = repeatState
-            EventBus.post(PlayerRepeatChangedEvent(repeatState))
-        }
+    var repeatState by observable(NO_REPEAT) { property, oldValue, newValue ->
+        EventBus.post(PlayerRepeatChangedEvent(newValue))
+    }
+
+    /**
+     * Other
+     */
+    private val uiHandler = Handler(Looper.getMainLooper())
+    private var progressThread: ProgressThread? = null
 
     init {
         setAudioStreamType(AudioManager.STREAM_MUSIC)
         setOnPreparedListener(this)
         setOnCompletionListener(this)
-    }
-
-    fun addToQueue(audios: Collection<Audio>) {
-        mainPart.addAll(0, audios.map { it.clone() })
     }
 
     fun play(audios: Collection<Audio>, audio: Audio) {
@@ -162,15 +166,11 @@ object Player : MediaPlayer(),
         EventBus.post(PlayerPlayEvent(audioPosition, audio))
     }
 
-    fun resume() {
-        if (isReady && audio != null) {
+    fun resume() = audio?.let {
+        if (isReady) {
             seekTo(pauseTime)
             start()
-
-            audio?.let {
-                EventBus.post(PlayerResumeEvent(audioPosition, it))
-            }
-
+            EventBus.post(PlayerResumeEvent(audioPosition, it))
         }
     }
 
@@ -187,11 +187,9 @@ object Player : MediaPlayer(),
     }
 
     fun pause(shouldStopForeground: Boolean) {
-        if (isReady) {
-            if (isPlaying) {
-                super.pause()
-                pauseTime = currentPosition
-            }
+        if (isReady && isPlaying) {
+            super.pause()
+            pauseTime = currentPosition
         }
 
         audio?.let {
@@ -233,11 +231,10 @@ object Player : MediaPlayer(),
         play(queue[previousIndex])
     }
 
-    @Throws(IllegalStateException::class)
-    override fun seekTo(msec: Int) {
+    override fun seekTo(milliseconds: Int) {
         if (isReady) {
-            super.seekTo(msec)
-            pauseTime = msec
+            super.seekTo(milliseconds)
+            pauseTime = milliseconds
         }
     }
 
@@ -251,7 +248,7 @@ object Player : MediaPlayer(),
     }
 
     fun switchRandomState() {
-        randomState = !this.randomState
+        randomState = !randomState
     }
 
     override fun onCompletion(mp: MediaPlayer) {
@@ -301,12 +298,12 @@ object Player : MediaPlayer(),
     }
 
     fun startProgress() {
-        currentProgressThread = ProgressThread().apply {
+        progressThread = ProgressThread().apply {
             start()
         }
     }
 
-    fun stopProgress() = currentProgressThread?.let {
+    fun stopProgress() = progressThread?.let {
         if (!it.isInterrupted) {
             it.interrupt()
         }
