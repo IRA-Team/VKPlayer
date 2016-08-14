@@ -14,15 +14,8 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.player
+package com.irateam.vkplayer.util.extension
 
-import com.irateam.vkplayer.event.Event
+import com.irateam.vkplayer.api.SimpleCallback
 
-class PlayerRandomChangedEvent : Event {
-
-    val randomState: Boolean
-
-    constructor(repeatState: Boolean) {
-        this.randomState = repeatState
-    }
-}
+inline fun <reified T> success(noinline listener: (T) -> Unit) = SimpleCallback(listener)

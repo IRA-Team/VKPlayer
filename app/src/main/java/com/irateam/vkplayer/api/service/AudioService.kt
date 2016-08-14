@@ -99,7 +99,7 @@ class AudioService {
     }
 
     private inner class CurrentAudioQuery : AbstractQuery<List<Audio>>() {
-        override fun query(): List<Audio> = Player.getInstance().queue
+        override fun query(): List<Audio> = Player.queue
     }
 
     private inner class RemoveFromCacheQuery(val audios: Collection<Audio>) :

@@ -23,7 +23,7 @@ class PlayerPauseEvent : PlayerEvent {
     val shouldStopForeground: Boolean
 
     @JvmOverloads
-    protected constructor(index: Int,
+    constructor(index: Int,
                           audio: Audio,
                           shouldStopForeground: Boolean = false) : super(index, audio) {
         this.shouldStopForeground = shouldStopForeground

@@ -24,7 +24,6 @@ import android.content.Intent
 import android.media.AudioManager
 import android.media.AudioManager.*
 import android.os.IBinder
-import com.irateam.vkplayer.api.SimpleCallback
 import com.irateam.vkplayer.api.service.MetadataService
 import com.irateam.vkplayer.api.service.SettingsService
 import com.irateam.vkplayer.event.MetadataLoadedEvent
@@ -32,11 +31,11 @@ import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.notification.PlayerNotificationFactory
 import com.irateam.vkplayer.player.*
 import com.irateam.vkplayer.util.EventBus
+import com.irateam.vkplayer.util.extension.success
 import org.greenrobot.eventbus.Subscribe
 
 class PlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
 
-    private val player = Player.getInstance()
     private val metadataService = MetadataService(this)
     private val headsetReceiver = HeadsetReceiver()
 
@@ -53,8 +52,8 @@ class PlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
         this.settingsService = SettingsService(this)
         this.notificationFactory = PlayerNotificationFactory(this)
 
-        player.repeatState = settingsService.loadRepeatState()
-        player.randomState = settingsService.loadRandomState()
+        Player.repeatState = settingsService.loadRepeatState()
+        Player.randomState = settingsService.loadRandomState()
 
         EventBus.register(this)
 
@@ -66,11 +65,11 @@ class PlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         intent.action?.let {
             when (it) {
-                PREVIOUS -> player.previous()
-                PAUSE -> player.pause()
-                RESUME -> player.resume()
-                NEXT -> player.next()
-                STOP -> player.stop()
+                PREVIOUS -> Player.previous()
+                PAUSE -> Player.pause()
+                RESUME -> Player.resume()
+                NEXT -> Player.next()
+                STOP -> Player.stop()
             }
         }
         return START_NOT_STICKY
@@ -96,12 +95,11 @@ class PlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
         startForeground(PLAYER_NOTIFICATION_ID, notificationFactory.get(e))
         requestFocus()
 
-        metadataService.get(audio).execute(SimpleCallback
-                .success {
-                    audio.metadata = it
-                    EventBus.post(MetadataLoadedEvent(audio, it))
-                    updateNotification(index, audio)
-                })
+        metadataService.get(audio).execute(success {
+            audio.metadata = it
+            EventBus.post(MetadataLoadedEvent(audio, it))
+            updateNotification(index, audio)
+        })
     }
 
     @Subscribe
@@ -148,22 +146,22 @@ class PlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
 
     override fun onAudioFocusChange(focus: Int) {
         when (focus) {
-            AUDIOFOCUS_LOSS -> if (player.isPlaying) {
+            AUDIOFOCUS_LOSS -> if (Player.isPlaying) {
                 wasPlaying = true
-                player.pause()
+                Player.pause()
             } else {
                 wasPlaying = false
             }
 
-            AUDIOFOCUS_LOSS_TRANSIENT -> if (player.isPlaying) {
+            AUDIOFOCUS_LOSS_TRANSIENT -> if (Player.isPlaying) {
                 wasPlaying = true
-                player.pause()
+                Player.pause()
             } else {
                 wasPlaying = false
             }
 
             AUDIOFOCUS_GAIN -> if (wasPlaying) {
-                player.resume()
+                Player.resume()
             }
         }
     }
@@ -188,9 +186,9 @@ class PlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == Intent.ACTION_HEADSET_PLUG
                     && intent.getIntExtra("state", -1) == 0
-                    && player.isPlaying) {
+                    && Player.isPlaying) {
 
-                player.pause()
+                Player.pause()
             }
         }
     }

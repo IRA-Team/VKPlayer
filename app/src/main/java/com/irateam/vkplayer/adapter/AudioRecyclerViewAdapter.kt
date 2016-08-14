@@ -45,9 +45,6 @@ import java.util.*
 class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
         ItemTouchHelperAdapter {
 
-    private val TYPE_HEADER = 1
-    private val TYPE_AUDIO = 2
-    private val player = Player.getInstance()
 
     private val itemTouchHelper: ItemTouchHelper
 
@@ -94,13 +91,11 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder,
                                   position: Int,
-                                  payload: MutableList<Any>?) {
+                                  payload: MutableList<Any>?) = when (holder) {
 
-        when (holder) {
-            is AudioViewHolder -> bindAudioViewHolder(holder, position, payload)
-            is HeaderViewHolder -> bindHeaderViewHolder(holder, position, payload)
-            else -> throw IllegalStateException("${holder.javaClass} is not supported!")
-        }
+        is AudioViewHolder -> bindAudioViewHolder(holder, position, payload)
+        is HeaderViewHolder -> bindHeaderViewHolder(holder, position, payload)
+        else -> throw IllegalStateException("${holder.javaClass} is not supported!")
     }
 
     private fun bindAudioViewHolder(holder: AudioViewHolder,
@@ -177,18 +172,18 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         val searchQuery = searchQuery
         if (searchQuery != null) holder.setQuery(searchQuery)
         holder.contentHolder.setOnClickListener {
-            player.queue = data.filterIsInstance<Audio>()
-            player.play(audios.indexOf(audio))
+            val queue = data.filterIsInstance<Audio>()
+            Player.play(queue, audio)
         }
     }
 
     private fun configurePlayingState(holder: AudioViewHolder, audio: Audio) {
-        val playingAudio = player.playingAudio
+        val playingAudio = Player.audio
         if (audio.id == playingAudio?.id) {
             val state = when {
-                !player.isReady -> PREPARE
-                player.isReady && player.isPlaying -> PLAY
-                player.isReady && !player.isPlaying -> PAUSE
+                !Player.isReady -> PREPARE
+                Player.isReady && Player.isPlaying -> PLAY
+                Player.isReady && !Player.isPlaying -> PAUSE
                 else -> NONE
             }
             holder.setPlayingState(state)
@@ -196,7 +191,7 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     }
 
     private fun configureCheckedState(holder: AudioViewHolder, audio: Audio) {
-        holder.setChecked(checkedAudios.contains(audio))
+        holder.setChecked(audio in checkedAudios)
         holder.coverHolder.setOnClickListener {
             holder.toggleChecked(true)
             if (holder.isChecked()) checkedAudios.add(audio) else checkedAudios.remove(audio)
@@ -261,8 +256,7 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         searchQuery = query
 
         val filtered = audios.filter {
-            it.title.toLowerCase().contains(lowerQuery)
-                    || it.artist.toLowerCase().contains(lowerQuery)
+            lowerQuery in it.title.toLowerCase() || lowerQuery in it.artist.toLowerCase()
         }
 
         data.clear()
@@ -322,5 +316,11 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     interface CheckedListener {
 
         fun onChanged(audio: Audio, checked: HashSet<Audio>)
+    }
+
+    companion object {
+
+        private val TYPE_HEADER = 1
+        private val TYPE_AUDIO = 2
     }
 }

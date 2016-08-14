@@ -28,7 +28,6 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import com.irateam.vkplayer.R
@@ -41,7 +40,9 @@ import com.irateam.vkplayer.fragment.AudioListFragment
 import com.irateam.vkplayer.models.User
 import com.irateam.vkplayer.service.PlayerService
 import com.irateam.vkplayer.util.EventBus
+import com.irateam.vkplayer.util.extension.getViewById
 import com.irateam.vkplayer.util.extension.setRoundImageURL
+import com.melnykov.fab.FloatingActionButton
 import com.vk.sdk.VKSdk
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -55,6 +56,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var coordinatorLayout: CoordinatorLayout
+    private lateinit var fab: FloatingActionButton
 
     //User views
     private lateinit var userPhoto: ImageView
@@ -68,12 +70,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        toolbar = findViewById(R.id.toolbar) as Toolbar
+        toolbar = getViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         toolbar.setNavigationOnClickListener { v -> drawerLayout.openDrawer(GravityCompat.START) }
 
-        drawerLayout = findViewById(R.id.drawer_layout) as DrawerLayout
+        drawerLayout = getViewById(R.id.drawer_layout)
         val drawerToggle = ActionBarDrawerToggle(
                 this,
                 drawerLayout,
@@ -82,20 +84,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawerLayout.setDrawerListener(drawerToggle)
         drawerToggle.syncState()
 
-        navigationView = findViewById(R.id.navigation_view) as NavigationView
+        navigationView = getViewById(R.id.navigation_view)
         navigationView.setNavigationItemSelectedListener(this)
 
         val header = navigationView.getHeaderView(0)
-        userPhoto = header.findViewById(R.id.user_photo) as ImageView
-        userFullName = header.findViewById(R.id.user_full_name) as TextView
-        userVkLink = header.findViewById(R.id.user_vk_link) as TextView
+        userPhoto = header.getViewById(R.id.user_photo)
+        userFullName = header.getViewById(R.id.user_full_name)
+        userVkLink = header.getViewById(R.id.user_vk_link)
 
-        coordinatorLayout = findViewById(R.id.coordinator_layout) as CoordinatorLayout
+        coordinatorLayout = getViewById(R.id.coordinator_layout)
+
+        fab = getViewById(R.id.fab)
+        fab.setOnClickListener { startActivity(Intent(this, AudioActivity::class.java)) }
 
         playerController = PlayerController(this, findViewById(R.id.player_panel)!!)
         playerController.initialize()
-        val listener = View.OnClickListener { startActivity(Intent(this, AudioActivity::class.java)) }
-        playerController.setFabOnClickListener(listener)
 
         audioService = AudioService(this)
         userService = UserService(this)
@@ -151,7 +154,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun initializeUser() {
-        userService.getCurrent().execute(SimpleCallback.success { setUser(it) })
+        userService.getCurrent().execute(SimpleCallback { setUser(it) })
     }
 
     private fun setUser(user: User) {

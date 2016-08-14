@@ -17,6 +17,7 @@
 package com.irateam.vkplayer.util
 
 import android.content.Context
+import com.irateam.vkplayer.Application
 import com.irateam.vkplayer.api.service.SettingsService
 import com.irateam.vkplayer.models.Audio
 import java.io.BufferedInputStream
@@ -69,6 +70,7 @@ class AudioDownloader {
             var currentProgress: Int
             var totalProgress = 0
             var totalBytes = 0
+
 
             var currentBytes = input.read(buffer, 0, 1024)
             while (currentBytes != -1) {

@@ -25,6 +25,7 @@ import com.irateam.vkplayer.R
 import com.irateam.vkplayer.event.MetadataLoadedEvent
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.models.Metadata
+import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.util.Formatters
 import com.irateam.vkplayer.util.extension.getViewById
 import org.greenrobot.eventbus.Subscribe
@@ -67,7 +68,7 @@ class ActivityPlayerController : PlayerController {
         clearAudioInfo()
 
         songName.text = audio.title
-        position.text = "#${index + 1}/${player.queue.size}"
+        position.text = "#${index + 1}/${Player.queueSize}"
         audio.metadata?.let { setMetadata(it) }
     }
 

@@ -22,7 +22,7 @@ class PlayerBufferingUpdateEvent : Event {
 
     val milliseconds: Int
 
-    protected constructor(milliseconds: Int) {
+    constructor(milliseconds: Int) {
         this.milliseconds = milliseconds
     }
 

@@ -23,6 +23,8 @@ import com.vk.sdk.VKSdk
 
 class Application : android.app.Application() {
 
+    internal var a: Int = 0
+
     override fun onCreate() {
         super.onCreate()
         VKSdk.initialize(this)
@@ -37,6 +39,11 @@ class Application : android.app.Application() {
                 .build()
 
         ImageLoader.getInstance().init(config)
+
+        val list = externalCacheDir.list { file, name ->
+            name.endsWith(".mp3")
+        }
+        println(list)
     }
 
 }

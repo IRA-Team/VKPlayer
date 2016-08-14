@@ -37,7 +37,6 @@ open class PlayerController {
 
     protected val context: Context
     protected val resources: Resources
-    protected val player: Player = Player.getInstance()
 
     /*
     * Views
@@ -90,20 +89,20 @@ open class PlayerController {
     open fun initialize() {
         configurePanel()
 
-        setPlayPause(player.isPlaying)
+        setPlayPause(Player.isPlaying)
 
-        playPause.setOnClickListener { if (player.isPlaying) player.pause(true) else player.resume() }
-        previous.setOnClickListener { player.previous() }
-        next.setOnClickListener { player.next() }
+        playPause.setOnClickListener { if (Player.isPlaying) Player.pause(true) else Player.resume() }
+        previous.setOnClickListener { Player.previous() }
+        next.setOnClickListener { Player.next() }
 
-        setRepeatState(player.repeatState)
-        repeat.setOnClickListener { player.switchRepeatState() }
+        setRepeatState(Player.repeatState)
+        repeat.setOnClickListener { Player.switchRepeatState() }
 
-        setRandomState(player.randomState)
-        random.setOnClickListener { player.switchRandomState() }
+        setRandomState(Player.randomState)
+        random.setOnClickListener { Player.switchRandomState() }
 
-        if (player.isReady && !player.isPlaying) {
-            progress.progress = player.pauseTime
+        if (Player.isReady && !Player.isPlaying) {
+            progress.progress = Player.pauseTime
         }
 
         progress.setOnSeekBarChangeListener(ProgressBarChangeListener())
@@ -120,14 +119,14 @@ open class PlayerController {
     }
 
     fun configurePanel() {
-        val audio = player.playingAudio
-        val index = player.playingAudioIndex
+        val audio = Player.audio
+        val index = Player.audioIndex
 
         if (audio != null) {
             rootView.visibility = View.VISIBLE
             setAudio(index, audio)
-            setRepeatState(player.repeatState)
-            setRandomState(player.randomState)
+            setRepeatState(Player.repeatState)
+            setRandomState(Player.randomState)
         }
     }
 
@@ -236,7 +235,7 @@ open class PlayerController {
 
         override fun onStopTrackingTouch(seekBar: SeekBar) {
             dragMode = false
-            player.seekTo(progress.progress)
+            Player.seekTo(progress.progress)
         }
     }
 }

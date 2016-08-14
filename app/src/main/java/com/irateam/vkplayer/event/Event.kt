@@ -16,5 +16,4 @@
 
 package com.irateam.vkplayer.event
 
-interface Event {
-}
+interface Event

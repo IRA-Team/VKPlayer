@@ -22,7 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:layout_below="@+id/toolbar"
-                android:background="@drawable/action_bar_shadow"/>
+                android:background="@drawable/shadow_action_bar"/>
 
             <LinearLayout
                 android:id="@+id/linearLayout"

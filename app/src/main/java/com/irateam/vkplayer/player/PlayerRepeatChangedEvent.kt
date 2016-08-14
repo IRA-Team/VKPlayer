@@ -22,7 +22,7 @@ class PlayerRepeatChangedEvent : Event {
 
     val repeatState: Player.RepeatState
 
-    protected constructor(repeatState: Player.RepeatState) {
+    constructor(repeatState: Player.RepeatState) {
         this.repeatState = repeatState
     }
 }

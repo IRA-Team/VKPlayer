@@ -34,6 +34,7 @@ import com.irateam.vkplayer.service.DownloadService
 import com.irateam.vkplayer.ui.CustomItemAnimator
 import com.irateam.vkplayer.util.EventBus
 import com.irateam.vkplayer.util.extension.isVisible
+import com.irateam.vkplayer.util.extension.success
 import java.util.*
 
 /**
@@ -44,7 +45,6 @@ class AudioListFragment : Fragment(),
         SearchView.OnQueryTextListener,
         AudioRecyclerViewAdapter.CheckedListener {
 
-    private val player = Player.getInstance()
     private val adapter = AudioRecyclerViewAdapter()
 
     private lateinit var audioService: AudioService
@@ -115,7 +115,7 @@ class AudioListFragment : Fragment(),
         adapter.setSearchQuery(query)
         previousSearchQuery?.cancel()
         previousSearchQuery = audioService.search(query)
-        previousSearchQuery?.execute(SimpleCallback.success { adapter.setSearchAudios(it) })
+        previousSearchQuery?.execute(SimpleCallback { adapter.setSearchAudios(it) })
 
         return true
     }
@@ -171,8 +171,8 @@ class AudioListFragment : Fragment(),
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_play -> {
-                player.queue = ArrayList(adapter.checkedAudios)
-                player.play(0)
+                val audios = adapter.checkedAudios.toList()
+                Player.play(audios, audios[0])
             }
             R.id.action_cache -> {
                 val nonCached = adapter.checkedAudios.filter { !it.isCached }
@@ -180,17 +180,16 @@ class AudioListFragment : Fragment(),
             }
             R.id.action_remove_from_cache -> {
                 val cached = adapter.checkedAudios.filter { it.isCached }
-                audioService.removeFromCache(cached).execute(SimpleCallback
-                        .success {
-                            adapter.removeChecked()
-                            adapter.removeFromCache(it)
-                        })
+                audioService.removeFromCache(cached).execute(SimpleCallback {
+                    adapter.removeChecked()
+                    adapter.removeFromCache(it)
+                })
             }
             R.id.action_delete -> {
                 adapter.removeChecked()
             }
             R.id.action_add_to_queue -> {
-                player.addToQueue(adapter.checkedAudios)
+                Player.addToQueue(adapter.checkedAudios)
             }
         }
         mode.finish()
@@ -204,14 +203,12 @@ class AudioListFragment : Fragment(),
 
     private fun executeQuery() {
         refreshLayout.post { refreshLayout.isRefreshing = true }
-        query.execute(SimpleCallback
-                .success<List<Audio>> {
-                    adapter.setAudios(it)
-                    emptyView.isVisible = it.isEmpty()
-                }
-                .finish {
-                    refreshLayout.post { refreshLayout.isRefreshing = false }
-                })
+        query.execute(success<List<Audio>> {
+            adapter.setAudios(it)
+            emptyView.isVisible = it.isEmpty()
+        } finish {
+            refreshLayout.post { refreshLayout.isRefreshing = false }
+        })
     }
 
 

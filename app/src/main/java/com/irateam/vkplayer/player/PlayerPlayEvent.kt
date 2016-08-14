@@ -20,5 +20,5 @@ import com.irateam.vkplayer.models.Audio
 
 class PlayerPlayEvent : PlayerEvent {
 
-    protected constructor(index: Int, audio: Audio) : super(index, audio)
+    constructor(index: Int, audio: Audio) : super(index, audio)
 }

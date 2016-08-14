@@ -48,6 +48,6 @@ abstract class DatabaseHelper : SQLiteOpenHelper {
                             ${Tables.Audio.Columns.LYRICS_ID} INTEGER,
                             ${Tables.Audio.Columns.ALBUM_ID} INTEGER,
                             ${Tables.Audio.Columns.GENRE} INTEGER,
-                            ${Tables.Audio.Columns.ACCESS_KEY} TEXT;"""
+                            ${Tables.Audio.Columns.ACCESS_KEY} TEXT)"""
     }
 }

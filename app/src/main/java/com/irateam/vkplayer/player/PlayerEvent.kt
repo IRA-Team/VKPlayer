@@ -24,7 +24,7 @@ abstract class PlayerEvent : Event {
     val index: Int
     val audio: Audio
 
-    protected constructor(index: Int, audio: Audio) {
+    constructor(index: Int, audio: Audio) {
         this.index = index
         this.audio = audio
     }
