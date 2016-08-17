@@ -74,5 +74,6 @@
     <string name="ok">ОК</string>
     <string name="pref_timer_off_enabled">Таймер</string>
     <string name="pref_timer_off_title">Таймер відключення</string>
+    <string name="action_play_next">Грати наступним</string>
 
 </resources>

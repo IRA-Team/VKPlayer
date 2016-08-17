@@ -147,10 +147,6 @@ public class Audio implements Parcelable {
         this.metadata = metadata;
     }
 
-    public boolean equalsId(Audio audio) {
-        return id == audio.getId();
-    }
-
     @SuppressWarnings("CloneDoesntCallSuperClone")
     public Audio clone() {
         Audio audio = new Audio(
@@ -167,6 +163,11 @@ public class Audio implements Parcelable {
 
         audio.setCachePath(cachePath);
         return audio;
+    }
+
+    @Override
+    public String toString() {
+        return artist + " - " + title;
     }
 
     @Override

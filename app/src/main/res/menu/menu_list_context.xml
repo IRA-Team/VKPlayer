@@ -8,6 +8,12 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/action_play_next"
+        android:icon="@drawable/ic_notification_play_white_24dp"
+        android:title="@string/action_play_next"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_cache"
         android:icon="@drawable/ic_cache_white_24dp"
         android:title="@string/action_cache"

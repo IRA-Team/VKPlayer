@@ -174,6 +174,10 @@ class AudioListFragment : Fragment(),
                 val audios = adapter.checkedAudios.toList()
                 Player.play(audios, audios[0])
             }
+            R.id.action_play_next -> {
+                val audios = adapter.checkedAudios.toList()
+                Player.addToPlayNext(audios)
+            }
             R.id.action_cache -> {
                 val nonCached = adapter.checkedAudios.filter { !it.isCached }
                 DownloadService.download(context, nonCached)
