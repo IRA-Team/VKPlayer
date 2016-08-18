@@ -17,7 +17,7 @@
 package com.irateam.vkplayer.controller
 
 import android.content.Context
-import android.support.annotation.DrawableRes
+import android.graphics.drawable.Drawable
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -52,15 +52,12 @@ class ActivityPlayerController : PlayerController {
         setMetadata(e.metadata)
     }
 
-    override fun setPlayPause(play: Boolean) {
-        super.setPlayPause(play)
-        @DrawableRes val drawableRes = if (play) {
-            R.drawable.ic_player_pause_grey_24dp
-        } else {
-            R.drawable.ic_player_play_grey_24dp
-        }
-        val drawable = resources.getDrawable(drawableRes, context.theme)
-        playPause.setImageDrawable(drawable)
+    override fun getPlayDrawable() : Drawable {
+        return resources.getDrawable(R.drawable.ic_player_play_grey_24dp, context.theme)
+    }
+
+    override fun getPauseDrawable() : Drawable {
+        return resources.getDrawable(R.drawable.ic_player_pause_grey_24dp, context.theme)
     }
 
     override fun setAudio(index: Int, audio: Audio?) = audio?.let {

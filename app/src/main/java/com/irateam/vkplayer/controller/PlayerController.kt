@@ -18,6 +18,7 @@ package com.irateam.vkplayer.controller
 
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.drawable.Drawable
 import android.support.annotation.DrawableRes
 import android.view.View
 import android.widget.ImageView
@@ -59,6 +60,9 @@ open class PlayerController {
     */
     var dragMode: Boolean = false
 
+    private val resumeAction: (View) -> Unit = { Player.resume() }
+    private val pauseAction: (View) -> Unit = { Player.pause(true) }
+
 
     /*
     * Constructor accepts 2 parameters:
@@ -89,9 +93,8 @@ open class PlayerController {
     open fun initialize() {
         configurePanel()
 
-        setPlayPause(Player.isPlaying)
+        if (Player.isPlaying) setupPlay() else setupPause()
 
-        playPause.setOnClickListener { if (Player.isPlaying) Player.pause(true) else Player.resume() }
         previous.setOnClickListener { Player.previous() }
         next.setOnClickListener { Player.next() }
 
@@ -108,14 +111,22 @@ open class PlayerController {
         progress.setOnSeekBarChangeListener(ProgressBarChangeListener())
     }
 
-    @Suppress("deprecation")
-    open fun setPlayPause(play: Boolean) {
-        val drawable = if (play) {
-            R.drawable.ic_player_pause_grey_18dp
-        } else {
-            R.drawable.ic_player_play_grey_18dp
-        }
-        playPause.setImageDrawable(resources.getDrawable(drawable, context.theme))
+    open fun getPlayDrawable() : Drawable {
+        return resources.getDrawable(R.drawable.ic_player_play_grey_18dp, context.theme)
+    }
+
+    open fun getPauseDrawable() : Drawable {
+        return resources.getDrawable(R.drawable.ic_player_pause_grey_18dp, context.theme)
+    }
+
+    open fun setupPlay() {
+        playPause.setImageDrawable(getPauseDrawable())
+        playPause.setOnClickListener(pauseAction)
+    }
+
+    open fun setupPause() {
+        playPause.setImageDrawable(getPlayDrawable())
+        playPause.setOnClickListener(resumeAction)
     }
 
     fun configurePanel() {
@@ -148,17 +159,17 @@ open class PlayerController {
         val audio = e.audio
 
         setAudio(index, audio)
-        setPlayPause(true)
+        setupPlay()
     }
 
     @Subscribe
     open fun onPauseEvent(e: PlayerPauseEvent) {
-        setPlayPause(false)
+        setupPause()
     }
 
     @Subscribe
     open fun onResumeEvent(e: PlayerResumeEvent) {
-        setPlayPause(true)
+        setupPlay()
     }
 
     @Subscribe
