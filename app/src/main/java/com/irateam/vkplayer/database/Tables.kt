@@ -53,5 +53,19 @@ object Tables {
     object AudioLocalIndexed {
 
         val NAME = "audio_local_indexed"
+        val SQL_CREATE = """CREATE TABLE $NAME
+                            (_id INTEGER PRIMARY KEY,
+                            ${Columns.ARTIST} TEXT,
+                            ${Columns.TITLE} TEXT,
+                            ${Columns.DURATION} INTEGER,
+                            ${Columns.PATH} TEXT)"""
+        val SQL_CREATE_PATH_INDEX = "CREATE INDEX ${NAME}_path_index ON $NAME(${Columns.PATH})"
+
+        object Columns {
+            val ARTIST = "artist"
+            val TITLE = "title"
+            val DURATION = "duration"
+            val PATH = "path"
+        }
     }
 }

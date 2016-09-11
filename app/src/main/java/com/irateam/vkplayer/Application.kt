@@ -52,10 +52,9 @@ class Application : android.app.Application() {
                   .filterNotNull()
                   .forEach { Log.e("MP3ScanVK", it.artist + " - " + it.title) }*/
 
-        LocalAudioService().getAll().execute(success {
+        LocalAudioService(this).getAllIndexed().execute(success {
             println(it)
         })
-
 
         ImageLoader.getInstance().init(config)
     }

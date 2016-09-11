@@ -24,8 +24,13 @@ abstract class DatabaseHelper : SQLiteOpenHelper {
 
     constructor(context: Context) : super(context, DATABASE_NAME, null, DATABASE_VERSION)
 
-    override fun onCreate(db: SQLiteDatabase) {
-        db.execSQL(Tables.AudioVKCache.SQL_CREATE)
+    override fun onCreate(db: SQLiteDatabase) = with(db) {
+        //AudioVKCache
+        execSQL(Tables.AudioVKCache.SQL_CREATE)
+
+        //AudioLocalIndexed
+        execSQL(Tables.AudioLocalIndexed.SQL_CREATE)
+        execSQL(Tables.AudioLocalIndexed.SQL_CREATE_PATH_INDEX)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -35,7 +40,5 @@ abstract class DatabaseHelper : SQLiteOpenHelper {
     companion object {
         val DATABASE_VERSION = 1
         val DATABASE_NAME = "vkplayer.db"
-
-
     }
 }
