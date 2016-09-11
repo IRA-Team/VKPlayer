@@ -15,14 +15,18 @@
  */
 
 @file:JvmName("ContextUtils")
+
 package com.irateam.vkplayer.util.extension
 
 import android.animation.Animator
 import android.animation.AnimatorInflater
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
 import android.support.annotation.AnimRes
 import android.support.annotation.AnimatorRes
+import android.support.annotation.DrawableRes
+import android.support.v4.content.ContextCompat
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 
@@ -49,4 +53,8 @@ fun Context.getAnimator(@AnimatorRes id: Int): Animator {
 @Suppress("unchecked_cast")
 fun <T> Context.getSystemService(name: String): T {
     return getSystemService(name) as T
+}
+
+fun Context.getThemedDrawable(@DrawableRes resId: Int): Drawable {
+    return ContextCompat.getDrawable(this, resId)
 }

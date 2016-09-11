@@ -1,6 +1,6 @@
 package com.irateam.vkplayer.api
 
-class SimpleCallback<T> : Callback<T> {
+open class SimpleCallback<T> : Callback<T> {
 
     private val successListener: (T) -> Unit
     private var errorListener: (() -> Unit)? = null

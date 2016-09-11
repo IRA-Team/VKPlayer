@@ -28,6 +28,7 @@ import com.irateam.vkplayer.R
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.player.*
 import com.irateam.vkplayer.player.Player.RepeatState.*
+import com.irateam.vkplayer.util.extension.getThemedDrawable
 import com.irateam.vkplayer.util.extension.isVisible
 import org.greenrobot.eventbus.Subscribe
 
@@ -111,12 +112,12 @@ open class PlayerController {
         progress.setOnSeekBarChangeListener(ProgressBarChangeListener())
     }
 
-    open fun getPlayDrawable() : Drawable {
-        return resources.getDrawable(R.drawable.ic_player_play_grey_18dp, context.theme)
+    open fun getPlayDrawable(): Drawable {
+        return context.getThemedDrawable(R.drawable.ic_player_play_grey_18dp)
     }
 
-    open fun getPauseDrawable() : Drawable {
-        return resources.getDrawable(R.drawable.ic_player_pause_grey_18dp, context.theme)
+    open fun getPauseDrawable(): Drawable {
+        return context.getThemedDrawable(R.drawable.ic_player_pause_grey_18dp)
     }
 
     open fun setupPlay() {
@@ -223,7 +224,8 @@ open class PlayerController {
             ALL_REPEAT -> R.drawable.ic_player_repeat_all_light_grey_18dp
             ONE_REPEAT -> R.drawable.ic_player_repeat_one_light_grey_18dp
         }
-        repeat.setImageDrawable(resources.getDrawable(drawableRes, context.theme))
+
+        repeat.setImageDrawable(context.getThemedDrawable(drawableRes))
     }
 
     fun setRandomState(randomState: Boolean) {
@@ -232,7 +234,7 @@ open class PlayerController {
         } else {
             R.drawable.ic_player_random_light_grey_18dp
         }
-        random.setImageDrawable(resources.getDrawable(drawableRes, context.theme))
+        random.setImageDrawable(context.getThemedDrawable(drawableRes))
     }
 
     private inner class ProgressBarChangeListener : SeekBar.OnSeekBarChangeListener {

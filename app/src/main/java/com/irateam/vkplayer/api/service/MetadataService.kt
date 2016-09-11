@@ -5,8 +5,8 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import com.irateam.vkplayer.api.AbstractQuery
 import com.irateam.vkplayer.api.Query
-import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.models.Metadata
+import com.irateam.vkplayer.models.VKAudio
 import com.irateam.vkplayer.notification.PlayerNotificationFactory
 import com.mpatric.mp3agic.ID3v2
 import com.mpatric.mp3agic.InvalidDataException
@@ -23,15 +23,15 @@ class MetadataService {
         this.context = context
     }
 
-    fun get(audio: Audio): Query<Metadata> {
+    fun get(audio: VKAudio): Query<Metadata> {
         return GetMetadataQuery(audio)
     }
 
     private inner class GetMetadataQuery : AbstractQuery<Metadata> {
 
-        val audio: Audio
+        val audio: VKAudio
 
-        constructor(audio: Audio) : super() {
+        constructor(audio: VKAudio) : super() {
             this.audio = audio
         }
 

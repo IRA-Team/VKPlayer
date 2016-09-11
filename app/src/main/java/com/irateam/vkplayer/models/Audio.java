@@ -19,67 +19,34 @@ package com.irateam.vkplayer.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.io.File;
+public abstract class Audio implements Parcelable {
 
-public class Audio implements Parcelable {
-
-    private final int id;
-    private final int ownerId;
+    private final String id;
     private final String artist;
     private final String title;
     private final int duration;
-    private final String url;
-    private final int lyricsId;
-    private final int albumId;
-    private final int genre;
-    private final String accessKey;
-
-    private String cachePath;
-    private File cacheFile;
     private Metadata metadata;
 
-    public Audio(int id,
-                 int ownerId,
+    public Audio(String id,
                  String artist,
                  String title,
-                 int duration,
-                 String url,
-                 int lyricsId,
-                 int albumId,
-                 int genre,
-                 String accessKey) {
+                 int duration) {
 
         this.id = id;
-        this.ownerId = ownerId;
         this.artist = artist;
         this.title = title;
         this.duration = duration;
-        this.url = url;
-        this.lyricsId = lyricsId;
-        this.albumId = albumId;
-        this.genre = genre;
-        this.accessKey = accessKey;
     }
 
     protected Audio(Parcel in) {
-        this.id = in.readInt();
-        this.ownerId = in.readInt();
+        this.id = in.readString();
         this.artist = in.readString();
         this.title = in.readString();
         this.duration = in.readInt();
-        this.url = in.readString();
-        this.lyricsId = in.readInt();
-        this.albumId = in.readInt();
-        this.genre = in.readInt();
-        this.accessKey = in.readString();
     }
 
-    public int getId() {
+    public String getId() {
         return id;
-    }
-
-    public int getOwnerId() {
-        return ownerId;
     }
 
     public String getArtist() {
@@ -94,50 +61,7 @@ public class Audio implements Parcelable {
         return duration;
     }
 
-    public String getUrl() {
-        return url;
-    }
-
-    public int getLyricsId() {
-        return lyricsId;
-    }
-
-    public int getAlbumId() {
-        return albumId;
-    }
-
-    public int getGenre() {
-        return genre;
-    }
-
-    public String getAccessKey() {
-        return accessKey;
-    }
-
-    public String getCachePath() {
-        return cachePath;
-    }
-
-    public void setCachePath(String cachePath) {
-        this.cachePath = cachePath;
-        if (cachePath != null && !cachePath.isEmpty()) {
-            this.cacheFile = new File(cachePath);
-        }
-    }
-
-    public File getCacheFile() {
-        return cacheFile;
-    }
-
-    public boolean isCached() {
-        return cacheFile != null && cacheFile.exists();
-    }
-
-    public void removeFromCache() {
-        if (cacheFile != null && cacheFile.delete()) {
-            cachePath = null;
-        }
-    }
+    public abstract String getSource();
 
     public Metadata getMetadata() {
         return metadata;
@@ -147,23 +71,7 @@ public class Audio implements Parcelable {
         this.metadata = metadata;
     }
 
-    @SuppressWarnings("CloneDoesntCallSuperClone")
-    public Audio clone() {
-        Audio audio = new Audio(
-                id,
-                ownerId,
-                artist,
-                title,
-                duration,
-                url,
-                lyricsId,
-                albumId,
-                genre,
-                accessKey);
-
-        audio.setCachePath(cachePath);
-        return audio;
-    }
+    public abstract Audio clone();
 
     @Override
     public String toString() {
@@ -177,26 +85,9 @@ public class Audio implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(id);
-        dest.writeInt(ownerId);
+        dest.writeString(id);
         dest.writeString(artist);
         dest.writeString(title);
         dest.writeInt(duration);
-        dest.writeString(url);
-        dest.writeInt(lyricsId);
-        dest.writeInt(albumId);
-        dest.writeInt(genre);
-        dest.writeString(accessKey);
     }
-
-    public static Creator<Audio> CREATOR = new Creator<Audio>() {
-        public Audio createFromParcel(Parcel source) {
-            return new Audio(source);
-        }
-
-        public Audio[] newArray(int size) {
-            return new Audio[size];
-        }
-    };
-
 }

@@ -27,8 +27,8 @@ import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapter.AudioRecyclerViewAdapter
 import com.irateam.vkplayer.api.Query
 import com.irateam.vkplayer.api.SimpleCallback
-import com.irateam.vkplayer.api.service.AudioService
-import com.irateam.vkplayer.models.Audio
+import com.irateam.vkplayer.api.service.VKAudioService
+import com.irateam.vkplayer.models.VKAudio
 import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.service.DownloadService
 import com.irateam.vkplayer.ui.CustomItemAnimator
@@ -47,15 +47,15 @@ class AudioListFragment : Fragment(),
 
     private val adapter = AudioRecyclerViewAdapter()
 
-    private lateinit var audioService: AudioService
-    private lateinit var query: Query<List<Audio>>
+    private lateinit var audioService: VKAudioService
+    private lateinit var query: Query<List<VKAudio>>
     private lateinit var recyclerView: RecyclerView
     private lateinit var refreshLayout: SwipeRefreshLayout
     private lateinit var emptyView: View
     private lateinit var menu: Menu
     private lateinit var searchView: SearchView
 
-    private var previousSearchQuery: Query<List<Audio>>? = null
+    private var previousSearchQuery: Query<List<VKAudio>>? = null
     private var actionMode: ActionMode? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,7 +90,7 @@ class AudioListFragment : Fragment(),
 
         adapter.checkedListener = this
 
-        audioService = AudioService(context)
+        audioService = VKAudioService(context)
         EventBus.register(adapter)
         executeQuery()
     }
@@ -136,7 +136,7 @@ class AudioListFragment : Fragment(),
         else -> false
     }
 
-    override fun onChanged(audio: Audio, checked: HashSet<Audio>) {
+    override fun onChanged(audio: VKAudio, checked: HashSet<VKAudio>) {
         if (actionMode == null && checked.size > 0) {
             actionMode = activity.startActionMode(this)
         }
@@ -174,14 +174,17 @@ class AudioListFragment : Fragment(),
                 val audios = adapter.checkedAudios.toList()
                 Player.play(audios, audios[0])
             }
+
             R.id.action_play_next -> {
                 val audios = adapter.checkedAudios.toList()
                 Player.addToPlayNext(audios)
             }
+
             R.id.action_cache -> {
                 val nonCached = adapter.checkedAudios.filter { !it.isCached }
                 DownloadService.download(context, nonCached)
             }
+
             R.id.action_remove_from_cache -> {
                 val cached = adapter.checkedAudios.filter { it.isCached }
                 audioService.removeFromCache(cached).execute(SimpleCallback {
@@ -189,9 +192,11 @@ class AudioListFragment : Fragment(),
                     adapter.removeFromCache(it)
                 })
             }
+
             R.id.action_delete -> {
                 adapter.removeChecked()
             }
+
             R.id.action_add_to_queue -> {
                 Player.addToQueue(adapter.checkedAudios)
             }
@@ -207,7 +212,7 @@ class AudioListFragment : Fragment(),
 
     private fun executeQuery() {
         refreshLayout.post { refreshLayout.isRefreshing = true }
-        query.execute(success<List<Audio>> {
+        query.execute(success<List<VKAudio>> {
             adapter.setAudios(it)
             emptyView.isVisible = it.isEmpty()
         } finish {
@@ -219,7 +224,7 @@ class AudioListFragment : Fragment(),
     companion object {
 
         @JvmStatic
-        fun newInstance(query: Query<List<Audio>>): AudioListFragment {
+        fun newInstance(query: Query<List<VKAudio>>): AudioListFragment {
             val fragment = AudioListFragment()
             fragment.query = query
             return fragment

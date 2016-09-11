@@ -33,8 +33,8 @@ import android.widget.TextView
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.activity.settings.SettingsActivity
 import com.irateam.vkplayer.api.SimpleCallback
-import com.irateam.vkplayer.api.service.AudioService
 import com.irateam.vkplayer.api.service.UserService
+import com.irateam.vkplayer.api.service.VKAudioService
 import com.irateam.vkplayer.controller.PlayerController
 import com.irateam.vkplayer.fragment.AudioListFragment
 import com.irateam.vkplayer.models.User
@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     //Services
     private lateinit var userService: UserService
-    private lateinit var audioService: AudioService
+    private lateinit var audioService: VKAudioService
 
     //Views
     private lateinit var toolbar: Toolbar
@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         playerController = PlayerController(this, findViewById(R.id.player_panel)!!)
         playerController.initialize()
 
-        audioService = AudioService(this)
+        audioService = VKAudioService(this)
         userService = UserService(this)
 
         EventBus.register(playerController)
@@ -138,6 +138,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 else                   -> audioService.getCurrent()
             }
             // @formatter:on
+
             val fragment = AudioListFragment.newInstance(query)
             setFragment(fragment)
             return true

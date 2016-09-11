@@ -14,8 +14,7 @@ public abstract class AbstractQuery<T> implements Query<T> {
     private static final int THREAD_COUNT = 3;
     private static final ExecutorService EXECUTOR_SERVICE =
             Executors.newFixedThreadPool(THREAD_COUNT);
-    private static final Handler uiHandler = new Handler(Looper.getMainLooper());
-
+    private static final Handler UI_HANDLER = new Handler(Looper.getMainLooper());
 
     private Future<T> task;
 
@@ -66,13 +65,13 @@ public abstract class AbstractQuery<T> implements Query<T> {
 
         private void notifyComplete(V result) {
             if (callback != null) {
-                uiHandler.post(() -> callback.onComplete(result));
+                UI_HANDLER.post(() -> callback.onComplete(result));
             }
         }
 
         private void notifyError() {
             if (callback != null) {
-                uiHandler.post(callback::onError);
+                UI_HANDLER.post(callback::onError);
             }
         }
     }

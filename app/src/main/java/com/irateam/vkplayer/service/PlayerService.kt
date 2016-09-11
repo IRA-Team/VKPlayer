@@ -28,6 +28,7 @@ import com.irateam.vkplayer.api.service.MetadataService
 import com.irateam.vkplayer.api.service.SettingsService
 import com.irateam.vkplayer.event.MetadataLoadedEvent
 import com.irateam.vkplayer.models.Audio
+import com.irateam.vkplayer.models.VKAudio
 import com.irateam.vkplayer.notification.PlayerNotificationFactory
 import com.irateam.vkplayer.player.*
 import com.irateam.vkplayer.util.EventBus
@@ -95,11 +96,13 @@ class PlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
         startForeground(PLAYER_NOTIFICATION_ID, notificationFactory.get(e))
         requestFocus()
 
-        metadataService.get(audio).execute(success {
-            audio.metadata = it
-            EventBus.post(MetadataLoadedEvent(audio, it))
-            updateNotification(index, audio)
-        })
+        if (audio is VKAudio) {
+            metadataService.get(audio).execute(success {
+                audio.metadata = it
+                EventBus.post(MetadataLoadedEvent(audio, it))
+                updateNotification(index, audio)
+            })
+        }
     }
 
     @Subscribe

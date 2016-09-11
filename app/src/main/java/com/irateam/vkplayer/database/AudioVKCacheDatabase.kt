@@ -20,27 +20,28 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import com.irateam.vkplayer.models.Audio
+import com.irateam.vkplayer.models.VKAudio
+import com.irateam.vkplayer.util.extension.use
 import java.util.*
 
-class AudioDatabaseHelper(context: Context) : DatabaseHelper(context) {
+class AudioVKCacheDatabase(context: Context) : DatabaseHelper(context) {
 
-    fun insert(audio: Audio): Long = writableDatabase.use {
-        it.insert(Tables.Audio.NAME, null, audio.toContentValues())
+    fun insert(audio: VKAudio): Long = writableDatabase.use {
+        it.insert(Tables.AudioVKCache.NAME, null, audio.toContentValues())
     }
 
-
-    fun update(audio: Audio): Long = writableDatabase.use {
-        val id = it.update(Tables.Audio.NAME, audio.toContentValues(), "id = " + audio.id, null)
+    fun update(audio: VKAudio): Long = writableDatabase.use {
+        val id = it.update(Tables.AudioVKCache.NAME, audio.toContentValues(), "id = " + audio.id, null)
         id.toLong()
     }
 
     fun delete(audio: Audio): Long = writableDatabase.use {
-        val id = it.delete(Tables.Audio.NAME, "id = " + audio.id, null)
+        val id = it.delete(Tables.AudioVKCache.NAME, "id = " + audio.id, null)
         id.toLong()
     }
 
-    fun cache(audio: Audio): Long = writableDatabase.use { db ->
-        db.query(Tables.Audio.NAME, null, "id = " + audio.id, null, null, null, null)
+    fun cache(audio: VKAudio): Long = writableDatabase.use { db ->
+        db.query(Tables.AudioVKCache.NAME, null, "id = " + audio.id, null, null, null, null)
                 .use { cursor ->
                     if (cursor.count <= 0) {
                         insert(audio)
@@ -50,10 +51,10 @@ class AudioDatabaseHelper(context: Context) : DatabaseHelper(context) {
                 }
     }
 
-    fun getAll(): List<Audio> = readableDatabase.use { db ->
-        db.query(Tables.Audio.NAME, null, null, null, null, null, "_id DESC")
+    fun getAll(): List<VKAudio> = readableDatabase.use { db ->
+        db.query(Tables.AudioVKCache.NAME, null, null, null, null, null, "_id DESC")
                 .use { cursor ->
-                    val audios = ArrayList<Audio>()
+                    val audios = ArrayList<VKAudio>()
                     if (cursor.moveToFirst()) {
                         do {
                             audios.add(cursor.toAudio())
@@ -64,30 +65,30 @@ class AudioDatabaseHelper(context: Context) : DatabaseHelper(context) {
     }
 
     fun removeAll(): Unit = writableDatabase.use {
-        it.delete(Tables.Audio.NAME, null, null)
+        it.delete(Tables.AudioVKCache.NAME, null, null)
     }
 
     companion object {
 
-        fun Audio.toContentValues(): ContentValues {
+        fun VKAudio.toContentValues(): ContentValues {
             val cv = ContentValues()
-            cv.put(Tables.Audio.Columns.ID, id)
-            cv.put(Tables.Audio.Columns.OWNER_ID, ownerId)
-            cv.put(Tables.Audio.Columns.ARTIST, artist)
-            cv.put(Tables.Audio.Columns.TITLE, title)
-            cv.put(Tables.Audio.Columns.DURATION, duration)
-            cv.put(Tables.Audio.Columns.URL, url)
-            cv.put(Tables.Audio.Columns.CACHE_PATH, cachePath)
-            cv.put(Tables.Audio.Columns.LYRICS_ID, lyricsId)
-            cv.put(Tables.Audio.Columns.ALBUM_ID, albumId)
-            cv.put(Tables.Audio.Columns.GENRE, genre)
-            cv.put(Tables.Audio.Columns.ACCESS_KEY, accessKey)
+            cv.put(Tables.AudioVKCache.Columns.ID, id)
+            cv.put(Tables.AudioVKCache.Columns.OWNER_ID, ownerId)
+            cv.put(Tables.AudioVKCache.Columns.ARTIST, artist)
+            cv.put(Tables.AudioVKCache.Columns.TITLE, title)
+            cv.put(Tables.AudioVKCache.Columns.DURATION, duration)
+            cv.put(Tables.AudioVKCache.Columns.URL, url)
+            cv.put(Tables.AudioVKCache.Columns.CACHE_PATH, cachePath)
+            cv.put(Tables.AudioVKCache.Columns.LYRICS_ID, lyricsId)
+            cv.put(Tables.AudioVKCache.Columns.ALBUM_ID, albumId)
+            cv.put(Tables.AudioVKCache.Columns.GENRE, genre)
+            cv.put(Tables.AudioVKCache.Columns.ACCESS_KEY, accessKey)
             return cv
         }
 
-        fun Cursor.toAudio(): Audio {
+        fun Cursor.toAudio(): VKAudio {
             var i = 1
-            val id = getInt(i++)
+            val id = getString(i++)
             val ownerId = getInt(i++)
             val artist = getString(i++)
             val title = getString(i++)
@@ -99,7 +100,7 @@ class AudioDatabaseHelper(context: Context) : DatabaseHelper(context) {
             val genre = getInt(i++)
             val accessKey = getString(i)
 
-            val audio = Audio(
+            val audio = VKAudio(
                     id,
                     ownerId,
                     artist,

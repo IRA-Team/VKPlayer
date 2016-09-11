@@ -17,9 +17,8 @@
 package com.irateam.vkplayer.util
 
 import android.content.Context
-import com.irateam.vkplayer.Application
 import com.irateam.vkplayer.api.service.SettingsService
-import com.irateam.vkplayer.models.Audio
+import com.irateam.vkplayer.models.VKAudio
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -42,7 +41,7 @@ class AudioDownloader {
         this.settings = SettingsService(context)
     }
 
-    fun download(audio: Audio) {
+    fun download(audio: VKAudio) {
         val runnable = prepareRunnable(audio)
         currentFuture = executor.submit(runnable)
     }
@@ -56,7 +55,7 @@ class AudioDownloader {
         executor.shutdown()
     }
 
-    private fun prepareRunnable(audio: Audio) = Runnable {
+    private fun prepareRunnable(audio: VKAudio) = Runnable {
         try {
             val source = URL(audio.url).openConnection()
             val input = BufferedInputStream(source.inputStream)
@@ -96,30 +95,30 @@ class AudioDownloader {
         }
     }
 
-    private fun notifyTerminated(audio: Audio) {
+    private fun notifyTerminated(audio: VKAudio) {
         listener?.onDownloadTerminated(audio)
     }
 
-    private fun notifyDownloadFinished(audio: Audio) {
+    private fun notifyDownloadFinished(audio: VKAudio) {
         listener?.onDownloadFinished(audio)
     }
 
-    private fun notifyDownloadError(audio: Audio, cause: Throwable) {
+    private fun notifyDownloadError(audio: VKAudio, cause: Throwable) {
         listener?.onDownloadError(audio, cause)
     }
 
-    private fun notifyDownloadProgressChanged(audio: Audio, progress: Int) {
+    private fun notifyDownloadProgressChanged(audio: VKAudio, progress: Int) {
         listener?.onDownloadProgressChanged(audio, progress)
     }
 
     interface Listener {
-        fun onDownloadProgressChanged(audio: Audio, progress: Int)
+        fun onDownloadProgressChanged(audio: VKAudio, progress: Int)
 
-        fun onDownloadFinished(audio: Audio)
+        fun onDownloadFinished(audio: VKAudio)
 
-        fun onDownloadError(audio: Audio, cause: Throwable)
+        fun onDownloadError(audio: VKAudio, cause: Throwable)
 
-        fun onDownloadTerminated(audio: Audio)
+        fun onDownloadTerminated(audio: VKAudio)
     }
 
 }

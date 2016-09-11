@@ -29,6 +29,7 @@ import com.irateam.vkplayer.event.ItemRemovedFromCacheEvent
 import com.irateam.vkplayer.event.ItemUncheckedEvent
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.models.Header
+import com.irateam.vkplayer.models.VKAudio
 import com.irateam.vkplayer.player.*
 import com.irateam.vkplayer.ui.ItemTouchHelperAdapter
 import com.irateam.vkplayer.ui.SimpleItemTouchHelperCallback
@@ -50,11 +51,11 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
 
     private var sortMode = false
     private var data = ArrayList<Any>()
-    private var audios: List<Audio> = ArrayList()
+    private var audios: List<VKAudio> = ArrayList()
 
     private var searchQuery: String? = null
 
-    var checkedAudios: HashSet<Audio> = LinkedHashSet()
+    var checkedAudios: HashSet<VKAudio> = LinkedHashSet()
 
     //Listeners
     var checkedListener: CheckedListener? = null
@@ -70,9 +71,9 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         else -> -1
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, position: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        when (viewType) {
+        when (position) {
             TYPE_HEADER -> {
                 val v = inflater.inflate(R.layout.item_header, parent, false)
                 return HeaderViewHolder(v)
@@ -103,12 +104,13 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
                                     payload: MutableList<Any>?) {
 
         if (payload?.isEmpty() ?: true) {
-            val audio = data[position] as Audio
+            val audio = data[position] as VKAudio
             configureAudio(holder, audio)
             configurePlayingState(holder, audio)
 
             if (sortMode) {
                 configureSortMode(holder, audio)
+
             } else {
                 configureCheckedState(holder, audio)
             }
@@ -166,7 +168,7 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         }
     }
 
-    private fun configureAudio(holder: AudioViewHolder, audio: Audio) {
+    private fun configureAudio(holder: AudioViewHolder, audio: VKAudio) {
         holder.setAudio(audio)
         holder.setCached(audio.isCached)
         val searchQuery = searchQuery
@@ -190,7 +192,7 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         }
     }
 
-    private fun configureCheckedState(holder: AudioViewHolder, audio: Audio) {
+    private fun configureCheckedState(holder: AudioViewHolder, audio: VKAudio) {
         holder.setChecked(audio in checkedAudios)
         holder.coverHolder.setOnClickListener {
             holder.toggleChecked(true)
@@ -244,7 +246,7 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         return sortMode
     }
 
-    fun setAudios(audios: List<Audio>) {
+    fun setAudios(audios: List<VKAudio>) {
         data.clear()
         data.addAll(audios)
         this.audios = audios
@@ -315,7 +317,7 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
 
     interface CheckedListener {
 
-        fun onChanged(audio: Audio, checked: HashSet<Audio>)
+        fun onChanged(audio: VKAudio, checked: HashSet<VKAudio>)
     }
 
     companion object {

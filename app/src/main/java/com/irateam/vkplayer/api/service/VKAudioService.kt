@@ -21,68 +21,68 @@ import com.irateam.vkplayer.api.AbstractQuery
 import com.irateam.vkplayer.api.Callback
 import com.irateam.vkplayer.api.Query
 import com.irateam.vkplayer.api.VKAudioQuery
-import com.irateam.vkplayer.database.AudioDatabaseHelper
-import com.irateam.vkplayer.models.Audio
+import com.irateam.vkplayer.database.AudioVKCacheDatabase
+import com.irateam.vkplayer.models.VKAudio
 import com.irateam.vkplayer.player.Player
 import com.vk.sdk.api.VKApi
 import com.vk.sdk.api.VKApiConst
 import com.vk.sdk.api.VKParameters
 
-class AudioService {
+class VKAudioService {
 
-    private val helper: AudioDatabaseHelper
+    private val helper: AudioVKCacheDatabase
 
     constructor(context: Context) {
-        helper = AudioDatabaseHelper(context)
+        helper = AudioVKCacheDatabase(context)
     }
 
-    fun getCurrent(): Query<List<Audio>> {
+    fun getCurrent(): Query<List<VKAudio>> {
         return CurrentAudioQuery()
     }
 
-    fun getMy(): Query<List<Audio>> {
+    fun getMy(): Query<List<VKAudio>> {
         val request = VKApi.audio().get()
         val query = VKAudioQuery(request)
         return CacheQueryDecorator(query)
     }
 
-    fun getMy(count: Int): Query<List<Audio>> {
+    fun getMy(count: Int): Query<List<VKAudio>> {
         val params = VKParameters.from(VKApiConst.COUNT, count)
         val request = VKApi.audio().get(params)
         val query = VKAudioQuery(request)
         return CacheQueryDecorator(query)
     }
 
-    fun getRecommendation(): Query<List<Audio>> {
+    fun getRecommendation(): Query<List<VKAudio>> {
         val request = VKApi.audio().recommendations
         val query = VKAudioQuery(request)
         return CacheQueryDecorator(query)
     }
 
-    fun getPopular(): Query<List<Audio>> {
+    fun getPopular(): Query<List<VKAudio>> {
         val request = VKApi.audio().getPopular(VKParameters.from(GENRE_ID, 0))
         val query = VKAudioQuery(request)
         return CacheQueryDecorator(query)
     }
 
-    fun getCached(): Query<List<Audio>> {
+    fun getCached(): Query<List<VKAudio>> {
         return CachedAudioQuery()
     }
 
-    fun search(query: String): Query<List<Audio>> {
+    fun search(query: String): Query<List<VKAudio>> {
         val request = VKApi.audio().search(VKParameters.from(VKApiConst.Q, query))
         return VKAudioQuery(request)
     }
 
-    fun removeFromCache(audios: Collection<Audio>): Query<List<Audio>> {
+    fun removeFromCache(audios: Collection<VKAudio>): Query<List<VKAudio>> {
         return RemoveFromCacheQuery(audios)
     }
 
-    fun removeAllCachedAudio(): Query<List<Audio>> {
+    fun removeAllCachedAudio(): Query<List<VKAudio>> {
         return RemoveAllFromCacheQuery()
     }
 
-    private fun processCache(audios: List<Audio>): List<Audio> {
+    private fun processCache(audios: List<VKAudio>): List<VKAudio> {
         val cached = helper.getAll()
         cached.forEach {
             val cachedAudio = it
@@ -93,27 +93,28 @@ class AudioService {
     }
 
     //Queries
-    private inner class CachedAudioQuery : AbstractQuery<List<Audio>>() {
+    private inner class CachedAudioQuery : AbstractQuery<List<VKAudio>>() {
 
-        override fun query(): List<Audio> = helper.getAll().filter { it.isCached }
+        override fun query(): List<VKAudio> = helper.getAll().filter { it.isCached }
     }
 
-    private inner class CurrentAudioQuery : AbstractQuery<List<Audio>>() {
-        override fun query(): List<Audio> = Player.playlist
+    private inner class CurrentAudioQuery : AbstractQuery<List<VKAudio>>() {
+        override fun query(): List<VKAudio> = Player.playlist
+                .filterIsInstance(VKAudio::class.java)
     }
 
-    private inner class RemoveFromCacheQuery(val audios: Collection<Audio>) :
-            AbstractQuery<List<Audio>>() {
+    private inner class RemoveFromCacheQuery(val audios: Collection<VKAudio>) :
+            AbstractQuery<List<VKAudio>>() {
 
-        override fun query(): List<Audio> = audios.filter { it.isCached }
+        override fun query(): List<VKAudio> = audios.filter { it.isCached }
                 .map { helper.delete(it); it }
                 .map { it.removeFromCache(); it }
                 .toList()
     }
 
-    private inner class RemoveAllFromCacheQuery : AbstractQuery<List<Audio>>() {
+    private inner class RemoveAllFromCacheQuery : AbstractQuery<List<VKAudio>>() {
 
-        override fun query(): List<Audio> {
+        override fun query(): List<VKAudio> {
             val audios = helper.getAll()
             helper.removeAll()
             return audios.filter { it.isCached }
@@ -123,20 +124,20 @@ class AudioService {
     }
 
     //Cache decorators
-    private inner class CacheQueryDecorator : Query<List<Audio>> {
+    private inner class CacheQueryDecorator : Query<List<VKAudio>> {
 
-        val query: Query<List<Audio>>
+        val query: Query<List<VKAudio>>
 
-        constructor(query: Query<List<Audio>>) {
+        constructor(query: Query<List<VKAudio>>) {
             this.query = query
         }
 
-        override fun execute(): List<Audio> {
+        override fun execute(): List<VKAudio> {
             val audios = query.execute()
             return processCache(audios)
         }
 
-        override fun execute(callback: Callback<List<Audio>>) {
+        override fun execute(callback: Callback<List<VKAudio>>) {
             query.execute(CacheCallbackDecorator(callback))
         }
 
@@ -146,15 +147,15 @@ class AudioService {
 
     }
 
-    private inner class CacheCallbackDecorator : Callback<List<Audio>> {
+    private inner class CacheCallbackDecorator : Callback<List<VKAudio>> {
 
-        val callback: Callback<List<Audio>>
+        val callback: Callback<List<VKAudio>>
 
-        constructor(callback: Callback<List<Audio>>) {
+        constructor(callback: Callback<List<VKAudio>>) {
             this.callback = callback
         }
 
-        override fun onComplete(result: List<Audio>) {
+        override fun onComplete(result: List<VKAudio>) {
             callback.onComplete(processCache(result))
         }
 

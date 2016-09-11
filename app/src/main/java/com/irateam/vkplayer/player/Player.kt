@@ -201,8 +201,7 @@ object Player : MediaPlayer(),
         setOnBufferingUpdateListener(null)
 
         this.audio = audio
-        val source = if (audio.isCached) audio.cachePath else audio.url
-        setDataSource(source)
+        setDataSource(audio.source)
 
         shouldPlay = true
         prepareAsync()

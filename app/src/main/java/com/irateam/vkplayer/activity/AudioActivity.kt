@@ -23,7 +23,7 @@ import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
 import com.irateam.vkplayer.R
-import com.irateam.vkplayer.api.service.AudioService
+import com.irateam.vkplayer.api.service.VKAudioService
 import com.irateam.vkplayer.controller.ActivityPlayerController
 import com.irateam.vkplayer.controller.PlayerController
 import com.irateam.vkplayer.player.Player
@@ -31,12 +31,11 @@ import com.irateam.vkplayer.service.DownloadService
 import com.irateam.vkplayer.service.PlayerService
 import com.irateam.vkplayer.util.EventBus
 import com.irateam.vkplayer.util.extension.getViewById
-import com.irateam.vkplayer.util.extension.success
 import com.melnykov.fab.FloatingActionButton
 
 class AudioActivity : AppCompatActivity() {
 
-    private val audioService = AudioService(this)
+    private val audioService = VKAudioService(this)
 
     private lateinit var playerController: PlayerController
     private lateinit var menu: Menu
@@ -69,7 +68,7 @@ class AudioActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         this.menu = menu
         menuInflater.inflate(R.menu.menu_audio, menu)
-        Player.audio?.let { setCacheAction(it.isCached) }
+        //TODO: Player.audio?.let { setCacheAction(it.isCached) }
         return true
     }
 
@@ -87,11 +86,11 @@ class AudioActivity : AppCompatActivity() {
         }
 
         R.id.action_remove_from_cache -> {
-            Player.audio?.let {
+            /*TODO: Player.audio?.let {
                 audioService.removeFromCache(listOf(it)).execute(success {
                     setCacheAction(false)
                 })
-            }
+            } */
             true
         }
 

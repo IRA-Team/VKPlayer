@@ -34,7 +34,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.irateam.vkplayer.R;
-import com.irateam.vkplayer.api.service.AudioService;
+import com.irateam.vkplayer.api.service.VKAudioService;
 import com.irateam.vkplayer.api.service.SettingsService;
 import com.irateam.vkplayer.service.DownloadService;
 
@@ -166,7 +166,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
                 builder.setTitle(getString(R.string.clear_cache_dialog_title))
                         .setMessage(getString(R.string.clear_cache_dialog_text))
                         .setPositiveButton(getString(R.string.yes), (dialog, id) -> {
-                            new AudioService(getActivity()).removeAllCachedAudio();
+                            new VKAudioService(getActivity()).removeAllCachedAudio();
                             Toast.makeText(getActivity(), getString(R.string.cache_clear_complete), Toast.LENGTH_SHORT).show();
                         })
                         .setNegativeButton(getString(R.string.no), (dialog, id) -> {

@@ -23,14 +23,15 @@ import android.os.IBinder
 import android.support.v4.app.NotificationManagerCompat
 import android.widget.Toast
 import com.irateam.vkplayer.R
-import com.irateam.vkplayer.api.service.AudioService
+import com.irateam.vkplayer.api.service.VKAudioService
 import com.irateam.vkplayer.api.service.SettingsService
-import com.irateam.vkplayer.database.AudioDatabaseHelper
+import com.irateam.vkplayer.database.AudioVKCacheDatabase
 import com.irateam.vkplayer.event.DownloadErrorEvent
 import com.irateam.vkplayer.event.DownloadFinishedEvent
 import com.irateam.vkplayer.event.DownloadProgressChangedEvent
 import com.irateam.vkplayer.event.DownloadTerminatedEvent
 import com.irateam.vkplayer.models.Audio
+import com.irateam.vkplayer.models.VKAudio
 import com.irateam.vkplayer.notification.DownloadNotificationFactory
 import com.irateam.vkplayer.util.AudioDownloader
 import com.irateam.vkplayer.util.EventBus
@@ -42,12 +43,12 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 class DownloadService : Service(), AudioDownloader.Listener {
 
-    private val audioService = AudioService(this)
-    private val database = AudioDatabaseHelper(this)
+    private val audioService = VKAudioService(this)
+    private val database = AudioVKCacheDatabase(this)
     private val settings = SettingsService(this)
     private val notificationFactory = DownloadNotificationFactory(this)
-    private val downloadQueue = ConcurrentLinkedQueue<Audio>()
-    private val syncQueue = ConcurrentLinkedQueue<Audio>()
+    private val downloadQueue = ConcurrentLinkedQueue<VKAudio>()
+    private val syncQueue = ConcurrentLinkedQueue<VKAudio>()
 
     private var currentSession: Session? = null
 
@@ -65,7 +66,7 @@ class DownloadService : Service(), AudioDownloader.Listener {
         intent.action?.let {
             when (intent.action) {
                 START_DOWNLOADING -> {
-                    val audios = intent.getParcelableArrayListExtra<Audio>(AUDIO_LIST)
+                    val audios = intent.getParcelableArrayListExtra<VKAudio>(AUDIO_LIST)
                     downloadQueue.addAll(audios)
                     startDownloadIfNeeded()
                 }
@@ -99,7 +100,7 @@ class DownloadService : Service(), AudioDownloader.Listener {
 
     private fun prepareToSync() {
         val count = settings.loadSyncCount()
-        audioService.getMy(count).execute(success<List<Audio>> {
+        audioService.getMy(count).execute(success<List<VKAudio>> {
             val vkList = it
             val cachedIds = database.getAll().map { it.id }
             val nonCached = vkList.filter { it.id in cachedIds }.asReversed()
@@ -161,7 +162,7 @@ class DownloadService : Service(), AudioDownloader.Listener {
         }
     }
 
-    override fun onDownloadProgressChanged(audio: Audio, progress: Int) {
+    override fun onDownloadProgressChanged(audio: VKAudio, progress: Int) {
         EventBus.post(DownloadProgressChangedEvent(audio, progress))
         currentSession?.let {
             currentSession = it.copy(progress = progress)
@@ -169,7 +170,7 @@ class DownloadService : Service(), AudioDownloader.Listener {
         }
     }
 
-    override fun onDownloadFinished(audio: Audio) {
+    override fun onDownloadFinished(audio: VKAudio) {
         database.cache(audio)
         EventBus.post(DownloadFinishedEvent(audio))
         currentSession?.let {
@@ -185,13 +186,13 @@ class DownloadService : Service(), AudioDownloader.Listener {
         }
     }
 
-    override fun onDownloadError(audio: Audio, cause: Throwable) {
+    override fun onDownloadError(audio: VKAudio, cause: Throwable) {
         EventBus.post(DownloadErrorEvent(audio, cause))
         stopForeground(true)
         clearCurrentSession()
     }
 
-    override fun onDownloadTerminated(audio: Audio) {
+    override fun onDownloadTerminated(audio: VKAudio) {
         EventBus.post(DownloadTerminatedEvent(audio))
         stopForeground(true)
         clearCurrentSession()
@@ -221,10 +222,10 @@ class DownloadService : Service(), AudioDownloader.Listener {
         throw UnsupportedOperationException()
     }
 
-    data class Session(val audio: Audio,
+    data class Session(val audio: VKAudio,
                        val progress: Int,
                        val audioCount: Int,
-                       private val queue: Queue<Audio>,
+                       private val queue: Queue<VKAudio>,
                        val isSync: Boolean) {
 
         val audioCountLeft: Int

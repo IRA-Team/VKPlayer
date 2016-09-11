@@ -25,7 +25,7 @@ abstract class DatabaseHelper : SQLiteOpenHelper {
     constructor(context: Context) : super(context, DATABASE_NAME, null, DATABASE_VERSION)
 
     override fun onCreate(db: SQLiteDatabase) {
-        db.execSQL(CREATE_AUDIO_TABLE)
+        db.execSQL(Tables.AudioVKCache.SQL_CREATE)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -36,18 +36,6 @@ abstract class DatabaseHelper : SQLiteOpenHelper {
         val DATABASE_VERSION = 1
         val DATABASE_NAME = "vkplayer.db"
 
-        val CREATE_AUDIO_TABLE = """CREATE TABLE ${Tables.Audio.NAME}
-                            (_id INTEGER PRIMARY KEY,
-                            ${Tables.Audio.Columns.ID} INTEGER,
-                            ${Tables.Audio.Columns.OWNER_ID} INTEGER,
-                            ${Tables.Audio.Columns.ARTIST} TEXT,
-                            ${Tables.Audio.Columns.TITLE} TEXT,
-                            ${Tables.Audio.Columns.DURATION} INTEGER,
-                            ${Tables.Audio.Columns.URL} TEXT,
-                            ${Tables.Audio.Columns.CACHE_PATH} TEXT,
-                            ${Tables.Audio.Columns.LYRICS_ID} INTEGER,
-                            ${Tables.Audio.Columns.ALBUM_ID} INTEGER,
-                            ${Tables.Audio.Columns.GENRE} INTEGER,
-                            ${Tables.Audio.Columns.ACCESS_KEY} TEXT)"""
+
     }
 }

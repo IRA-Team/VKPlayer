@@ -18,9 +18,22 @@ package com.irateam.vkplayer.database
 
 object Tables {
 
-    object Audio {
+    object AudioVKCache {
 
-        val NAME = "audios"
+        val NAME = "audio_vk_cache"
+        val SQL_CREATE = """CREATE TABLE $NAME
+                            (_id INTEGER PRIMARY KEY,
+                            ${Columns.ID} INTEGER,
+                            ${Columns.OWNER_ID} INTEGER,
+                            ${Columns.ARTIST} TEXT,
+                            ${Columns.TITLE} TEXT,
+                            ${Columns.DURATION} INTEGER,
+                            ${Columns.URL} TEXT,
+                            ${Columns.CACHE_PATH} TEXT,
+                            ${Columns.LYRICS_ID} INTEGER,
+                            ${Columns.ALBUM_ID} INTEGER,
+                            ${Columns.GENRE} INTEGER,
+                            ${Columns.ACCESS_KEY} TEXT)"""
 
         object Columns {
             val ID = "id"
@@ -35,5 +48,10 @@ object Tables {
             val GENRE = "genre"
             val ACCESS_KEY = "access_key"
         }
+    }
+
+    object AudioLocalIndexed {
+
+        val NAME = "audio_local_indexed"
     }
 }

@@ -16,14 +16,14 @@
 
 package com.irateam.vkplayer
 
+import com.irateam.vkplayer.api.service.LocalAudioService
+import com.irateam.vkplayer.util.extension.success
 import com.nostra13.universalimageloader.core.DisplayImageOptions
 import com.nostra13.universalimageloader.core.ImageLoader
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
 import com.vk.sdk.VKSdk
 
 class Application : android.app.Application() {
-
-    internal var a: Int = 0
 
     override fun onCreate() {
         super.onCreate()
@@ -38,12 +38,25 @@ class Application : android.app.Application() {
                 .defaultDisplayImageOptions(options)
                 .build()
 
+        /*  vkDir.walk()
+                  .filter { !it.isDirectory }
+                  .map {
+                      try {
+                          Mp3File(it.path)
+                      } catch (e: Exception) {
+                          null
+                      }
+                  }
+                  .filterNotNull()
+                  .map { it.id3v2Tag }
+                  .filterNotNull()
+                  .forEach { Log.e("MP3ScanVK", it.artist + " - " + it.title) }*/
+
+        LocalAudioService().getAll().execute(success {
+            println(it)
+        })
+
+
         ImageLoader.getInstance().init(config)
-
-        val list = externalCacheDir.list { file, name ->
-            name.endsWith(".mp3")
-        }
-        println(list)
     }
-
 }
