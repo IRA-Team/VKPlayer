@@ -102,7 +102,7 @@ class VKAudioListFragment : Fragment(),
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         this.menu = menu
-        activity.menuInflater.inflate(R.menu.menu_list, menu)
+        activity.menuInflater.inflate(R.menu.menu_vk_audio_list, menu)
         val itemSearch = menu.findItem(R.id.action_search)
 
         searchView = itemSearch.actionView as SearchView
@@ -163,7 +163,7 @@ class VKAudioListFragment : Fragment(),
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         actionMode = mode
-        mode.menuInflater.inflate(R.menu.menu_list_context, menu)
+        mode.menuInflater.inflate(R.menu.menu_vk_audio_list_context, menu)
         return true
     }
 

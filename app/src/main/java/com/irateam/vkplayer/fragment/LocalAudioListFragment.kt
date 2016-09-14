@@ -26,14 +26,11 @@ import android.view.*
 import android.widget.TextView
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapter.LocalAudioRecyclerViewAdapter
-import com.irateam.vkplayer.api.Query
-import com.irateam.vkplayer.api.SimpleCallback
 import com.irateam.vkplayer.api.SimpleProgressableCallback
 import com.irateam.vkplayer.api.service.LocalAudioService
 import com.irateam.vkplayer.event.AudioScannedEvent
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.models.LocalAudio
-import com.irateam.vkplayer.models.VKAudio
 import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.ui.CustomItemAnimator
 import com.irateam.vkplayer.util.EventBus
@@ -53,7 +50,6 @@ class LocalAudioListFragment : Fragment(),
      * Services
      */
     private lateinit var localAudioService: LocalAudioService
-    private var previousSearchQuery: Query<List<VKAudio>>? = null
 
     /**
      * Views
@@ -133,9 +129,6 @@ class LocalAudioListFragment : Fragment(),
 
     override fun onQueryTextChange(query: String): Boolean {
         adapter.setSearchQuery(query)
-        previousSearchQuery?.cancel()
-        previousSearchQuery?.execute(SimpleCallback { adapter.setSearchAudios(it) })
-
         return true
     }
 
@@ -176,7 +169,7 @@ class LocalAudioListFragment : Fragment(),
         else -> false
     }
 
-    override fun onChanged(audio: Audio, checked: HashSet<Audio>) {
+    override fun onChanged(audio: Audio, checked: HashSet<LocalAudio>) {
         if (actionMode == null && checked.size > 0) {
             actionMode = activity.startActionMode(this)
         }
@@ -194,7 +187,7 @@ class LocalAudioListFragment : Fragment(),
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         actionMode = mode
-        mode.menuInflater.inflate(R.menu.menu_list_context, menu)
+        mode.menuInflater.inflate(R.menu.menu_vk_audio_list_context, menu)
         return true
     }
 
@@ -220,6 +213,13 @@ class LocalAudioListFragment : Fragment(),
 
             R.id.action_add_to_queue -> {
                 Player.addToQueue(adapter.checkedAudios)
+            }
+
+            R.id.action_remove_from_filesystem -> {
+                localAudioService.removeFromFilesystem(adapter.checkedAudios).execute(success {
+                    //TODO: Remove only deleted
+                    adapter.removeChecked()
+                })
             }
         }
         mode.finish()

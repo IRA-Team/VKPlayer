@@ -28,11 +28,12 @@ import com.irateam.vkplayer.event.AudioScannedEvent
 import com.irateam.vkplayer.models.LocalAudio
 import com.mpatric.mp3agic.Mp3File
 import java.io.File
+import java.util.*
 
 class LocalAudioService {
 
-    val database: AudioLocalIndexedDatabase
-    val nameDiscover: LocalAudioNameDiscover
+    private val database: AudioLocalIndexedDatabase
+    private val nameDiscover: LocalAudioNameDiscover
 
     constructor(context: Context) {
         database = AudioLocalIndexedDatabase(context)
@@ -46,6 +47,25 @@ class LocalAudioService {
 
     fun getAllIndexed(): Query<List<LocalAudio>> {
         return IndexedAudioQuery()
+    }
+
+    fun removeFromFilesystem(audios: Collection<LocalAudio>): Query<Collection<LocalAudio>> {
+        return RemoveFromFilesystemQuery(audios)
+    }
+
+    private fun createLocalAudioFromMp3(mp3: Mp3File): LocalAudio = if (mp3.hasId3v2Tag()) {
+        LocalAudio(mp3.id3v2Tag.artist,
+                mp3.id3v2Tag.title,
+                mp3.lengthInSeconds.toInt(),
+                mp3.filename)
+    } else {
+        val name = File(mp3.filename).nameWithoutExtension
+        val titleArtist = nameDiscover.getTitleAndArtist(name)
+
+        LocalAudio(titleArtist.artist,
+                titleArtist.title,
+                mp3.lengthInSeconds.toInt(),
+                mp3.filename)
     }
 
     private inner class IndexedAudioQuery : AbstractQuery<List<LocalAudio>>() {
@@ -88,19 +108,29 @@ class LocalAudioService {
         }
     }
 
-    private fun createLocalAudioFromMp3(mp3: Mp3File): LocalAudio = if (mp3.hasId3v2Tag()) {
-        LocalAudio(mp3.id3v2Tag.artist,
-                mp3.id3v2Tag.title,
-                mp3.lengthInSeconds.toInt(),
-                mp3.filename)
-    } else {
-        val name = File(mp3.filename).nameWithoutExtension
-        val titleArtist = nameDiscover.getTitleAndArtist(name)
+    private inner class RemoveFromFilesystemQuery : AbstractQuery<Collection<LocalAudio>> {
 
-        LocalAudio(titleArtist.artist,
-                titleArtist.title,
-                mp3.lengthInSeconds.toInt(),
-                mp3.filename)
+        val audios: Collection<LocalAudio>
+
+        constructor(audios: Collection<LocalAudio>) : super() {
+            this.audios = audios
+        }
+
+        override fun query(): Collection<LocalAudio> {
+            val removed = ArrayList<LocalAudio>()
+            audios.forEach {
+                val file = File(it.path)
+                if (file.delete()) {
+                    database.delete(it)
+                    removed.add(it)
+                } else {
+                    throw AccessDeniedException(
+                            file = file,
+                            reason = "The error occurred during deleting file.")
+                }
+            }
+            return removed
+        }
     }
 
     companion object {

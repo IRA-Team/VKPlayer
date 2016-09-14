@@ -79,5 +79,6 @@
     <string name="title_menu_scan">Scan</string>
     <string name="unknown_artist">Unknown artist</string>
     <string name="scanning">Scanning</string>
+    <string name="remove_file">Remove file</string>
 
 </resources>

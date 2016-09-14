@@ -79,5 +79,6 @@
     <string name="title_menu_scan">Сканувати</string>
     <string name="unknown_artist">Невідомий виконавець</string>
     <string name="scanning">Сканування</string>
+    <string name="remove_file">Видалити файл</string>
 
 </resources>

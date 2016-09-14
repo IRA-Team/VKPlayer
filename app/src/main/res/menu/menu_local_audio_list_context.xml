@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2016 IRA-Team
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_play"
+        android:icon="@drawable/ic_notification_play_white_24dp"
+        android:title="@string/action_play"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_play_next"
+        android:icon="@drawable/ic_notification_play_white_24dp"
+        android:title="@string/action_play_next"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_cache"
+        android:icon="@drawable/ic_cache_white_24dp"
+        android:title="@string/action_cache"
+        android:visible="false"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_remove_from_cache"
+        android:icon="@drawable/ic_remove_cache_white_24dp"
+        android:title="@string/action_delete_from_cache"
+        android:visible="false"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_delete"
+        android:icon="@drawable/ic_selected_delete_white_24dp"
+        android:title="@string/action_remove_from_list"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_add_to_queue"
+        android:title="@string/action_add_to_playlist"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_remove_from_filesystem"
+        android:title="@string/remove_file"
+        app:showAsAction="never"/>
+</menu>
