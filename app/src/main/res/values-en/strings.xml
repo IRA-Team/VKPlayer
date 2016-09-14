@@ -75,5 +75,9 @@
     <string name="pref_timer_off_enabled">Timer</string>
     <string name="pref_timer_off_title">Timer off</string>
     <string name="action_play_next">Play next</string>
+    <string name="navigation_drawer_local">Local</string>
+    <string name="title_menu_scan">Scan</string>
+    <string name="unknown_artist">Unknown artist</string>
+    <string name="scanning">Scanning</string>
 
 </resources>

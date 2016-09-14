@@ -40,7 +40,7 @@ import java.util.*
 /**
  * @author Artem Glugovsky
  */
-class AudioListFragment : Fragment(),
+class VKAudioListFragment : Fragment(),
         ActionMode.Callback,
         SearchView.OnQueryTextListener,
         AudioRecyclerViewAdapter.CheckedListener {
@@ -67,7 +67,7 @@ class AudioListFragment : Fragment(),
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
 
-        return inflater.inflate(R.layout.fragment_audio_list, container, false)
+        return inflater.inflate(R.layout.fragment_vk_audio_list, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -102,6 +102,7 @@ class AudioListFragment : Fragment(),
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         this.menu = menu
+        activity.menuInflater.inflate(R.menu.menu_list, menu)
         val itemSearch = menu.findItem(R.id.action_search)
 
         searchView = itemSearch.actionView as SearchView
@@ -127,12 +128,14 @@ class AudioListFragment : Fragment(),
             menu.findItem(R.id.action_sort_done).isVisible = true
             true
         }
+
         R.id.action_sort_done -> {
             adapter.setSortMode(false)
             item.isVisible = false
             menu.findItem(R.id.action_sort).isVisible = true
             true
         }
+
         else -> false
     }
 
@@ -224,8 +227,8 @@ class AudioListFragment : Fragment(),
     companion object {
 
         @JvmStatic
-        fun newInstance(query: Query<List<VKAudio>>): AudioListFragment {
-            val fragment = AudioListFragment()
+        fun newInstance(query: Query<List<VKAudio>>): VKAudioListFragment {
+            val fragment = VKAudioListFragment()
             fragment.query = query
             return fragment
         }

@@ -50,6 +50,7 @@ import com.irateam.vkplayer.util.extension.isVisible
 class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
 
     private val resources: Resources
+    private val unknownArtist: String
 
     val title: TextView
     val artist: TextView
@@ -90,6 +91,7 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
     constructor(v: View) : super(v) {
         setIsRecyclable(false)
         resources = v.context.resources
+        unknownArtist = v.context.getString(R.string.unknown_artist)
 
         title = v.findViewById(R.id.title) as TextView
         artist = v.findViewById(R.id.artist) as TextView
@@ -128,8 +130,13 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
      * @param audio - Audio for configuring cover
      */
     private fun setCover(audio: Audio) {
-        val char = audio.artist[0].toString()
-        val color = ColorGenerator.MATERIAL.getColor(audio.artist)
+        val artist = if (audio.artist != null && audio.artist.isNotEmpty()) {
+            audio.artist
+        } else {
+            unknownArtist
+        }
+        val char = artist[0].toString()
+        val color = ColorGenerator.MATERIAL.getColor(artist)
         val coverDrawable = TextDrawable.builder().buildRound(char, color)
         cover.setImageDrawable(coverDrawable)
     }

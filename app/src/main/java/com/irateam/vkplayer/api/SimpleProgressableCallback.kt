@@ -27,7 +27,17 @@ class SimpleProgressableCallback<T, P> : SimpleCallback<T>, ProgressableCallback
         return this
     }
 
+    override infix fun finish(finishListener: () -> Unit): SimpleProgressableCallback<T, P> {
+        super.finish(finishListener)
+        return this
+    }
+
+    override infix fun error(errorListener: () -> Unit): SimpleProgressableCallback<T, P> {
+        super.error(errorListener)
+        return this
+    }
+
     override fun onProgress(progress: P) {
-        throw UnsupportedOperationException("not implemented")
+        progressListener?.invoke(progress)
     }
 }

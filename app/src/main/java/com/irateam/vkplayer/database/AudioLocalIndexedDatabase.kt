@@ -65,7 +65,7 @@ class AudioLocalIndexedDatabase(context: Context) : DatabaseHelper(context) {
     }
 
     fun getAll(): List<LocalAudio> = readableDatabase.use { db ->
-        db.query(Tables.AudioLocalIndexed.NAME, null, null, null, null, null, "_id DESC")
+        db.query(Tables.AudioLocalIndexed.NAME, null, null, null, null, null, null)
                 .use { cursor ->
                     val audios = ArrayList<LocalAudio>()
                     if (cursor.moveToFirst()) {

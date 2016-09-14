@@ -75,5 +75,9 @@
     <string name="pref_timer_off_enabled">Таймер</string>
     <string name="pref_timer_off_title">Таймер відключення</string>
     <string name="action_play_next">Грати наступним</string>
+    <string name="navigation_drawer_local">Локальні</string>
+    <string name="title_menu_scan">Сканувати</string>
+    <string name="unknown_artist">Невідомий виконавець</string>
+    <string name="scanning">Сканування</string>
 
 </resources>

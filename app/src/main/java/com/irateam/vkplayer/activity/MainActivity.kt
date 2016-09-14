@@ -26,17 +26,18 @@ import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
-import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.TextView
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.activity.settings.SettingsActivity
 import com.irateam.vkplayer.api.SimpleCallback
+import com.irateam.vkplayer.api.service.LocalAudioService
 import com.irateam.vkplayer.api.service.UserService
 import com.irateam.vkplayer.api.service.VKAudioService
 import com.irateam.vkplayer.controller.PlayerController
-import com.irateam.vkplayer.fragment.AudioListFragment
+import com.irateam.vkplayer.fragment.LocalAudioListFragment
+import com.irateam.vkplayer.fragment.VKAudioListFragment
 import com.irateam.vkplayer.models.User
 import com.irateam.vkplayer.service.PlayerService
 import com.irateam.vkplayer.util.EventBus
@@ -50,6 +51,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     //Services
     private lateinit var userService: UserService
     private lateinit var audioService: VKAudioService
+    private lateinit var localAudioService: LocalAudioService
 
     //Views
     private lateinit var toolbar: Toolbar
@@ -101,6 +103,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         playerController.initialize()
 
         audioService = VKAudioService(this)
+        localAudioService = LocalAudioService(this)
         userService = UserService(this)
 
         EventBus.register(playerController)
@@ -115,11 +118,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         EventBus.unregister(this)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_list, menu)
-        return true
-    }
-
     override fun onNavigationItemSelected(menuItem: MenuItem): Boolean {
         drawerLayout.closeDrawers()
 
@@ -129,17 +127,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (groupId == R.id.audio_group) {
             supportActionBar?.title = menuItem.title
             // @formatter:off
-            val query = when (itemId) {
-                R.id.current_playlist  -> audioService.getCurrent()
-                R.id.my_audio          -> audioService.getMy()
-                R.id.recommended_audio -> audioService.getRecommendation()
-                R.id.popular_audio     -> audioService.getPopular()
-                R.id.cached_audio      -> audioService.getCached()
-                else                   -> audioService.getCurrent()
+            val fragment: Fragment = when (itemId) {
+                R.id.current_playlist  -> VKAudioListFragment.newInstance(audioService.getCurrent())
+                R.id.my_audio          -> VKAudioListFragment.newInstance(audioService.getMy())
+                R.id.recommended_audio -> VKAudioListFragment.newInstance(audioService.getRecommendation())
+                R.id.popular_audio     -> VKAudioListFragment.newInstance(audioService.getPopular())
+                R.id.cached_audio      -> VKAudioListFragment.newInstance(audioService.getCached())
+                R.id.local_audio       -> LocalAudioListFragment.newInstance()
+                else                   -> throw IllegalStateException("This item doesn't support.")
             }
             // @formatter:on
-
-            val fragment = AudioListFragment.newInstance(query)
             setFragment(fragment)
             return true
 

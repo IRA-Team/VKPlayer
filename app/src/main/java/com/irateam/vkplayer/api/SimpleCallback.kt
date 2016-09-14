@@ -10,12 +10,12 @@ open class SimpleCallback<T> : Callback<T> {
         this.successListener = successListener
     }
 
-    infix fun error(errorListener: () -> Unit): SimpleCallback<T> {
+    open infix fun error(errorListener: () -> Unit): SimpleCallback<T> {
         this.errorListener = errorListener
         return this
     }
 
-    infix fun finish(finishListener: () -> Unit): SimpleCallback<T> {
+    open infix fun finish(finishListener: () -> Unit): SimpleCallback<T> {
         this.finishListener = finishListener
         return this
     }

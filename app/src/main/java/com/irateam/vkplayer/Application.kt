@@ -16,8 +16,6 @@
 
 package com.irateam.vkplayer
 
-import com.irateam.vkplayer.api.service.LocalAudioService
-import com.irateam.vkplayer.util.extension.success
 import com.nostra13.universalimageloader.core.DisplayImageOptions
 import com.nostra13.universalimageloader.core.ImageLoader
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
@@ -51,10 +49,6 @@ class Application : android.app.Application() {
                   .map { it.id3v2Tag }
                   .filterNotNull()
                   .forEach { Log.e("MP3ScanVK", it.artist + " - " + it.title) }*/
-
-        LocalAudioService(this).getAllIndexed().execute(success {
-            println(it)
-        })
 
         ImageLoader.getInstance().init(config)
     }
