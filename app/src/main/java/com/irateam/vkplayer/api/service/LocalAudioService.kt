@@ -19,6 +19,7 @@ package com.irateam.vkplayer.api.service
 import android.content.Context
 import android.os.Environment
 import android.util.Log
+import com.irateam.vkplayer.R
 import com.irateam.vkplayer.api.AbstractQuery
 import com.irateam.vkplayer.api.ProgressableAbstractQuery
 import com.irateam.vkplayer.api.ProgressableQuery
@@ -37,10 +38,16 @@ class LocalAudioService {
     private val database: AudioLocalIndexedDatabase
     private val nameDiscover: LocalAudioNameDiscover
 
+    private val unknownArtist: String
+    private val unknownTitle: String
+
     constructor(context: Context) {
         this.context = context
         this.database = AudioLocalIndexedDatabase(context)
         this.nameDiscover = LocalAudioNameDiscover()
+
+        this.unknownArtist = context.getString(R.string.unknown_artist)
+        this.unknownTitle = context.getString(R.string.unknown_title)
     }
 
     fun scan(): ProgressableQuery<List<LocalAudio>, AudioScannedEvent> {
@@ -57,16 +64,22 @@ class LocalAudioService {
     }
 
     private fun createLocalAudioFromMp3(mp3: Mp3File): LocalAudio = if (mp3.hasId3v2Tag()) {
-        LocalAudio(mp3.id3v2Tag.artist,
-                mp3.id3v2Tag.title,
+        val artist = mp3.id3v2Tag.artist ?: unknownArtist
+        val title = mp3.id3v2Tag.title ?: unknownTitle
+
+        LocalAudio(artist,
+                title,
                 mp3.lengthInSeconds.toInt(),
                 mp3.filename)
     } else {
         val name = File(mp3.filename).nameWithoutExtension
         val titleArtist = nameDiscover.getTitleAndArtist(name)
 
-        LocalAudio(titleArtist.artist,
-                titleArtist.title,
+        val artist = titleArtist.artist ?: unknownArtist
+        val title = titleArtist.title ?: unknownTitle
+
+        LocalAudio(artist,
+                title,
                 mp3.lengthInSeconds.toInt(),
                 mp3.filename)
     }

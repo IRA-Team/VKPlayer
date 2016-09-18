@@ -24,7 +24,7 @@ class LocalAudioNameDiscover {
             splitIfCan(name, it)?.let { return it }
         }
 
-        return TitleArtist(name, "Unknown artist")
+        return TitleArtist(name, null)
     }
 
     private fun splitIfCan(name: String, delimiter: String): TitleArtist? {
@@ -38,8 +38,8 @@ class LocalAudioNameDiscover {
         }
     }
 
-    data class TitleArtist(val title: String,
-                           val artist: String)
+    data class TitleArtist(val title: String?,
+                           val artist: String?)
 
     companion object {
 

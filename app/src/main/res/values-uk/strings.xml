@@ -81,5 +81,6 @@
     <string name="scanning">Сканування</string>
     <string name="remove_file">Видалити файл</string>
     <string name="local_audio_remove_warning">Ви впевнені, що хочити видалити ці файли?</string>
+    <string name="unknown_title">Невідоме ім\'я</string>
 
 </resources>

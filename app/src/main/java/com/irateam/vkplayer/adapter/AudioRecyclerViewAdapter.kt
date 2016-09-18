@@ -138,9 +138,9 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
-    override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
-        Collections.swap(data, fromPosition, toPosition)
-        notifyItemMoved(fromPosition, toPosition)
+    override fun onItemMove(from: Int, to: Int): Boolean {
+        Collections.swap(data, from, to)
+        notifyItemMoved(from, to)
         return true
     }
 

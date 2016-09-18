@@ -36,6 +36,7 @@ import com.irateam.vkplayer.api.service.LocalAudioService
 import com.irateam.vkplayer.api.service.UserService
 import com.irateam.vkplayer.api.service.VKAudioService
 import com.irateam.vkplayer.controller.PlayerController
+import com.irateam.vkplayer.fragment.BackPressedListener
 import com.irateam.vkplayer.fragment.LocalAudioListFragment
 import com.irateam.vkplayer.fragment.VKAudioListFragment
 import com.irateam.vkplayer.models.User
@@ -161,15 +162,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         userVkLink.text = "http://vk.com/id" + user.id
     }
 
+    override fun onBackPressed() {
+        val fragment = supportFragmentManager.findFragmentByTag(TOP_LEVEL_FRAGMENT)
+        fragment?.let {
+            if (it !is BackPressedListener || !it.onBackPressed()) {
+                super.onBackPressed()
+            }
+        }
+    }
+
     private fun initializeFragment() {
-        val item = navigationView.menu.findItem(R.id.my_audio)
+        val item = navigationView.menu.findItem(R.id.local_audio)
         item.isChecked = true
         onNavigationItemSelected(item)
     }
 
     fun setFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
-                .replace(R.id.container, fragment)
+                .replace(R.id.container, fragment, TOP_LEVEL_FRAGMENT)
                 .commit()
     }
 
@@ -177,5 +187,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         VKSdk.logout()
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
+    }
+
+    companion object {
+
+        val TOP_LEVEL_FRAGMENT = "top_level_fragment"
     }
 }

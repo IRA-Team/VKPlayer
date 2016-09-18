@@ -24,6 +24,7 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.event.Event
+import com.irateam.vkplayer.event.ItemSortModeFinished
 import com.irateam.vkplayer.event.ItemUncheckedEvent
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.models.LocalAudio
@@ -32,6 +33,7 @@ import com.irateam.vkplayer.ui.ItemTouchHelperAdapter
 import com.irateam.vkplayer.ui.SimpleItemTouchHelperCallback
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder.State.*
+import com.irateam.vkplayer.util.Comparators
 import org.greenrobot.eventbus.Subscribe
 import java.util.*
 
@@ -41,9 +43,9 @@ import java.util.*
 class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
         ItemTouchHelperAdapter {
 
+    private val sortModeHelper: SortModeHelper<LocalAudio>
     private val itemTouchHelper: ItemTouchHelper
 
-    private var sortMode = false
     private var audios: ArrayList<LocalAudio> = ArrayList()
     private var searchQuery: String? = null
     private var recyclerView: RecyclerView? = null
@@ -53,7 +55,8 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
 
     init {
         val callback = SimpleItemTouchHelperCallback(this)
-        itemTouchHelper = ItemTouchHelper(callback)
+        this.sortModeHelper = SortModeHelper(this)
+        this.itemTouchHelper = ItemTouchHelper(callback)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, position: Int): AudioViewHolder {
@@ -75,7 +78,7 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
             configureAudio(holder, audio)
             configurePlayingState(holder, audio)
 
-            if (sortMode) {
+            if (isSortMode()) {
                 configureSortMode(holder, audio)
             } else {
                 configureCheckedState(holder, audio)
@@ -97,9 +100,8 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
         itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
-    override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
-        Collections.swap(audios, fromPosition, toPosition)
-        notifyItemMoved(fromPosition, toPosition)
+    override fun onItemMove(from: Int, to: Int): Boolean {
+        sortModeHelper.move(from, to)
         return true
     }
 
@@ -116,6 +118,10 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
                 is ItemUncheckedEvent -> {
                     holder.setChecked(checked = false, shouldAnimate = true)
                 }
+
+                is ItemSortModeFinished -> {
+                    holder.setSorting(false)
+                }
             }
         }
     }
@@ -124,7 +130,9 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
         holder.setAudio(audio)
         searchQuery?.let { holder.setQuery(it) }
         holder.contentHolder.setOnClickListener {
-            Player.play(audios, audio)
+            // Player.play(audios, audio)
+            sortModeHelper.sort(Comparators.TITLE_COMPARATOR)
+            scrollToTop()
         }
     }
 
@@ -151,8 +159,8 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
     }
 
     private fun configureSortMode(holder: AudioViewHolder, audio: Audio) {
-        holder.setSorting(sortMode)
-        if (sortMode) {
+        holder.setSorting(isSortMode())
+        if (isSortMode()) {
             holder.coverHolder.setOnTouchListener { v, e ->
                 if (MotionEventCompat.getActionMasked(e) == MotionEvent.ACTION_DOWN) {
                     itemTouchHelper.startDrag(holder)
@@ -187,13 +195,21 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
         }
     }
 
-    fun setSortMode(enabled: Boolean) {
-        sortMode = enabled
-        notifyDataSetChanged()
+    fun startSortMode() {
+        sortModeHelper.start(audios)
+    }
+
+    fun commitSortMode() {
+        sortModeHelper.commit()
+    }
+
+    fun revertSortMode() {
+        sortModeHelper.revert()
+        scrollToTop()
     }
 
     fun isSortMode(): Boolean {
-        return sortMode
+        return sortModeHelper.isSortMode()
     }
 
     fun setAudios(audios: Collection<LocalAudio>) {
@@ -253,6 +269,10 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
 
     private fun notifyEvent(e: PlayerEvent) {
         notifyDataSetChanged()
+    }
+
+    private fun scrollToTop() {
+        recyclerView?.layoutManager?.scrollToPosition(0)
     }
 
     interface CheckedListener {

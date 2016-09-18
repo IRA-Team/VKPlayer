@@ -43,6 +43,7 @@ import java.util.*
 class LocalAudioListFragment : Fragment(),
         ActionMode.Callback,
         SearchView.OnQueryTextListener,
+        BackPressedListener,
         LocalAudioRecyclerViewAdapter.CheckedListener {
 
     private val adapter = LocalAudioRecyclerViewAdapter()
@@ -96,7 +97,7 @@ class LocalAudioListFragment : Fragment(),
         refreshLayout.setOnRefreshListener {
             actionMode?.finish()
             if (adapter.isSortMode()) {
-                adapter.setSortMode(false)
+                commitSortMode()
             }
             loadLocalAudios()
         }
@@ -135,16 +136,12 @@ class LocalAudioListFragment : Fragment(),
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_sort -> {
-            adapter.setSortMode(true)
-            item.isVisible = false
-            menu.findItem(R.id.action_sort_done).isVisible = true
+            startSortMode()
             true
         }
 
         R.id.action_sort_done -> {
-            adapter.setSortMode(false)
-            item.isVisible = false
-            menu.findItem(R.id.action_sort).isVisible = true
+            commitSortMode()
             true
         }
 
@@ -221,6 +218,33 @@ class LocalAudioListFragment : Fragment(),
         actionMode = null
     }
 
+    override fun onBackPressed(): Boolean {
+        if (adapter.isSortMode()) {
+            revertSortMode()
+            return true
+        } else {
+            return false
+        }
+    }
+
+    private fun startSortMode() {
+        adapter.startSortMode()
+        menu.findItem(R.id.action_sort).isVisible = false
+        menu.findItem(R.id.action_sort_done).isVisible = true
+    }
+
+    private fun commitSortMode() {
+        adapter.commitSortMode()
+        menu.findItem(R.id.action_sort).isVisible = true
+        menu.findItem(R.id.action_sort_done).isVisible = false
+    }
+
+    private fun revertSortMode() {
+        adapter.revertSortMode()
+        menu.findItem(R.id.action_sort).isVisible = true
+        menu.findItem(R.id.action_sort_done).isVisible = false
+    }
+
     private fun loadLocalAudios() {
         refreshLayout.post { refreshLayout.isRefreshing = true }
         localAudioService.getAllIndexed().execute(success<List<LocalAudio>> {
@@ -255,6 +279,8 @@ class LocalAudioListFragment : Fragment(),
                     scanProgressHolder.isVisible = false
                 })
     }
+
+
 
     companion object {
 
