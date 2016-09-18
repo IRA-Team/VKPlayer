@@ -26,18 +26,21 @@ import com.irateam.vkplayer.api.Query
 import com.irateam.vkplayer.database.AudioLocalIndexedDatabase
 import com.irateam.vkplayer.event.AudioScannedEvent
 import com.irateam.vkplayer.models.LocalAudio
+import com.irateam.vkplayer.util.extension.log
 import com.mpatric.mp3agic.Mp3File
 import java.io.File
 import java.util.*
 
 class LocalAudioService {
 
+    private val context: Context
     private val database: AudioLocalIndexedDatabase
     private val nameDiscover: LocalAudioNameDiscover
 
     constructor(context: Context) {
-        database = AudioLocalIndexedDatabase(context)
-        nameDiscover = LocalAudioNameDiscover()
+        this.context = context
+        this.database = AudioLocalIndexedDatabase(context)
+        this.nameDiscover = LocalAudioNameDiscover()
     }
 
     fun scan(): ProgressableQuery<List<LocalAudio>, AudioScannedEvent> {
@@ -85,7 +88,16 @@ class LocalAudioService {
             val audios = root.walk()
                     .filter { !it.isDirectory }
                     .filter { it.name.endsWith(".mp3") }
-                    .map { Mp3File(it.path) }
+                    .map {
+                        try {
+                            Mp3File(it.path)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            log(it.path)
+                            null
+                        }
+                    }
+                    .filterNotNull()
 
             /**
              * This looks like kotlin's bug but audios.count() locks thread.
@@ -112,15 +124,18 @@ class LocalAudioService {
 
         val audios: Collection<LocalAudio>
 
+        /**
+         * Always make copy
+         */
         constructor(audios: Collection<LocalAudio>) : super() {
-            this.audios = audios
+            this.audios = audios.toList()
         }
 
         override fun query(): Collection<LocalAudio> {
             val removed = ArrayList<LocalAudio>()
             audios.forEach {
                 val file = File(it.path)
-                if (file.delete()) {
+                if (!file.exists() || file.delete()) {
                     database.delete(it)
                     removed.add(it)
                 } else {

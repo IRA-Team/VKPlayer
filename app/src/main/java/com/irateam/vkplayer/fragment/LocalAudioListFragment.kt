@@ -19,6 +19,7 @@ package com.irateam.vkplayer.fragment
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
+import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
@@ -28,11 +29,11 @@ import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapter.LocalAudioRecyclerViewAdapter
 import com.irateam.vkplayer.api.SimpleProgressableCallback
 import com.irateam.vkplayer.api.service.LocalAudioService
+import com.irateam.vkplayer.dialog.LocalAudioRemoveAlertDialog
 import com.irateam.vkplayer.event.AudioScannedEvent
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.models.LocalAudio
 import com.irateam.vkplayer.player.Player
-import com.irateam.vkplayer.ui.CustomItemAnimator
 import com.irateam.vkplayer.util.EventBus
 import com.irateam.vkplayer.util.extension.getViewById
 import com.irateam.vkplayer.util.extension.isVisible
@@ -88,7 +89,7 @@ class LocalAudioListFragment : Fragment(),
         recyclerView = view.getViewById(R.id.recycler_view)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.itemAnimator = CustomItemAnimator()
+        recyclerView.itemAnimator = DefaultItemAnimator()
 
         refreshLayout = view.getViewById(R.id.refresh_layout)
         refreshLayout.setColorSchemeResources(R.color.accent, R.color.primary)
@@ -97,7 +98,7 @@ class LocalAudioListFragment : Fragment(),
             if (adapter.isSortMode()) {
                 adapter.setSortMode(false)
             }
-            executeQuery()
+            loadLocalAudios()
         }
 
         emptyView = view.findViewById(R.id.empty_view)
@@ -107,7 +108,7 @@ class LocalAudioListFragment : Fragment(),
         adapter.checkedListener = this
 
         EventBus.register(adapter)
-        executeQuery()
+        loadLocalAudios()
     }
 
     override fun onDestroy() {
@@ -148,21 +149,7 @@ class LocalAudioListFragment : Fragment(),
         }
 
         R.id.action_scan -> {
-            scanProgressHolder.isVisible = true
-            scanProgress.isVisible = false
-            adapter.setAudios(emptyList())
-            localAudioService.scan().execute(
-                    SimpleProgressableCallback<List<LocalAudio>, AudioScannedEvent> {
-                        adapter.setAudios(it)
-                    } progress {
-                        if (!scanProgress.isVisible) {
-                            scanProgress.isVisible = true
-                        }
-                        adapter.addAudio(it.audio)
-                        scanProgress.text = "${it.current}/${it.total}"
-                    } finish {
-                        scanProgressHolder.isVisible = false
-                    })
+            scanLocalAudios()
             true
         }
 
@@ -187,7 +174,7 @@ class LocalAudioListFragment : Fragment(),
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         actionMode = mode
-        mode.menuInflater.inflate(R.menu.menu_vk_audio_list_context, menu)
+        mode.menuInflater.inflate(R.menu.menu_local_audio_list_context, menu)
         return true
     }
 
@@ -216,10 +203,13 @@ class LocalAudioListFragment : Fragment(),
             }
 
             R.id.action_remove_from_filesystem -> {
-                localAudioService.removeFromFilesystem(adapter.checkedAudios).execute(success {
-                    //TODO: Remove only deleted
-                    adapter.removeChecked()
-                })
+                val dialog = LocalAudioRemoveAlertDialog()
+                dialog.positiveButtonClickListener = {
+                    removeCheckedLocalAudios()
+                    actionMode?.finish()
+                }
+                dialog.show(fragmentManager, LocalAudioRemoveAlertDialog.TAG)
+                return false
             }
         }
         mode.finish()
@@ -231,7 +221,7 @@ class LocalAudioListFragment : Fragment(),
         actionMode = null
     }
 
-    private fun executeQuery() {
+    private fun loadLocalAudios() {
         refreshLayout.post { refreshLayout.isRefreshing = true }
         localAudioService.getAllIndexed().execute(success<List<LocalAudio>> {
             adapter.setAudios(it)
@@ -241,8 +231,34 @@ class LocalAudioListFragment : Fragment(),
         })
     }
 
+    private fun removeCheckedLocalAudios() {
+        localAudioService.removeFromFilesystem(adapter.checkedAudios).execute(
+                success<Collection<LocalAudio>> {
+                    adapter.removeAll(it)
+                })
+    }
+
+    private fun scanLocalAudios() {
+        scanProgressHolder.isVisible = true
+        scanProgress.isVisible = false
+        adapter.setAudios(emptyList())
+        localAudioService.scan().execute(
+                SimpleProgressableCallback<List<LocalAudio>, AudioScannedEvent> {
+                    adapter.setAudios(it)
+                } progress {
+                    if (!scanProgress.isVisible) {
+                        scanProgress.isVisible = true
+                    }
+                    adapter.addAudio(it.audio)
+                    scanProgress.text = "${it.current}/${it.total}"
+                } finish {
+                    scanProgressHolder.isVisible = false
+                })
+    }
 
     companion object {
+
+        val TAG = LocalAudioListFragment::class.java.name
 
         @JvmStatic
         fun newInstance(): LocalAudioListFragment {

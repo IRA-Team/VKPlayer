@@ -80,5 +80,6 @@
     <string name="unknown_artist">Unknown artist</string>
     <string name="scanning">Scanning</string>
     <string name="remove_file">Remove file</string>
+    <string name="local_audio_remove_warning">Are you sure you want delete these files?</string>
 
 </resources>

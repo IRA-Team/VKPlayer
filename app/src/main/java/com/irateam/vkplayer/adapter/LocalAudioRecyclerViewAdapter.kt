@@ -23,7 +23,6 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewGroup
 import com.irateam.vkplayer.R
-import com.irateam.vkplayer.event.DownloadFinishedEvent
 import com.irateam.vkplayer.event.Event
 import com.irateam.vkplayer.event.ItemUncheckedEvent
 import com.irateam.vkplayer.models.Audio
@@ -34,7 +33,6 @@ import com.irateam.vkplayer.ui.SimpleItemTouchHelperCallback
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder.State.*
 import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 import java.util.*
 
 /**
@@ -48,6 +46,7 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
     private var sortMode = false
     private var audios: ArrayList<LocalAudio> = ArrayList()
     private var searchQuery: String? = null
+    private var recyclerView: RecyclerView? = null
 
     var checkedAudios: HashSet<LocalAudio> = LinkedHashSet()
     var checkedListener: CheckedListener? = null
@@ -56,7 +55,6 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
         val callback = SimpleItemTouchHelperCallback(this)
         itemTouchHelper = ItemTouchHelper(callback)
     }
-
 
     override fun onCreateViewHolder(parent: ViewGroup, position: Int): AudioViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -79,7 +77,6 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
 
             if (sortMode) {
                 configureSortMode(holder, audio)
-
             } else {
                 configureCheckedState(holder, audio)
             }
@@ -96,6 +93,7 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
     }
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView?) {
+        this.recyclerView = recyclerView
         itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
@@ -124,8 +122,7 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
 
     private fun configureAudio(holder: AudioViewHolder, audio: Audio) {
         holder.setAudio(audio)
-        val searchQuery = searchQuery
-        if (searchQuery != null) holder.setQuery(searchQuery)
+        searchQuery?.let { holder.setQuery(it) }
         holder.contentHolder.setOnClickListener {
             Player.play(audios, audio)
         }
@@ -147,7 +144,7 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
     private fun configureCheckedState(holder: AudioViewHolder, audio: LocalAudio) {
         holder.setChecked(audio in checkedAudios)
         holder.coverHolder.setOnClickListener {
-            holder.toggleChecked(true)
+            holder.toggleChecked(shouldAnimate = true)
             if (holder.isChecked()) checkedAudios.add(audio) else checkedAudios.remove(audio)
             checkedListener?.onChanged(audio, checkedAudios)
         }
@@ -172,10 +169,11 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
         checkedAudios.clear()
     }
 
-    fun removeAll(audios: Collection<Audio>) {
-        audios.forEach {
+    fun removeAll(removed: Collection<Audio>) {
+        removed.forEach {
             val index = audios.indexOf(it)
-            this.audios.removeAt(index)
+            audios.removeAt(index)
+            notifyItemRemoved(index)
         }
     }
 
@@ -253,16 +251,6 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
         notifyEvent(e)
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onDownloadFinished(e: DownloadFinishedEvent) {
-        val audio = e.audio
-        audios.filter { it.id == audio.id }
-                .forEach {
-                    val index = audios.indexOf(it)
-                    notifyItemChanged(index, e)
-                }
-    }
-
     private fun notifyEvent(e: PlayerEvent) {
         notifyDataSetChanged()
     }
@@ -274,7 +262,6 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
 
     companion object {
 
-        private val TYPE_HEADER = 1
-        private val TYPE_AUDIO = 2
+        val TAG = LocalAudioRecyclerViewAdapter::class.java.name
     }
 }

@@ -84,5 +84,6 @@
     <string name="unknown_artist">Неизвестный исполнитель</string>
     <string name="scanning">Сканирование</string>
     <string name="remove_file">Удалить файл</string>
+    <string name="local_audio_remove_warning">Вы уверены, что хотите удалить эти файлы?</string>
 
 </resources>

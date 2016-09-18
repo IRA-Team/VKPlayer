@@ -28,7 +28,7 @@ class LocalAudioNameDiscover {
     }
 
     private fun splitIfCan(name: String, delimiter: String): TitleArtist? {
-        if (name.contains(delimiter)) {
+        if (delimiter in name) {
             val index = name.indexOf(delimiter)
             val title = name.substring(0, index)
             val artist = name.substring(index + delimiter.length, name.length)
@@ -42,6 +42,7 @@ class LocalAudioNameDiscover {
                            val artist: String)
 
     companion object {
+
         val TAG = LocalAudioNameDiscover::class.java.name
     }
 }

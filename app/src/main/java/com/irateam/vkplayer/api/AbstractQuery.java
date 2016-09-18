@@ -14,7 +14,7 @@ public abstract class AbstractQuery<T> implements Query<T> {
     private static final int THREAD_COUNT = 3;
     private static final ExecutorService EXECUTOR_SERVICE =
             Executors.newFixedThreadPool(THREAD_COUNT);
-    private static final Handler UI_HANDLER = new Handler(Looper.getMainLooper());
+    protected static final Handler UI_HANDLER = new Handler(Looper.getMainLooper());
 
     private Future<T> task;
 
@@ -43,10 +43,10 @@ public abstract class AbstractQuery<T> implements Query<T> {
 
     private static class AsyncCallableAdapter<V> implements Callable<V> {
 
-        private final Query<V> query;
+        private final AbstractQuery<V> query;
         private final Callback<V> callback;
 
-        private AsyncCallableAdapter(Query<V> query, Callback<V> callback) {
+        private AsyncCallableAdapter(AbstractQuery<V> query, Callback<V> callback) {
             this.query = query;
             this.callback = callback;
         }
@@ -55,9 +55,10 @@ public abstract class AbstractQuery<T> implements Query<T> {
         public V call() throws Exception {
             V result = null;
             try {
-                result = query.execute();
+                result = query.query();
                 notifyComplete(result);
             } catch (Exception e) {
+                e.printStackTrace();
                 notifyError();
             }
             return result;
