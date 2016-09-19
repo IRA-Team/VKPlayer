@@ -17,7 +17,7 @@
 package com.irateam.vkplayer.adapter
 
 import android.support.v7.widget.RecyclerView
-import com.irateam.vkplayer.event.ItemSortModeFinished
+import com.irateam.vkplayer.adapter.event.ItemSortModeFinished
 import java.util.*
 
 class SortModeHelper<T> {
@@ -62,14 +62,13 @@ class SortModeHelper<T> {
 
     fun revert() {
         sortMode = false
-        val event = ItemSortModeFinished()
         original.forEachIndexed { index, item ->
             val from = data.indexOf(item)
             data.removeAt(from)
             data.add(index, item)
             adapter.notifyItemMoved(from, index)
-            adapter.notifyItemChanged(from, event)
-            adapter.notifyItemChanged(index, event)
+            adapter.notifyItemChanged(from, ItemSortModeFinished)
+            adapter.notifyItemChanged(index, ItemSortModeFinished)
         }
     }
 

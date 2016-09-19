@@ -23,10 +23,10 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewGroup
 import com.irateam.vkplayer.R
+import com.irateam.vkplayer.adapter.event.ItemRemovedFromCacheEvent
+import com.irateam.vkplayer.adapter.event.ItemUncheckedEvent
 import com.irateam.vkplayer.event.DownloadFinishedEvent
 import com.irateam.vkplayer.event.Event
-import com.irateam.vkplayer.event.ItemRemovedFromCacheEvent
-import com.irateam.vkplayer.event.ItemUncheckedEvent
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.models.Header
 import com.irateam.vkplayer.models.VKAudio
@@ -215,7 +215,7 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
 
     fun clearChecked() {
         checkedAudios.forEach {
-            notifyItemChanged(data.indexOf(it), ItemUncheckedEvent())
+            notifyItemChanged(data.indexOf(it), ItemUncheckedEvent)
         }
         checkedAudios.clear()
     }
@@ -223,7 +223,7 @@ class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
     fun removeFromCache(audios: Collection<Audio>) {
         audios.forEach {
             val index = data.indexOf(it)
-            notifyItemChanged(index, ItemRemovedFromCacheEvent())
+            notifyItemChanged(index, ItemRemovedFromCacheEvent)
         }
     }
 

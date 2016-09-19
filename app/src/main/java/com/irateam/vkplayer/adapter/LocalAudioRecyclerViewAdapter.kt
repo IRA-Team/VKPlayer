@@ -23,9 +23,9 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewGroup
 import com.irateam.vkplayer.R
+import com.irateam.vkplayer.adapter.event.ItemSortModeFinished
+import com.irateam.vkplayer.adapter.event.ItemUncheckedEvent
 import com.irateam.vkplayer.event.Event
-import com.irateam.vkplayer.event.ItemSortModeFinished
-import com.irateam.vkplayer.event.ItemUncheckedEvent
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.models.LocalAudio
 import com.irateam.vkplayer.player.*
@@ -79,7 +79,7 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
             configurePlayingState(holder, audio)
 
             if (isSortMode()) {
-                configureSortMode(holder, audio)
+                configureSortMode(holder)
             } else {
                 configureCheckedState(holder, audio)
             }
@@ -121,6 +121,7 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
 
                 is ItemSortModeFinished -> {
                     holder.setSorting(false)
+                    holder.coverHolder.setOnTouchListener(null)
                 }
             }
         }
@@ -158,7 +159,7 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
         }
     }
 
-    private fun configureSortMode(holder: AudioViewHolder, audio: Audio) {
+    private fun configureSortMode(holder: AudioViewHolder) {
         holder.setSorting(isSortMode())
         if (isSortMode()) {
             holder.coverHolder.setOnTouchListener { v, e ->
@@ -172,7 +173,7 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
 
     fun clearChecked() {
         checkedAudios.forEach {
-            notifyItemChanged(audios.indexOf(it), ItemUncheckedEvent())
+            notifyItemChanged(audios.indexOf(it), ItemUncheckedEvent)
         }
         checkedAudios.clear()
     }

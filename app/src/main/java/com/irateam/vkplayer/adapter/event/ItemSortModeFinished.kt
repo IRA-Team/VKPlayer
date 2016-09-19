@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.event
+package com.irateam.vkplayer.adapter.event
 
-class ItemRemovedFromCacheEvent : Event
+import com.irateam.vkplayer.event.Event
+
+object ItemSortModeFinished : Event
