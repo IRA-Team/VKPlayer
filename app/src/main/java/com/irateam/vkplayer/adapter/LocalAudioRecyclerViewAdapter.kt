@@ -33,7 +33,6 @@ import com.irateam.vkplayer.ui.ItemTouchHelperAdapter
 import com.irateam.vkplayer.ui.SimpleItemTouchHelperCallback
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder.State.*
-import com.irateam.vkplayer.util.Comparators
 import org.greenrobot.eventbus.Subscribe
 import java.util.*
 
@@ -131,9 +130,7 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
         holder.setAudio(audio)
         searchQuery?.let { holder.setQuery(it) }
         holder.contentHolder.setOnClickListener {
-            // Player.play(audios, audio)
-            sortModeHelper.sort(Comparators.TITLE_COMPARATOR)
-            scrollToTop()
+            Player.play(audios, audio)
         }
     }
 
@@ -198,6 +195,11 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
 
     fun startSortMode() {
         sortModeHelper.start(audios)
+    }
+
+    fun sort(comparator: Comparator<in Audio>) {
+        sortModeHelper.sort(comparator)
+        scrollToTop()
     }
 
     fun commitSortMode() {

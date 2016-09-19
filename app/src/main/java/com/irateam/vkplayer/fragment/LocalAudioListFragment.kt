@@ -29,11 +29,13 @@ import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapter.LocalAudioRecyclerViewAdapter
 import com.irateam.vkplayer.api.SimpleProgressableCallback
 import com.irateam.vkplayer.api.service.LocalAudioService
+import com.irateam.vkplayer.controller.PlayerController
 import com.irateam.vkplayer.dialog.LocalAudioRemoveAlertDialog
 import com.irateam.vkplayer.event.AudioScannedEvent
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.models.LocalAudio
 import com.irateam.vkplayer.player.Player
+import com.irateam.vkplayer.util.Comparators
 import com.irateam.vkplayer.util.EventBus
 import com.irateam.vkplayer.util.extension.getViewById
 import com.irateam.vkplayer.util.extension.isVisible
@@ -59,6 +61,7 @@ class LocalAudioListFragment : Fragment(),
     private lateinit var recyclerView: RecyclerView
     private lateinit var refreshLayout: SwipeRefreshLayout
     private lateinit var emptyView: View
+    private lateinit var sortModeHolder: View
     private lateinit var scanProgressHolder: View
     private lateinit var scanProgress: TextView
 
@@ -88,11 +91,31 @@ class LocalAudioListFragment : Fragment(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView = view.getViewById(R.id.recycler_view)
+        configureRecyclerView()
+
+        refreshLayout = view.getViewById(R.id.refresh_layout)
+        configureRefreshLayout()
+
+        sortModeHolder = view.getViewById(R.id.sort_mode_holder)
+        configureSortModeHolder()
+
+        emptyView = view.getViewById(R.id.empty_view)
+        scanProgressHolder = view.getViewById(R.id.scan_progress_holder)
+        scanProgress = view.getViewById(R.id.scan_progress)
+
+        adapter.checkedListener = this
+
+        EventBus.register(adapter)
+        loadLocalAudios()
+    }
+
+    private fun configureRecyclerView() {
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.itemAnimator = DefaultItemAnimator()
+    }
 
-        refreshLayout = view.getViewById(R.id.refresh_layout)
+    private fun configureRefreshLayout() {
         refreshLayout.setColorSchemeResources(R.color.accent, R.color.primary)
         refreshLayout.setOnRefreshListener {
             actionMode?.finish()
@@ -101,15 +124,22 @@ class LocalAudioListFragment : Fragment(),
             }
             loadLocalAudios()
         }
+    }
 
-        emptyView = view.findViewById(R.id.empty_view)
-        scanProgressHolder = view.getViewById(R.id.scan_progress_holder)
-        scanProgress = view.getViewById(R.id.scan_progress)
+    private fun configureSortModeHolder() {
+        sortModeHolder.apply {
+            findViewById(R.id.sort_by_title).setOnClickListener {
+                adapter.sort(Comparators.TITLE_COMPARATOR)
+            }
 
-        adapter.checkedListener = this
+            findViewById(R.id.sort_by_artist).setOnClickListener {
+                adapter.sort(Comparators.ARTIST_COMPARATOR)
+            }
 
-        EventBus.register(adapter)
-        loadLocalAudios()
+            findViewById(R.id.sort_by_length).setOnClickListener {
+                adapter.sort(Comparators.ARTIST_REVERSE_COMPARATOR)
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -229,18 +259,39 @@ class LocalAudioListFragment : Fragment(),
 
     private fun startSortMode() {
         adapter.startSortMode()
-        menu.findItem(R.id.action_sort).isVisible = false
-        menu.findItem(R.id.action_sort_done).isVisible = true
+        configureStartSortMode()
     }
 
     private fun commitSortMode() {
         adapter.commitSortMode()
-        menu.findItem(R.id.action_sort).isVisible = true
-        menu.findItem(R.id.action_sort_done).isVisible = false
+        configureFinishSortMode()
     }
 
     private fun revertSortMode() {
         adapter.revertSortMode()
+        configureFinishSortMode()
+    }
+
+    private fun configureStartSortMode() {
+        activity.apply {
+            if (this is PlayerController.VisibilityController) {
+                hidePlayerController()
+            }
+        }
+
+        sortModeHolder.isVisible = true
+        menu.findItem(R.id.action_sort).isVisible = false
+        menu.findItem(R.id.action_sort_done).isVisible = true
+    }
+
+    private fun configureFinishSortMode() {
+        activity.apply {
+            if (this is PlayerController.VisibilityController) {
+                showPlayerController()
+            }
+        }
+
+        sortModeHolder.isVisible = false
         menu.findItem(R.id.action_sort).isVisible = true
         menu.findItem(R.id.action_sort_done).isVisible = false
     }
@@ -279,7 +330,6 @@ class LocalAudioListFragment : Fragment(),
                     scanProgressHolder.isVisible = false
                 })
     }
-
 
 
     companion object {

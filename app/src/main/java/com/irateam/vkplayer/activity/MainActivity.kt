@@ -31,7 +31,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.activity.settings.SettingsActivity
-import com.irateam.vkplayer.api.SimpleCallback
 import com.irateam.vkplayer.api.service.LocalAudioService
 import com.irateam.vkplayer.api.service.UserService
 import com.irateam.vkplayer.api.service.VKAudioService
@@ -44,10 +43,13 @@ import com.irateam.vkplayer.service.PlayerService
 import com.irateam.vkplayer.util.EventBus
 import com.irateam.vkplayer.util.extension.getViewById
 import com.irateam.vkplayer.util.extension.setRoundImageURL
+import com.irateam.vkplayer.util.extension.success
 import com.melnykov.fab.FloatingActionButton
 import com.vk.sdk.VKSdk
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : AppCompatActivity(),
+        NavigationView.OnNavigationItemSelectedListener,
+        PlayerController.VisibilityController {
 
     //Services
     private lateinit var userService: UserService
@@ -76,7 +78,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toolbar = getViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        toolbar.setNavigationOnClickListener { v -> drawerLayout.openDrawer(GravityCompat.START) }
+        toolbar.setNavigationOnClickListener { drawerLayout.openDrawer(GravityCompat.START) }
 
         drawerLayout = getViewById(R.id.drawer_layout)
         val drawerToggle = ActionBarDrawerToggle(
@@ -152,14 +154,27 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return false
     }
 
+    override fun showPlayerController() {
+        playerController.show()
+    }
+
+    override fun hidePlayerController() {
+        playerController.hide()
+    }
+
     private fun initializeUser() {
-        userService.getCurrent().execute(SimpleCallback { setUser(it) })
+        userService.getCurrentCached().execute(success {
+            setUser(it)
+            userService.getCurrent().execute(success {
+                setUser(it)
+            })
+        })
     }
 
     private fun setUser(user: User) {
         userPhoto.setRoundImageURL(user.photo100px)
         userFullName.text = user.fullName
-        userVkLink.text = "http://vk.com/id" + user.id
+        userVkLink.text = "http://vk.com/id${user.id}"
     }
 
     override fun onBackPressed() {

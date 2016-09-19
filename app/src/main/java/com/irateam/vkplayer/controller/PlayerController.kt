@@ -143,7 +143,9 @@ open class PlayerController {
     }
 
     fun show() {
-        rootView.isVisible = true
+        if (Player.isPlaying) {
+            rootView.isVisible = true
+        }
     }
 
     fun hide() {
@@ -250,5 +252,12 @@ open class PlayerController {
             dragMode = false
             Player.seekTo(progress.progress)
         }
+    }
+
+    interface VisibilityController {
+
+        fun showPlayerController()
+
+        fun hidePlayerController()
     }
 }

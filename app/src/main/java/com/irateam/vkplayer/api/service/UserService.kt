@@ -41,6 +41,10 @@ class UserService {
         this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
     }
 
+    fun getCurrentCached(): Query<User> {
+        return CachedCurrentUserQuery()
+    }
+
     fun getCurrent(): Query<User> = if (context.isNetworkAvailable()) {
         val params = VKParameters.from(VKApiConst.FIELDS, VKApiUser.FIELD_PHOTO_100)
         val request = VKApiUsers().get(params)

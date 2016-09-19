@@ -15,35 +15,35 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="horizontal"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="56dp"
+              android:orientation="horizontal">
 
     <View
         android:id="@+id/sort_by_title"
-        android:layout_weight="1"
         android:layout_width="0dp"
-        android:layout_height="0dp" />
+        android:layout_height="match_parent"
+        android:layout_weight="1"/>
 
     <View
         android:id="@+id/sort_by_artist"
-        android:layout_weight="1"
         android:layout_width="0dp"
-        android:layout_height="0dp" />
+        android:layout_height="match_parent"
+        android:layout_weight="1"/>
 
     <View
         android:id="@+id/sort_by_length"
-        android:layout_weight="1"
         android:layout_width="0dp"
-        android:layout_height="0dp" />
+        android:layout_height="match_parent"
+        android:layout_weight="1"/>
 
     <View
-        android:layout_weight="1"
         android:layout_width="0dp"
-        android:layout_height="0dp" />
+        android:layout_height="match_parent"
+        android:layout_weight="1"/>
 
     <View
-        android:layout_weight="1"
         android:layout_width="0dp"
-        android:layout_height="0dp" />
+        android:layout_height="match_parent"
+        android:layout_weight="1"/>
 </LinearLayout>
