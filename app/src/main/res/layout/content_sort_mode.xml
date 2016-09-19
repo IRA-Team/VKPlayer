@@ -17,25 +17,24 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="56dp"
+              android:background="@color/primary"
               android:orientation="horizontal">
 
-    <View
+    <TextView
         android:id="@+id/sort_by_title"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"/>
+        style="@style/SortModeItem"
+        android:drawableTop="@drawable/ic_notification_cancel_white_24dp"
+        android:text="@string/title"/>
 
-    <View
+    <TextView
         android:id="@+id/sort_by_artist"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"/>
+        style="@style/SortModeItem"
+        android:text="@string/artist"/>
 
-    <View
+    <TextView
         android:id="@+id/sort_by_length"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"/>
+        style="@style/SortModeItem"
+        android:text="@string/length"/>
 
     <View
         android:layout_width="0dp"

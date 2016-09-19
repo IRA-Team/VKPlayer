@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2016 IRA-Team
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/empty_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/empty_list_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:src="@drawable/ic_list_empty_grey_white_128dp"/>
+
+    <TextView
+        android:id="@+id/empty_list_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/empty_list_image"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/empty_list_text_view_margin_top"
+        android:text="@string/empty_list"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/empty_list_text_view_color"/>
+
+    <TextView
+        android:id="@+id/empty_list_scan_audio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/empty_list_text"
+        android:layout_centerHorizontal="true"
+        android:padding="@dimen/padding_small"
+        android:text="@string/title_menu_scan"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/accent"/>
+</RelativeLayout>

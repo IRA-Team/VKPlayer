@@ -86,5 +86,8 @@
     <string name="remove_file">Удалить файл</string>
     <string name="local_audio_remove_warning">Вы уверены, что хотите удалить эти файлы?</string>
     <string name="unknown_title">Неизвестное имя</string>
+    <string name="title">Название</string>
+    <string name="artist">Исполнитель</string>
+    <string name="length">Длинна</string>
 
 </resources>

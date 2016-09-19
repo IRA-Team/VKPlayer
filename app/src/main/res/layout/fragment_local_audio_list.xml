@@ -4,7 +4,7 @@
                 android:orientation="vertical">
 
     <include
-        layout="@layout/content_empty"
+        layout="@layout/content_local_audio_empty"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"/>

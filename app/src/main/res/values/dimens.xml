@@ -4,6 +4,7 @@
     <dimen name="margin_normal">16dp</dimen>
 
     <!-- Basic padding -->
+    <dimen name="padding_tiny">4dp</dimen>
     <dimen name="padding_small">8dp</dimen>
     <dimen name="padding_normal">16dp</dimen>
 
@@ -42,7 +43,6 @@
     <dimen name="player_list_element_album_cover">40dp</dimen>
 
     <dimen name="button_login_activity_height">56dp</dimen>
-
 
 
     <dimen name="empty_list_text_view_margin_top">20dp</dimen>

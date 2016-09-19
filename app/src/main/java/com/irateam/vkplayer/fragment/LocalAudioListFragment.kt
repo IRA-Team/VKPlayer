@@ -100,6 +100,8 @@ class LocalAudioListFragment : Fragment(),
         configureSortModeHolder()
 
         emptyView = view.getViewById(R.id.empty_view)
+        configureEmptyView()
+
         scanProgressHolder = view.getViewById(R.id.scan_progress_holder)
         scanProgress = view.getViewById(R.id.scan_progress)
 
@@ -139,6 +141,12 @@ class LocalAudioListFragment : Fragment(),
             findViewById(R.id.sort_by_length).setOnClickListener {
                 adapter.sort(Comparators.ARTIST_REVERSE_COMPARATOR)
             }
+        }
+    }
+
+    private fun configureEmptyView() {
+        emptyView.findViewById(R.id.empty_list_scan_audio).setOnClickListener {
+            scanLocalAudios()
         }
     }
 
@@ -188,15 +196,15 @@ class LocalAudioListFragment : Fragment(),
             actionMode = activity.startActionMode(this)
         }
 
-        if (actionMode != null && checked.isEmpty()) {
-            actionMode?.finish()
-            return
+        actionMode?.apply {
+            if (checked.isEmpty()) {
+                finish()
+                return
+            }
+
+            title = checked.size.toString()
         }
 
-        val actionMode = actionMode
-        if (actionMode != null) {
-            actionMode.title = checked.size.toString()
-        }
     }
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
@@ -324,6 +332,11 @@ class LocalAudioListFragment : Fragment(),
                     if (!scanProgress.isVisible) {
                         scanProgress.isVisible = true
                     }
+
+                    if (emptyView.isVisible) {
+                        emptyView.isVisible = false
+                    }
+
                     adapter.addAudio(it.audio)
                     scanProgress.text = "${it.current}/${it.total}"
                 } finish {
