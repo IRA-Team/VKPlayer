@@ -37,9 +37,7 @@ import com.irateam.vkplayer.models.LocalAudio
 import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.util.Comparators
 import com.irateam.vkplayer.util.EventBus
-import com.irateam.vkplayer.util.extension.getViewById
-import com.irateam.vkplayer.util.extension.isVisible
-import com.irateam.vkplayer.util.extension.success
+import com.irateam.vkplayer.util.extension.*
 import java.util.*
 
 class LocalAudioListFragment : Fragment(),
@@ -287,7 +285,7 @@ class LocalAudioListFragment : Fragment(),
             }
         }
 
-        sortModeHolder.isVisible = true
+        sortModeHolder.slideInUp()
         menu.findItem(R.id.action_sort).isVisible = false
         menu.findItem(R.id.action_sort_done).isVisible = true
     }
@@ -299,7 +297,7 @@ class LocalAudioListFragment : Fragment(),
             }
         }
 
-        sortModeHolder.isVisible = false
+        sortModeHolder.slideOutDown()
         menu.findItem(R.id.action_sort).isVisible = true
         menu.findItem(R.id.action_sort_done).isVisible = false
     }
@@ -322,7 +320,7 @@ class LocalAudioListFragment : Fragment(),
     }
 
     private fun scanLocalAudios() {
-        scanProgressHolder.isVisible = true
+        scanProgressHolder.slideInDown()
         scanProgress.isVisible = false
         adapter.setAudios(emptyList())
         localAudioService.scan().execute(
@@ -340,7 +338,7 @@ class LocalAudioListFragment : Fragment(),
                     adapter.addAudio(it.audio)
                     scanProgress.text = "${it.current}/${it.total}"
                 } finish {
-                    scanProgressHolder.isVisible = false
+                    scanProgressHolder.slideOutUp()
                 })
     }
 

@@ -17,6 +17,40 @@
 package com.irateam.vkplayer.util.extension
 
 import android.view.View
+import com.irateam.vkplayer.R
 
-fun View.slideIn() {
+fun View.slideInUp() {
+    if (!isVisible) {
+        isVisible = true
+    }
+
+    val slideIn = context.getAnimation(R.anim.default_slide_in_up)
+    startAnimation(slideIn)
+}
+
+fun View.slideInDown() {
+    if (!isVisible) {
+        isVisible = true
+    }
+
+    val slideIn = context.getAnimation(R.anim.default_slide_in_down)
+    startAnimation(slideIn)
+}
+
+fun View.slideOutDown() {
+    if (isVisible) {
+        isVisible = false
+    }
+
+    val slideOut = context.getAnimation(R.anim.default_slide_out_down)
+    startAnimation(slideOut)
+}
+
+fun View.slideOutUp() {
+    if (isVisible) {
+        isVisible = false
+    }
+
+    val slideOut = context.getAnimation(R.anim.default_slide_out_up)
+    startAnimation(slideOut)
 }

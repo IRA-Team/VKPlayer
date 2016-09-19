@@ -101,7 +101,7 @@ class AudioActivity : AppCompatActivity() {
 
     override fun finish() {
         super.finish()
-        overridePendingTransition(R.anim.slide_out_up_close, R.anim.slide_in_up_close)
+        overridePendingTransition(R.anim.slide_out_up_close, R.anim.slide_out_down)
     }
 
     fun setCacheAction(isCached: Boolean) = if (isCached) {

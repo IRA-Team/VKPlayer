@@ -29,11 +29,13 @@
     <TextView
         android:id="@+id/sort_by_artist"
         style="@style/SortModeItem"
+        android:drawableTop="@drawable/ic_notification_cancel_white_24dp"
         android:text="@string/artist"/>
 
     <TextView
         android:id="@+id/sort_by_length"
         style="@style/SortModeItem"
+        android:drawableTop="@drawable/ic_notification_cancel_white_24dp"
         android:text="@string/length"/>
 
     <View
