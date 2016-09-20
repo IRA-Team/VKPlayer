@@ -16,6 +16,8 @@
 
 package com.irateam.vkplayer.fragment
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
@@ -25,6 +27,7 @@ import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
 import android.view.*
 import android.widget.TextView
+import android.widget.Toast
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapter.LocalAudioRecyclerViewAdapter
 import com.irateam.vkplayer.api.SimpleProgressableCallback
@@ -254,6 +257,21 @@ class LocalAudioListFragment : Fragment(),
         actionMode = null
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<out String>,
+                                            grantResults: IntArray) {
+
+        when (requestCode) {
+            SCAN_LOCAL_AUDIO_REQUEST_CODE -> if (grantResults.isNotEmpty()
+                    && grantResults.first() == PackageManager.PERMISSION_GRANTED) {
+
+                startScanLocalAudios()
+            } else {
+                Toast.makeText(context, "We Need permission Storage", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     override fun onBackPressed(): Boolean {
         if (adapter.isSortMode()) {
             revertSortMode()
@@ -320,6 +338,12 @@ class LocalAudioListFragment : Fragment(),
     }
 
     private fun scanLocalAudios() {
+        requestPermissions(
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                SCAN_LOCAL_AUDIO_REQUEST_CODE)
+    }
+
+    private fun startScanLocalAudios() {
         scanProgressHolder.slideInDown()
         scanProgress.isVisible = false
         adapter.setAudios(emptyList())
@@ -346,6 +370,7 @@ class LocalAudioListFragment : Fragment(),
     companion object {
 
         val TAG = LocalAudioListFragment::class.java.name
+        val SCAN_LOCAL_AUDIO_REQUEST_CODE = 1
 
         @JvmStatic
         fun newInstance(): LocalAudioListFragment {

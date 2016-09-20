@@ -25,7 +25,6 @@ import android.text.style.BackgroundColorSpan
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import android.view.animation.Animation
 import android.widget.*
 import com.amulyakhare.textdrawable.TextDrawable
 import com.amulyakhare.textdrawable.util.ColorGenerator
@@ -33,6 +32,8 @@ import com.irateam.vkplayer.R
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.ui.ItemTouchHelperViewHolder
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder.State.*
+import com.irateam.vkplayer.util.extension.flipIn
+import com.irateam.vkplayer.util.extension.flipOut
 import com.irateam.vkplayer.util.extension.getAnimation
 import com.irateam.vkplayer.util.extension.isVisible
 
@@ -193,22 +194,15 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
             itemView.setBackgroundColor(color)
 
             if (shouldAnimate) {
-                val flipIn = itemView.context.getAnimation(R.anim.flip_in_checked_overlay)
-                flipIn.duration = 200
-                coverHolder.startAnimation(flipIn)
+                coverHolder.flipIn()
             }
-
-
         } else {
             coverCheckedOverlay.isVisible = false
             val color = resources.getColor(R.color.player_list_element_color)
             itemView.setBackgroundColor(color)
 
             if (shouldAnimate) {
-                val flipOut = itemView.context.getAnimation(R.anim.flip_out_checked_overlay)
-                flipOut.duration = 100
-                flipOut.repeatMode = Animation.REVERSE
-                coverHolder.startAnimation(flipOut)
+                coverHolder.flipOut()
             }
         }
     }
@@ -223,13 +217,21 @@ class AudioViewHolder : RecyclerView.ViewHolder, ItemTouchHelperViewHolder {
         setChecked(checked, shouldAnimate)
     }
 
-    fun setSorting(sorting: Boolean) {
+    fun setSorting(sorting: Boolean, shouldAnimate: Boolean = false) {
         this.sorting = sorting
         if (sorting) {
             coverCheckedOverlay.visibility = GONE
             coverOverlay.setBackgroundResource(R.drawable.overlay_item_audio_sorting)
-            coverOverlay.visibility = VISIBLE
+            coverOverlay.isVisible = true
+
+            if (shouldAnimate) {
+                coverOverlay.flipIn()
+            }
         } else {
+            if (shouldAnimate) {
+                coverOverlay.flipOut()
+            }
+
             setPlayingState(state)
             setChecked(checked)
         }

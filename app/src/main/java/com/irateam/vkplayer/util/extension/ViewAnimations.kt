@@ -17,6 +17,7 @@
 package com.irateam.vkplayer.util.extension
 
 import android.view.View
+import android.view.animation.Animation
 import com.irateam.vkplayer.R
 
 fun View.slideInUp() {
@@ -53,4 +54,17 @@ fun View.slideOutUp() {
 
     val slideOut = context.getAnimation(R.anim.default_slide_out_up)
     startAnimation(slideOut)
+}
+
+fun View.flipIn() {
+    val flipIn = context.getAnimation(R.anim.flip_in_checked_overlay)
+    flipIn.duration = 200
+    startAnimation(flipIn)
+}
+
+fun View.flipOut() {
+    val flipOut = context.getAnimation(R.anim.flip_out_checked_overlay)
+    flipOut.duration = 100
+    flipOut.repeatMode = Animation.REVERSE
+    startAnimation(flipOut)
 }

@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.animation.Interpolator;
 
 public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
@@ -22,7 +23,7 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     @Override
     public boolean isItemViewSwipeEnabled() {
-        return true;
+        return false;
     }
 
     @Override
@@ -37,6 +38,53 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
             final int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
             return makeMovementFlags(dragFlags, swipeFlags);
         }
+    }
+
+    private int mCachedMaxScrollSpeed = -1;
+    private static final Interpolator sDragViewScrollCapInterpolator = t -> {
+        t -= 1.0f;
+        return t * t * t * t * t + 1.0f;
+    };
+
+    private static final Interpolator sDragScrollInterpolator = t -> t * t * t;
+
+    private int getMaxDragScroll(RecyclerView recyclerView) {
+        if (mCachedMaxScrollSpeed == -1) {
+            mCachedMaxScrollSpeed = recyclerView.getResources().getDimensionPixelSize(
+                    android.support.v7.recyclerview.R.dimen.item_touch_helper_max_drag_scroll_per_frame);
+        }
+        return mCachedMaxScrollSpeed;
+    }
+
+    @Override
+    public int interpolateOutOfBoundsScroll(RecyclerView recyclerView,
+                                            int viewSize,
+                                            int viewSizeOutOfBounds,
+                                            int totalSize,
+                                            long msSinceStartScroll) {
+
+        final int maxScroll = getMaxDragScroll(recyclerView);
+        final int absOutOfBounds = Math.abs(viewSizeOutOfBounds);
+        final int direction = (int) Math.signum(viewSizeOutOfBounds);
+        // might be negative if other direction
+        float outOfBoundsRatio = Math.min(1f, 1f * absOutOfBounds / viewSize);
+        final int cappedScroll = (int) (direction * maxScroll *
+                sDragViewScrollCapInterpolator.getInterpolation(outOfBoundsRatio));
+
+        final float timeRatio;
+        if (msSinceStartScroll < 2000) {
+            timeRatio = 0.6f;
+        } else if (msSinceStartScroll < 4000){
+            timeRatio = 0.9f;
+        } else {
+            timeRatio = 1.2f;
+        }
+        final int value = (int) (cappedScroll * sDragScrollInterpolator
+                .getInterpolation(timeRatio));
+        if (value == 0) {
+            return viewSizeOutOfBounds > 0 ? 1 : -1;
+        }
+        return value;
     }
 
     @Override

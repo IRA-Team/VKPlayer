@@ -52,6 +52,7 @@ class LocalAudioService {
 
     fun scan(): ProgressableQuery<List<LocalAudio>, AudioScannedEvent> {
         val root = Environment.getExternalStorageDirectory()
+        log(root.canRead())
         return ScanAndIndexAudioQuery(root)
     }
 
@@ -99,6 +100,7 @@ class LocalAudioService {
 
         override fun query(): List<LocalAudio> {
             val audios = root.walk()
+                    .map { log(it); it }
                     .filter { !it.isDirectory }
                     .filter { it.name.endsWith(".mp3") }
                     .map {

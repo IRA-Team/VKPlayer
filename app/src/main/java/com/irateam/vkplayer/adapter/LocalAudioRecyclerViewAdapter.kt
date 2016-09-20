@@ -24,6 +24,7 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapter.event.ItemSortModeFinished
+import com.irateam.vkplayer.adapter.event.ItemSortModeStarted
 import com.irateam.vkplayer.adapter.event.ItemUncheckedEvent
 import com.irateam.vkplayer.event.Event
 import com.irateam.vkplayer.models.Audio
@@ -71,9 +72,9 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
     override fun onBindViewHolder(holder: AudioViewHolder,
                                   position: Int,
                                   payload: MutableList<Any>?) {
+        val audio = audios[position]
 
         if (payload?.isEmpty() ?: true) {
-            val audio = audios[position]
             configureAudio(holder, audio)
             configurePlayingState(holder, audio)
 
@@ -85,7 +86,7 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
         } else {
             payload?.let {
                 val events = it.filterIsInstance<Event>()
-                dispatchEvents(holder, position, events)
+                dispatchEvents(holder, audio, events)
             }
         }
     }
@@ -110,7 +111,7 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
     }
 
     private fun dispatchEvents(holder: AudioViewHolder,
-                               position: Int,
+                               audio: LocalAudio,
                                events: Collection<Event>) {
         events.forEach {
             when (it) {
@@ -118,9 +119,14 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
                     holder.setChecked(checked = false, shouldAnimate = true)
                 }
 
+                is ItemSortModeStarted -> {
+                    holder.setSorting(sorting = true, shouldAnimate = true)
+                    setupDragTouchListener(holder)
+                }
+
                 is ItemSortModeFinished -> {
-                    holder.setSorting(false)
-                    holder.coverHolder.setOnTouchListener(null)
+                    holder.setSorting(sorting = false, shouldAnimate = true)
+                    setupCheckedClickListener(holder, audio)
                 }
             }
         }
@@ -149,6 +155,18 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
 
     private fun configureCheckedState(holder: AudioViewHolder, audio: LocalAudio) {
         holder.setChecked(audio in checkedAudios)
+        setupCheckedClickListener(holder, audio)
+    }
+
+    private fun configureSortMode(holder: AudioViewHolder) {
+        holder.setSorting(isSortMode())
+        if (isSortMode()) {
+            setupDragTouchListener(holder)
+        }
+    }
+
+    private fun setupCheckedClickListener(holder: AudioViewHolder, audio: LocalAudio) {
+        holder.coverHolder.setOnTouchListener(null)
         holder.coverHolder.setOnClickListener {
             holder.toggleChecked(shouldAnimate = true)
             if (holder.isChecked()) checkedAudios.add(audio) else checkedAudios.remove(audio)
@@ -156,15 +174,13 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
         }
     }
 
-    private fun configureSortMode(holder: AudioViewHolder) {
-        holder.setSorting(isSortMode())
-        if (isSortMode()) {
-            holder.coverHolder.setOnTouchListener { v, e ->
-                if (MotionEventCompat.getActionMasked(e) == MotionEvent.ACTION_DOWN) {
-                    itemTouchHelper.startDrag(holder)
-                }
-                false
+    private fun setupDragTouchListener(holder: AudioViewHolder) {
+        holder.coverHolder.setOnClickListener(null)
+        holder.coverHolder.setOnTouchListener { v, e ->
+            if (MotionEventCompat.getActionMasked(e) == MotionEvent.ACTION_DOWN) {
+                itemTouchHelper.startDrag(holder)
             }
+            false
         }
     }
 
