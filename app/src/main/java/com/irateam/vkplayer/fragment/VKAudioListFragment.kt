@@ -24,7 +24,7 @@ import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
 import android.view.*
 import com.irateam.vkplayer.R
-import com.irateam.vkplayer.adapter.AudioRecyclerViewAdapter
+import com.irateam.vkplayer.adapter.VKAudioRecyclerAdapter
 import com.irateam.vkplayer.api.Query
 import com.irateam.vkplayer.api.SimpleCallback
 import com.irateam.vkplayer.api.service.VKAudioService
@@ -43,9 +43,9 @@ import java.util.*
 class VKAudioListFragment : Fragment(),
         ActionMode.Callback,
         SearchView.OnQueryTextListener,
-        AudioRecyclerViewAdapter.CheckedListener {
+        VKAudioRecyclerAdapter.CheckedListener {
 
-    private val adapter = AudioRecyclerViewAdapter()
+    private val adapter = VKAudioRecyclerAdapter()
 
     private lateinit var audioService: VKAudioService
     private lateinit var query: Query<List<VKAudio>>

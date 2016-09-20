@@ -17,8 +17,8 @@
 package com.irateam.vkplayer.adapter
 
 import android.support.v7.widget.RecyclerView
-import com.irateam.vkplayer.adapter.event.ItemSortModeFinished
-import com.irateam.vkplayer.adapter.event.ItemSortModeStarted
+import com.irateam.vkplayer.adapter.event.LocalAudioAdapterEvent.SortModeFinished
+import com.irateam.vkplayer.adapter.event.LocalAudioAdapterEvent.SortModeStarted
 import java.util.*
 
 class SortModeHelper<T> {
@@ -37,7 +37,7 @@ class SortModeHelper<T> {
         this.sortMode = true
         this.original = ArrayList(data)
         this.data = data
-        adapter.notifyItemRangeChanged(0, data.size, ItemSortModeStarted)
+        adapter.notifyItemRangeChanged(0, data.size, SortModeStarted)
     }
 
     fun sort(comparator: Comparator<in T>) {
@@ -58,7 +58,7 @@ class SortModeHelper<T> {
 
     fun commit() {
         this.sortMode = false
-        adapter.notifyItemRangeChanged(0, data.size, ItemSortModeFinished)
+        adapter.notifyItemRangeChanged(0, data.size, SortModeFinished)
     }
 
     fun revert() {
@@ -68,8 +68,8 @@ class SortModeHelper<T> {
             data.removeAt(from)
             data.add(index, item)
             adapter.notifyItemMoved(from, index)
-            adapter.notifyItemChanged(from, ItemSortModeFinished)
-            adapter.notifyItemChanged(index, ItemSortModeFinished)
+            adapter.notifyItemChanged(from, SortModeFinished)
+            adapter.notifyItemChanged(index, SortModeFinished)
         }
     }
 

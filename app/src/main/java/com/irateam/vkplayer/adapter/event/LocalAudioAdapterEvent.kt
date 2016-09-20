@@ -18,4 +18,11 @@ package com.irateam.vkplayer.adapter.event
 
 import com.irateam.vkplayer.event.Event
 
-object ItemSortModeStarted : Event
+sealed class LocalAudioAdapterEvent : Event {
+
+    object SortModeFinished : LocalAudioAdapterEvent()
+
+    object SortModeStarted : LocalAudioAdapterEvent()
+
+    object ItemUncheckedEvent : LocalAudioAdapterEvent()
+}

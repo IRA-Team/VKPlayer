@@ -29,7 +29,7 @@ import android.view.*
 import android.widget.TextView
 import android.widget.Toast
 import com.irateam.vkplayer.R
-import com.irateam.vkplayer.adapter.LocalAudioRecyclerViewAdapter
+import com.irateam.vkplayer.adapter.LocalAudioRecyclerAdapter
 import com.irateam.vkplayer.api.SimpleProgressableCallback
 import com.irateam.vkplayer.api.service.LocalAudioService
 import com.irateam.vkplayer.controller.PlayerController
@@ -47,9 +47,9 @@ class LocalAudioListFragment : Fragment(),
         ActionMode.Callback,
         SearchView.OnQueryTextListener,
         BackPressedListener,
-        LocalAudioRecyclerViewAdapter.CheckedListener {
+        LocalAudioRecyclerAdapter.CheckedListener {
 
-    private val adapter = LocalAudioRecyclerViewAdapter()
+    private val adapter = LocalAudioRecyclerAdapter()
 
     /**
      * Services

@@ -23,8 +23,8 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewGroup
 import com.irateam.vkplayer.R
-import com.irateam.vkplayer.adapter.event.ItemRemovedFromCacheEvent
-import com.irateam.vkplayer.adapter.event.ItemUncheckedEvent
+import com.irateam.vkplayer.adapter.event.VKAudioAdapterEvent.ItemUncheckedEvent
+import com.irateam.vkplayer.adapter.event.VKAudioAdapterEvent.ItemRemovedFromCacheEvent
 import com.irateam.vkplayer.event.DownloadFinishedEvent
 import com.irateam.vkplayer.event.Event
 import com.irateam.vkplayer.models.Audio
@@ -43,7 +43,7 @@ import java.util.*
 /**
  * @author Artem Glugovsky
  */
-class AudioRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
+class VKAudioRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
         ItemTouchHelperAdapter {
 
 

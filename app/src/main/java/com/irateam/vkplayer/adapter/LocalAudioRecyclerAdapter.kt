@@ -23,10 +23,8 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewGroup
 import com.irateam.vkplayer.R
-import com.irateam.vkplayer.adapter.event.ItemSortModeFinished
-import com.irateam.vkplayer.adapter.event.ItemSortModeStarted
-import com.irateam.vkplayer.adapter.event.ItemUncheckedEvent
-import com.irateam.vkplayer.event.Event
+import com.irateam.vkplayer.adapter.event.LocalAudioAdapterEvent
+import com.irateam.vkplayer.adapter.event.LocalAudioAdapterEvent.*
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.models.LocalAudio
 import com.irateam.vkplayer.player.*
@@ -40,7 +38,7 @@ import java.util.*
 /**
  * @author Artem Glugovsky
  */
-class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
+class LocalAudioRecyclerAdapter : RecyclerView.Adapter<AudioViewHolder>(),
         ItemTouchHelperAdapter {
 
     private val sortModeHelper: SortModeHelper<LocalAudio>
@@ -85,7 +83,7 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
             }
         } else {
             payload?.let {
-                val events = it.filterIsInstance<Event>()
+                val events = it.filterIsInstance<LocalAudioAdapterEvent>()
                 dispatchEvents(holder, audio, events)
             }
         }
@@ -112,19 +110,19 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
 
     private fun dispatchEvents(holder: AudioViewHolder,
                                audio: LocalAudio,
-                               events: Collection<Event>) {
+                               events: Collection<LocalAudioAdapterEvent>) {
         events.forEach {
             when (it) {
-                is ItemUncheckedEvent -> {
+                ItemUncheckedEvent -> {
                     holder.setChecked(checked = false, shouldAnimate = true)
                 }
 
-                is ItemSortModeStarted -> {
+                SortModeStarted -> {
                     holder.setSorting(sorting = true, shouldAnimate = true)
                     setupDragTouchListener(holder)
                 }
 
-                is ItemSortModeFinished -> {
+                SortModeFinished -> {
                     holder.setSorting(sorting = false, shouldAnimate = true)
                     setupCheckedClickListener(holder, audio)
                 }
@@ -301,6 +299,6 @@ class LocalAudioRecyclerViewAdapter : RecyclerView.Adapter<AudioViewHolder>(),
 
     companion object {
 
-        val TAG = LocalAudioRecyclerViewAdapter::class.java.name
+        val TAG = LocalAudioRecyclerAdapter::class.java.name
     }
 }
