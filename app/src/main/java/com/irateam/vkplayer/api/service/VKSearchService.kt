@@ -14,11 +14,19 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.adapter.event
+package com.irateam.vkplayer.api.service
 
-import com.irateam.vkplayer.event.Event
+import com.irateam.vkplayer.api.Query
+import com.irateam.vkplayer.api.VKAudioQuery
+import com.irateam.vkplayer.models.VKAudio
+import com.vk.sdk.api.VKApi
+import com.vk.sdk.api.VKApiConst
+import com.vk.sdk.api.VKParameters
 
-sealed class VKAudioAdapterEvent : Event {
+class VKSearchService {
 
-    object ItemRemovedFromCacheEvent : VKAudioAdapterEvent()
+    fun search(query: String): Query<List<VKAudio>> {
+        val request = VKApi.audio().search(VKParameters.from(VKApiConst.Q, query))
+        return VKAudioQuery(request)
+    }
 }

@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.adapter.event
+package com.irateam.vkplayer.util.extension
 
-import com.irateam.vkplayer.event.Event
+import java.util.*
 
-sealed class LocalAudioAdapterEvent : Event {
-
-    object SortModeFinished : LocalAudioAdapterEvent()
-
-    object SortModeStarted : LocalAudioAdapterEvent()
-
-    object ItemUncheckedEvent : LocalAudioAdapterEvent()
+fun <T> List<T>.swap(from: Int, to: Int): List<T> {
+    val toSwap = ArrayList(this)
+    Collections.swap(toSwap, from, to)
+    return toSwap
 }

@@ -19,8 +19,8 @@ package com.irateam.vkplayer.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.irateam.vkplayer.R
-import com.irateam.vkplayer.adapter.event.LocalAudioAdapterEvent
-import com.irateam.vkplayer.adapter.event.LocalAudioAdapterEvent.*
+import com.irateam.vkplayer.adapter.event.BaseAudioAdapterEvent.*
+import com.irateam.vkplayer.event.Event
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.models.LocalAudio
 import com.irateam.vkplayer.player.Player
@@ -33,6 +33,7 @@ import java.util.*
 class LocalAudioRecyclerAdapter : BaseAudioRecyclerAdapter<LocalAudio, AudioViewHolder>() {
 
     private var audios: ArrayList<LocalAudio> = ArrayList()
+    override val sortModeDelegate = LocalSortModeDelegate()
     override var checkedAudios: HashSet<LocalAudio> = LinkedHashSet()
 
     override fun onCreateViewHolder(parent: ViewGroup, position: Int): AudioViewHolder {
@@ -57,7 +58,7 @@ class LocalAudioRecyclerAdapter : BaseAudioRecyclerAdapter<LocalAudio, AudioView
             }
         } else {
             payload?.let {
-                val events = it.filterIsInstance<LocalAudioAdapterEvent>()
+                val events = it.filterIsInstance<Event>()
                 dispatchEvents(holder, audio, events)
             }
         }
@@ -68,7 +69,7 @@ class LocalAudioRecyclerAdapter : BaseAudioRecyclerAdapter<LocalAudio, AudioView
     }
 
     override fun onItemMove(from: Int, to: Int): Boolean {
-        sortModeHelper.move(from, to)
+        sortModeDelegate.move(from, to)
         return true
     }
 
@@ -79,22 +80,20 @@ class LocalAudioRecyclerAdapter : BaseAudioRecyclerAdapter<LocalAudio, AudioView
 
     private fun dispatchEvents(holder: AudioViewHolder,
                                audio: LocalAudio,
-                               events: Collection<LocalAudioAdapterEvent>) {
-        events.forEach {
-            when (it) {
-                ItemUncheckedEvent -> {
-                    holder.setChecked(checked = false, shouldAnimate = true)
-                }
+                               events: Collection<Event>) = events.forEach {
+        when (it) {
+            ItemUncheckedEvent -> {
+                holder.setChecked(checked = false, shouldAnimate = true)
+            }
 
-                SortModeStarted -> {
-                    holder.setSorting(sorting = true, shouldAnimate = true)
-                    setupDragTouchListener(holder)
-                }
+            SortModeStarted -> {
+                holder.setSorting(sorting = true, shouldAnimate = true)
+                setupDragTouchListener(holder)
+            }
 
-                SortModeFinished -> {
-                    holder.setSorting(sorting = false, shouldAnimate = true)
-                    setupCheckedClickListener(holder, audio)
-                }
+            SortModeFinished -> {
+                holder.setSorting(sorting = false, shouldAnimate = true)
+                setupCheckedClickListener(holder, audio)
             }
         }
     }
@@ -130,28 +129,6 @@ class LocalAudioRecyclerAdapter : BaseAudioRecyclerAdapter<LocalAudio, AudioView
             checkedAudios.remove(it)
             notifyItemRemoved(index)
         }
-    }
-
-    override fun startSortMode() {
-        sortModeHelper.start(audios)
-    }
-
-    override fun sort(comparator: Comparator<in LocalAudio>) {
-        sortModeHelper.sort(comparator)
-        scrollToTop()
-    }
-
-    override fun commitSortMode() {
-        sortModeHelper.commit()
-    }
-
-    override fun revertSortMode() {
-        sortModeHelper.revert()
-        scrollToTop()
-    }
-
-    override fun isSortMode(): Boolean {
-        return sortModeHelper.isSortMode()
     }
 
     fun setAudios(audios: Collection<LocalAudio>) {

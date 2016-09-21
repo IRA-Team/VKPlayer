@@ -32,7 +32,7 @@ abstract class BaseAudioRecyclerAdapter<A : Audio, VH : RecyclerView.ViewHolder>
         RecyclerView.Adapter<VH>(),
         ItemTouchHelperAdapter {
 
-    protected val sortModeHelper: SortModeHelper<A>
+    protected abstract val sortModeDelegate: SortModeDelegate<A>
     protected val itemTouchHelper: ItemTouchHelper
 
     protected var currentSearchQuery: String? = null
@@ -43,7 +43,6 @@ abstract class BaseAudioRecyclerAdapter<A : Audio, VH : RecyclerView.ViewHolder>
 
     init {
         val callback = SimpleItemTouchHelperCallback(this)
-        this.sortModeHelper = SortModeHelper(this)
         this.itemTouchHelper = ItemTouchHelper(callback)
     }
 
@@ -104,17 +103,29 @@ abstract class BaseAudioRecyclerAdapter<A : Audio, VH : RecyclerView.ViewHolder>
         recyclerView?.layoutManager?.scrollToPosition(0)
     }
 
+    fun startSortMode() {
+        sortModeDelegate.start()
+    }
+
+    fun commitSortMode() {
+        sortModeDelegate.commit()
+    }
+
+     fun revertSortMode() {
+        sortModeDelegate.revert()
+        scrollToTop()
+    }
+
+    fun isSortMode(): Boolean {
+        return sortModeDelegate.isSortMode()
+    }
+
+    fun sort(comparator: Comparator<in A>) {
+        sortModeDelegate.sort(comparator)
+        scrollToTop()
+    }
+
     abstract fun setSearchQuery(query: String)
-
-    abstract fun startSortMode()
-
-    abstract fun commitSortMode()
-
-    abstract fun revertSortMode()
-
-    abstract fun isSortMode(): Boolean
-
-    abstract fun sort(comparator: Comparator<in A>)
 
     abstract fun removeChecked()
 

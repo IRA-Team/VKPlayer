@@ -14,11 +14,22 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.adapter.event
+package com.irateam.vkplayer.adapter
 
-import com.irateam.vkplayer.event.Event
+import com.irateam.vkplayer.models.Audio
+import java.util.*
 
-sealed class VKAudioAdapterEvent : Event {
+interface SortModeDelegate<out A : Audio> {
 
-    object ItemRemovedFromCacheEvent : VKAudioAdapterEvent()
+    fun start()
+
+    fun sort(comparator: Comparator<in A>)
+
+    fun move(from: Int, to: Int)
+
+    fun commit()
+
+    fun revert()
+
+    fun isSortMode(): Boolean
 }

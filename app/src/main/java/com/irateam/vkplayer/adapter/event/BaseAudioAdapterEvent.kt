@@ -18,7 +18,11 @@ package com.irateam.vkplayer.adapter.event
 
 import com.irateam.vkplayer.event.Event
 
-sealed class VKAudioAdapterEvent : Event {
+sealed class BaseAudioAdapterEvent : Event {
 
-    object ItemRemovedFromCacheEvent : VKAudioAdapterEvent()
+    object SortModeFinished : BaseAudioAdapterEvent()
+
+    object SortModeStarted : BaseAudioAdapterEvent()
+
+    object ItemUncheckedEvent : BaseAudioAdapterEvent()
 }

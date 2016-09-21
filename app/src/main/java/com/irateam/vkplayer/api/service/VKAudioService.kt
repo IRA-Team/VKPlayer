@@ -69,11 +69,6 @@ class VKAudioService {
         return CachedAudioQuery()
     }
 
-    fun search(query: String): Query<List<VKAudio>> {
-        val request = VKApi.audio().search(VKParameters.from(VKApiConst.Q, query))
-        return VKAudioQuery(request)
-    }
-
     fun removeFromCache(audios: Collection<VKAudio>): Query<List<VKAudio>> {
         return RemoveFromCacheQuery(audios)
     }

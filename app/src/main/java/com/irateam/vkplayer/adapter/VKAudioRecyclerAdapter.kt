@@ -20,8 +20,9 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.irateam.vkplayer.R
+import com.irateam.vkplayer.adapter.event.BaseAudioAdapterEvent
+import com.irateam.vkplayer.adapter.event.BaseAudioAdapterEvent.ItemUncheckedEvent
 import com.irateam.vkplayer.adapter.event.VKAudioAdapterEvent.ItemRemovedFromCacheEvent
-import com.irateam.vkplayer.adapter.event.VKAudioAdapterEvent.ItemUncheckedEvent
 import com.irateam.vkplayer.event.DownloadFinishedEvent
 import com.irateam.vkplayer.event.Event
 import com.irateam.vkplayer.models.Audio
@@ -33,38 +34,42 @@ import com.irateam.vkplayer.ui.viewholder.HeaderViewHolder
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.util.*
+import kotlin.properties.Delegates.observable
 
 /**
  * @author Artem Glugovsky
  */
 class VKAudioRecyclerAdapter : BaseAudioRecyclerAdapter<VKAudio, RecyclerView.ViewHolder>() {
 
-    override fun startSortMode() {
-        throw UnsupportedOperationException("not implemented")
-    }
-
-    override fun commitSortMode() {
-        throw UnsupportedOperationException("not implemented")
-    }
-
-    override fun revertSortMode() {
-        throw UnsupportedOperationException("not implemented")
-    }
-
-    override fun isSortMode(): Boolean {
-        throw UnsupportedOperationException("not implemented")
-    }
-
-    override fun sort(comparator: Comparator<in VKAudio>) {
-        throw UnsupportedOperationException("not implemented")
-    }
+    override val sortModeDelegate = VKSortModeDelegate(this)
+    private val searchDelegate = VKSearchDelegate(this)
 
     private var data = ArrayList<Any>()
-    private var audios: List<VKAudio> = ArrayList()
+
+    var audios: List<VKAudio> by observable(emptyList()) {
+        property, oldValue, newValue ->
+        rebuildData()
+    }
+
+    var searchAudios: List<VKAudio> by observable(emptyList()) {
+        property, oldValue, newValue ->
+        rebuildData()
+    }
+
+    private fun rebuildData() {
+        data = ArrayList<Any>().apply {
+            addAll(audios)
+
+            if (searchAudios.isNotEmpty()) {
+                add(Header("Search result"))
+                addAll(searchAudios)
+            }
+        }
+    }
 
     override var checkedAudios: HashSet<VKAudio> = LinkedHashSet()
 
-    override fun getItemViewType(position: Int): Int = when (data[position]) {
+    override fun getItemViewType(position: Int) = when (data[position]) {
         is Header -> TYPE_HEADER
         is Audio -> TYPE_AUDIO
         else -> -1
@@ -72,15 +77,17 @@ class VKAudioRecyclerAdapter : BaseAudioRecyclerAdapter<VKAudio, RecyclerView.Vi
 
     override fun onCreateViewHolder(parent: ViewGroup, position: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        when (position) {
+        return when (position) {
             TYPE_HEADER -> {
                 val v = inflater.inflate(R.layout.item_header, parent, false)
-                return HeaderViewHolder(v)
+                HeaderViewHolder(v)
             }
+
             TYPE_AUDIO -> {
                 val v = inflater.inflate(R.layout.item_audio, parent, false)
-                return AudioViewHolder(v)
+                AudioViewHolder(v)
             }
+
             else -> throw IllegalStateException("Illegal view type")
         }
     }
@@ -98,8 +105,8 @@ class VKAudioRecyclerAdapter : BaseAudioRecyclerAdapter<VKAudio, RecyclerView.Vi
                                     position: Int,
                                     payload: MutableList<Any>?) {
 
+        val audio = data[position] as VKAudio
         if (payload?.isEmpty() ?: true) {
-            val audio = data[position] as VKAudio
             configureAudio(holder, audio)
             configurePlayingState(holder, audio)
 
@@ -112,7 +119,7 @@ class VKAudioRecyclerAdapter : BaseAudioRecyclerAdapter<VKAudio, RecyclerView.Vi
         } else {
             payload?.let {
                 val events = it.filterIsInstance<Event>()
-                dispatchEvents(holder, position, events)
+                dispatchEvents(holder, audio, events)
             }
         }
     }
@@ -141,22 +148,29 @@ class VKAudioRecyclerAdapter : BaseAudioRecyclerAdapter<VKAudio, RecyclerView.Vi
     }
 
     private fun dispatchEvents(holder: AudioViewHolder,
-                               position: Int,
-                               events: Collection<Event>) {
-        events.forEach {
-            when (it) {
-                is DownloadFinishedEvent -> {
-                    data[position] = it.audio
-                    holder.setCached(cached = true, shouldAnimate = true)
-                }
+                               audio: VKAudio,
+                               events: Collection<Event>) = events.forEach {
+        when (it) {
+            is DownloadFinishedEvent -> {
+                holder.setCached(cached = true, shouldAnimate = true)
+            }
 
-                is ItemRemovedFromCacheEvent -> {
-                    holder.setCached(cached = false, shouldAnimate = true)
-                }
+            ItemRemovedFromCacheEvent -> {
+                holder.setCached(cached = false, shouldAnimate = true)
+            }
 
-                is ItemUncheckedEvent -> {
-                    holder.setChecked(checked = false, shouldAnimate = true)
-                }
+            ItemUncheckedEvent -> {
+                holder.setChecked(checked = false, shouldAnimate = true)
+            }
+
+            BaseAudioAdapterEvent.SortModeStarted -> {
+                holder.setSorting(sorting = true, shouldAnimate = true)
+                setupDragTouchListener(holder)
+            }
+
+            BaseAudioAdapterEvent.SortModeFinished -> {
+                holder.setSorting(sorting = false, shouldAnimate = true)
+                setupCheckedClickListener(holder, audio)
             }
         }
     }
@@ -164,9 +178,11 @@ class VKAudioRecyclerAdapter : BaseAudioRecyclerAdapter<VKAudio, RecyclerView.Vi
     private fun configureAudio(holder: AudioViewHolder, audio: VKAudio) {
         holder.setAudio(audio)
         holder.setCached(audio.isCached)
-        currentSearchQuery?.let {
-            holder.setQuery(it)
+
+        if (searchDelegate.isSearching) {
+            holder.setQuery(searchDelegate.query)
         }
+
         holder.contentHolder.setOnClickListener {
             val queue = data.filterIsInstance<Audio>()
             Player.play(queue, audio)
@@ -197,30 +213,8 @@ class VKAudioRecyclerAdapter : BaseAudioRecyclerAdapter<VKAudio, RecyclerView.Vi
         }
     }
 
-    fun setAudios(audios: List<VKAudio>) {
-        data.clear()
-        data.addAll(audios)
-        this.audios = audios
-        notifyDataSetChanged()
-    }
-
     override fun setSearchQuery(query: String) {
-        val lowerQuery = query.toLowerCase()
-        currentSearchQuery = query
-
-        val filtered = audios.filter {
-            lowerQuery in it.title.toLowerCase() || lowerQuery in it.artist.toLowerCase()
-        }
-
-        data.clear()
-        data.addAll(filtered)
-        notifyDataSetChanged()
-    }
-
-    fun setSearchAudios(searchAudios: List<Audio>) {
-        data.add(Header("Search result"))
-        data.addAll(searchAudios)
-        notifyDataSetChanged()
+        searchDelegate.search(query)
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

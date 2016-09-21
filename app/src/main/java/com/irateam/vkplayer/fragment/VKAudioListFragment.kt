@@ -26,7 +26,6 @@ import com.irateam.vkplayer.api.service.VKAudioService
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.models.VKAudio
 import com.irateam.vkplayer.service.DownloadService
-import com.irateam.vkplayer.util.extension.e
 import com.irateam.vkplayer.util.extension.execute
 import com.irateam.vkplayer.util.extension.isVisible
 import java.util.*
@@ -42,8 +41,6 @@ class VKAudioListFragment : BaseAudioListFragment(),
 
     private lateinit var audioService: VKAudioService
     private lateinit var query: Query<List<VKAudio>>
-
-    private var previousSearchQuery: Query<List<VKAudio>>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,33 +69,8 @@ class VKAudioListFragment : BaseAudioListFragment(),
 
     override fun onQueryTextChange(query: String): Boolean {
         super.onQueryTextChange(query)
-        previousSearchQuery?.cancel()
-        previousSearchQuery = audioService.search(query)
-        previousSearchQuery?.execute {
-            onSuccess {
-                adapter.setSearchAudios(it)
-            }
-        }
-
+        adapter.setSearchQuery(query)
         return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.action_sort -> {
-            adapter.startSortMode()
-            item.isVisible = false
-            menu.findItem(R.id.action_sort_done).isVisible = true
-            true
-        }
-
-        R.id.action_sort_done -> {
-            adapter.commitSortMode()
-            item.isVisible = false
-            menu.findItem(R.id.action_sort).isVisible = true
-            true
-        }
-
-        else -> false
     }
 
     override fun onChanged(audio: Audio, checked: HashSet<out Audio>) {
@@ -145,9 +117,8 @@ class VKAudioListFragment : BaseAudioListFragment(),
     private fun loadVKAudios() {
         refreshLayout.post { refreshLayout.isRefreshing = true }
         query.execute {
-            e("kekus")
             onSuccess {
-                adapter.setAudios(it)
+                adapter.audios = it
                 emptyView.isVisible = it.isEmpty()
             }
 
@@ -156,7 +127,6 @@ class VKAudioListFragment : BaseAudioListFragment(),
             }
         }
     }
-
 
     companion object {
 
