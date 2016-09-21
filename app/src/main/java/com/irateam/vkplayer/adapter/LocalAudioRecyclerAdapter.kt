@@ -32,8 +32,10 @@ import java.util.*
  */
 class LocalAudioRecyclerAdapter : BaseAudioRecyclerAdapter<LocalAudio, AudioViewHolder>() {
 
-    private var audios: ArrayList<LocalAudio> = ArrayList()
     override val sortModeDelegate = LocalSortModeDelegate()
+    override val searchDelegate = LocalSearchDelegate(this)
+
+    var audios: List<LocalAudio> = emptyList()
     override var checkedAudios: HashSet<LocalAudio> = LinkedHashSet()
 
     override fun onCreateViewHolder(parent: ViewGroup, position: Int): AudioViewHolder {
@@ -74,7 +76,7 @@ class LocalAudioRecyclerAdapter : BaseAudioRecyclerAdapter<LocalAudio, AudioView
     }
 
     override fun onItemDismiss(position: Int) {
-        audios.removeAt(position)
+        audios -= audios[position]
         notifyItemRemoved(position)
     }
 
@@ -100,7 +102,11 @@ class LocalAudioRecyclerAdapter : BaseAudioRecyclerAdapter<LocalAudio, AudioView
 
     private fun configureAudio(holder: AudioViewHolder, audio: Audio) {
         holder.setAudio(audio)
-        currentSearchQuery?.let { holder.setQuery(it) }
+
+        if (searchDelegate.isSearching) {
+            holder.setQuery(searchDelegate.query)
+        }
+
         holder.contentHolder.setOnClickListener {
             Player.play(audios, audio)
         }
@@ -116,7 +122,7 @@ class LocalAudioRecyclerAdapter : BaseAudioRecyclerAdapter<LocalAudio, AudioView
     fun removeAll(removed: Collection<Audio>) {
         removed.forEach {
             val index = audios.indexOf(it)
-            audios.removeAt(index)
+            audios -= audios[index]
             notifyItemRemoved(index)
         }
     }
@@ -125,7 +131,7 @@ class LocalAudioRecyclerAdapter : BaseAudioRecyclerAdapter<LocalAudio, AudioView
         val forIterate = ArrayList(checkedAudios)
         forIterate.forEach {
             val index = audios.indexOf(it)
-            audios.removeAt(index)
+            audios -= audios[index]
             checkedAudios.remove(it)
             notifyItemRemoved(index)
         }
@@ -136,27 +142,9 @@ class LocalAudioRecyclerAdapter : BaseAudioRecyclerAdapter<LocalAudio, AudioView
         notifyDataSetChanged()
     }
 
-    override fun setSearchQuery(query: String) {
-        val lowerQuery = query.toLowerCase()
-        currentSearchQuery = query
-
-        val filtered = audios.filter {
-            lowerQuery in it.title.toLowerCase() || lowerQuery in it.artist.toLowerCase()
-        }
-
-        audios.clear()
-        audios.addAll(filtered)
-        notifyDataSetChanged()
-    }
-
     fun addAudio(audio: LocalAudio) {
-        audios.add(audio)
+        audios += audio
         notifyItemInserted(audios.indexOf(audio))
-    }
-
-    fun clearSearchQuery() {
-        currentSearchQuery = null
-        notifyDataSetChanged()
     }
 
     companion object {

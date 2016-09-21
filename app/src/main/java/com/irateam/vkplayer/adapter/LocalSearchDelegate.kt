@@ -17,30 +17,34 @@
 package com.irateam.vkplayer.adapter
 
 import com.irateam.vkplayer.models.LocalAudio
-import java.util.*
 
-class LocalSortModeDelegate : SortModeDelegate<LocalAudio> {
+class LocalSearchDelegate : SearchDelegate {
 
-    override fun start() {
-        throw UnsupportedOperationException("not implemented")
+    private val adapter: LocalAudioRecyclerAdapter
+
+    private var original: List<LocalAudio> = emptyList()
+    override var query: String = ""
+
+    constructor(adapter: LocalAudioRecyclerAdapter) {
+        this.adapter = adapter
     }
 
-    override fun sort(comparator: Comparator<in LocalAudio>) {
-        throw UnsupportedOperationException("not implemented")
-    }
+    override fun search(s: String) {
+        if (query.isEmpty()) {
+            original = adapter.audios
+        }
 
-    override fun move(from: Int, to: Int) {
-        throw UnsupportedOperationException("not implemented")
-    }
+        query = s.toLowerCase()
+        adapter.audios = if (s.isNotEmpty()) {
+            original.filter {
+                query in it.title.toLowerCase() || query in it.artist.toLowerCase()
+            }
+        } else {
+            original
+        }
 
-    override fun commit() {
-        throw UnsupportedOperationException("not implemented")
-    }
 
-    override fun revert() {
-        throw UnsupportedOperationException("not implemented")
+        adapter.notifyDataSetChanged()
     }
-
-    override fun isSortMode() = false
 
 }

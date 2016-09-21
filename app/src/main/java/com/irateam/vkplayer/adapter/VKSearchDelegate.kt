@@ -21,7 +21,7 @@ import com.irateam.vkplayer.api.service.VKSearchService
 import com.irateam.vkplayer.models.VKAudio
 import com.irateam.vkplayer.util.extension.execute
 
-class VKSearchDelegate {
+class VKSearchDelegate : SearchDelegate {
 
     private val searchService: VKSearchService
     private val adapter: VKAudioRecyclerAdapter
@@ -29,10 +29,9 @@ class VKSearchDelegate {
     private var original: List<VKAudio> = emptyList()
     private var lastQuery: Query<List<VKAudio>>? = null
 
-    var query: String = ""
-        private set
+    override var query = ""
 
-    val isSearching: Boolean
+    override val isSearching: Boolean
         get() = query.isNotEmpty()
 
     constructor(adapter: VKAudioRecyclerAdapter) {
@@ -40,13 +39,13 @@ class VKSearchDelegate {
         this.searchService = VKSearchService()
     }
 
-    fun search(newQuery: String) {
+    override fun search(s: String) {
         if (query.isEmpty()) {
             original = adapter.audios
         }
 
-        query = newQuery.toLowerCase()
-        if (newQuery.isNotEmpty()) {
+        query = s.toLowerCase()
+        if (s.isNotEmpty()) {
             adapter.audios = original.filter {
                 query in it.title.toLowerCase() || query in it.artist.toLowerCase()
             }

@@ -215,7 +215,7 @@ abstract class BaseAudioListFragment : Fragment(),
             }
 
             findViewById(R.id.sort_by_length).setOnClickListener {
-                adapter.sort(Comparators.ARTIST_REVERSE_COMPARATOR)
+                adapter.sort(Comparators.LENGTH_COMPARATOR)
             }
         }
     }

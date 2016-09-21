@@ -31,8 +31,8 @@ class VKAudioQuery(request: VKRequest) : VKQuery<List<VKAudio>>(request) {
         return VKAudio(
                 from.optString("id").toString(),
                 from.optInt("owner_id"),
-                from.optString("artist"),
-                from.optString("title"),
+                from.optString("artist").trim(),
+                from.optString("title").trim(),
                 from.optInt("duration"),
                 from.optString("url"),
                 from.optInt("lyrics_id"),

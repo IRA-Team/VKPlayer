@@ -36,4 +36,8 @@ object Comparators {
     val TITLE_REVERSE_COMPARATOR = Comparator<Audio> { audio1, audio2 ->
         audio2.title?.compareTo(audio1.title) ?: -1
     }
+
+    val LENGTH_COMPARATOR = Comparator<Audio> { audio1, audio2 ->
+        audio1.duration.compareTo(audio2.duration)
+    }
 }

@@ -31,6 +31,7 @@ import com.irateam.vkplayer.models.VKAudio
 import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder
 import com.irateam.vkplayer.ui.viewholder.HeaderViewHolder
+import com.irateam.vkplayer.util.extension.e
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.util.*
@@ -42,7 +43,7 @@ import kotlin.properties.Delegates.observable
 class VKAudioRecyclerAdapter : BaseAudioRecyclerAdapter<VKAudio, RecyclerView.ViewHolder>() {
 
     override val sortModeDelegate = VKSortModeDelegate(this)
-    private val searchDelegate = VKSearchDelegate(this)
+    override val searchDelegate = VKSearchDelegate(this)
 
     private var data = ArrayList<Any>()
 
@@ -149,30 +150,34 @@ class VKAudioRecyclerAdapter : BaseAudioRecyclerAdapter<VKAudio, RecyclerView.Vi
 
     private fun dispatchEvents(holder: AudioViewHolder,
                                audio: VKAudio,
-                               events: Collection<Event>) = events.forEach {
-        when (it) {
-            is DownloadFinishedEvent -> {
-                holder.setCached(cached = true, shouldAnimate = true)
-            }
+                               events: Collection<Event>) {
+        e("start")
+        events.forEach {
+            when (it) {
+                is DownloadFinishedEvent -> {
+                    holder.setCached(cached = true, shouldAnimate = true)
+                }
 
-            ItemRemovedFromCacheEvent -> {
-                holder.setCached(cached = false, shouldAnimate = true)
-            }
+                ItemRemovedFromCacheEvent -> {
+                    holder.setCached(cached = false, shouldAnimate = true)
+                }
 
-            ItemUncheckedEvent -> {
-                holder.setChecked(checked = false, shouldAnimate = true)
-            }
+                ItemUncheckedEvent -> {
+                    holder.setChecked(checked = false, shouldAnimate = true)
+                }
 
-            BaseAudioAdapterEvent.SortModeStarted -> {
-                holder.setSorting(sorting = true, shouldAnimate = true)
-                setupDragTouchListener(holder)
-            }
+                BaseAudioAdapterEvent.SortModeStarted -> {
+                    holder.setSorting(sorting = true, shouldAnimate = true)
+                    setupDragTouchListener(holder)
+                }
 
-            BaseAudioAdapterEvent.SortModeFinished -> {
-                holder.setSorting(sorting = false, shouldAnimate = true)
-                setupCheckedClickListener(holder, audio)
+                BaseAudioAdapterEvent.SortModeFinished -> {
+                    holder.setSorting(sorting = false, shouldAnimate = true)
+                    setupCheckedClickListener(holder, audio)
+                }
             }
         }
+        e("end")
     }
 
     private fun configureAudio(holder: AudioViewHolder, audio: VKAudio) {
@@ -211,10 +216,6 @@ class VKAudioRecyclerAdapter : BaseAudioRecyclerAdapter<VKAudio, RecyclerView.Vi
             checkedAudios.remove(it)
             notifyItemRemoved(index)
         }
-    }
-
-    override fun setSearchQuery(query: String) {
-        searchDelegate.search(query)
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

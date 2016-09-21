@@ -49,6 +49,7 @@ class VKSortModeDelegate : SortModeDelegate<VKAudio> {
             val from = pending.indexOf(item)
             pending.removeAt(from)
             pending.add(index, item)
+            adapter.audios = pending
             adapter.notifyItemMoved(from, index)
         }
     }
@@ -70,6 +71,7 @@ class VKSortModeDelegate : SortModeDelegate<VKAudio> {
             val from = pending.indexOf(item)
             pending.removeAt(from)
             pending.add(index, item)
+
             adapter.notifyItemMoved(from, index)
             adapter.notifyItemChanged(from, SortModeFinished)
             adapter.notifyItemChanged(index, SortModeFinished)

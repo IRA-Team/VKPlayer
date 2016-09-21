@@ -33,9 +33,9 @@ abstract class BaseAudioRecyclerAdapter<A : Audio, VH : RecyclerView.ViewHolder>
         ItemTouchHelperAdapter {
 
     protected abstract val sortModeDelegate: SortModeDelegate<A>
+    protected abstract val searchDelegate: SearchDelegate
     protected val itemTouchHelper: ItemTouchHelper
 
-    protected var currentSearchQuery: String? = null
     protected var recyclerView: RecyclerView? = null
 
     abstract var checkedAudios: HashSet<A>
@@ -125,7 +125,9 @@ abstract class BaseAudioRecyclerAdapter<A : Audio, VH : RecyclerView.ViewHolder>
         scrollToTop()
     }
 
-    abstract fun setSearchQuery(query: String)
+    fun setSearchQuery(query: String) {
+        searchDelegate.search(query)
+    }
 
     abstract fun removeChecked()
 
