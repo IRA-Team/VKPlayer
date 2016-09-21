@@ -27,7 +27,7 @@ import com.irateam.vkplayer.api.Query
 import com.irateam.vkplayer.database.AudioLocalIndexedDatabase
 import com.irateam.vkplayer.event.AudioScannedEvent
 import com.irateam.vkplayer.models.LocalAudio
-import com.irateam.vkplayer.util.extension.log
+import com.irateam.vkplayer.util.extension.e
 import com.mpatric.mp3agic.Mp3File
 import java.io.File
 import java.util.*
@@ -52,7 +52,7 @@ class LocalAudioService {
 
     fun scan(): ProgressableQuery<List<LocalAudio>, AudioScannedEvent> {
         val root = Environment.getExternalStorageDirectory()
-        log(root.canRead())
+        e(root.canRead())
         return ScanAndIndexAudioQuery(root)
     }
 
@@ -100,7 +100,7 @@ class LocalAudioService {
 
         override fun query(): List<LocalAudio> {
             val audios = root.walk()
-                    .map { log(it); it }
+                    .map { e(it); it }
                     .filter { !it.isDirectory }
                     .filter { it.name.endsWith(".mp3") }
                     .map {
@@ -108,17 +108,11 @@ class LocalAudioService {
                             Mp3File(it.path)
                         } catch (e: Exception) {
                             e.printStackTrace()
-                            log(it.path)
+                            e(it.path)
                             null
                         }
                     }
                     .filterNotNull()
-
-            /**
-             * This looks like kotlin's bug but audios.count() locks thread.
-             * .toList(), ArrayList(..) locks too.
-             */
-            val total = 1
 
             return audios
                     .map { createLocalAudioFromMp3(it) }
@@ -128,7 +122,7 @@ class LocalAudioService {
                             Log.e(TAG, "Stored $audio")
                         } catch (ignore: Exception) {
                         }
-                        notifyProgress(AudioScannedEvent(audio, i + 1, total))
+                        notifyProgress(AudioScannedEvent(audio, i + 1, audios.count()))
                         audio
                     }
                     .toList()

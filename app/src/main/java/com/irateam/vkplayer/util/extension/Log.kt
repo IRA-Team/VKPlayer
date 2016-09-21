@@ -18,6 +18,12 @@ package com.irateam.vkplayer.util.extension
 
 import android.util.Log
 
-fun log(obj: Any) {
-    Log.e("VKPlayer Global Log: ", obj.toString())
+val DEFAULT_TAG = "VKPlayer Global Log"
+
+fun e(obj: Any) {
+    e(DEFAULT_TAG, obj)
+}
+
+fun e(tag: String, obj: Any) {
+    Log.e(tag, obj.toString())
 }

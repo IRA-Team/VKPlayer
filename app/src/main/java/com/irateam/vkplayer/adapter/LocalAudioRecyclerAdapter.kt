@@ -16,55 +16,29 @@
 
 package com.irateam.vkplayer.adapter
 
-import android.support.v4.view.MotionEventCompat
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.ViewGroup
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapter.event.LocalAudioAdapterEvent
 import com.irateam.vkplayer.adapter.event.LocalAudioAdapterEvent.*
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.models.LocalAudio
-import com.irateam.vkplayer.player.*
-import com.irateam.vkplayer.ui.ItemTouchHelperAdapter
-import com.irateam.vkplayer.ui.SimpleItemTouchHelperCallback
+import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder
-import com.irateam.vkplayer.ui.viewholder.AudioViewHolder.State.*
-import org.greenrobot.eventbus.Subscribe
 import java.util.*
 
 /**
  * @author Artem Glugovsky
  */
-class LocalAudioRecyclerAdapter : RecyclerView.Adapter<AudioViewHolder>(),
-        ItemTouchHelperAdapter {
-
-    private val sortModeHelper: SortModeHelper<LocalAudio>
-    private val itemTouchHelper: ItemTouchHelper
+class LocalAudioRecyclerAdapter : BaseAudioRecyclerAdapter<LocalAudio, AudioViewHolder>() {
 
     private var audios: ArrayList<LocalAudio> = ArrayList()
-    private var searchQuery: String? = null
-    private var recyclerView: RecyclerView? = null
-
-    var checkedAudios: HashSet<LocalAudio> = LinkedHashSet()
-    var checkedListener: CheckedListener? = null
-
-    init {
-        val callback = SimpleItemTouchHelperCallback(this)
-        this.sortModeHelper = SortModeHelper(this)
-        this.itemTouchHelper = ItemTouchHelper(callback)
-    }
+    override var checkedAudios: HashSet<LocalAudio> = LinkedHashSet()
 
     override fun onCreateViewHolder(parent: ViewGroup, position: Int): AudioViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val v = inflater.inflate(R.layout.item_audio, parent, false)
         return AudioViewHolder(v)
-    }
-
-    override fun onBindViewHolder(holder: AudioViewHolder?, position: Int) {
-        throw UnsupportedOperationException("not implemented")
     }
 
     override fun onBindViewHolder(holder: AudioViewHolder,
@@ -91,11 +65,6 @@ class LocalAudioRecyclerAdapter : RecyclerView.Adapter<AudioViewHolder>(),
 
     override fun getItemCount(): Int {
         return audios.size
-    }
-
-    override fun onAttachedToRecyclerView(recyclerView: RecyclerView?) {
-        this.recyclerView = recyclerView
-        itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
     override fun onItemMove(from: Int, to: Int): Boolean {
@@ -132,57 +101,13 @@ class LocalAudioRecyclerAdapter : RecyclerView.Adapter<AudioViewHolder>(),
 
     private fun configureAudio(holder: AudioViewHolder, audio: Audio) {
         holder.setAudio(audio)
-        searchQuery?.let { holder.setQuery(it) }
+        currentSearchQuery?.let { holder.setQuery(it) }
         holder.contentHolder.setOnClickListener {
             Player.play(audios, audio)
         }
     }
 
-    private fun configurePlayingState(holder: AudioViewHolder, audio: Audio) {
-        val playingAudio = Player.audio
-        if (audio.id == playingAudio?.id) {
-            val state = when {
-                !Player.isReady -> PREPARE
-                Player.isReady && Player.isPlaying -> PLAY
-                Player.isReady && !Player.isPlaying -> PAUSE
-                else -> NONE
-            }
-            holder.setPlayingState(state)
-        }
-    }
-
-    private fun configureCheckedState(holder: AudioViewHolder, audio: LocalAudio) {
-        holder.setChecked(audio in checkedAudios)
-        setupCheckedClickListener(holder, audio)
-    }
-
-    private fun configureSortMode(holder: AudioViewHolder) {
-        holder.setSorting(isSortMode())
-        if (isSortMode()) {
-            setupDragTouchListener(holder)
-        }
-    }
-
-    private fun setupCheckedClickListener(holder: AudioViewHolder, audio: LocalAudio) {
-        holder.coverHolder.setOnTouchListener(null)
-        holder.coverHolder.setOnClickListener {
-            holder.toggleChecked(shouldAnimate = true)
-            if (holder.isChecked()) checkedAudios.add(audio) else checkedAudios.remove(audio)
-            checkedListener?.onChanged(audio, checkedAudios)
-        }
-    }
-
-    private fun setupDragTouchListener(holder: AudioViewHolder) {
-        holder.coverHolder.setOnClickListener(null)
-        holder.coverHolder.setOnTouchListener { v, e ->
-            if (MotionEventCompat.getActionMasked(e) == MotionEvent.ACTION_DOWN) {
-                itemTouchHelper.startDrag(holder)
-            }
-            false
-        }
-    }
-
-    fun clearChecked() {
+    override fun clearChecked() {
         checkedAudios.forEach {
             notifyItemChanged(audios.indexOf(it), ItemUncheckedEvent)
         }
@@ -197,7 +122,7 @@ class LocalAudioRecyclerAdapter : RecyclerView.Adapter<AudioViewHolder>(),
         }
     }
 
-    fun removeChecked() {
+    override fun removeChecked() {
         val forIterate = ArrayList(checkedAudios)
         forIterate.forEach {
             val index = audios.indexOf(it)
@@ -207,25 +132,25 @@ class LocalAudioRecyclerAdapter : RecyclerView.Adapter<AudioViewHolder>(),
         }
     }
 
-    fun startSortMode() {
+    override fun startSortMode() {
         sortModeHelper.start(audios)
     }
 
-    fun sort(comparator: Comparator<in Audio>) {
+    override fun sort(comparator: Comparator<in LocalAudio>) {
         sortModeHelper.sort(comparator)
         scrollToTop()
     }
 
-    fun commitSortMode() {
+    override fun commitSortMode() {
         sortModeHelper.commit()
     }
 
-    fun revertSortMode() {
+    override fun revertSortMode() {
         sortModeHelper.revert()
         scrollToTop()
     }
 
-    fun isSortMode(): Boolean {
+    override fun isSortMode(): Boolean {
         return sortModeHelper.isSortMode()
     }
 
@@ -234,9 +159,9 @@ class LocalAudioRecyclerAdapter : RecyclerView.Adapter<AudioViewHolder>(),
         notifyDataSetChanged()
     }
 
-    fun setSearchQuery(query: String) {
+    override fun setSearchQuery(query: String) {
         val lowerQuery = query.toLowerCase()
-        searchQuery = query
+        currentSearchQuery = query
 
         val filtered = audios.filter {
             lowerQuery in it.title.toLowerCase() || lowerQuery in it.artist.toLowerCase()
@@ -247,54 +172,14 @@ class LocalAudioRecyclerAdapter : RecyclerView.Adapter<AudioViewHolder>(),
         notifyDataSetChanged()
     }
 
-    fun clear() {
-        audios = ArrayList()
-        clearSearchQuery()
-        clearChecked()
-        notifyDataSetChanged()
-    }
-
     fun addAudio(audio: LocalAudio) {
         audios.add(audio)
         notifyItemInserted(audios.indexOf(audio))
     }
 
     fun clearSearchQuery() {
-        searchQuery = null
+        currentSearchQuery = null
         notifyDataSetChanged()
-    }
-
-    @Subscribe
-    fun onStartEvent(e: PlayerStartEvent) {
-        notifyEvent(e)
-    }
-
-    @Subscribe
-    fun onPlayEvent(e: PlayerPlayEvent) {
-        notifyEvent(e)
-    }
-
-    @Subscribe
-    fun onResumeEvent(e: PlayerResumeEvent) {
-        notifyEvent(e)
-    }
-
-    @Subscribe
-    fun onPauseEvent(e: PlayerPauseEvent) {
-        notifyEvent(e)
-    }
-
-    private fun notifyEvent(e: PlayerEvent) {
-        notifyDataSetChanged()
-    }
-
-    private fun scrollToTop() {
-        recyclerView?.layoutManager?.scrollToPosition(0)
-    }
-
-    interface CheckedListener {
-
-        fun onChanged(audio: Audio, checked: HashSet<LocalAudio>)
     }
 
     companion object {

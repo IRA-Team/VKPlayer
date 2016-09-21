@@ -48,12 +48,12 @@ fun View.slideOutDown() {
 }
 
 fun View.slideOutUp() {
+    val slideOut = context.getAnimation(R.anim.default_slide_out_up)
+    startAnimation(slideOut)
+
     if (isVisible) {
         isVisible = false
     }
-
-    val slideOut = context.getAnimation(R.anim.default_slide_out_up)
-    startAnimation(slideOut)
 }
 
 fun View.flipIn() {

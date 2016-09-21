@@ -19,12 +19,6 @@ package com.irateam.vkplayer.fragment
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.widget.DefaultItemAnimator
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.SearchView
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
@@ -32,24 +26,14 @@ import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapter.LocalAudioRecyclerAdapter
 import com.irateam.vkplayer.api.SimpleProgressableCallback
 import com.irateam.vkplayer.api.service.LocalAudioService
-import com.irateam.vkplayer.controller.PlayerController
 import com.irateam.vkplayer.dialog.LocalAudioRemoveAlertDialog
 import com.irateam.vkplayer.event.AudioScannedEvent
-import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.models.LocalAudio
-import com.irateam.vkplayer.player.Player
-import com.irateam.vkplayer.util.Comparators
-import com.irateam.vkplayer.util.EventBus
 import com.irateam.vkplayer.util.extension.*
-import java.util.*
 
-class LocalAudioListFragment : Fragment(),
-        ActionMode.Callback,
-        SearchView.OnQueryTextListener,
-        BackPressedListener,
-        LocalAudioRecyclerAdapter.CheckedListener {
+class LocalAudioListFragment : BaseAudioListFragment() {
 
-    private val adapter = LocalAudioRecyclerAdapter()
+    override val adapter = LocalAudioRecyclerAdapter()
 
     /**
      * Services
@@ -59,27 +43,11 @@ class LocalAudioListFragment : Fragment(),
     /**
      * Views
      */
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var refreshLayout: SwipeRefreshLayout
-    private lateinit var emptyView: View
-    private lateinit var sortModeHolder: View
     private lateinit var scanProgressHolder: View
     private lateinit var scanProgress: TextView
 
-    /**
-     * Menus
-     */
-    private lateinit var menu: Menu
-    private lateinit var searchView: SearchView
-
-    /**
-     * Action Mode
-     */
-    private var actionMode: ActionMode? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
         localAudioService = LocalAudioService(context)
     }
 
@@ -91,153 +59,37 @@ class LocalAudioListFragment : Fragment(),
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        recyclerView = view.getViewById(R.id.recycler_view)
-        configureRecyclerView()
-
-        refreshLayout = view.getViewById(R.id.refresh_layout)
-        configureRefreshLayout()
-
-        sortModeHolder = view.getViewById(R.id.sort_mode_holder)
-        configureSortModeHolder()
-
-        emptyView = view.getViewById(R.id.empty_view)
-        configureEmptyView()
+        super.onViewCreated(view, savedInstanceState)
 
         scanProgressHolder = view.getViewById(R.id.scan_progress_holder)
         scanProgress = view.getViewById(R.id.scan_progress)
 
         adapter.checkedListener = this
 
-        EventBus.register(adapter)
         loadLocalAudios()
     }
 
-    private fun configureRecyclerView() {
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.itemAnimator = DefaultItemAnimator()
+    override fun onRefresh() {
+        loadLocalAudios()
     }
 
-    private fun configureRefreshLayout() {
-        refreshLayout.setColorSchemeResources(R.color.accent, R.color.primary)
-        refreshLayout.setOnRefreshListener {
-            actionMode?.finish()
-            if (adapter.isSortMode()) {
-                commitSortMode()
-            }
-            loadLocalAudios()
-        }
-    }
-
-    private fun configureSortModeHolder() {
-        sortModeHolder.apply {
-            findViewById(R.id.sort_by_title).setOnClickListener {
-                adapter.sort(Comparators.TITLE_COMPARATOR)
-            }
-
-            findViewById(R.id.sort_by_artist).setOnClickListener {
-                adapter.sort(Comparators.ARTIST_COMPARATOR)
-            }
-
-            findViewById(R.id.sort_by_length).setOnClickListener {
-                adapter.sort(Comparators.ARTIST_REVERSE_COMPARATOR)
-            }
-        }
-    }
-
-    private fun configureEmptyView() {
+    override fun configureEmptyView() {
         emptyView.findViewById(R.id.empty_list_scan_audio).setOnClickListener {
             scanLocalAudios()
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        EventBus.unregister(adapter)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        this.menu = menu
-        activity.menuInflater.inflate(R.menu.menu_local_audio_list, menu)
-        val itemSearch = menu.findItem(R.id.action_search)
-
-        searchView = itemSearch.actionView as SearchView
-        searchView.setIconifiedByDefault(false)
-        searchView.setOnQueryTextListener(this)
-    }
-
-    override fun onQueryTextSubmit(query: String) = false
-
-    override fun onQueryTextChange(query: String): Boolean {
-        adapter.setSearchQuery(query)
-        return true
-    }
-
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.action_sort -> {
-            startSortMode()
-            true
-        }
-
-        R.id.action_sort_done -> {
-            commitSortMode()
-            true
-        }
-
         R.id.action_scan -> {
             scanLocalAudios()
             true
         }
 
-        else -> false
-    }
-
-    override fun onChanged(audio: Audio, checked: HashSet<LocalAudio>) {
-        if (actionMode == null && checked.size > 0) {
-            actionMode = activity.startActionMode(this)
-        }
-
-        actionMode?.apply {
-            if (checked.isEmpty()) {
-                finish()
-                return
-            }
-
-            title = checked.size.toString()
-        }
-
-    }
-
-    override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-        actionMode = mode
-        mode.menuInflater.inflate(R.menu.menu_local_audio_list_context, menu)
-        return true
-    }
-
-    override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-        return false
+        else -> super.onOptionsItemSelected(item)
     }
 
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_play -> {
-                val audios = adapter.checkedAudios.toList()
-                Player.play(audios, audios[0])
-            }
-
-            R.id.action_play_next -> {
-                val audios = adapter.checkedAudios.toList()
-                Player.addToPlayNext(audios)
-            }
-
-            R.id.action_delete -> {
-                adapter.removeChecked()
-            }
-
-            R.id.action_add_to_queue -> {
-                Player.addToQueue(adapter.checkedAudios)
-            }
-
+        when(item.itemId) {
             R.id.action_remove_from_filesystem -> {
                 val dialog = LocalAudioRemoveAlertDialog()
                 dialog.positiveButtonClickListener = {
@@ -248,13 +100,8 @@ class LocalAudioListFragment : Fragment(),
                 return false
             }
         }
-        mode.finish()
-        return true
-    }
 
-    override fun onDestroyActionMode(mode: ActionMode) {
-        adapter.clearChecked()
-        actionMode = null
+        return super.onActionItemClicked(mode, item)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int,
@@ -270,54 +117,6 @@ class LocalAudioListFragment : Fragment(),
                 Toast.makeText(context, "We Need permission Storage", Toast.LENGTH_SHORT).show()
             }
         }
-    }
-
-    override fun onBackPressed(): Boolean {
-        if (adapter.isSortMode()) {
-            revertSortMode()
-            return true
-        } else {
-            return false
-        }
-    }
-
-    private fun startSortMode() {
-        adapter.startSortMode()
-        configureStartSortMode()
-    }
-
-    private fun commitSortMode() {
-        adapter.commitSortMode()
-        configureFinishSortMode()
-    }
-
-    private fun revertSortMode() {
-        adapter.revertSortMode()
-        configureFinishSortMode()
-    }
-
-    private fun configureStartSortMode() {
-        activity.apply {
-            if (this is PlayerController.VisibilityController) {
-                hidePlayerController()
-            }
-        }
-
-        sortModeHolder.slideInUp()
-        menu.findItem(R.id.action_sort).isVisible = false
-        menu.findItem(R.id.action_sort_done).isVisible = true
-    }
-
-    private fun configureFinishSortMode() {
-        activity.apply {
-            if (this is PlayerController.VisibilityController) {
-                showPlayerController()
-            }
-        }
-
-        sortModeHolder.slideOutDown()
-        menu.findItem(R.id.action_sort).isVisible = true
-        menu.findItem(R.id.action_sort_done).isVisible = false
     }
 
     private fun loadLocalAudios() {
@@ -344,9 +143,10 @@ class LocalAudioListFragment : Fragment(),
     }
 
     private fun startScanLocalAudios() {
-        scanProgressHolder.slideInDown()
         scanProgress.isVisible = false
+        scanProgressHolder.slideInDown()
         adapter.setAudios(emptyList())
+
         localAudioService.scan().execute(
                 SimpleProgressableCallback<List<LocalAudio>, AudioScannedEvent> {
                     adapter.setAudios(it)

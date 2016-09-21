@@ -2,7 +2,7 @@ package com.irateam.vkplayer.api
 
 open class SimpleCallback<T> : Callback<T> {
 
-    private val successListener: (T) -> Unit
+    private var successListener: ((T) -> Unit)? = null
     private var errorListener: (() -> Unit)? = null
     private var finishListener: (() -> Unit)? = null
 
@@ -31,7 +31,7 @@ open class SimpleCallback<T> : Callback<T> {
     }
 
     private fun notifySuccess(result: T) {
-        successListener.invoke(result)
+        successListener?.invoke(result)
     }
 
     private fun notifyError() {

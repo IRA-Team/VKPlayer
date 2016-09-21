@@ -18,9 +18,17 @@ package com.irateam.vkplayer.util.extension
 
 import android.os.Handler
 import android.os.Looper
+import java.util.concurrent.Executors
 
 private val UI_HANDLER = Handler(Looper.getMainLooper())
 
-fun executeOnMainThread(block: () -> Unit) {
+//Should be configured
+private val ASYNC_EXECUTOR = Executors.newFixedThreadPool(4)
+
+fun runAsync(block: () -> Unit) {
+    ASYNC_EXECUTOR.submit(block)
+}
+
+fun runOnUI(block: () -> Unit) {
     UI_HANDLER.post(block)
 }
