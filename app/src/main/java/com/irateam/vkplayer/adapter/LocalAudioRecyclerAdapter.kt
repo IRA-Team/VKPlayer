@@ -32,7 +32,7 @@ import java.util.*
  */
 class LocalAudioRecyclerAdapter : BaseAudioRecyclerAdapter<LocalAudio, AudioViewHolder>() {
 
-    override val sortModeDelegate = LocalSortModeDelegate()
+    override val sortModeDelegate = LocalSortModeDelegate(this)
     override val searchDelegate = LocalSearchDelegate(this)
 
     var audios: List<LocalAudio> = emptyList()

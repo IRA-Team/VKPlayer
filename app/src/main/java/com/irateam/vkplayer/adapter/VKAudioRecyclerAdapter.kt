@@ -31,7 +31,6 @@ import com.irateam.vkplayer.models.VKAudio
 import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder
 import com.irateam.vkplayer.ui.viewholder.HeaderViewHolder
-import com.irateam.vkplayer.util.extension.e
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.util.*
@@ -151,7 +150,6 @@ class VKAudioRecyclerAdapter : BaseAudioRecyclerAdapter<VKAudio, RecyclerView.Vi
     private fun dispatchEvents(holder: AudioViewHolder,
                                audio: VKAudio,
                                events: Collection<Event>) {
-        e("start")
         events.forEach {
             when (it) {
                 is DownloadFinishedEvent -> {
@@ -177,7 +175,6 @@ class VKAudioRecyclerAdapter : BaseAudioRecyclerAdapter<VKAudio, RecyclerView.Vi
                 }
             }
         }
-        e("end")
     }
 
     private fun configureAudio(holder: AudioViewHolder, audio: VKAudio) {

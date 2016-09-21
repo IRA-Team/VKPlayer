@@ -16,31 +16,70 @@
 
 package com.irateam.vkplayer.adapter
 
+import com.irateam.vkplayer.adapter.event.BaseAudioAdapterEvent.SortModeFinished
+import com.irateam.vkplayer.adapter.event.BaseAudioAdapterEvent.SortModeStarted
 import com.irateam.vkplayer.models.LocalAudio
+import com.irateam.vkplayer.util.extension.swap
 import java.util.*
 
 class LocalSortModeDelegate : SortModeDelegate<LocalAudio> {
 
+    private val adapter: LocalAudioRecyclerAdapter
+
+    private var sortMode = false
+    private var original: List<LocalAudio> = emptyList()
+
+    constructor(adapter: LocalAudioRecyclerAdapter) {
+        this.adapter = adapter
+    }
+
     override fun start() {
-        throw UnsupportedOperationException("not implemented")
+        this.sortMode = true
+        this.original = adapter.audios
+        adapter.notifyItemRangeChanged(0, original.size, SortModeStarted)
     }
 
     override fun sort(comparator: Comparator<in LocalAudio>) {
-        throw UnsupportedOperationException("not implemented")
+        val toSort = adapter.audios
+        val pending = ArrayList(toSort)
+        val sorted = toSort.sortedWith(comparator)
+
+        adapter.audios = sorted
+        sorted.forEachIndexed { index, item ->
+            val from = pending.indexOf(item)
+            pending.removeAt(from)
+            pending.add(index, item)
+            adapter.audios = pending
+            adapter.notifyItemMoved(from, index)
+        }
     }
 
     override fun move(from: Int, to: Int) {
-        throw UnsupportedOperationException("not implemented")
+        adapter.audios = adapter.audios.swap(from, to)
+        adapter.notifyItemMoved(from, to)
     }
 
     override fun commit() {
-        throw UnsupportedOperationException("not implemented")
+        this.sortMode = false
+        adapter.notifyItemRangeChanged(0, adapter.audios.size, SortModeFinished)
     }
 
     override fun revert() {
-        throw UnsupportedOperationException("not implemented")
+        sortMode = false
+        val pending = ArrayList(adapter.audios)
+        original.forEachIndexed { index, item ->
+            val from = pending.indexOf(item)
+            pending.removeAt(from)
+            pending.add(index, item)
+
+            adapter.notifyItemMoved(from, index)
+            adapter.notifyItemChanged(from, SortModeFinished)
+            adapter.notifyItemChanged(index, SortModeFinished)
+        }
     }
 
-    override fun isSortMode() = false
+    override fun isSortMode(): Boolean {
+        return sortMode
+    }
 
 }
