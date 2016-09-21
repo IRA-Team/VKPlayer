@@ -166,8 +166,6 @@ abstract class BaseAudioListFragment : Fragment(),
             R.id.action_add_to_queue -> {
                 Player.addToQueue(adapter.checkedAudios)
             }
-
-
         }
         mode.finish()
         return true

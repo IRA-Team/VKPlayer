@@ -1,7 +1,8 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             android:orientation="vertical">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
 
     <include
         layout="@layout/content_empty"
@@ -12,7 +13,8 @@
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/refresh_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_above="@+id/sort_mode_holder">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view"
@@ -21,4 +23,12 @@
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
-</FrameLayout>
+    <include
+        android:id="@+id/sort_mode_holder"
+        layout="@layout/content_sort_mode"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:visibility="gone"/>
+
+</RelativeLayout>

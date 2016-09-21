@@ -32,7 +32,7 @@ import com.irateam.vkplayer.models.VKAudio
 import com.irateam.vkplayer.notification.PlayerNotificationFactory
 import com.irateam.vkplayer.player.*
 import com.irateam.vkplayer.util.EventBus
-import com.irateam.vkplayer.util.extension.success
+import com.irateam.vkplayer.util.extension.execute
 import org.greenrobot.eventbus.Subscribe
 
 class PlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
@@ -97,11 +97,13 @@ class PlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
         requestFocus()
 
         if (audio is VKAudio) {
-            metadataService.get(audio).execute(success {
-                audio.metadata = it
-                EventBus.post(MetadataLoadedEvent(audio, it))
-                updateNotification(index, audio)
-            })
+            metadataService.get(audio).execute {
+                onSuccess {
+                    audio.metadata = it
+                    EventBus.post(MetadataLoadedEvent(audio, it))
+                    updateNotification(index, audio)
+                }
+            }
         }
     }
 

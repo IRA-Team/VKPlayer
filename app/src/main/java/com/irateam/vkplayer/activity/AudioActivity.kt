@@ -26,10 +26,12 @@ import com.irateam.vkplayer.R
 import com.irateam.vkplayer.api.service.VKAudioService
 import com.irateam.vkplayer.controller.ActivityPlayerController
 import com.irateam.vkplayer.controller.PlayerController
+import com.irateam.vkplayer.models.VKAudio
 import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.service.DownloadService
 import com.irateam.vkplayer.service.PlayerService
 import com.irateam.vkplayer.util.EventBus
+import com.irateam.vkplayer.util.extension.execute
 import com.irateam.vkplayer.util.extension.getViewById
 import com.melnykov.fab.FloatingActionButton
 
@@ -68,7 +70,13 @@ class AudioActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         this.menu = menu
         menuInflater.inflate(R.menu.menu_audio, menu)
-        //TODO: Player.audio?.let { setCacheAction(it.isCached) }
+        Player.audio?.let {
+            when (it) {
+                is VKAudio -> {
+                    setCacheAction(it.isCached)
+                }
+            }
+        }
         return true
     }
 
@@ -86,11 +94,15 @@ class AudioActivity : AppCompatActivity() {
         }
 
         R.id.action_remove_from_cache -> {
-            /*TODO: Player.audio?.let {
-                audioService.removeFromCache(listOf(it)).execute(success {
-                    setCacheAction(false)
-                })
-            } */
+            Player.audio?.let {
+                if (it is VKAudio) {
+                    audioService.removeFromCache(listOf(it)).execute {
+                        onSuccess {
+                            setCacheAction(false)
+                        }
+                    }
+                }
+            }
             true
         }
 

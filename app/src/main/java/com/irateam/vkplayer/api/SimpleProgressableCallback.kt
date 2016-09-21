@@ -20,20 +20,14 @@ class SimpleProgressableCallback<T, P> : SimpleCallback<T>, ProgressableCallback
 
     private var progressListener: ((P) -> Unit)? = null
 
-    constructor(successListener: (T) -> Unit) : super(successListener)
+    constructor()
 
-    infix fun progress(progressListener: (P) -> Unit): SimpleProgressableCallback<T, P> {
+    constructor(block: SimpleProgressableCallback<T, P>.() -> Unit) {
+        block.invoke(this)
+    }
+
+    fun onProgress(progressListener: (P) -> Unit): SimpleProgressableCallback<T, P> {
         this.progressListener = progressListener
-        return this
-    }
-
-    override infix fun finish(finishListener: () -> Unit): SimpleProgressableCallback<T, P> {
-        super.finish(finishListener)
-        return this
-    }
-
-    override infix fun error(errorListener: () -> Unit): SimpleProgressableCallback<T, P> {
-        super.error(errorListener)
         return this
     }
 

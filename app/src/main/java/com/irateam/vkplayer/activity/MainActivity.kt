@@ -41,9 +41,9 @@ import com.irateam.vkplayer.fragment.VKAudioListFragment
 import com.irateam.vkplayer.models.User
 import com.irateam.vkplayer.service.PlayerService
 import com.irateam.vkplayer.util.EventBus
+import com.irateam.vkplayer.util.extension.execute
 import com.irateam.vkplayer.util.extension.getViewById
 import com.irateam.vkplayer.util.extension.setRoundImageURL
-import com.irateam.vkplayer.util.extension.success
 import com.melnykov.fab.FloatingActionButton
 import com.vk.sdk.VKSdk
 
@@ -163,12 +163,23 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun initializeUser() {
-        userService.getCurrentCached().execute(success {
-            setUser(it)
-            userService.getCurrent().execute(success {
+        userService.getCurrentCached().execute {
+            onSuccess {
                 setUser(it)
-            })
-        })
+            }
+
+            onFinish {
+                loadUser()
+            }
+        }
+    }
+
+    private fun loadUser() {
+        userService.getCurrent().execute {
+            onSuccess {
+                setUser(it)
+            }
+        }
     }
 
     private fun setUser(user: User) {

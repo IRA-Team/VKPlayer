@@ -6,16 +6,23 @@ open class SimpleCallback<T> : Callback<T> {
     private var errorListener: (() -> Unit)? = null
     private var finishListener: (() -> Unit)? = null
 
-    constructor(successListener: (T) -> Unit) {
-        this.successListener = successListener
+    constructor()
+
+    constructor(block: SimpleCallback<T>.() -> Unit) {
+        block.invoke(this)
     }
 
-    open infix fun error(errorListener: () -> Unit): SimpleCallback<T> {
+    open fun onSuccess(successListener: ((T) -> Unit)): SimpleCallback<T> {
+        this.successListener = successListener
+        return this
+    }
+
+    open fun onError(errorListener: () -> Unit): SimpleCallback<T> {
         this.errorListener = errorListener
         return this
     }
 
-    open infix fun finish(finishListener: () -> Unit): SimpleCallback<T> {
+    open fun onFinish(finishListener: () -> Unit): SimpleCallback<T> {
         this.finishListener = finishListener
         return this
     }

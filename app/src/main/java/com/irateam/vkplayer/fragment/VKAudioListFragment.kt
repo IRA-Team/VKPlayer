@@ -17,46 +17,33 @@
 package com.irateam.vkplayer.fragment
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
 import android.view.*
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapter.VKAudioRecyclerAdapter
 import com.irateam.vkplayer.api.Query
-import com.irateam.vkplayer.api.SimpleCallback
 import com.irateam.vkplayer.api.service.VKAudioService
+import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.models.VKAudio
-import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.service.DownloadService
-import com.irateam.vkplayer.ui.CustomItemAnimator
-import com.irateam.vkplayer.util.EventBus
+import com.irateam.vkplayer.util.extension.e
+import com.irateam.vkplayer.util.extension.execute
 import com.irateam.vkplayer.util.extension.isVisible
-import com.irateam.vkplayer.util.extension.success
 import java.util.*
 
 /**
  * @author Artem Glugovsky
  */
-class VKAudioListFragment : Fragment(),
+class VKAudioListFragment : BaseAudioListFragment(),
         ActionMode.Callback,
-        SearchView.OnQueryTextListener,
-        VKAudioRecyclerAdapter.CheckedListener {
+        SearchView.OnQueryTextListener {
 
-    private val adapter = VKAudioRecyclerAdapter()
+    override val adapter = VKAudioRecyclerAdapter()
 
     private lateinit var audioService: VKAudioService
     private lateinit var query: Query<List<VKAudio>>
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var refreshLayout: SwipeRefreshLayout
-    private lateinit var emptyView: View
-    private lateinit var menu: Menu
-    private lateinit var searchView: SearchView
 
     private var previousSearchQuery: Query<List<VKAudio>>? = null
-    private var actionMode: ActionMode? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,66 +58,41 @@ class VKAudioListFragment : Fragment(),
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        recyclerView = view.findViewById(R.id.recycler_view) as RecyclerView
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.itemAnimator = CustomItemAnimator()
-
-        refreshLayout = view.findViewById(R.id.refresh_layout) as SwipeRefreshLayout
-        refreshLayout.setColorSchemeResources(R.color.accent, R.color.primary)
-        refreshLayout.setOnRefreshListener {
-            actionMode?.finish()
-            if (adapter.isSortMode()) {
-                adapter.setSortMode(false)
-            }
-            executeQuery()
-        }
-
-        emptyView = view.findViewById(R.id.empty_view)
+        super.onViewCreated(view, savedInstanceState)
 
         adapter.checkedListener = this
 
         audioService = VKAudioService(context)
-        EventBus.register(adapter)
-        executeQuery()
+        loadVKAudios()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        EventBus.unregister(adapter)
+    override fun onRefresh() {
+        loadVKAudios()
     }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        this.menu = menu
-        activity.menuInflater.inflate(R.menu.menu_vk_audio_list, menu)
-        val itemSearch = menu.findItem(R.id.action_search)
-
-        searchView = itemSearch.actionView as SearchView
-        searchView.setIconifiedByDefault(false)
-        searchView.setOnQueryTextListener(this)
-    }
-
-    override fun onQueryTextSubmit(query: String) = false
 
     override fun onQueryTextChange(query: String): Boolean {
-        adapter.setSearchQuery(query)
+        super.onQueryTextChange(query)
         previousSearchQuery?.cancel()
         previousSearchQuery = audioService.search(query)
-        previousSearchQuery?.execute(SimpleCallback { adapter.setSearchAudios(it) })
+        previousSearchQuery?.execute {
+            onSuccess {
+                adapter.setSearchAudios(it)
+            }
+        }
 
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_sort -> {
-            adapter.setSortMode(true)
+            adapter.startSortMode()
             item.isVisible = false
             menu.findItem(R.id.action_sort_done).isVisible = true
             true
         }
 
         R.id.action_sort_done -> {
-            adapter.setSortMode(false)
+            adapter.commitSortMode()
             item.isVisible = false
             menu.findItem(R.id.action_sort).isVisible = true
             true
@@ -139,88 +101,60 @@ class VKAudioListFragment : Fragment(),
         else -> false
     }
 
-    override fun onChanged(audio: VKAudio, checked: HashSet<VKAudio>) {
-        if (actionMode == null && checked.size > 0) {
-            actionMode = activity.startActionMode(this)
+    override fun onChanged(audio: Audio, checked: HashSet<out Audio>) {
+        super.onChanged(audio, checked)
+        actionMode?.apply {
+            val itemCache = menu.findItem(R.id.action_cache)
+            itemCache.isVisible = checked
+                    .filterIsInstance<VKAudio>()
+                    .filter { !it.isCached }
+                    .isNotEmpty()
+
+            val itemRemoveFromCache = menu.findItem(R.id.action_remove_from_cache)
+            itemRemoveFromCache.isVisible = checked
+                    .filterIsInstance<VKAudio>()
+                    .filter { it.isCached }
+                    .isNotEmpty()
         }
 
-        if (actionMode != null && checked.isEmpty()) {
-            actionMode?.finish()
-            return
-        }
-
-        val actionMode = actionMode
-        if (actionMode != null) {
-            actionMode.title = checked.size.toString()
-
-            val itemCache = actionMode.menu.findItem(R.id.action_cache)
-            itemCache.isVisible = checked.filter { !it.isCached }.isNotEmpty()
-
-            val itemRemoveFromCache = actionMode.menu.findItem(R.id.action_remove_from_cache)
-            itemRemoveFromCache.isVisible = checked.filter { it.isCached }.isNotEmpty()
-        }
-    }
-
-    override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-        actionMode = mode
-        mode.menuInflater.inflate(R.menu.menu_vk_audio_list_context, menu)
-        return true
-    }
-
-    override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-        return false
     }
 
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_play -> {
-                val audios = adapter.checkedAudios.toList()
-                Player.play(audios, audios[0])
-            }
-
-            R.id.action_play_next -> {
-                val audios = adapter.checkedAudios.toList()
-                Player.addToPlayNext(audios)
-            }
-
             R.id.action_cache -> {
                 val nonCached = adapter.checkedAudios.filter { !it.isCached }
                 DownloadService.download(context, nonCached)
+                return true
             }
 
             R.id.action_remove_from_cache -> {
                 val cached = adapter.checkedAudios.filter { it.isCached }
-                audioService.removeFromCache(cached).execute(SimpleCallback {
-                    adapter.removeChecked()
-                    adapter.removeFromCache(it)
-                })
-            }
-
-            R.id.action_delete -> {
-                adapter.removeChecked()
-            }
-
-            R.id.action_add_to_queue -> {
-                Player.addToQueue(adapter.checkedAudios)
+                audioService.removeFromCache(cached).execute {
+                    onSuccess {
+                        adapter.removeChecked()
+                        adapter.removeFromCache(it)
+                    }
+                }
+                return true
             }
         }
-        mode.finish()
-        return true
+
+        return super.onActionItemClicked(mode, item)
     }
 
-    override fun onDestroyActionMode(mode: ActionMode) {
-        adapter.clearChecked()
-        actionMode = null
-    }
-
-    private fun executeQuery() {
+    private fun loadVKAudios() {
         refreshLayout.post { refreshLayout.isRefreshing = true }
-        query.execute(success<List<VKAudio>> {
-            adapter.setAudios(it)
-            emptyView.isVisible = it.isEmpty()
-        } finish {
-            refreshLayout.post { refreshLayout.isRefreshing = false }
-        })
+        query.execute {
+            e("kekus")
+            onSuccess {
+                adapter.setAudios(it)
+                emptyView.isVisible = it.isEmpty()
+            }
+
+            onFinish {
+                refreshLayout.post { refreshLayout.isRefreshing = false }
+            }
+        }
     }
 
 

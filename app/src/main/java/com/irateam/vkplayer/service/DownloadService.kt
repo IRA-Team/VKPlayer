@@ -23,8 +23,8 @@ import android.os.IBinder
 import android.support.v4.app.NotificationManagerCompat
 import android.widget.Toast
 import com.irateam.vkplayer.R
-import com.irateam.vkplayer.api.service.VKAudioService
 import com.irateam.vkplayer.api.service.SettingsService
+import com.irateam.vkplayer.api.service.VKAudioService
 import com.irateam.vkplayer.database.AudioVKCacheDatabase
 import com.irateam.vkplayer.event.DownloadErrorEvent
 import com.irateam.vkplayer.event.DownloadFinishedEvent
@@ -35,9 +35,9 @@ import com.irateam.vkplayer.models.VKAudio
 import com.irateam.vkplayer.notification.DownloadNotificationFactory
 import com.irateam.vkplayer.util.AudioDownloader
 import com.irateam.vkplayer.util.EventBus
+import com.irateam.vkplayer.util.extension.execute
 import com.irateam.vkplayer.util.extension.isNetworkAvailable
 import com.irateam.vkplayer.util.extension.isWifiNetworkAvailable
-import com.irateam.vkplayer.util.extension.success
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -100,20 +100,24 @@ class DownloadService : Service(), AudioDownloader.Listener {
 
     private fun prepareToSync() {
         val count = settings.loadSyncCount()
-        audioService.getMy(count).execute(success<List<VKAudio>> {
-            val vkList = it
-            val cachedIds = database.getAll().map { it.id }
-            val nonCached = vkList.filter { it.id in cachedIds }.asReversed()
+        audioService.getMy(count).execute {
+            onSuccess {
+                val vkList = it
+                val cachedIds = database.getAll().map { it.id }
+                val nonCached = vkList.filter { it.id in cachedIds }.asReversed()
 
-            syncQueue.clear()
-            syncQueue.addAll(nonCached)
+                syncQueue.clear()
+                syncQueue.addAll(nonCached)
 
-            if (!downloader.isDownloading()) {
-                pollAndDownload()
+                if (!downloader.isDownloading()) {
+                    pollAndDownload()
+                }
             }
-        } error {
-            notifyError()
-        })
+
+            onError {
+                notifyError()
+            }
+        }
     }
 
     private fun clearCurrentSession() {

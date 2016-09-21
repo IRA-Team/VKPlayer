@@ -24,7 +24,6 @@ import android.widget.TextView
 import android.widget.Toast
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapter.LocalAudioRecyclerAdapter
-import com.irateam.vkplayer.api.SimpleProgressableCallback
 import com.irateam.vkplayer.api.service.LocalAudioService
 import com.irateam.vkplayer.dialog.LocalAudioRemoveAlertDialog
 import com.irateam.vkplayer.event.AudioScannedEvent
@@ -89,7 +88,7 @@ class LocalAudioListFragment : BaseAudioListFragment() {
     }
 
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-        when(item.itemId) {
+        when (item.itemId) {
             R.id.action_remove_from_filesystem -> {
                 val dialog = LocalAudioRemoveAlertDialog()
                 dialog.positiveButtonClickListener = {
@@ -121,19 +120,24 @@ class LocalAudioListFragment : BaseAudioListFragment() {
 
     private fun loadLocalAudios() {
         refreshLayout.post { refreshLayout.isRefreshing = true }
-        localAudioService.getAllIndexed().execute(success<List<LocalAudio>> {
-            adapter.setAudios(it)
-            emptyView.isVisible = it.isEmpty()
-        } finish {
-            refreshLayout.post { refreshLayout.isRefreshing = false }
-        })
+        localAudioService.getAllIndexed().execute {
+            onSuccess {
+                adapter.setAudios(it)
+                emptyView.isVisible = it.isEmpty()
+            }
+
+            onFinish {
+                refreshLayout.post { refreshLayout.isRefreshing = false }
+            }
+        }
     }
 
     private fun removeCheckedLocalAudios() {
-        localAudioService.removeFromFilesystem(adapter.checkedAudios).execute(
-                success<Collection<LocalAudio>> {
-                    adapter.removeAll(it)
-                })
+        localAudioService.removeFromFilesystem(adapter.checkedAudios).execute {
+            onSuccess {
+                adapter.removeAll(it)
+            }
+        }
     }
 
     private fun scanLocalAudios() {
@@ -147,23 +151,28 @@ class LocalAudioListFragment : BaseAudioListFragment() {
         scanProgressHolder.slideInDown()
         adapter.setAudios(emptyList())
 
-        localAudioService.scan().execute(
-                SimpleProgressableCallback<List<LocalAudio>, AudioScannedEvent> {
-                    adapter.setAudios(it)
-                } progress {
-                    if (!scanProgress.isVisible) {
-                        scanProgress.isVisible = true
-                    }
+        localAudioService.scan().execute<List<LocalAudio>, AudioScannedEvent> {
+            onSuccess {
+                adapter.setAudios(it)
+            }
 
-                    if (emptyView.isVisible) {
-                        emptyView.isVisible = false
-                    }
+            onProgress {
+                if (!scanProgress.isVisible) {
+                    scanProgress.isVisible = true
+                }
 
-                    adapter.addAudio(it.audio)
-                    scanProgress.text = "${it.current}/${it.total}"
-                } finish {
-                    scanProgressHolder.slideOutUp()
-                })
+                if (emptyView.isVisible) {
+                    emptyView.isVisible = false
+                }
+
+                adapter.addAudio(it.audio)
+                scanProgress.text = "${it.current}/${it.total}"
+            }
+
+            onFinish {
+                scanProgressHolder.slideOutUp()
+            }
+        }
     }
 
 

@@ -16,6 +16,21 @@
 
 package com.irateam.vkplayer.util.extension
 
+import com.irateam.vkplayer.api.ProgressableQuery
+import com.irateam.vkplayer.api.Query
 import com.irateam.vkplayer.api.SimpleCallback
+import com.irateam.vkplayer.api.SimpleProgressableCallback
 
-inline fun <reified T> success(noinline listener: (T) -> Unit) = SimpleCallback(listener)
+inline fun <reified T> Query<T>.execute(noinline block: SimpleCallback<T>.() -> Unit) {
+    execute(SimpleCallback(block))
+}
+
+inline fun <reified T, reified P> ProgressableQuery<T, P>.execute(
+        noinline block: SimpleProgressableCallback<T, P>.() -> Unit) {
+
+    execute(SimpleProgressableCallback(block))
+}
+
+inline fun <reified T> callback() = SimpleCallback<T>()
+
+inline fun <reified T> callback(noinline block: SimpleCallback<T>.() -> Unit) = SimpleCallback(block)
