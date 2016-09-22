@@ -202,7 +202,9 @@ abstract class BaseAudioListFragment : Fragment(),
         }
     }
 
-    abstract fun onRefresh()
+    open protected fun onRefresh() {
+
+    }
 
     private fun configureSortModeHolder() {
         sortModeHolder.apply {

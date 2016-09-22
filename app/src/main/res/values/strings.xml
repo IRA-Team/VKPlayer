@@ -89,5 +89,7 @@
     <string name="title">Название</string>
     <string name="artist">Исполнитель</string>
     <string name="length">Длинна</string>
+    <string name="permission_required_to_scan">Permission required to scan</string>
+    <string name="permission_required_to_remove">Permission required to remove</string>
 
 </resources>

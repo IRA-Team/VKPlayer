@@ -21,14 +21,18 @@ package com.irateam.vkplayer.util.extension
 import android.animation.Animator
 import android.animation.AnimatorInflater
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
 import android.support.annotation.AnimRes
 import android.support.annotation.AnimatorRes
 import android.support.annotation.DrawableRes
+import android.support.annotation.StringRes
 import android.support.v4.content.ContextCompat
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.Toast
+import com.irateam.vkplayer.util.Permission
 
 fun Context.isNetworkAvailable(): Boolean {
     val connectivityService = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -57,4 +61,19 @@ fun <T> Context.getSystemService(name: String): T {
 
 fun Context.getThemedDrawable(@DrawableRes resId: Int): Drawable {
     return ContextCompat.getDrawable(this, resId)
+}
+
+fun Context.showLongToast(@StringRes resId: Int) {
+    Toast.makeText(this, resId, Toast.LENGTH_LONG).show()
+}
+
+fun Context.showLongToast(text: String) {
+    Toast.makeText(this, text, Toast.LENGTH_LONG).show()
+}
+
+fun Context.isPermissionsGranted(vararg permissions: Permission): Boolean {
+    return permissions.all {
+        ContextCompat.checkSelfPermission(this, it.value) ==
+                PackageManager.PERMISSION_GRANTED
+    }
 }

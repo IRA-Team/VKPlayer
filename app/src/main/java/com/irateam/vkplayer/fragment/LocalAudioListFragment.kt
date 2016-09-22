@@ -16,18 +16,17 @@
 
 package com.irateam.vkplayer.fragment
 
-import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.*
 import android.widget.TextView
-import android.widget.Toast
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapter.LocalAudioRecyclerAdapter
 import com.irateam.vkplayer.api.service.LocalAudioService
 import com.irateam.vkplayer.dialog.LocalAudioRemoveAlertDialog
 import com.irateam.vkplayer.event.AudioScannedEvent
 import com.irateam.vkplayer.models.LocalAudio
+import com.irateam.vkplayer.util.Permission
 import com.irateam.vkplayer.util.extension.*
 
 class LocalAudioListFragment : BaseAudioListFragment() {
@@ -91,31 +90,13 @@ class LocalAudioListFragment : BaseAudioListFragment() {
         when (item.itemId) {
             R.id.action_remove_from_filesystem -> {
                 val dialog = LocalAudioRemoveAlertDialog()
-                dialog.positiveButtonClickListener = {
-                    removeCheckedLocalAudios()
-                    actionMode?.finish()
-                }
+                dialog.positiveButtonClickListener = { removeCheckedLocalAudios() }
                 dialog.show(fragmentManager, LocalAudioRemoveAlertDialog.TAG)
                 return false
             }
         }
 
         return super.onActionItemClicked(mode, item)
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                            permissions: Array<out String>,
-                                            grantResults: IntArray) {
-
-        when (requestCode) {
-            SCAN_LOCAL_AUDIO_REQUEST_CODE -> if (grantResults.isNotEmpty()
-                    && grantResults.first() == PackageManager.PERMISSION_GRANTED) {
-
-                startScanLocalAudios()
-            } else {
-                Toast.makeText(context, "We Need permission Storage", Toast.LENGTH_SHORT).show()
-            }
-        }
     }
 
     private fun loadLocalAudios() {
@@ -132,18 +113,59 @@ class LocalAudioListFragment : BaseAudioListFragment() {
         }
     }
 
-    private fun removeCheckedLocalAudios() {
-        localAudioService.removeFromFilesystem(adapter.checkedAudios).execute {
-            onSuccess {
-                adapter.removeAll(it)
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<out String>,
+                                            grantResults: IntArray) {
+
+        when (requestCode) {
+            SCAN_LOCAL_AUDIO_REQUEST_CODE -> if (grantResults.isNotEmpty()
+                    && grantResults.first() == PackageManager.PERMISSION_GRANTED) {
+
+                startScanLocalAudios()
+            } else {
+                showLongToast(R.string.permission_required_to_scan)
+            }
+
+            REMOVE_CHECKED_LOCAL_AUDIOS_CODE -> if (grantResults.isNotEmpty()
+                    && grantResults.first() == PackageManager.PERMISSION_GRANTED) {
+
+                startRemoveCheckedLocalAudios()
+            } else {
+                showLongToast(R.string.permission_required_to_remove)
             }
         }
     }
 
+    private fun removeCheckedLocalAudios() {
+        if (isPermissionsGranted(Permission.WRITE_EXTERNAL_STORAGE)) {
+            startRemoveCheckedLocalAudios()
+        } else {
+            requestPermissions(REMOVE_CHECKED_LOCAL_AUDIOS_CODE,
+                    Permission.WRITE_EXTERNAL_STORAGE)
+        }
+
+    }
+
+    private fun startRemoveCheckedLocalAudios() {
+        localAudioService.removeFromFilesystem(adapter.checkedAudios).execute {
+            onSuccess {
+                adapter.removeAll(it)
+            }
+
+            onError {
+                showLongToast("Error occurred!")
+            }
+        }
+        actionMode?.finish()
+    }
+
     private fun scanLocalAudios() {
-        requestPermissions(
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                SCAN_LOCAL_AUDIO_REQUEST_CODE)
+        if (isPermissionsGranted(Permission.READ_EXTERNAL_STORAGE)) {
+            startScanLocalAudios()
+        } else {
+            requestPermissions(SCAN_LOCAL_AUDIO_REQUEST_CODE,
+                    Permission.READ_EXTERNAL_STORAGE)
+        }
     }
 
     private fun startScanLocalAudios() {
@@ -180,6 +202,7 @@ class LocalAudioListFragment : BaseAudioListFragment() {
 
         val TAG = LocalAudioListFragment::class.java.name
         val SCAN_LOCAL_AUDIO_REQUEST_CODE = 1
+        val REMOVE_CHECKED_LOCAL_AUDIOS_CODE = 2
 
         @JvmStatic
         fun newInstance(): LocalAudioListFragment {

@@ -68,3 +68,9 @@ fun View.flipOut() {
     flipOut.repeatMode = Animation.REVERSE
     startAnimation(flipOut)
 }
+
+fun View.alphaOut() {
+    val alphaOut = context.getAnimation(R.anim.default_alpha_out)
+    alphaOut.duration = 200
+    startAnimation(alphaOut)
+}

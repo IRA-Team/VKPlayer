@@ -28,8 +28,7 @@ import com.irateam.vkplayer.R
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.player.*
 import com.irateam.vkplayer.player.Player.RepeatState.*
-import com.irateam.vkplayer.util.extension.getThemedDrawable
-import com.irateam.vkplayer.util.extension.isVisible
+import com.irateam.vkplayer.util.extension.*
 import org.greenrobot.eventbus.Subscribe
 
 /*
@@ -76,16 +75,16 @@ open class PlayerController {
 
         rootView = view
 
-        songName = rootView.findViewById(R.id.player_panel_song_name) as TextView
-        author = rootView.findViewById(R.id.player_panel_author) as TextView
+        songName = rootView.getViewById(R.id.player_panel_song_name)
+        author = rootView.getViewById(R.id.player_panel_author)
 
-        repeat = rootView.findViewById(R.id.player_panel_repeat) as ImageView
-        previous = rootView.findViewById(R.id.player_panel_previous) as ImageView
-        playPause = rootView.findViewById(R.id.player_panel_play_pause) as ImageView
-        next = rootView.findViewById(R.id.player_panel_next) as ImageView
-        random = rootView.findViewById(R.id.player_panel_random) as ImageView
+        repeat = rootView.getViewById(R.id.player_panel_repeat)
+        previous = rootView.getViewById(R.id.player_panel_previous)
+        playPause = rootView.getViewById(R.id.player_panel_play_pause)
+        next = rootView.getViewById(R.id.player_panel_next)
+        random = rootView.getViewById(R.id.player_panel_random)
 
-        progress = rootView.findViewById(R.id.progress) as SeekBar
+        progress = rootView.getViewById(R.id.progress)
     }
 
     /*
@@ -143,13 +142,11 @@ open class PlayerController {
     }
 
     fun show() {
-        if (Player.isPlaying) {
-            rootView.isVisible = true
-        }
+        rootView.slideInUp()
     }
 
     fun hide() {
-        rootView.isVisible = false
+        rootView.slideOutDown()
     }
 
     fun isVisible(): Boolean {
@@ -158,6 +155,10 @@ open class PlayerController {
 
     @Subscribe
     open fun onPlayEvent(e: PlayerPlayEvent) {
+        if (!isVisible()) {
+            show()
+        }
+
         val index = e.index
         val audio = e.audio
 
@@ -239,7 +240,7 @@ open class PlayerController {
         random.setImageDrawable(context.getThemedDrawable(drawableRes))
     }
 
-    private inner class ProgressBarChangeListener : SeekBar.OnSeekBarChangeListener {
+    protected inner class ProgressBarChangeListener : SeekBar.OnSeekBarChangeListener {
 
         override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         }

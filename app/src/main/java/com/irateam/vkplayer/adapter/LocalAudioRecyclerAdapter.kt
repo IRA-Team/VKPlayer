@@ -48,7 +48,6 @@ class LocalAudioRecyclerAdapter : BaseAudioRecyclerAdapter<LocalAudio, AudioView
                                   position: Int,
                                   payload: MutableList<Any>?) {
         val audio = audios[position]
-
         if (payload?.isEmpty() ?: true) {
             configureAudio(holder, audio)
             configurePlayingState(holder, audio)
@@ -128,17 +127,24 @@ class LocalAudioRecyclerAdapter : BaseAudioRecyclerAdapter<LocalAudio, AudioView
     }
 
     override fun removeChecked() {
-        val forIterate = ArrayList(checkedAudios)
-        forIterate.forEach {
+        val layoutManager = recyclerView?.layoutManager
+
+        checkedAudios.toList().forEach {
             val index = audios.indexOf(it)
             audios -= audios[index]
-            checkedAudios.remove(it)
-            notifyItemRemoved(index)
+
+            layoutManager?.apply {
+                val view = findViewByPosition(index)
+                removeView(view)
+                notifyItemRemoved(index)
+            }
+
         }
+        checkedAudios.clear()
     }
 
     fun setAudios(audios: Collection<LocalAudio>) {
-        this.audios = ArrayList(audios)
+        this.audios = audios.toList()
         notifyDataSetChanged()
     }
 
