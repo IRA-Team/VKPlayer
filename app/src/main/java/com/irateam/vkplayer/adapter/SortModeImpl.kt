@@ -16,11 +16,10 @@
 
 package com.irateam.vkplayer.adapter
 
-import com.irateam.vkplayer.model.Audio
 import com.irateam.vkplayer.util.extension.swap
 import java.util.*
 
-class SortModeImpl<A : Audio> : SortMode<A> {
+class SortModeImpl<A> : SortMode<A> {
 
     private val listener: SortMode.Listener<A>
 

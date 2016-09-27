@@ -16,14 +16,13 @@
 
 package com.irateam.vkplayer.adapter
 
-import com.irateam.vkplayer.model.Audio
 import java.util.*
 
-interface SortMode<out A : Audio> {
+interface SortMode<out V> {
 
     fun start()
 
-    fun sort(comparator: Comparator<in A>)
+    fun sort(comparator: Comparator<in V>)
 
     fun move(from: Int, to: Int)
 
@@ -33,16 +32,16 @@ interface SortMode<out A : Audio> {
 
     fun isSortMode(): Boolean
 
-    interface Listener<A : Audio> {
+    interface Listener<V> {
 
         fun onStart()
 
-        fun onMove(from: Int, to: Int, newList: List<A>)
+        fun onMove(from: Int, to: Int, newList: List<V>)
 
         fun onCommit()
 
         fun onRevert()
 
-        fun getAudiosToSort(): List<A>
+        fun getAudiosToSort(): List<V>
     }
 }
