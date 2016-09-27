@@ -20,8 +20,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.irateam.vkplayer.R
-import com.irateam.vkplayer.adapter.event.BaseAudioAdapterEvent
-import com.irateam.vkplayer.adapter.event.BaseAudioAdapterEvent.ItemUncheckedEvent
+import com.irateam.vkplayer.adapter.event.BaseAudioAdapterEvent.*
 import com.irateam.vkplayer.adapter.event.VKAudioAdapterEvent.ItemRemovedFromCacheEvent
 import com.irateam.vkplayer.event.DownloadFinishedEvent
 import com.irateam.vkplayer.event.Event
@@ -41,12 +40,11 @@ import kotlin.properties.Delegates.observable
  */
 class VKAudioRecyclerAdapter : BaseAudioRecyclerAdapter<VKAudio, RecyclerView.ViewHolder>() {
 
-    override val sortModeDelegate = VKSortModeDelegate(this)
     override val searchDelegate = VKSearchDelegate(this)
 
     private var data = ArrayList<Any>()
 
-    var audios: List<VKAudio> by observable(emptyList()) {
+    override var audios: List<VKAudio> by observable(emptyList()) {
         property, oldValue, newValue ->
         rebuildData()
     }
@@ -164,12 +162,12 @@ class VKAudioRecyclerAdapter : BaseAudioRecyclerAdapter<VKAudio, RecyclerView.Vi
                     holder.setChecked(checked = false, shouldAnimate = true)
                 }
 
-                BaseAudioAdapterEvent.SortModeStarted -> {
+                SortModeStarted -> {
                     holder.setSorting(sorting = true, shouldAnimate = true)
                     setupDragTouchListener(holder)
                 }
 
-                BaseAudioAdapterEvent.SortModeFinished -> {
+                SortModeFinished -> {
                     holder.setSorting(sorting = false, shouldAnimate = true)
                     setupCheckedClickListener(holder, audio)
                 }

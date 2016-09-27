@@ -14,22 +14,16 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.adapter
+package com.irateam.vkplayer.util.extension
 
-import com.irateam.vkplayer.model.Audio
-import java.util.*
+inline fun Int.timesDo(block: () -> Unit) {
+    for (i in 1..this) {
+        block.invoke()
+    }
+}
 
-interface SortModeDelegate<out A : Audio> {
-
-    fun start()
-
-    fun sort(comparator: Comparator<in A>)
-
-    fun move(from: Int, to: Int)
-
-    fun commit()
-
-    fun revert()
-
-    fun isSortMode(): Boolean
+inline fun Int.timesDoIndexed(block: (i: Int) -> Unit) {
+    for (i in 0..this - 1) {
+        block.invoke(i)
+    }
 }

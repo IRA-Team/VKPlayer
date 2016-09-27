@@ -17,6 +17,7 @@
 package com.irateam.vkplayer.api.service
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 
@@ -30,10 +31,35 @@ class LocalAudioNameDiscoverTest {
     }
 
     @Test
-    fun testSimpleAudioNameSuccess() {
+    fun testSimpleAudioName() {
         val name = "KoRn - Twisted Transistor"
         val artistTitle = service.getTitleAndArtist(name)
         assertEquals(artistTitle.artist, "KoRn")
         assertEquals(artistTitle.title, "Twisted Transistor")
+    }
+
+    @Test
+    fun testUnderscoredAudioName() {
+        val name = "Metallica_-_The_Unforgiven"
+        val artistTitle = service.getTitleAndArtist(name)
+        assertEquals(artistTitle.artist, "Metallica")
+        assertEquals(artistTitle.title, "The_Unforgiven")
+    }
+
+    @Test
+    fun testAudioNameWithTwoDelimiters() {
+        val name = "Red Hot Chili Peppers - Snow - Hey Oh"
+        val artistTitle = service.getTitleAndArtist(name)
+        assertEquals(artistTitle.artist, "Red Hot Chili Peppers")
+        assertEquals(artistTitle.title, "Snow - Hey Oh")
+    }
+
+    @Test
+    fun testAudioNameWithNoDelimiters() {
+        val name = "Pink Floyd Time"
+        val artistTitle = service.getTitleAndArtist(name)
+        println(artistTitle)
+        assertNull(artistTitle.artist)
+        assertEquals(artistTitle.title, "Pink Floyd Time")
     }
 }

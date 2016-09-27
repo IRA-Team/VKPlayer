@@ -23,12 +23,13 @@ class LocalAudioNameDiscover {
             splitIfCan(name, it)?.let { return it }
         }
 
-        return ArtistTitle(name, null)
+        return ArtistTitle(null, name)
     }
 
     private fun splitIfCan(name: String, delimiter: String): ArtistTitle? {
         if (delimiter in name) {
             val index = name.indexOf(delimiter)
+
             val artist = name.substring(0, index)
             val title = name.substring(index + delimiter.length, name.length)
             return ArtistTitle(artist, title)

@@ -32,10 +32,9 @@ import java.util.*
  */
 class LocalAudioRecyclerAdapter : BaseAudioRecyclerAdapter<LocalAudio, AudioViewHolder>() {
 
-    override val sortModeDelegate = LocalSortModeDelegate(this)
     override val searchDelegate = LocalSearchDelegate(this)
 
-    var audios: List<LocalAudio> = emptyList()
+    override var audios: List<LocalAudio> = emptyList()
     override var checkedAudios: HashSet<LocalAudio> = LinkedHashSet()
 
     override fun onCreateViewHolder(parent: ViewGroup, position: Int): AudioViewHolder {

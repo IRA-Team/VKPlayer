@@ -20,6 +20,7 @@ import android.support.v4.view.MotionEventCompat
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.MotionEvent
+import com.irateam.vkplayer.adapter.event.BaseAudioAdapterEvent
 import com.irateam.vkplayer.model.Audio
 import com.irateam.vkplayer.player.*
 import com.irateam.vkplayer.ui.ItemTouchHelperAdapter
@@ -30,14 +31,16 @@ import java.util.*
 
 abstract class BaseAudioRecyclerAdapter<A : Audio, VH : RecyclerView.ViewHolder> :
         RecyclerView.Adapter<VH>(),
+        SortMode.Listener<A>,
         ItemTouchHelperAdapter {
 
-    protected abstract val sortModeDelegate: SortModeDelegate<A>
+    protected val sortModeDelegate: SortMode<A> = SortModeImpl(this)
     protected abstract val searchDelegate: SearchDelegate
     protected val itemTouchHelper: ItemTouchHelper
 
     protected var recyclerView: RecyclerView? = null
 
+    abstract var audios: List<A>
     abstract var checkedAudios: HashSet<A>
     var checkedListener: CheckedListener? = null
 
@@ -132,6 +135,27 @@ abstract class BaseAudioRecyclerAdapter<A : Audio, VH : RecyclerView.ViewHolder>
     abstract fun removeChecked()
 
     abstract fun clearChecked()
+
+    override fun onStart() {
+        notifyItemRangeChanged(0, itemCount, BaseAudioAdapterEvent.SortModeStarted)
+    }
+
+    override fun onMove(from: Int, to: Int, newList: List<A>) {
+        audios = newList
+        notifyItemMoved(from, to)
+    }
+
+    override fun getAudiosToSort(): List<A> {
+        return audios
+    }
+
+    override fun onCommit() {
+        notifyItemRangeChanged(0, itemCount, BaseAudioAdapterEvent.SortModeFinished)
+    }
+
+    override fun onRevert() {
+        notifyItemRangeChanged(0, itemCount, BaseAudioAdapterEvent.SortModeFinished)
+    }
 
     @Subscribe
     fun onStartEvent(e: PlayerStartEvent) {

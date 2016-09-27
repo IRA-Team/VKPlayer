@@ -16,66 +16,60 @@
 
 package com.irateam.vkplayer.adapter
 
-import com.irateam.vkplayer.adapter.event.BaseAudioAdapterEvent.SortModeFinished
-import com.irateam.vkplayer.adapter.event.BaseAudioAdapterEvent.SortModeStarted
-import com.irateam.vkplayer.model.VKAudio
+import com.irateam.vkplayer.model.Audio
 import com.irateam.vkplayer.util.extension.swap
 import java.util.*
 
-class VKSortModeDelegate : SortModeDelegate<VKAudio> {
+class SortModeImpl<A : Audio> : SortMode<A> {
 
-    private val adapter: VKAudioRecyclerAdapter
+    private val listener: SortMode.Listener<A>
 
     private var sortMode = false
-    private var original: List<VKAudio> = emptyList()
+    private var original: List<A> = emptyList()
 
-    constructor(adapter: VKAudioRecyclerAdapter) {
-        this.adapter = adapter
+    constructor(listener: SortMode.Listener<A>) {
+        this.listener = listener
     }
 
     override fun start() {
         this.sortMode = true
-        this.original = adapter.audios
-        adapter.notifyItemRangeChanged(0, original.size, SortModeStarted)
+        listener.onStart()
+        this.original = listener.getAudiosToSort()
     }
 
-    override fun sort(comparator: Comparator<in VKAudio>) {
-        val toSort = adapter.audios
+    override fun sort(comparator: Comparator<in A>) {
+        val toSort = listener.getAudiosToSort()
         val pending = ArrayList(toSort)
         val sorted = toSort.sortedWith(comparator)
 
-        adapter.audios = sorted
         sorted.forEachIndexed { index, item ->
             val from = pending.indexOf(item)
             pending.removeAt(from)
             pending.add(index, item)
-            adapter.audios = pending
-            adapter.notifyItemMoved(from, index)
+            listener.onMove(from, index, pending)
         }
     }
 
     override fun move(from: Int, to: Int) {
-        adapter.audios = adapter.audios.swap(from, to)
-        adapter.notifyItemMoved(from, to)
+        listener.onMove(from, to, listener.getAudiosToSort().swap(from, to))
     }
 
     override fun commit() {
         this.sortMode = false
-        adapter.notifyItemRangeChanged(0, adapter.audios.size, SortModeFinished)
+        listener.onCommit()
     }
 
     override fun revert() {
         sortMode = false
-        val pending = ArrayList(adapter.audios)
+        val pending = listener.getAudiosToSort().toMutableList()
         original.forEachIndexed { index, item ->
             val from = pending.indexOf(item)
             pending.removeAt(from)
             pending.add(index, item)
 
-            adapter.notifyItemMoved(from, index)
-            adapter.notifyItemChanged(from, SortModeFinished)
-            adapter.notifyItemChanged(index, SortModeFinished)
+            listener.onMove(from, index, pending)
         }
+        listener.onRevert()
     }
 
     override fun isSortMode(): Boolean {

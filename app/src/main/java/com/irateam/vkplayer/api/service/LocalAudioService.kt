@@ -17,6 +17,7 @@
 package com.irateam.vkplayer.api.service
 
 import android.content.Context
+import android.util.Log
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.api.AbstractQuery
 import com.irateam.vkplayer.api.ProgressableAbstractQuery
@@ -119,6 +120,7 @@ class LocalAudioService {
                     .filterNotNull()
 
             val total = audios.size
+
             val elementsCount = Math.ceil(total.toDouble() / CORE_COUNT).toInt()
             val slices = ArrayList<List<Mp3File>>()
             for (i in 0..CORE_COUNT - 1) {
@@ -140,7 +142,7 @@ class LocalAudioService {
                             .process {
                                 try {
                                     database.index(it)
-                                    e(TAG, "Stored $it")
+                                    Log.i(TAG, "Stored $it")
                                 } catch (ignore: Exception) {
                                 }
 
