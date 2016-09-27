@@ -24,7 +24,7 @@ import com.irateam.vkplayer.api.ProgressableQuery
 import com.irateam.vkplayer.api.Query
 import com.irateam.vkplayer.database.AudioLocalIndexedDatabase
 import com.irateam.vkplayer.event.AudioScannedEvent
-import com.irateam.vkplayer.models.LocalAudio
+import com.irateam.vkplayer.model.LocalAudio
 import com.irateam.vkplayer.util.extension.e
 import com.irateam.vkplayer.util.extension.process
 import com.mpatric.mp3agic.Mp3File
@@ -69,6 +69,7 @@ class LocalAudioService {
     private fun createLocalAudioFromMp3(mp3: Mp3File): LocalAudio = if (mp3.hasId3v2Tag()) {
         val artist = mp3.id3v2Tag.artist ?: unknownArtist
         val title = mp3.id3v2Tag.title ?: unknownTitle
+        mp3.id3v2Tag.albumImage
 
         LocalAudio(artist,
                 title,
@@ -134,7 +135,7 @@ class LocalAudioService {
 
             val i = AtomicInteger()
             val tasks = slices.map {
-                Callable<List<LocalAudio>> {
+                Callable {
                     it.map { createLocalAudioFromMp3(it) }
                             .process {
                                 try {

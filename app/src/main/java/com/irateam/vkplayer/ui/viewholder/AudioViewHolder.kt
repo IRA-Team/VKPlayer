@@ -29,7 +29,7 @@ import android.widget.*
 import com.amulyakhare.textdrawable.TextDrawable
 import com.amulyakhare.textdrawable.util.ColorGenerator
 import com.irateam.vkplayer.R
-import com.irateam.vkplayer.models.Audio
+import com.irateam.vkplayer.model.Audio
 import com.irateam.vkplayer.ui.ItemTouchHelperViewHolder
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder.State.*
 import com.irateam.vkplayer.util.extension.flipIn

@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.models
+package com.irateam.vkplayer.util.extension
 
-class Header {
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 
-    val title: String
-
-    constructor(title: String) {
-        this.title = title
-    }
+fun ByteArray.toBitmap(options: BitmapFactory.Options? = null): Bitmap {
+    return BitmapFactory.decodeByteArray(this, 0, size, options)
 }

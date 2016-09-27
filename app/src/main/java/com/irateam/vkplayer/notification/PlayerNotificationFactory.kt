@@ -26,7 +26,7 @@ import android.support.v4.app.NotificationCompat.Action
 import android.support.v7.app.NotificationCompat
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.activity.AudioActivity
-import com.irateam.vkplayer.models.Audio
+import com.irateam.vkplayer.model.Audio
 import com.irateam.vkplayer.player.PlayerEvent
 import com.irateam.vkplayer.player.PlayerPlayEvent
 import com.irateam.vkplayer.player.PlayerResumeEvent

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.models;
+package com.irateam.vkplayer.model;
 
 import android.os.Parcel;
 

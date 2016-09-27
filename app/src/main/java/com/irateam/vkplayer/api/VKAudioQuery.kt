@@ -1,6 +1,6 @@
 package com.irateam.vkplayer.api
 
-import com.irateam.vkplayer.models.VKAudio
+import com.irateam.vkplayer.model.VKAudio
 import com.vk.sdk.api.VKRequest
 import com.vk.sdk.api.VKResponse
 import org.json.JSONArray

@@ -25,9 +25,9 @@ import com.irateam.vkplayer.adapter.event.BaseAudioAdapterEvent.ItemUncheckedEve
 import com.irateam.vkplayer.adapter.event.VKAudioAdapterEvent.ItemRemovedFromCacheEvent
 import com.irateam.vkplayer.event.DownloadFinishedEvent
 import com.irateam.vkplayer.event.Event
-import com.irateam.vkplayer.models.Audio
-import com.irateam.vkplayer.models.Header
-import com.irateam.vkplayer.models.VKAudio
+import com.irateam.vkplayer.model.Audio
+import com.irateam.vkplayer.model.Header
+import com.irateam.vkplayer.model.VKAudio
 import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder
 import com.irateam.vkplayer.ui.viewholder.HeaderViewHolder

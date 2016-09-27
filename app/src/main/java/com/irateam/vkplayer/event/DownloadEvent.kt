@@ -16,7 +16,7 @@
 
 package com.irateam.vkplayer.event
 
-import com.irateam.vkplayer.models.Audio
+import com.irateam.vkplayer.model.Audio
 
 abstract class DownloadEvent : Event {
 

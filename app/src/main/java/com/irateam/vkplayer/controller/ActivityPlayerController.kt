@@ -23,8 +23,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.event.MetadataLoadedEvent
-import com.irateam.vkplayer.models.Audio
-import com.irateam.vkplayer.models.Metadata
+import com.irateam.vkplayer.model.Audio
+import com.irateam.vkplayer.model.Metadata
 import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.util.Formatters
 import com.irateam.vkplayer.util.extension.getViewById

@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.models;
+package com.irateam.vkplayer.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import java.util.Comparator;
 
 public abstract class Audio implements Parcelable {
 

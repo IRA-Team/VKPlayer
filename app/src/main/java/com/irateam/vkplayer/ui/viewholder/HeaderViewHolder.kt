@@ -20,7 +20,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.TextView
 import com.irateam.vkplayer.R
-import com.irateam.vkplayer.models.Header
+import com.irateam.vkplayer.model.Header
 import com.irateam.vkplayer.ui.ItemTouchHelperViewHolder
 
 /**

@@ -38,7 +38,7 @@ import com.irateam.vkplayer.controller.PlayerController
 import com.irateam.vkplayer.fragment.BackPressedListener
 import com.irateam.vkplayer.fragment.LocalAudioListFragment
 import com.irateam.vkplayer.fragment.VKAudioListFragment
-import com.irateam.vkplayer.models.User
+import com.irateam.vkplayer.model.User
 import com.irateam.vkplayer.service.PlayerService
 import com.irateam.vkplayer.util.EventBus
 import com.irateam.vkplayer.util.extension.execute

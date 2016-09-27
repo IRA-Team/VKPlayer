@@ -19,8 +19,8 @@ package com.irateam.vkplayer.database
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
-import com.irateam.vkplayer.models.Audio
-import com.irateam.vkplayer.models.VKAudio
+import com.irateam.vkplayer.model.Audio
+import com.irateam.vkplayer.model.VKAudio
 import com.irateam.vkplayer.util.extension.use
 import java.util.*
 

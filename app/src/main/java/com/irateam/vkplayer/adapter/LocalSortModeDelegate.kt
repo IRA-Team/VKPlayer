@@ -18,7 +18,7 @@ package com.irateam.vkplayer.adapter
 
 import com.irateam.vkplayer.adapter.event.BaseAudioAdapterEvent.SortModeFinished
 import com.irateam.vkplayer.adapter.event.BaseAudioAdapterEvent.SortModeStarted
-import com.irateam.vkplayer.models.LocalAudio
+import com.irateam.vkplayer.model.LocalAudio
 import com.irateam.vkplayer.util.extension.swap
 import java.util.*
 

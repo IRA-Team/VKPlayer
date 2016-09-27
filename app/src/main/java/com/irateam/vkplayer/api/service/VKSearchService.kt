@@ -18,7 +18,7 @@ package com.irateam.vkplayer.api.service
 
 import com.irateam.vkplayer.api.Query
 import com.irateam.vkplayer.api.VKAudioQuery
-import com.irateam.vkplayer.models.VKAudio
+import com.irateam.vkplayer.model.VKAudio
 import com.vk.sdk.api.VKApi
 import com.vk.sdk.api.VKApiConst
 import com.vk.sdk.api.VKParameters

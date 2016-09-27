@@ -16,7 +16,7 @@
 
 package com.irateam.vkplayer.event
 
-import com.irateam.vkplayer.models.LocalAudio
+import com.irateam.vkplayer.model.LocalAudio
 
 class AudioScannedEvent : Event{
 

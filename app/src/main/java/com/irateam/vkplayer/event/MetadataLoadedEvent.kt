@@ -16,8 +16,8 @@
 
 package com.irateam.vkplayer.event
 
-import com.irateam.vkplayer.models.Audio
-import com.irateam.vkplayer.models.Metadata
+import com.irateam.vkplayer.model.Audio
+import com.irateam.vkplayer.model.Metadata
 
 class MetadataLoadedEvent(val audio: Audio,
                           val metadata: Metadata) : Event

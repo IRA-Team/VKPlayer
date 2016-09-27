@@ -20,7 +20,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import com.irateam.vkplayer.database.Tables.AudioLocalIndexed.Columns
-import com.irateam.vkplayer.models.LocalAudio
+import com.irateam.vkplayer.model.LocalAudio
 import com.irateam.vkplayer.util.extension.use
 import java.util.*
 

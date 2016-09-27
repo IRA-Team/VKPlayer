@@ -18,7 +18,7 @@ package com.irateam.vkplayer.util
 
 import android.content.Context
 import com.irateam.vkplayer.api.service.SettingsService
-import com.irateam.vkplayer.models.VKAudio
+import com.irateam.vkplayer.model.VKAudio
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream

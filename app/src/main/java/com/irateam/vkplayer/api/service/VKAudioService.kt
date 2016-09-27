@@ -22,7 +22,7 @@ import com.irateam.vkplayer.api.Callback
 import com.irateam.vkplayer.api.Query
 import com.irateam.vkplayer.api.VKAudioQuery
 import com.irateam.vkplayer.database.AudioVKCacheDatabase
-import com.irateam.vkplayer.models.VKAudio
+import com.irateam.vkplayer.model.VKAudio
 import com.irateam.vkplayer.player.Player
 import com.vk.sdk.api.VKApi
 import com.vk.sdk.api.VKApiConst

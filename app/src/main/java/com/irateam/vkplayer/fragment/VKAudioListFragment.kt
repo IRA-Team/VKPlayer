@@ -23,8 +23,8 @@ import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapter.VKAudioRecyclerAdapter
 import com.irateam.vkplayer.api.Query
 import com.irateam.vkplayer.api.service.VKAudioService
-import com.irateam.vkplayer.models.Audio
-import com.irateam.vkplayer.models.VKAudio
+import com.irateam.vkplayer.model.Audio
+import com.irateam.vkplayer.model.VKAudio
 import com.irateam.vkplayer.service.DownloadService
 import com.irateam.vkplayer.util.extension.execute
 import com.irateam.vkplayer.util.extension.isVisible

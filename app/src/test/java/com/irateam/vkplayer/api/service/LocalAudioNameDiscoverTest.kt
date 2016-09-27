@@ -14,7 +14,26 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer;
+package com.irateam.vkplayer.api.service
 
-public class PlayerTest {
+import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.Test
+
+class LocalAudioNameDiscoverTest {
+
+    lateinit var service: LocalAudioNameDiscover
+
+    @Before
+    fun init() {
+        service = LocalAudioNameDiscover()
+    }
+
+    @Test
+    fun testSimpleAudioNameSuccess() {
+        val name = "KoRn - Twisted Transistor"
+        val artistTitle = service.getTitleAndArtist(name)
+        assertEquals(artistTitle.artist, "KoRn")
+        assertEquals(artistTitle.title, "Twisted Transistor")
+    }
 }

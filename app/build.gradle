@@ -42,6 +42,7 @@ dependencies {
     compile 'com.melnykov:floatingactionbutton:1.3.0'
     compile 'com.mpatric:mp3agic:0.8.4'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
     testCompile 'junit:junit:4.12'
 }
 repositories {

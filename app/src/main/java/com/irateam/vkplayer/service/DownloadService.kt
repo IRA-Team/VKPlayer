@@ -30,8 +30,8 @@ import com.irateam.vkplayer.event.DownloadErrorEvent
 import com.irateam.vkplayer.event.DownloadFinishedEvent
 import com.irateam.vkplayer.event.DownloadProgressChangedEvent
 import com.irateam.vkplayer.event.DownloadTerminatedEvent
-import com.irateam.vkplayer.models.Audio
-import com.irateam.vkplayer.models.VKAudio
+import com.irateam.vkplayer.model.Audio
+import com.irateam.vkplayer.model.VKAudio
 import com.irateam.vkplayer.notification.DownloadNotificationFactory
 import com.irateam.vkplayer.util.AudioDownloader
 import com.irateam.vkplayer.util.EventBus

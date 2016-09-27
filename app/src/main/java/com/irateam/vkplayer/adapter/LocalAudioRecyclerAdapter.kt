@@ -21,8 +21,8 @@ import android.view.ViewGroup
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapter.event.BaseAudioAdapterEvent.*
 import com.irateam.vkplayer.event.Event
-import com.irateam.vkplayer.models.Audio
-import com.irateam.vkplayer.models.LocalAudio
+import com.irateam.vkplayer.model.Audio
+import com.irateam.vkplayer.model.LocalAudio
 import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder
 import java.util.*

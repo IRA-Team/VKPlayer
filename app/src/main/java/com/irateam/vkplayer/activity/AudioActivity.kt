@@ -26,7 +26,7 @@ import com.irateam.vkplayer.R
 import com.irateam.vkplayer.api.service.VKAudioService
 import com.irateam.vkplayer.controller.ActivityPlayerController
 import com.irateam.vkplayer.controller.PlayerController
-import com.irateam.vkplayer.models.VKAudio
+import com.irateam.vkplayer.model.VKAudio
 import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.service.DownloadService
 import com.irateam.vkplayer.service.PlayerService

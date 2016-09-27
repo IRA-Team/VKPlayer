@@ -20,7 +20,7 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
-import com.irateam.vkplayer.models.Audio
+import com.irateam.vkplayer.model.Audio
 import com.irateam.vkplayer.player.Player.RepeatState.*
 import com.irateam.vkplayer.util.EventBus
 import com.irateam.vkplayer.util.extension.i

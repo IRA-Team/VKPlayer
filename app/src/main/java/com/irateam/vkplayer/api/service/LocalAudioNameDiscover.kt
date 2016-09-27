@@ -18,31 +18,31 @@ package com.irateam.vkplayer.api.service
 
 class LocalAudioNameDiscover {
 
-    fun getTitleAndArtist(name: String): TitleArtist {
-        val delimiters = listOf(" - ", " -", "- ", "-")
-        delimiters.forEach {
+    fun getTitleAndArtist(name: String): ArtistTitle {
+        DELIMITERS.forEach {
             splitIfCan(name, it)?.let { return it }
         }
 
-        return TitleArtist(name, null)
+        return ArtistTitle(name, null)
     }
 
-    private fun splitIfCan(name: String, delimiter: String): TitleArtist? {
+    private fun splitIfCan(name: String, delimiter: String): ArtistTitle? {
         if (delimiter in name) {
             val index = name.indexOf(delimiter)
-            val title = name.substring(0, index)
-            val artist = name.substring(index + delimiter.length, name.length)
-            return TitleArtist(title, artist)
+            val artist = name.substring(0, index)
+            val title = name.substring(index + delimiter.length, name.length)
+            return ArtistTitle(artist, title)
         } else {
             return null
         }
     }
 
-    data class TitleArtist(val title: String?,
-                           val artist: String?)
+    data class ArtistTitle(val artist: String?,
+                           val title: String?)
 
     companion object {
 
         val TAG = LocalAudioNameDiscover::class.java.name
+        val DELIMITERS = listOf(" - ", "_-_", " -", "_-", "- ", "-_", "-")
     }
 }

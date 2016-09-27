@@ -27,7 +27,7 @@ import android.view.*
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapter.BaseAudioRecyclerAdapter
 import com.irateam.vkplayer.controller.PlayerController
-import com.irateam.vkplayer.models.Audio
+import com.irateam.vkplayer.model.Audio
 import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.util.Comparators
 import com.irateam.vkplayer.util.EventBus

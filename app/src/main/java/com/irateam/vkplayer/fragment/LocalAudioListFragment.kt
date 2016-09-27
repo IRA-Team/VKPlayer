@@ -25,7 +25,7 @@ import com.irateam.vkplayer.adapter.LocalAudioRecyclerAdapter
 import com.irateam.vkplayer.api.service.LocalAudioService
 import com.irateam.vkplayer.dialog.LocalAudioRemoveAlertDialog
 import com.irateam.vkplayer.event.AudioScannedEvent
-import com.irateam.vkplayer.models.LocalAudio
+import com.irateam.vkplayer.model.LocalAudio
 import com.irateam.vkplayer.util.Permission
 import com.irateam.vkplayer.util.extension.*
 

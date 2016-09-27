@@ -18,7 +18,7 @@ package com.irateam.vkplayer.adapter
 
 import com.irateam.vkplayer.api.Query
 import com.irateam.vkplayer.api.service.VKSearchService
-import com.irateam.vkplayer.models.VKAudio
+import com.irateam.vkplayer.model.VKAudio
 import com.irateam.vkplayer.util.extension.execute
 
 class VKSearchDelegate : SearchDelegate {

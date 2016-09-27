@@ -16,7 +16,7 @@
 
 package com.irateam.vkplayer.util
 
-import com.irateam.vkplayer.models.Audio
+import com.irateam.vkplayer.model.Audio
 import java.util.*
 
 object Comparators {

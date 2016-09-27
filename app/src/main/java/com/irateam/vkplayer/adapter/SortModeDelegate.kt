@@ -16,7 +16,7 @@
 
 package com.irateam.vkplayer.adapter
 
-import com.irateam.vkplayer.models.Audio
+import com.irateam.vkplayer.model.Audio
 import java.util.*
 
 interface SortModeDelegate<out A : Audio> {

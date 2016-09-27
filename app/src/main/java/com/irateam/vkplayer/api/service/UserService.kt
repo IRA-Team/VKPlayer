@@ -22,7 +22,7 @@ import android.preference.PreferenceManager
 import com.irateam.vkplayer.api.AbstractQuery
 import com.irateam.vkplayer.api.Query
 import com.irateam.vkplayer.api.VKQuery
-import com.irateam.vkplayer.models.User
+import com.irateam.vkplayer.model.User
 import com.irateam.vkplayer.util.extension.isNetworkAvailable
 import com.vk.sdk.api.VKApiConst
 import com.vk.sdk.api.VKParameters

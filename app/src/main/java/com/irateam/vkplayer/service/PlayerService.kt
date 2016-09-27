@@ -27,8 +27,8 @@ import android.os.IBinder
 import com.irateam.vkplayer.api.service.MetadataService
 import com.irateam.vkplayer.api.service.SettingsService
 import com.irateam.vkplayer.event.MetadataLoadedEvent
-import com.irateam.vkplayer.models.Audio
-import com.irateam.vkplayer.models.VKAudio
+import com.irateam.vkplayer.model.Audio
+import com.irateam.vkplayer.model.VKAudio
 import com.irateam.vkplayer.notification.PlayerNotificationFactory
 import com.irateam.vkplayer.player.*
 import com.irateam.vkplayer.util.EventBus

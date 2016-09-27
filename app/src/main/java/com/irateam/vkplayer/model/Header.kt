@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer;
+package com.irateam.vkplayer.model
 
-public class UnitTest {
+class Header {
 
+    val title: String
 
+    constructor(title: String) {
+        this.title = title
+    }
 }

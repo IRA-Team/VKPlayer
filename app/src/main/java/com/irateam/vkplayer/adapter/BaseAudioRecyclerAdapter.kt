@@ -20,7 +20,7 @@ import android.support.v4.view.MotionEventCompat
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.MotionEvent
-import com.irateam.vkplayer.models.Audio
+import com.irateam.vkplayer.model.Audio
 import com.irateam.vkplayer.player.*
 import com.irateam.vkplayer.ui.ItemTouchHelperAdapter
 import com.irateam.vkplayer.ui.SimpleItemTouchHelperCallback
