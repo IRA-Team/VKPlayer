@@ -14,24 +14,7 @@
  * limitations under the License.
  */
 
-package com.irateam.vkplayer.util.extension
+package com.irateam.vkplayer;
 
-import android.util.Log
-
-val DEFAULT_TAG = "VKPlayer Global Log"
-
-fun i(obj: Any) {
-    i(DEFAULT_TAG, obj)
-}
-
-fun i(tag: String, obj: Any) {
-    Log.i(tag, obj.toString())
-}
-
-fun e(obj: Any) {
-    e(DEFAULT_TAG, obj)
-}
-
-fun e(tag: String, obj: Any) {
-    Log.e(tag, obj.toString())
+public class PlayerTest {
 }

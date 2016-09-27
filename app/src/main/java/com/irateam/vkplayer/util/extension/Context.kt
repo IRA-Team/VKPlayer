@@ -43,7 +43,7 @@ fun Context.isNetworkAvailable(): Boolean {
 fun Context.isWifiNetworkAvailable(): Boolean {
     val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     val networkInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
-    return networkInfo != null && networkInfo.isConnectedOrConnecting
+    return networkInfo?.isConnectedOrConnecting ?: false
 }
 
 fun Context.getAnimation(@AnimRes id: Int): Animation {

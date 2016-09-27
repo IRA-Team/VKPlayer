@@ -17,8 +17,6 @@
 package com.irateam.vkplayer.api.service
 
 import android.content.Context
-import android.os.Environment
-import android.util.Log
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.api.AbstractQuery
 import com.irateam.vkplayer.api.ProgressableAbstractQuery
@@ -28,9 +26,14 @@ import com.irateam.vkplayer.database.AudioLocalIndexedDatabase
 import com.irateam.vkplayer.event.AudioScannedEvent
 import com.irateam.vkplayer.models.LocalAudio
 import com.irateam.vkplayer.util.extension.e
+import com.irateam.vkplayer.util.extension.process
 import com.mpatric.mp3agic.Mp3File
 import java.io.File
 import java.util.*
+import java.util.concurrent.Callable
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicInteger
 
 class LocalAudioService {
 
@@ -51,8 +54,7 @@ class LocalAudioService {
     }
 
     fun scan(): ProgressableQuery<List<LocalAudio>, AudioScannedEvent> {
-        val root = Environment.getExternalStorageDirectory()
-        e(root.canRead())
+        val root = File("/storage")
         return ScanAndIndexAudioQuery(root)
     }
 
@@ -100,6 +102,7 @@ class LocalAudioService {
 
         override fun query(): List<LocalAudio> {
             val audios = root.walk()
+                    .toList()
                     .map { e(it); it }
                     .filter { !it.isDirectory }
                     .filter { it.name.endsWith(".mp3") }
@@ -114,18 +117,44 @@ class LocalAudioService {
                     }
                     .filterNotNull()
 
-            return audios
-                    .map { createLocalAudioFromMp3(it) }
-                    .mapIndexed { i, audio ->
-                        try {
-                            database.index(audio)
-                            Log.e(TAG, "Stored $audio")
-                        } catch (ignore: Exception) {
-                        }
-                        notifyProgress(AudioScannedEvent(audio, i + 1, audios.count()))
-                        audio
-                    }
-                    .toList()
+            val total = audios.size
+            val elementsCount = Math.ceil(total.toDouble() / CORE_COUNT).toInt()
+            val slices = ArrayList<List<Mp3File>>()
+            for (i in 0..CORE_COUNT - 1) {
+                val probMax = (i + 1) * elementsCount
+                val max = if (probMax > total) {
+                    total
+                } else {
+                    probMax
+                }
+
+                val range = IntRange(i * elementsCount, max - 1)
+                slices.add(audios.toList().slice(range))
+            }
+
+            val i = AtomicInteger()
+            val tasks = slices.map {
+                Callable<List<LocalAudio>> {
+                    it.map { createLocalAudioFromMp3(it) }
+                            .process {
+                                try {
+                                    database.index(it)
+                                    e(TAG, "Stored $it")
+                                } catch (ignore: Exception) {
+                                }
+
+                                notifyProgress(AudioScannedEvent(
+                                        it,
+                                        i.incrementAndGet(),
+                                        audios.count()))
+                            }
+                            .toList()
+                }
+            }
+
+            return CONVERTER_EXECUTOR.invokeAll(tasks)
+                    .map { it.get() }
+                    .flatMap { it }
         }
     }
 
@@ -158,6 +187,9 @@ class LocalAudioService {
     }
 
     companion object {
-        val TAG = LocalAudioService::class.java.name
+        val TAG: String = LocalAudioService::class.java.name
+
+        val CORE_COUNT = Runtime.getRuntime().availableProcessors() * 2
+        val CONVERTER_EXECUTOR: ExecutorService = Executors.newFixedThreadPool(CORE_COUNT)
     }
 }

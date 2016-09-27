@@ -20,10 +20,10 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import com.irateam.vkplayer.models.Audio
 import com.irateam.vkplayer.player.Player.RepeatState.*
 import com.irateam.vkplayer.util.EventBus
+import com.irateam.vkplayer.util.extension.i
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.properties.Delegates.observable
@@ -250,10 +250,10 @@ object Player : MediaPlayer(),
         reset()
         play(pollNextAudio())
 
-        Log.v(TAG, "HistoryStack: Size = ${historyStack.size}")
-        Log.v(TAG, "HistoryStack: $historyStack")
-        Log.v(TAG, "Queue: Size = ${queue.size}")
-        Log.v(TAG, "Queue: $queue")
+        i(TAG, "HistoryStack: Size = ${historyStack.size}")
+        i(TAG, "HistoryStack: $historyStack")
+        i(TAG, "Queue: Size = ${queue.size}")
+        i(TAG, "Queue: $queue")
     }
 
     fun previous() {
@@ -261,10 +261,10 @@ object Player : MediaPlayer(),
         reset()
         play(pollPreviousAudio())
 
-        Log.v(TAG, "HistoryStack: Size = ${historyStack.size}")
-        Log.v(TAG, "HistoryStack: $historyStack")
-        Log.v(TAG, "Queue: Size = ${queue.size}")
-        Log.v(TAG, "Queue: $queue")
+        i(TAG, "HistoryStack: Size = ${historyStack.size}")
+        i(TAG, "HistoryStack: $historyStack")
+        i(TAG, "Queue: Size = ${queue.size}")
+        i(TAG, "Queue: $queue")
     }
 
     override fun seekTo(milliseconds: Int) {
