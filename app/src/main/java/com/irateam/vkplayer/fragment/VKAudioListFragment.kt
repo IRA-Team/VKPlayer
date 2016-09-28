@@ -17,6 +17,7 @@
 package com.irateam.vkplayer.fragment
 
 import android.os.Bundle
+import android.support.annotation.MenuRes
 import android.support.v7.widget.SearchView
 import android.view.*
 import com.irateam.vkplayer.R
@@ -63,6 +64,11 @@ class VKAudioListFragment : BaseAudioListFragment(),
         loadVKAudios()
     }
 
+    @MenuRes
+    override fun getMenuResource(): Int {
+        return R.menu.menu_vk_audio_list
+    }
+
     override fun onRefresh() {
         loadVKAudios()
     }
@@ -89,6 +95,10 @@ class VKAudioListFragment : BaseAudioListFragment(),
                     .isNotEmpty()
         }
 
+    }
+
+    override fun getActionModeMenuResource(): Int {
+        return R.menu.menu_vk_audio_list_context
     }
 
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {

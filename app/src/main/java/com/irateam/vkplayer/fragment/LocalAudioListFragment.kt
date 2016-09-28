@@ -18,6 +18,7 @@ package com.irateam.vkplayer.fragment
 
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.support.annotation.MenuRes
 import android.view.*
 import android.widget.TextView
 import com.irateam.vkplayer.R
@@ -67,6 +68,11 @@ class LocalAudioListFragment : BaseAudioListFragment() {
         loadLocalAudios()
     }
 
+    @MenuRes
+    override fun getMenuResource(): Int {
+        return R.menu.menu_local_audio_list
+    }
+
     override fun onRefresh() {
         loadLocalAudios()
     }
@@ -84,6 +90,10 @@ class LocalAudioListFragment : BaseAudioListFragment() {
         }
 
         else -> super.onOptionsItemSelected(item)
+    }
+
+    override fun getActionModeMenuResource(): Int {
+        return R.menu.menu_local_audio_list_context
     }
 
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {

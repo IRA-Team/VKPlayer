@@ -82,7 +82,7 @@ object Player : MediaPlayer(),
         if (!randomState) {
             setupPlayingQueue(head)
         } else {
-            setupShuffledQueue(head)
+            setupShuffledQueue(null)
         }
     }
 
@@ -250,10 +250,15 @@ object Player : MediaPlayer(),
         reset()
         play(pollNextAudio())
 
+        logPlaylist()
+    }
+
+    fun logPlaylist() {
         i(TAG, "HistoryStack: Size = ${historyStack.size}")
         i(TAG, "HistoryStack: $historyStack")
         i(TAG, "Queue: Size = ${queue.size}")
         i(TAG, "Queue: $queue")
+        i(TAG, "=================================================")
     }
 
     fun previous() {
@@ -261,10 +266,7 @@ object Player : MediaPlayer(),
         reset()
         play(pollPreviousAudio())
 
-        i(TAG, "HistoryStack: Size = ${historyStack.size}")
-        i(TAG, "HistoryStack: $historyStack")
-        i(TAG, "Queue: Size = ${queue.size}")
-        i(TAG, "Queue: $queue")
+        logPlaylist()
     }
 
     override fun seekTo(milliseconds: Int) {

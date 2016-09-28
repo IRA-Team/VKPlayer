@@ -17,6 +17,7 @@
 package com.irateam.vkplayer.fragment
 
 import android.os.Bundle
+import android.support.annotation.MenuRes
 import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.DefaultItemAnimator
@@ -69,6 +70,9 @@ abstract class BaseAudioListFragment : Fragment(),
         setHasOptionsMenu(true)
     }
 
+    /**
+     * Register adapter for events and configure view components
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         EventBus.register(adapter)
 
@@ -85,14 +89,20 @@ abstract class BaseAudioListFragment : Fragment(),
         configureEmptyView()
     }
 
+    /**
+     * Unregister adapter from events
+     */
     override fun onDestroy() {
         super.onDestroy()
         EventBus.unregister(adapter)
     }
 
+    /**
+     * Initialize menu variable and configure SearchView.
+     */
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         this.menu = menu
-        activity.menuInflater.inflate(R.menu.menu_local_audio_list, menu)
+        activity.menuInflater.inflate(getMenuResource(), menu)
         val itemSearch = menu.findItem(R.id.action_search)
 
         searchView = itemSearch.actionView as SearchView
@@ -100,6 +110,15 @@ abstract class BaseAudioListFragment : Fragment(),
         searchView.setOnQueryTextListener(this)
     }
 
+    /**
+     * Must return resource of menu that would be inflated
+     */
+    @MenuRes
+    protected abstract fun getMenuResource(): Int
+
+    /**
+     * Dispatches select event of menu items that are common for any subclass
+     */
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_sort -> {
             startSortMode()
@@ -114,6 +133,12 @@ abstract class BaseAudioListFragment : Fragment(),
         else -> false
     }
 
+
+    /**
+     * Callback that notify about switching checked state of audio.
+     * Start ActionMode if set of checked audios not empty.
+     * If set of checked audios becomes empty ActionMode would be closed.
+     */
     override fun onChanged(audio: Audio, checked: HashSet<out Audio>) {
         if (actionMode == null && checked.size > 0) {
             actionMode = activity.startActionMode(this)
@@ -130,16 +155,29 @@ abstract class BaseAudioListFragment : Fragment(),
 
     }
 
+    /**
+     * Do nothing. Search process invokes by onQueryTextChange
+     */
     override fun onQueryTextSubmit(query: String) = false
 
+    /**
+     * Notify adapter about search query.
+     * All search logic should be provided by adapter.
+     */
     override fun onQueryTextChange(query: String): Boolean {
         adapter.setSearchQuery(query)
         return true
     }
 
+    @MenuRes
+    protected abstract fun getActionModeMenuResource(): Int
+
+    /**
+     * Creates ActionMode and assign it to variable
+     */
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         actionMode = mode
-        mode.menuInflater.inflate(R.menu.menu_local_audio_list_context, menu)
+        mode.menuInflater.inflate(getActionModeMenuResource(), menu)
         return true
     }
 
@@ -147,6 +185,10 @@ abstract class BaseAudioListFragment : Fragment(),
         return false
     }
 
+    /**
+     * Dispatches select event of ActionMode menu items that are common for any subclasses.
+     * In the end finish ActionMode.
+     */
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_play -> {
@@ -170,7 +212,7 @@ abstract class BaseAudioListFragment : Fragment(),
         mode.finish()
         return true
     }
-
+    
     override fun onDestroyActionMode(mode: ActionMode) {
         adapter.clearChecked()
         actionMode = null
