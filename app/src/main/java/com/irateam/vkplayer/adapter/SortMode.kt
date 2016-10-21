@@ -20,28 +20,28 @@ import java.util.*
 
 interface SortMode<out V> {
 
-    fun start()
+	fun start()
 
-    fun sort(comparator: Comparator<in V>)
+	fun sort(comparators: Pair<Comparator<in V>, Comparator<in V>>)
 
-    fun move(from: Int, to: Int)
+	fun move(from: Int, to: Int)
 
-    fun commit()
+	fun commit()
 
-    fun revert()
+	fun revert()
 
-    fun isSortMode(): Boolean
+	fun isSortMode(): Boolean
 
-    interface Listener<V> {
+	interface Listener<V> {
 
-        fun onStart()
+		fun onStart()
 
-        fun onMove(from: Int, to: Int, newList: List<V>)
+		fun onMove(from: Int, to: Int, newList: List<V>)
 
-        fun onCommit()
+		fun onCommit()
 
-        fun onRevert()
+		fun onRevert()
 
-        fun getAudiosToSort(): List<V>
-    }
+		fun getAudiosToSort(): List<V>
+	}
 }

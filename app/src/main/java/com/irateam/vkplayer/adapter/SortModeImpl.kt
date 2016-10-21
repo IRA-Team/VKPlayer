@@ -21,57 +21,60 @@ import java.util.*
 
 class SortModeImpl<A> : SortMode<A> {
 
-    private val listener: SortMode.Listener<A>
+	private val listener: SortMode.Listener<A>
 
-    private var sortMode = false
-    private var original: List<A> = emptyList()
+	private var sortMode = false
+	private var original: List<A> = emptyList()
 
-    constructor(listener: SortMode.Listener<A>) {
-        this.listener = listener
-    }
+	constructor(listener: SortMode.Listener<A>) {
+		this.listener = listener
+	}
 
-    override fun start() {
-        this.sortMode = true
-        listener.onStart()
-        this.original = listener.getAudiosToSort()
-    }
+	override fun start() {
+		this.sortMode = true
+		listener.onStart()
+		this.original = listener.getAudiosToSort()
+	}
 
-    override fun sort(comparator: Comparator<in A>) {
-        val toSort = listener.getAudiosToSort()
-        val pending = ArrayList(toSort)
-        val sorted = toSort.sortedWith(comparator)
+	override fun sort(comparators: Pair<Comparator<in A>, Comparator<in A>>) {
+		val toSort = listener.getAudiosToSort()
+		val pending = ArrayList(toSort)
 
-        sorted.forEachIndexed { index, item ->
-            val from = pending.indexOf(item)
-            pending.removeAt(from)
-            pending.add(index, item)
-            listener.onMove(from, index, pending)
-        }
-    }
+		val sorted = toSort.sortedWith(comparators.first).let {
+			if (it == toSort) toSort.sortedWith(comparators.second) else it
+		}
 
-    override fun move(from: Int, to: Int) {
-        listener.onMove(from, to, listener.getAudiosToSort().swap(from, to))
-    }
+		sorted.forEachIndexed { index, item ->
+			val from = pending.indexOf(item)
+			pending.removeAt(from)
+			pending.add(index, item)
+			listener.onMove(from, index, pending)
+		}
+	}
 
-    override fun commit() {
-        this.sortMode = false
-        listener.onCommit()
-    }
+	override fun move(from: Int, to: Int) {
+		listener.onMove(from, to, listener.getAudiosToSort().swap(from, to))
+	}
 
-    override fun revert() {
-        sortMode = false
-        val pending = listener.getAudiosToSort().toMutableList()
-        original.forEachIndexed { index, item ->
-            val from = pending.indexOf(item)
-            pending.removeAt(from)
-            pending.add(index, item)
+	override fun commit() {
+		this.sortMode = false
+		listener.onCommit()
+	}
 
-            listener.onMove(from, index, pending)
-        }
-        listener.onRevert()
-    }
+	override fun revert() {
+		sortMode = false
+		val pending = listener.getAudiosToSort().toMutableList()
+		original.forEachIndexed { index, item ->
+			val from = pending.indexOf(item)
+			pending.removeAt(from)
+			pending.add(index, item)
 
-    override fun isSortMode(): Boolean {
-        return sortMode
-    }
+			listener.onMove(from, index, pending)
+		}
+		listener.onRevert()
+	}
+
+	override fun isSortMode(): Boolean {
+		return sortMode
+	}
 }

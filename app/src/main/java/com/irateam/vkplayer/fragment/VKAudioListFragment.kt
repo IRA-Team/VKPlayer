@@ -34,108 +34,108 @@ import java.util.*
  * @author Artem Glugovsky
  */
 class VKAudioListFragment : BaseAudioListFragment(),
-        ActionMode.Callback,
-        SearchView.OnQueryTextListener {
+		ActionMode.Callback,
+		SearchView.OnQueryTextListener {
 
-    override val adapter = VKAudioRecyclerAdapter()
+	override val adapter = VKAudioRecyclerAdapter()
 
-    private lateinit var audioService: VKAudioService
-    private lateinit var query: Query<List<VKAudio>>
+	private lateinit var audioService: VKAudioService
+	private lateinit var query: Query<List<VKAudio>>
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
+	override fun onCreate(savedInstanceState: Bundle?) {
+		super.onCreate(savedInstanceState)
+		setHasOptionsMenu(true)
+	}
 
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+	override fun onCreateView(inflater: LayoutInflater,
+							  container: ViewGroup?,
+							  savedInstanceState: Bundle?): View {
 
-        return inflater.inflate(R.layout.fragment_vk_audio_list, container, false)
-    }
+		return inflater.inflate(R.layout.fragment_vk_audio_list, container, false)
+	}
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+		super.onViewCreated(view, savedInstanceState)
 
-        adapter.checkedListener = this
+		adapter.checkedListener = this
 
-        audioService = VKAudioService(context)
-        loadVKAudios()
-    }
+		audioService = VKAudioService(context)
+		loadVKAudios()
+	}
 
-    override fun onRefresh() {
-        loadVKAudios()
-    }
+	override fun onRefresh() {
+		loadVKAudios()
+	}
 
-    override fun onQueryTextChange(query: String): Boolean {
-        super.onQueryTextChange(query)
-        adapter.setSearchQuery(query)
-        return true
-    }
+	override fun onQueryTextChange(query: String): Boolean {
+		super.onQueryTextChange(query)
+		adapter.setSearchQuery(query)
+		return true
+	}
 
-    override fun onChanged(audio: Audio, checked: HashSet<out Audio>) {
-        super.onChanged(audio, checked)
-        actionMode?.apply {
-            val itemCache = menu.findItem(R.id.action_cache)
-            itemCache.isVisible = checked
-                    .filterIsInstance<VKAudio>()
-                    .filter { !it.isCached }
-                    .isNotEmpty()
+	override fun onChanged(audio: Audio, checked: HashSet<out Audio>) {
+		super.onChanged(audio, checked)
+		actionMode?.apply {
+			val itemCache = menu.findItem(R.id.action_cache)
+			itemCache.isVisible = checked
+					.filterIsInstance<VKAudio>()
+					.filter { !it.isCached }
+					.isNotEmpty()
 
-            val itemRemoveFromCache = menu.findItem(R.id.action_remove_from_cache)
-            itemRemoveFromCache.isVisible = checked
-                    .filterIsInstance<VKAudio>()
-                    .filter { it.isCached }
-                    .isNotEmpty()
-        }
+			val itemRemoveFromCache = menu.findItem(R.id.action_remove_from_cache)
+			itemRemoveFromCache.isVisible = checked
+					.filterIsInstance<VKAudio>()
+					.filter { it.isCached }
+					.isNotEmpty()
+		}
 
-    }
+	}
 
-    override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_cache -> {
-                val nonCached = adapter.checkedAudios.filter { !it.isCached }
-                DownloadService.download(context, nonCached)
-                return true
-            }
+	override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+		when (item.itemId) {
+			R.id.action_cache -> {
+				val nonCached = adapter.checkedAudios.filter { !it.isCached }
+				DownloadService.download(context, nonCached)
+				return true
+			}
 
-            R.id.action_remove_from_cache -> {
-                val cached = adapter.checkedAudios.filter { it.isCached }
-                audioService.removeFromCache(cached).execute {
-                    onSuccess {
-                        adapter.removeChecked()
-                        adapter.removeFromCache(it)
-                    }
-                }
-                return true
-            }
-        }
+			R.id.action_remove_from_cache -> {
+				val cached = adapter.checkedAudios.filter { it.isCached }
+				audioService.removeFromCache(cached).execute {
+					onSuccess {
+						adapter.removeChecked()
+						adapter.removeFromCache(it)
+					}
+				}
+				return true
+			}
+		}
 
-        return super.onActionItemClicked(mode, item)
-    }
+		return super.onActionItemClicked(mode, item)
+	}
 
-    private fun loadVKAudios() {
-        refreshLayout.post { refreshLayout.isRefreshing = true }
-        query.execute {
-            onSuccess {
-                adapter.audios = it
-                emptyView.isVisible = it.isEmpty()
-            }
+	private fun loadVKAudios() {
+		refreshLayout.post { refreshLayout.isRefreshing = true }
+		query.execute {
+			onSuccess {
+				adapter.audios = it
+				emptyView.isVisible = it.isEmpty()
+			}
 
-            onFinish {
-                refreshLayout.post { refreshLayout.isRefreshing = false }
-            }
-        }
-    }
+			onFinish {
+				refreshLayout.post { refreshLayout.isRefreshing = false }
+			}
+		}
+	}
 
-    companion object {
+	companion object {
 
-        @JvmStatic
-        fun newInstance(query: Query<List<VKAudio>>): VKAudioListFragment {
-            val fragment = VKAudioListFragment()
-            fragment.query = query
-            return fragment
-        }
-    }
+		@JvmStatic
+		fun newInstance(query: Query<List<VKAudio>>): VKAudioListFragment {
+			val fragment = VKAudioListFragment()
+			fragment.query = query
+			return fragment
+		}
+	}
 
 }

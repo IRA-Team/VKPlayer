@@ -21,23 +21,27 @@ import java.util.*
 
 object Comparators {
 
-    val ARTIST_COMPARATOR = Comparator<Audio> { audio1, audio2 ->
-        audio1.artist?.compareTo(audio2.artist) ?: -1
-    }
+	val ARTIST_COMPARATOR = Comparator<Audio> { audio1, audio2 ->
+		audio1.artist?.compareTo(audio2.artist) ?: -1
+	}
 
-    val ARTIST_REVERSE_COMPARATOR = Comparator<Audio> { audio1, audio2 ->
-        audio2.artist?.compareTo(audio1.artist) ?: -1
-    }
+	val ARTIST_REVERSE_COMPARATOR = Comparator<Audio> { audio1, audio2 ->
+		audio2.artist?.compareTo(audio1.artist) ?: -1
+	}
 
-    val TITLE_COMPARATOR = Comparator<Audio> { audio1, audio2 ->
-        audio1.title?.compareTo(audio2.title) ?: -1
-    }
+	val TITLE_COMPARATOR = Comparator<Audio> { audio1, audio2 ->
+		audio1.title?.compareTo(audio2.title) ?: -1
+	}
 
-    val TITLE_REVERSE_COMPARATOR = Comparator<Audio> { audio1, audio2 ->
-        audio2.title?.compareTo(audio1.title) ?: -1
-    }
+	val TITLE_REVERSE_COMPARATOR = Comparator<Audio> { audio1, audio2 ->
+		audio2.title?.compareTo(audio1.title) ?: -1
+	}
 
-    val LENGTH_COMPARATOR = Comparator<Audio> { audio1, audio2 ->
-        audio1.duration.compareTo(audio2.duration)
-    }
+	val LENGTH_COMPARATOR = Comparator<Audio> { audio1, audio2 ->
+		audio1.duration.compareTo(audio2.duration)
+	}
+
+	val LENGTH_REVERSE_COMPARATOR = Comparator<Audio> { audio1, audio2 ->
+		audio2.duration.compareTo(audio1.duration)
+	}
 }

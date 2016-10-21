@@ -30,159 +30,159 @@ import org.greenrobot.eventbus.Subscribe
 import java.util.*
 
 abstract class BaseAudioRecyclerAdapter<A : Audio, VH : RecyclerView.ViewHolder> :
-        RecyclerView.Adapter<VH>(),
-        SortMode.Listener<A>,
-        ItemTouchHelperAdapter {
+		RecyclerView.Adapter<VH>(),
+		SortMode.Listener<A>,
+		ItemTouchHelperAdapter {
 
-    protected val sortModeDelegate: SortMode<A> = SortModeImpl(this)
-    protected abstract val searchDelegate: SearchDelegate
-    protected val itemTouchHelper: ItemTouchHelper
+	protected val sortModeDelegate: SortMode<A> = SortModeImpl(this)
+	protected abstract val searchDelegate: SearchDelegate
+	protected val itemTouchHelper: ItemTouchHelper
 
-    protected var recyclerView: RecyclerView? = null
+	protected var recyclerView: RecyclerView? = null
 
-    abstract var audios: List<A>
-    abstract var checkedAudios: HashSet<A>
-    var checkedListener: CheckedListener? = null
+	abstract var audios: List<A>
+	abstract var checkedAudios: HashSet<A>
+	var checkedListener: CheckedListener? = null
 
-    init {
-        val callback = SimpleItemTouchHelperCallback(this)
-        this.itemTouchHelper = ItemTouchHelper(callback)
-    }
+	init {
+		val callback = SimpleItemTouchHelperCallback(this)
+		this.itemTouchHelper = ItemTouchHelper(callback)
+	}
 
-    override fun onAttachedToRecyclerView(recyclerView: RecyclerView?) {
-        this.recyclerView = recyclerView
-        itemTouchHelper.attachToRecyclerView(recyclerView)
-    }
+	override fun onAttachedToRecyclerView(recyclerView: RecyclerView?) {
+		this.recyclerView = recyclerView
+		itemTouchHelper.attachToRecyclerView(recyclerView)
+	}
 
-    override fun onBindViewHolder(holder: VH, position: Int) {
-        throw UnsupportedOperationException("not implemented")
-    }
+	override fun onBindViewHolder(holder: VH, position: Int) {
+		throw UnsupportedOperationException("not implemented")
+	}
 
-    protected fun configurePlayingState(holder: AudioViewHolder, audio: A) {
-        val playingAudio = Player.audio
-        if (audio.id == playingAudio?.id) {
-            val state = when {
-                !Player.isReady -> AudioViewHolder.State.PREPARE
-                Player.isReady && Player.isPlaying -> AudioViewHolder.State.PLAY
-                Player.isReady && !Player.isPlaying -> AudioViewHolder.State.PAUSE
-                else -> AudioViewHolder.State.NONE
-            }
-            holder.setPlayingState(state)
-        }
-    }
+	protected fun configurePlayingState(holder: AudioViewHolder, audio: A) {
+		val playingAudio = Player.audio
+		if (audio.id == playingAudio?.id) {
+			val state = when {
+				!Player.isReady -> AudioViewHolder.State.PREPARE
+				Player.isReady && Player.isPlaying -> AudioViewHolder.State.PLAY
+				Player.isReady && !Player.isPlaying -> AudioViewHolder.State.PAUSE
+				else -> AudioViewHolder.State.NONE
+			}
+			holder.setPlayingState(state)
+		}
+	}
 
-    protected fun configureCheckedState(holder: AudioViewHolder, audio: A) {
-        holder.setChecked(audio in checkedAudios)
-        setupCheckedClickListener(holder, audio)
-    }
+	protected fun configureCheckedState(holder: AudioViewHolder, audio: A) {
+		holder.setChecked(audio in checkedAudios)
+		setupCheckedClickListener(holder, audio)
+	}
 
-    protected fun configureSortMode(holder: AudioViewHolder) {
-        holder.setSorting(isSortMode())
-        if (isSortMode()) {
-            setupDragTouchListener(holder)
-        }
-    }
+	protected fun configureSortMode(holder: AudioViewHolder) {
+		holder.setSorting(isSortMode())
+		if (isSortMode()) {
+			setupDragTouchListener(holder)
+		}
+	}
 
-    protected fun setupCheckedClickListener(holder: AudioViewHolder, audio: A) {
-        holder.coverHolder.setOnTouchListener(null)
-        holder.coverHolder.setOnClickListener {
-            holder.toggleChecked(shouldAnimate = true)
-            if (holder.isChecked()) checkedAudios.add(audio) else checkedAudios.remove(audio)
-            checkedListener?.onChanged(audio, checkedAudios)
-        }
-    }
+	protected fun setupCheckedClickListener(holder: AudioViewHolder, audio: A) {
+		holder.coverHolder.setOnTouchListener(null)
+		holder.coverHolder.setOnClickListener {
+			holder.toggleChecked(shouldAnimate = true)
+			if (holder.isChecked()) checkedAudios.add(audio) else checkedAudios.remove(audio)
+			checkedListener?.onChanged(audio, checkedAudios)
+		}
+	}
 
-    protected fun setupDragTouchListener(holder: AudioViewHolder) {
-        holder.coverHolder.setOnClickListener(null)
-        holder.coverHolder.setOnTouchListener { v, e ->
-            if (MotionEventCompat.getActionMasked(e) == MotionEvent.ACTION_DOWN) {
-                itemTouchHelper.startDrag(holder)
-            }
-            false
-        }
-    }
+	protected fun setupDragTouchListener(holder: AudioViewHolder) {
+		holder.coverHolder.setOnClickListener(null)
+		holder.coverHolder.setOnTouchListener { v, e ->
+			if (MotionEventCompat.getActionMasked(e) == MotionEvent.ACTION_DOWN) {
+				itemTouchHelper.startDrag(holder)
+			}
+			false
+		}
+	}
 
-    protected fun scrollToTop() {
-        recyclerView?.layoutManager?.scrollToPosition(0)
-    }
+	protected fun scrollToTop() {
+		recyclerView?.layoutManager?.scrollToPosition(0)
+	}
 
-    fun startSortMode() {
-        sortModeDelegate.start()
-    }
+	fun startSortMode() {
+		sortModeDelegate.start()
+	}
 
-    fun commitSortMode() {
-        sortModeDelegate.commit()
-    }
+	fun commitSortMode() {
+		sortModeDelegate.commit()
+	}
 
-     fun revertSortMode() {
-        sortModeDelegate.revert()
-        scrollToTop()
-    }
+	fun revertSortMode() {
+		sortModeDelegate.revert()
+		scrollToTop()
+	}
 
-    fun isSortMode(): Boolean {
-        return sortModeDelegate.isSortMode()
-    }
+	fun isSortMode(): Boolean {
+		return sortModeDelegate.isSortMode()
+	}
 
-    fun sort(comparator: Comparator<in A>) {
-        sortModeDelegate.sort(comparator)
-        scrollToTop()
-    }
+	fun sort(comparators: Pair<Comparator<in A>, Comparator<in A>>) {
+		sortModeDelegate.sort(comparators)
+		scrollToTop()
+	}
 
-    fun setSearchQuery(query: String) {
-        searchDelegate.search(query)
-    }
+	fun setSearchQuery(query: String) {
+		searchDelegate.search(query)
+	}
 
-    abstract fun removeChecked()
+	abstract fun removeChecked()
 
-    abstract fun clearChecked()
+	abstract fun clearChecked()
 
-    override fun onStart() {
-        notifyItemRangeChanged(0, itemCount, BaseAudioAdapterEvent.SortModeStarted)
-    }
+	override fun onStart() {
+		notifyItemRangeChanged(0, itemCount, BaseAudioAdapterEvent.SortModeStarted)
+	}
 
-    override fun onMove(from: Int, to: Int, newList: List<A>) {
-        audios = newList
-        notifyItemMoved(from, to)
-    }
+	override fun onMove(from: Int, to: Int, newList: List<A>) {
+		audios = newList
+		notifyItemMoved(from, to)
+	}
 
-    override fun getAudiosToSort(): List<A> {
-        return audios
-    }
+	override fun getAudiosToSort(): List<A> {
+		return audios
+	}
 
-    override fun onCommit() {
-        notifyItemRangeChanged(0, itemCount, BaseAudioAdapterEvent.SortModeFinished)
-    }
+	override fun onCommit() {
+		notifyItemRangeChanged(0, itemCount, BaseAudioAdapterEvent.SortModeFinished)
+	}
 
-    override fun onRevert() {
-        notifyItemRangeChanged(0, itemCount, BaseAudioAdapterEvent.SortModeFinished)
-    }
+	override fun onRevert() {
+		notifyItemRangeChanged(0, itemCount, BaseAudioAdapterEvent.SortModeFinished)
+	}
 
-    @Subscribe
-    fun onStartEvent(e: PlayerStartEvent) {
-        notifyEvent(e)
-    }
+	@Subscribe
+	fun onStartEvent(e: PlayerStartEvent) {
+		notifyEvent(e)
+	}
 
-    @Subscribe
-    fun onPlayEvent(e: PlayerPlayEvent) {
-        notifyEvent(e)
-    }
+	@Subscribe
+	fun onPlayEvent(e: PlayerPlayEvent) {
+		notifyEvent(e)
+	}
 
-    @Subscribe
-    fun onResumeEvent(e: PlayerResumeEvent) {
-        notifyEvent(e)
-    }
+	@Subscribe
+	fun onResumeEvent(e: PlayerResumeEvent) {
+		notifyEvent(e)
+	}
 
-    @Subscribe
-    fun onPauseEvent(e: PlayerPauseEvent) {
-        notifyEvent(e)
-    }
+	@Subscribe
+	fun onPauseEvent(e: PlayerPauseEvent) {
+		notifyEvent(e)
+	}
 
-    private fun notifyEvent(e: PlayerEvent) {
-        notifyDataSetChanged()
-    }
+	private fun notifyEvent(e: PlayerEvent) {
+		notifyDataSetChanged()
+	}
 
-    interface CheckedListener {
+	interface CheckedListener {
 
-        fun onChanged(audio: Audio, checked: HashSet<out Audio>)
-    }
+		fun onChanged(audio: Audio, checked: HashSet<out Audio>)
+	}
 }

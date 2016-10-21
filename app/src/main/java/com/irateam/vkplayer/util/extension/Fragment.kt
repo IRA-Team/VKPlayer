@@ -16,26 +16,33 @@
 
 package com.irateam.vkplayer.util.extension
 
+import android.support.annotation.IdRes
 import android.support.annotation.StringRes
 import android.support.v4.app.Fragment
+import android.view.View
 import com.irateam.vkplayer.util.Permission
 
 fun Fragment.showLongToast(@StringRes resId: Int) {
-    context.showLongToast(resId)
+	context.showLongToast(resId)
 }
 
 fun Fragment.showLongToast(text: String) {
-    context.showLongToast(text)
+	context.showLongToast(text)
 }
 
 fun Fragment.isPermissionsGranted(vararg permissions: Permission): Boolean {
-    return context.isPermissionsGranted(*permissions)
+	return context.isPermissionsGranted(*permissions)
 }
 
 fun Fragment.requestPermissions(requestCode: Int, vararg permissions: Permission) {
-    val rawPermissions = permissions
-            .map { it.value }
-            .toTypedArray()
+	val rawPermissions = permissions
+			.map { it.value }
+			.toTypedArray()
 
-    requestPermissions(rawPermissions, requestCode)
+	requestPermissions(rawPermissions, requestCode)
+}
+
+@Suppress("unchecked_cast")
+fun <V : View> Fragment.getViewById(@IdRes id: Int): V {
+	return view?.findViewById(id) as V
 }
