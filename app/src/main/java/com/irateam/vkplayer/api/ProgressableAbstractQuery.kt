@@ -16,24 +16,16 @@
 
 package com.irateam.vkplayer.api
 
-import java.util.*
+abstract class ProgressableAbstractQuery<T, P> : AbstractQuery<T>(), ProgressableQuery<T, P> {
 
-open class SimpleProgressableCallback<T, P> : SimpleCallback<T>, ProgressableCallback<T, P> {
+	private var progressableCallback: ProgressableCallback<T, P>? = null
 
-	private val progressListeners: ArrayList<((P) -> Unit)> = ArrayList()
-
-	constructor()
-
-	constructor(block: SimpleProgressableCallback<T, P>.() -> Unit) {
-		block.invoke(this)
+	override fun execute(callback: ProgressableCallback<T, P>) {
+		this.progressableCallback = callback
+		execute(callback as Callback<T>)
 	}
 
-	fun onProgress(progressListener: (P) -> Unit): SimpleProgressableCallback<T, P> {
-		progressListeners.add(progressListener)
-		return this
-	}
-
-	override fun onProgress(progress: P) {
-		progressListeners.forEach { it.invoke(progress) }
+	protected fun notifyProgress(progress: P) {
+		progressableCallback?.let { UI_HANDLER.post { it.onProgress(progress) } }
 	}
 }

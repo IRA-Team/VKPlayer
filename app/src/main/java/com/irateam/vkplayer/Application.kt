@@ -36,20 +36,6 @@ class Application : android.app.Application() {
                 .defaultDisplayImageOptions(options)
                 .build()
 
-        /*  vkDir.walk()
-                  .filter { !it.isDirectory }
-                  .map {
-                      try {
-                          Mp3File(it.path)
-                      } catch (e: Exception) {
-                          null
-                      }
-                  }
-                  .filterNotNull()
-                  .map { it.id3v2Tag }
-                  .filterNotNull()
-                  .forEach { Log.e("MP3ScanVK", it.artist + " - " + it.title) }*/
-
         ImageLoader.getInstance().init(config)
     }
 }

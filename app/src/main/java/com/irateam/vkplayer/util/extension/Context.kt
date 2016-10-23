@@ -20,7 +20,10 @@ package com.irateam.vkplayer.util.extension
 
 import android.animation.Animator
 import android.animation.AnimatorInflater
+import android.app.Activity
+import android.app.Service
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
@@ -35,45 +38,53 @@ import android.widget.Toast
 import com.irateam.vkplayer.util.Permission
 
 fun Context.isNetworkAvailable(): Boolean {
-    val connectivityService = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    val networkInfo = connectivityService.activeNetworkInfo
-    return networkInfo?.isConnectedOrConnecting ?: false
+	val connectivityService = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+	val networkInfo = connectivityService.activeNetworkInfo
+	return networkInfo?.isConnectedOrConnecting ?: false
 }
 
 fun Context.isWifiNetworkAvailable(): Boolean {
-    val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    val networkInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
-    return networkInfo?.isConnectedOrConnecting ?: false
+	val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+	val networkInfo = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
+	return networkInfo?.isConnectedOrConnecting ?: false
 }
 
 fun Context.getAnimation(@AnimRes id: Int): Animation {
-    return AnimationUtils.loadAnimation(this, id)
+	return AnimationUtils.loadAnimation(this, id)
 }
 
 fun Context.getAnimator(@AnimatorRes id: Int): Animator {
-    return AnimatorInflater.loadAnimator(this, id)
+	return AnimatorInflater.loadAnimator(this, id)
 }
 
 @Suppress("unchecked_cast")
 fun <T> Context.getSystemService(name: String): T {
-    return getSystemService(name) as T
+	return getSystemService(name) as T
 }
 
 fun Context.getThemedDrawable(@DrawableRes resId: Int): Drawable {
-    return ContextCompat.getDrawable(this, resId)
+	return ContextCompat.getDrawable(this, resId)
 }
 
 fun Context.showLongToast(@StringRes resId: Int) {
-    Toast.makeText(this, resId, Toast.LENGTH_LONG).show()
+	Toast.makeText(this, resId, Toast.LENGTH_LONG).show()
 }
 
 fun Context.showLongToast(text: String) {
-    Toast.makeText(this, text, Toast.LENGTH_LONG).show()
+	Toast.makeText(this, text, Toast.LENGTH_LONG).show()
 }
 
 fun Context.isPermissionsGranted(vararg permissions: Permission): Boolean {
-    return permissions.all {
-        ContextCompat.checkSelfPermission(this, it.value) ==
-                PackageManager.PERMISSION_GRANTED
-    }
+	return permissions.all {
+		ContextCompat.checkSelfPermission(this, it.value) ==
+				PackageManager.PERMISSION_GRANTED
+	}
+}
+
+inline fun <reified T> Context.startActivity() where T : Activity {
+	startActivity(Intent(this, T::class.java))
+}
+
+inline fun <reified T> Context.startService() where T : Service {
+	startService(Intent(this, T::class.java))
 }

@@ -17,7 +17,6 @@
 package com.irateam.vkplayer.fragment
 
 import android.os.Bundle
-import android.support.annotation.MenuRes
 import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.DefaultItemAnimator
@@ -71,11 +70,9 @@ abstract class BaseAudioListFragment : Fragment(),
     }
 
     /**
-     * Register adapter for events and configure view components
+     * Configure view components
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        EventBus.register(adapter)
-
         recyclerView = view.getViewById(R.id.recycler_view)
         configureRecyclerView()
 
@@ -89,13 +86,15 @@ abstract class BaseAudioListFragment : Fragment(),
         configureEmptyView()
     }
 
-    /**
-     * Unregister adapter from events
-     */
-    override fun onDestroy() {
-        super.onDestroy()
-        EventBus.unregister(adapter)
-    }
+	override fun onStart() {
+		super.onStart()
+		EventBus.register(adapter)
+	}
+
+	override fun onStop() {
+		EventBus.unregister(adapter)
+		super.onStop()
+	}
 
     /**
      * Initialize menu variable and configure SearchView.
@@ -212,7 +211,7 @@ abstract class BaseAudioListFragment : Fragment(),
         mode.finish()
         return true
     }
-    
+
     override fun onDestroyActionMode(mode: ActionMode) {
         adapter.clearChecked()
         actionMode = null
