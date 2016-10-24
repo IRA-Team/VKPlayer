@@ -11,6 +11,7 @@ android {
         targetSdkVersion 23
         versionCode 5
         versionName "2.0.0-alpha"
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {

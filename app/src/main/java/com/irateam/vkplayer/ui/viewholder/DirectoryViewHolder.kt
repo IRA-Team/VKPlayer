@@ -25,8 +25,10 @@ import com.irateam.vkplayer.util.extension.getViewById
 class DirectoryViewHolder : RecyclerView.ViewHolder {
 
     val name: TextView
+    val filesCount: TextView
 
     constructor(v: View) : super(v) {
         this.name = v.getViewById(R.id.name)
+        this.filesCount = v.getViewById(R.id.files_count)
     }
 }

@@ -47,11 +47,11 @@ fun d(tag: String, message: String, vararg objects: Any) {
 }
 
 //Info level
-fun i(obj: Any) {
+fun i(obj: Any?) {
     i(DEFAULT_TAG, obj)
 }
 
-fun i(tag: String, obj: Any) {
+fun i(tag: String, obj: Any?) {
     Log.i(tag, obj.toString());
 }
 

@@ -18,7 +18,9 @@
               android:layout_width="match_parent"
               android:layout_height="56dp"
               android:background="@color/primary"
-              android:orientation="horizontal">
+              android:orientation="horizontal"
+              android:paddingLeft="@dimen/padding_normal"
+              android:paddingRight="@dimen/padding_normal">
 
     <TextView
         android:id="@+id/sort_by_title"
@@ -38,13 +40,4 @@
         android:drawableTop="@drawable/ic_notification_cancel_white_24dp"
         android:text="@string/length"/>
 
-    <View
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"/>
-
-    <View
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"/>
 </LinearLayout>

@@ -115,7 +115,7 @@ class MainActivity : AppCompatActivity(),
         //TODO:
         //initializeFragment()
         supportFragmentManager.beginTransaction()
-                .replace(R.id.container, FilePickerFragment.newInstance())
+                .replace(R.id.container, FilePickerFragment.newInstance(), TOP_LEVEL_FRAGMENT)
                 .commit()
     }
 

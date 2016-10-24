@@ -26,33 +26,52 @@ import android.view.ViewGroup
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapter.FilePickerRecyclerAdapter
 import com.irateam.vkplayer.util.extension.getViewById
+import com.irateam.vkplayer.util.filepicker.PickedStateProvider
+import java.io.File
+import java.util.*
 
-class FilePickerFragment : Fragment() {
+class FilePickerFragment : Fragment(), PickedStateProvider {
 
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: FilePickerRecyclerAdapter
+	private lateinit var recyclerView: RecyclerView
+	private lateinit var adapter: FilePickerRecyclerAdapter
 
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+	private val pickedFiles: HashSet<File> = HashSet()
+	private val excludedFiles: HashSet<File> = HashSet()
 
-        return inflater.inflate(R.layout.fragment_file_picker, container, false)
-    }
+	override fun onCreateView(inflater: LayoutInflater,
+							  container: ViewGroup?,
+							  savedInstanceState: Bundle?): View {
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        recyclerView = view.getViewById(R.id.recycler_view)
-        configureRecyclerView()
-    }
+		return inflater.inflate(R.layout.fragment_file_picker, container, false)
+	}
 
-    private fun configureRecyclerView() {
-        adapter = FilePickerRecyclerAdapter()
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(context)
-    }
+	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+		recyclerView = view.getViewById(R.id.recycler_view)
+		configureRecyclerView()
+	}
 
-    companion object {
+	private fun configureRecyclerView() {
+		adapter = FilePickerRecyclerAdapter.Builder()
+				.setDirectory(File("/"))
+				.setPickedStateProvider(this)
+				.showDirectories(false)
+				.build()
 
-        @JvmStatic
-        fun newInstance() = FilePickerFragment()
-    }
+		recyclerView.adapter = adapter
+		recyclerView.layoutManager = LinearLayoutManager(context)
+	}
+
+	override fun getPickedFiles(): Collection<File> {
+		return pickedFiles
+	}
+
+	override fun getExcludedFiles(): Collection<File> {
+		return excludedFiles
+	}
+
+	companion object {
+
+		@JvmStatic
+		fun newInstance() = FilePickerFragment()
+	}
 }

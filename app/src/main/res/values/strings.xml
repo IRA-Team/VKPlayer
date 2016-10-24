@@ -31,6 +31,7 @@
     <string name="error_load">Ошибка загрузки</string>
     <string name="error_no_internet_connection">Отсутствует соединение с интернетом</string>
     <string name="error_no_wifi_connection">Отсутствует соединение с Wi-Fi</string>
+    <string name="error_load_user_from_cache">Ошибка загрузки пользователя с кеша</string>
     <string name="title_snackbar_action">Повторить</string>
 
     <string name="notification_previous">Предыдущая</string>
