@@ -33,7 +33,7 @@ abstract class VKQuery<T> : AbstractQuery<T> {
 	}
 
 	override fun query(): T {
-		throw UnsupportedOperationException("VKQuery doesn't have get method")
+		throw UnsupportedOperationException("${javaClass.name} doesn't have query method")
 	}
 
 	protected abstract fun parse(response: VKResponse): T

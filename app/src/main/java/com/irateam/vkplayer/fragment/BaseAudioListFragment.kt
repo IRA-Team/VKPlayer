@@ -17,6 +17,7 @@
 package com.irateam.vkplayer.fragment
 
 import android.os.Bundle
+import android.support.annotation.MenuRes
 import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.DefaultItemAnimator
@@ -29,7 +30,6 @@ import com.irateam.vkplayer.adapter.BaseAudioRecyclerAdapter
 import com.irateam.vkplayer.controller.PlayerController
 import com.irateam.vkplayer.model.Audio
 import com.irateam.vkplayer.player.Player
-import com.irateam.vkplayer.util.Comparators
 import com.irateam.vkplayer.util.EventBus
 import com.irateam.vkplayer.util.extension.getViewById
 import com.irateam.vkplayer.util.extension.slideInUp
@@ -247,18 +247,19 @@ abstract class BaseAudioListFragment : Fragment(),
 
     }
 
+    //TODO:
     private fun configureSortModeHolder() {
         sortModeHolder.apply {
             findViewById(R.id.sort_by_title).setOnClickListener {
-                adapter.sort(Comparators.TITLE_COMPARATOR)
+                //adapter.sort(Comparators.TITLE_COMPARATOR)
             }
 
             findViewById(R.id.sort_by_artist).setOnClickListener {
-                adapter.sort(Comparators.ARTIST_COMPARATOR)
+                //adapter.sort(Comparators.ARTIST_COMPARATOR)
             }
 
             findViewById(R.id.sort_by_length).setOnClickListener {
-                adapter.sort(Comparators.LENGTH_COMPARATOR)
+                //adapter.sort(Comparators.LENGTH_COMPARATOR)
             }
         }
     }

@@ -36,16 +36,37 @@ object Player : MediaPlayer(),
     val TAG = Player.javaClass.name
 
     /**
-     * Queues
+     * Original playlist.
+     * Inner playlist is built based on original playlist.
+     * Also uses for providing correct audio position.
+     * Must be changed only by calling setQueue()
      */
-    private var originalPlaylist = ArrayList<Audio>()
-    var playlist = emptyList<Audio>()
+    private var originalPlaylist: List<Audio> = emptyList()
+
+    /**
+     * Inner playlist
+     */
+    var playlist: List<Audio> = emptyList<Audio>()
         private set
 
-    private var queue = ArrayList<Audio>()
-    private val playNextQueue = ConcurrentLinkedQueue<Audio>()
-    private val historyStack = Stack<Audio>()
+    /**
+     * Holds audios in order in which they would be played
+     */
+    private var queue: MutableList<Audio> = ArrayList<Audio>()
 
+    /**
+     * Holds audios that should be played next
+     */
+    private val playNextQueue: Queue<Audio> = ConcurrentLinkedQueue<Audio>()
+
+    /**
+     * Holds all previously played audios
+     */
+    private val historyStack: Stack<Audio> = Stack<Audio>()
+
+    /**
+     * Currently playing audio
+     */
     var audio: Audio? = null
         private set
 
@@ -55,13 +76,22 @@ object Player : MediaPlayer(),
     val audioIndex: Int
         get() = queue.indexOf(audio)
 
+    /**
+     * Position of playing audio relatively to original playlist
+     */
     val audioPosition: Int
         get() = originalPlaylist.indexOf(audio)
 
-    val isFirst: Boolean
+    /**
+     * Checks if playing audio is first in queue
+     */
+    private val isFirst: Boolean
         get() = audio === queue.first()
 
-    val isLast: Boolean
+    /**
+     * Checks if playing audio is last in queue
+     */
+    private val isLast: Boolean
         get() = audio === queue.last()
 
     private fun setQueue(audios: Collection<Audio>, head: Audio?) {
@@ -78,16 +108,21 @@ object Player : MediaPlayer(),
         playNextQueue.addAll(audios.map { it.clone() })
     }
 
-    private fun setupQueues(head: Audio? = null) {
+    private fun setupQueues(head: Audio? = null, shouldIncludeHead: Boolean = true) {
         if (!randomState) {
-            setupPlayingQueue(head)
+            setupDefaultQueue(
+                    head = head,
+                    shouldIncludeHead = shouldIncludeHead)
         } else {
-            setupShuffledQueue(null)
+            setupShuffledQueue(
+                    head = head,
+                    shouldIncludeHead = shouldIncludeHead)
         }
+        logPlaylist()
     }
 
-    private fun setupPlayingQueue(head: Audio?) {
-        playlist = originalPlaylist.toList()
+    private fun setupDefaultQueue(head: Audio?, shouldIncludeHead: Boolean) {
+        playlist = originalPlaylist
 
         if (head != null) {
             val headIndex = playlist.indexOf(head)
@@ -102,7 +137,10 @@ object Player : MediaPlayer(),
                 emptyList<Audio>()
             }
             queue = ArrayList<Audio>().apply {
-                add(head)
+                if (shouldIncludeHead) {
+                    add(head)
+                }
+
                 addAll(lastPart)
                 addAll(firstPart)
             }
@@ -111,15 +149,18 @@ object Player : MediaPlayer(),
         }
     }
 
-    private fun setupShuffledQueue(head: Audio?) {
-        val shuffled = ArrayList<Audio>(originalPlaylist)
+    private fun setupShuffledQueue(head: Audio?, shouldIncludeHead: Boolean) {
+        val shuffled = originalPlaylist.toMutableList()
         Collections.shuffle(shuffled)
         if (head != null) {
             val index = shuffled.indexOf(head)
             if (index != -1) {
                 shuffled.removeAt(index)
             }
-            shuffled.add(0, head)
+
+            if (shouldIncludeHead) {
+                shuffled.add(0, head)
+            }
         }
         queue = shuffled
         playlist = queue.toList()
@@ -156,7 +197,7 @@ object Player : MediaPlayer(),
     }
 
     /**
-     * Player state
+     * Indicates that audio should be played after preparing
      */
     var shouldPlay = false
 
@@ -167,7 +208,10 @@ object Player : MediaPlayer(),
         private set
 
     var randomState by observable(false) { property, oldValue, newValue ->
-        setupQueues(audio)
+        setupQueues(
+                head = audio,
+                shouldIncludeHead = false)
+        historyStack.clear()
         EventBus.post(PlayerRandomChangedEvent(newValue))
     }
 
@@ -176,9 +220,13 @@ object Player : MediaPlayer(),
     }
 
     /**
-     * Other
+     * Handler of UI-Thread for posting events
      */
     private val uiHandler = Handler(Looper.getMainLooper())
+
+    /**
+     * Observes playing progress of player and posts events about changes
+     */
     private var progressThread: ProgressThread? = null
 
     init {
@@ -228,8 +276,11 @@ object Player : MediaPlayer(),
         }
     }
 
+    /**
+     * Pause with flag about stopping foreground notification
+     */
     override fun pause() {
-        pause(false)
+        pause(shouldStopForeground = false)
     }
 
     fun pause(shouldStopForeground: Boolean) {
@@ -251,14 +302,6 @@ object Player : MediaPlayer(),
         play(pollNextAudio())
 
         logPlaylist()
-    }
-
-    fun logPlaylist() {
-        i(TAG, "HistoryStack: Size = ${historyStack.size}")
-        i(TAG, "HistoryStack: $historyStack")
-        i(TAG, "Queue: Size = ${queue.size}")
-        i(TAG, "Queue: $queue")
-        i(TAG, "=================================================")
     }
 
     fun previous() {
@@ -345,6 +388,14 @@ object Player : MediaPlayer(),
         if (!it.isInterrupted) {
             it.interrupt()
         }
+    }
+
+    private fun logPlaylist() {
+        i(TAG, "HistoryStack: Size = ${historyStack.size}")
+        i(TAG, "HistoryStack: $historyStack")
+        i(TAG, "Queue: Size = ${queue.size}")
+        i(TAG, "Queue: $queue")
+        i(TAG, "=================================================")
     }
 
     private class ProgressThread : Thread() {
