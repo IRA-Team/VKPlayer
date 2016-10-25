@@ -27,7 +27,9 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.view.MenuItem
+import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.TextView
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.activity.settings.SettingsActivity
@@ -36,194 +38,214 @@ import com.irateam.vkplayer.api.service.UserService
 import com.irateam.vkplayer.api.service.VKAudioService
 import com.irateam.vkplayer.controller.PlayerController
 import com.irateam.vkplayer.fragment.BackPressedListener
-import com.irateam.vkplayer.fragment.FilePickerFragment
 import com.irateam.vkplayer.fragment.LocalAudioListFragment
 import com.irateam.vkplayer.fragment.VKAudioListFragment
 import com.irateam.vkplayer.model.User
+import com.irateam.vkplayer.player.PlayerPlayEvent
+import com.irateam.vkplayer.player.PlayerStopEvent
 import com.irateam.vkplayer.service.PlayerService
 import com.irateam.vkplayer.util.EventBus
 import com.irateam.vkplayer.util.extension.*
 import com.melnykov.fab.FloatingActionButton
 import com.vk.sdk.VKSdk
+import org.greenrobot.eventbus.Subscribe
 
 class MainActivity : AppCompatActivity(),
-        NavigationView.OnNavigationItemSelectedListener,
-        PlayerController.VisibilityController {
+		NavigationView.OnNavigationItemSelectedListener,
+		PlayerController.VisibilityController {
 
-    //Services
-    private lateinit var userService: UserService
-    private lateinit var audioService: VKAudioService
-    private lateinit var localAudioService: LocalAudioService
+	//Services
+	private lateinit var userService: UserService
+	private lateinit var audioService: VKAudioService
+	private lateinit var localAudioService: LocalAudioService
 
-    //Views
-    private lateinit var toolbar: Toolbar
-    private lateinit var drawerLayout: DrawerLayout
-    private lateinit var navigationView: NavigationView
-    private lateinit var coordinatorLayout: CoordinatorLayout
-    private lateinit var fab: FloatingActionButton
+	//Views
+	private lateinit var toolbar: Toolbar
+	private lateinit var drawerLayout: DrawerLayout
+	private lateinit var navigationView: NavigationView
+	private lateinit var container: FrameLayout
+	private lateinit var coordinatorLayout: CoordinatorLayout
+	private lateinit var fab: FloatingActionButton
 
-    //User views
-    private lateinit var userPhoto: ImageView
-    private lateinit var userFullName: TextView
-    private lateinit var userLink: TextView
+	//User views
+	private lateinit var userPhoto: ImageView
+	private lateinit var userFullName: TextView
+	private lateinit var userLink: TextView
 
-    //Player helpers
-    private lateinit var playerController: PlayerController
+	//Player helpers
+	private lateinit var playerController: PlayerController
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+	override fun onCreate(savedInstanceState: Bundle?) {
+		super.onCreate(savedInstanceState)
+		setContentView(R.layout.activity_main)
 
-        toolbar = getViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
-       // supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        toolbar.setNavigationOnClickListener { drawerLayout.openDrawer(GravityCompat.START) }
+		toolbar = getViewById(R.id.toolbar)
+		setSupportActionBar(toolbar)
+		supportActionBar?.setDisplayHomeAsUpEnabled(true)
+		toolbar.setNavigationOnClickListener { drawerLayout.openDrawer(GravityCompat.START) }
 
-        drawerLayout = getViewById(R.id.drawer_layout)
-        val drawerToggle = ActionBarDrawerToggle(
-                this,
-                drawerLayout,
-                R.string.navigation_drawer_open,
-                R.string.navigation_drawer_close)
-        drawerLayout.addDrawerListener(drawerToggle)
-        drawerToggle.syncState()
-        navigationView = getViewById(R.id.navigation_view)
-        navigationView.setNavigationItemSelectedListener(this)
+		drawerLayout = getViewById(R.id.drawer_layout)
+		val drawerToggle = ActionBarDrawerToggle(
+				this,
+				drawerLayout,
+				R.string.navigation_drawer_open,
+				R.string.navigation_drawer_close)
+		drawerLayout.addDrawerListener(drawerToggle)
+		drawerToggle.syncState()
+		navigationView = getViewById(R.id.navigation_view)
+		navigationView.setNavigationItemSelectedListener(this)
 
-        val header = navigationView.getHeaderView(0)
-        userPhoto = header.getViewById(R.id.user_photo)
-        userFullName = header.getViewById(R.id.user_full_name)
-        userLink = header.getViewById(R.id.user_vk_link)
+		val header = navigationView.getHeaderView(0)
+		userPhoto = header.getViewById(R.id.user_photo)
+		userFullName = header.getViewById(R.id.user_full_name)
+		userLink = header.getViewById(R.id.user_vk_link)
 
-        coordinatorLayout = getViewById(R.id.coordinator_layout)
+		container = getViewById(R.id.container)
+		coordinatorLayout = getViewById(R.id.coordinator_layout)
 
-        fab = getViewById(R.id.fab)
-        fab.setOnClickListener { startActivity(Intent(this, AudioActivity::class.java)) }
+		fab = getViewById(R.id.fab)
+		fab.setOnClickListener { startActivity(Intent(this, AudioActivity::class.java)) }
 
-        playerController = PlayerController(this, findViewById(R.id.player_panel)!!)
-        playerController.initialize()
+		playerController = PlayerController(this, findViewById(R.id.player_panel)!!)
+		playerController.initialize()
 
-        audioService = VKAudioService(this)
-        localAudioService = LocalAudioService(this)
-        userService = UserService(this)
+		audioService = VKAudioService(this)
+		localAudioService = LocalAudioService(this)
+		userService = UserService(this)
 
-        startService<PlayerService>()
+		startService<PlayerService>()
 
-        initializeUser()
+		initializeUser()
+		initializeFragment()
+	}
 
-        //TODO:
-        //initializeFragment()
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.container, FilePickerFragment.newInstance(), TOP_LEVEL_FRAGMENT)
-                .commit()
-    }
+	override fun onStart() {
+		super.onStart()
+		EventBus.register(this)
+		EventBus.register(playerController)
+	}
 
-    override fun onStart() {
-        super.onStart()
-        EventBus.register(playerController)
-    }
+	override fun onStop() {
+		EventBus.unregister(this)
+		EventBus.unregister(playerController)
+		super.onStop()
+	}
 
-    override fun onStop() {
-        EventBus.unregister(playerController)
-        super.onStop()
-    }
+	override fun onNavigationItemSelected(menuItem: MenuItem): Boolean {
+		drawerLayout.closeDrawers()
 
-    override fun onNavigationItemSelected(menuItem: MenuItem): Boolean {
-        drawerLayout.closeDrawers()
+		val itemId = menuItem.itemId
+		val groupId = menuItem.groupId
 
-        val itemId = menuItem.itemId
-        val groupId = menuItem.groupId
+		if (groupId == R.id.audio_group) {
+			supportActionBar?.title = menuItem.title
+			val fragment: Fragment = when (itemId) {
+				R.id.current_playlist  -> VKAudioListFragment.newInstance(audioService.getCurrent())
+				R.id.my_audio          -> VKAudioListFragment.newInstance(audioService.getMy())
+				R.id.recommended_audio -> VKAudioListFragment.newInstance(audioService.getRecommendation())
+				R.id.popular_audio     -> VKAudioListFragment.newInstance(audioService.getPopular())
+				R.id.cached_audio      -> VKAudioListFragment.newInstance(audioService.getCached())
+				R.id.local_audio       -> LocalAudioListFragment.newInstance()
+				else                   -> throw IllegalStateException("This item doesn't support.")
+			}
+			setFragment(fragment)
+			return true
 
-        if (groupId == R.id.audio_group) {
-            supportActionBar?.title = menuItem.title
-            val fragment: Fragment = when (itemId) {
-                R.id.current_playlist -> VKAudioListFragment.newInstance(audioService.getCurrent())
-                R.id.my_audio -> VKAudioListFragment.newInstance(audioService.getMy())
-                R.id.recommended_audio -> VKAudioListFragment.newInstance(audioService.getRecommendation())
-                R.id.popular_audio -> VKAudioListFragment.newInstance(audioService.getPopular())
-                R.id.cached_audio -> VKAudioListFragment.newInstance(audioService.getCached())
-                R.id.local_audio -> LocalAudioListFragment.newInstance()
-                else -> throw IllegalStateException("This item doesn't support.")
-            }
-            setFragment(fragment)
-            return true
+		} else if (groupId == R.id.secondary_group) {
+			when (itemId) {
+				R.id.settings -> startActivity(Intent(this, SettingsActivity::class.java))
+				R.id.exit     -> VkLogout()
+			}
+			return true
+		}
 
-        } else if (groupId == R.id.secondary_group) {
-            when (itemId) {
-                R.id.settings -> startActivity(Intent(this, SettingsActivity::class.java))
-                R.id.exit -> VkLogout()
-            }
-            return true
-        }
+		return false
+	}
 
-        return false
-    }
+	@Subscribe
+	fun onPlayEvent(e: PlayerPlayEvent) {
+		if (!playerController.isVisible()) {
+			showPlayerController()
+		}
+	}
 
-    override fun showPlayerController() {
-        playerController.show()
-    }
+	@Subscribe
+	fun onStopEvent(e: PlayerStopEvent) {
+		hidePlayerController()
+	}
 
-    override fun hidePlayerController() {
-        playerController.hide()
-    }
+	override fun showPlayerController() {
+		container.layoutParams.apply {
+			if (this is RelativeLayout.LayoutParams) {
+				addRule(RelativeLayout.ABOVE, 0)
+				playerController.show { addRule(RelativeLayout.ABOVE, R.id.player_panel) }
+			} else {
+				playerController.show()
+			}
+		}
+	}
 
-    private fun initializeUser() {
-        userService.getCurrentCached().execute {
-            onSuccess {
-                setUser(it)
-            }
-            onError {
+	override fun hidePlayerController() {
+		playerController.hide()
+	}
 
-            }
-            onFinish {
-                loadUser()
-            }
-        }
-    }
+	private fun initializeUser() {
+		userService.getCurrentCached().execute {
+			onSuccess {
+				setUser(it)
+			}
+			onError {
 
-    private fun loadUser() {
-        userService.getCurrent().execute {
-            onSuccess {
-                setUser(it)
-            }
-        }
-    }
+			}
+			onFinish {
+				loadUser()
+			}
+		}
+	}
 
-    private fun setUser(user: User) {
-        userPhoto.setRoundImageURL(user.photo100px)
-        userFullName.text = user.fullName
-        userLink.text = "http://vk.com/id${user.id}"
-    }
+	private fun loadUser() {
+		userService.getCurrent().execute {
+			onSuccess {
+				setUser(it)
+			}
+		}
+	}
 
-    override fun onBackPressed() {
-        val fragment = supportFragmentManager.findFragmentByTag(TOP_LEVEL_FRAGMENT)
-        fragment?.let {
-            if (it !is BackPressedListener || !it.onBackPressed()) {
-                super.onBackPressed()
-            }
-        }
-    }
+	private fun setUser(user: User) {
+		userPhoto.setRoundImageURL(user.photo100px)
+		userFullName.text = user.fullName
+		userLink.text = "http://vk.com/id${user.id}"
+	}
 
-    private fun initializeFragment() {
-        val item = navigationView.menu.findItem(R.id.local_audio)
-        item.isChecked = true
-        onNavigationItemSelected(item)
-    }
+	override fun onBackPressed() {
+		val fragment = supportFragmentManager.findFragmentByTag(TOP_LEVEL_FRAGMENT)
+		fragment?.let {
+			if (it !is BackPressedListener || !it.onBackPressed()) {
+				super.onBackPressed()
+			}
+		}
+	}
 
-    fun setFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction()
-                .replace(R.id.container, fragment, TOP_LEVEL_FRAGMENT)
-                .commit()
-    }
+	private fun initializeFragment() {
+		val item = navigationView.menu.findItem(R.id.local_audio)
+		item.isChecked = true
+		onNavigationItemSelected(item)
+	}
 
-    private fun VkLogout() {
-        VKSdk.logout()
-        startActivity<LoginActivity>()
-        finish()
-    }
+	fun setFragment(fragment: Fragment) {
+		supportFragmentManager.beginTransaction()
+				.replace(R.id.container, fragment, TOP_LEVEL_FRAGMENT)
+				.commit()
+	}
 
-    companion object {
+	private fun VkLogout() {
+		VKSdk.logout()
+		startActivity<LoginActivity>()
+		finish()
+	}
 
-        val TOP_LEVEL_FRAGMENT = "top_level_fragment"
-    }
+	companion object {
+
+		val TOP_LEVEL_FRAGMENT = "top_level_fragment"
+	}
 }

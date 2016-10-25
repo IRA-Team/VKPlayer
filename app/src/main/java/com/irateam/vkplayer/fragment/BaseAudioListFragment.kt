@@ -30,6 +30,7 @@ import com.irateam.vkplayer.adapter.BaseAudioRecyclerAdapter
 import com.irateam.vkplayer.controller.PlayerController
 import com.irateam.vkplayer.model.Audio
 import com.irateam.vkplayer.player.Player
+import com.irateam.vkplayer.util.Comparators
 import com.irateam.vkplayer.util.EventBus
 import com.irateam.vkplayer.util.extension.getViewById
 import com.irateam.vkplayer.util.extension.slideInUp
@@ -37,54 +38,54 @@ import com.irateam.vkplayer.util.extension.slideOutDown
 import java.util.*
 
 abstract class BaseAudioListFragment : Fragment(),
-        ActionMode.Callback,
-        SearchView.OnQueryTextListener,
-        BackPressedListener,
-        BaseAudioRecyclerAdapter.CheckedListener {
+		ActionMode.Callback,
+		SearchView.OnQueryTextListener,
+		BackPressedListener,
+		BaseAudioRecyclerAdapter.CheckedListener {
 
 
-    protected abstract val adapter: BaseAudioRecyclerAdapter<out Audio, out RecyclerView.ViewHolder>
+	protected abstract val adapter: BaseAudioRecyclerAdapter<out Audio, out RecyclerView.ViewHolder>
 
-    /**
-     * Views
-     */
-    protected lateinit var recyclerView: RecyclerView
-    protected lateinit var refreshLayout: SwipeRefreshLayout
-    protected lateinit var emptyView: View
-    protected lateinit var sortModeHolder: View
+	/**
+	 * Views
+	 */
+	protected lateinit var recyclerView: RecyclerView
+	protected lateinit var refreshLayout: SwipeRefreshLayout
+	protected lateinit var emptyView: View
+	protected lateinit var sortModeHolder: View
 
-    /**
-     * Menus
-     */
-    protected lateinit var menu: Menu
-    protected lateinit var searchView: SearchView
+	/**
+	 * Menus
+	 */
+	protected lateinit var menu: Menu
+	protected lateinit var searchView: SearchView
 
-    /**
-     * Action Mode
-     */
-    protected var actionMode: ActionMode? = null
+	/**
+	 * Action Mode
+	 */
+	protected var actionMode: ActionMode? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
+	override fun onCreate(savedInstanceState: Bundle?) {
+		super.onCreate(savedInstanceState)
+		setHasOptionsMenu(true)
+	}
 
-    /**
-     * Configure view components
-     */
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        recyclerView = view.getViewById(R.id.recycler_view)
-        configureRecyclerView()
+	/**
+	 * Configure view components
+	 */
+	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+		recyclerView = view.getViewById(R.id.recycler_view)
+		configureRecyclerView()
 
-        refreshLayout = view.getViewById(R.id.refresh_layout)
-        configureRefreshLayout()
+		refreshLayout = view.getViewById(R.id.refresh_layout)
+		configureRefreshLayout()
 
-        sortModeHolder = view.getViewById(R.id.sort_mode_holder)
-        configureSortModeHolder()
+		sortModeHolder = view.getViewById(R.id.sort_mode_holder)
+		configureSortModeHolder()
 
-        emptyView = view.getViewById(R.id.empty_view)
-        configureEmptyView()
-    }
+		emptyView = view.getViewById(R.id.empty_view)
+		configureEmptyView()
+	}
 
 	override fun onStart() {
 		super.onStart()
@@ -96,214 +97,216 @@ abstract class BaseAudioListFragment : Fragment(),
 		super.onStop()
 	}
 
-    /**
-     * Initialize menu variable and configure SearchView.
-     */
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        this.menu = menu
-        activity.menuInflater.inflate(getMenuResource(), menu)
-        val itemSearch = menu.findItem(R.id.action_search)
+	/**
+	 * Initialize menu variable and configure SearchView.
+	 */
+	override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+		this.menu = menu
+		activity.menuInflater.inflate(getMenuResource(), menu)
+		val itemSearch = menu.findItem(R.id.action_search)
 
-        searchView = itemSearch.actionView as SearchView
-        searchView.setIconifiedByDefault(false)
-        searchView.setOnQueryTextListener(this)
-    }
+		searchView = itemSearch.actionView as SearchView
+		searchView.setIconifiedByDefault(false)
+		searchView.setOnQueryTextListener(this)
+	}
 
-    /**
-     * Must return resource of menu that would be inflated
-     */
-    @MenuRes
-    protected abstract fun getMenuResource(): Int
+	/**
+	 * Must return resource of menu that would be inflated
+	 */
+	@MenuRes
+	protected abstract fun getMenuResource(): Int
 
-    /**
-     * Dispatches select event of menu items that are common for any subclass
-     */
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.action_sort -> {
-            startSortMode()
-            true
-        }
+	/**
+	 * Dispatches select event of menu items that are common for any subclass
+	 */
+	override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+		R.id.action_sort      -> {
+			startSortMode()
+			true
+		}
 
-        R.id.action_sort_done -> {
-            commitSortMode()
-            true
-        }
+		R.id.action_sort_done -> {
+			commitSortMode()
+			true
+		}
 
-        else -> false
-    }
+		else                  -> false
+	}
 
 
-    /**
-     * Callback that notify about switching checked state of audio.
-     * Start ActionMode if set of checked audios not empty.
-     * If set of checked audios becomes empty ActionMode would be closed.
-     */
-    override fun onChanged(audio: Audio, checked: HashSet<out Audio>) {
-        if (actionMode == null && checked.size > 0) {
-            actionMode = activity.startActionMode(this)
-        }
+	/**
+	 * Callback that notify about switching checked state of audio.
+	 * Start ActionMode if set of checked audios not empty.
+	 * If set of checked audios becomes empty ActionMode would be closed.
+	 */
+	override fun onChanged(audio: Audio, checked: HashSet<out Audio>) {
+		if (actionMode == null && checked.size > 0) {
+			actionMode = activity.startActionMode(this)
+		}
 
-        actionMode?.apply {
-            if (checked.isEmpty()) {
-                finish()
-                return
-            }
+		actionMode?.apply {
+			if (checked.isEmpty()) {
+				finish()
+				return
+			}
 
-            title = checked.size.toString()
-        }
+			title = checked.size.toString()
+		}
 
-    }
+	}
 
-    /**
-     * Do nothing. Search process invokes by onQueryTextChange
-     */
-    override fun onQueryTextSubmit(query: String) = false
+	/**
+	 * Do nothing. Search process invokes by onQueryTextChange
+	 */
+	override fun onQueryTextSubmit(query: String) = false
 
-    /**
-     * Notify adapter about search query.
-     * All search logic should be provided by adapter.
-     */
-    override fun onQueryTextChange(query: String): Boolean {
-        adapter.setSearchQuery(query)
-        return true
-    }
+	/**
+	 * Notify adapter about search query.
+	 * All search logic should be provided by adapter.
+	 */
+	override fun onQueryTextChange(query: String): Boolean {
+		adapter.setSearchQuery(query)
+		return true
+	}
 
-    @MenuRes
-    protected abstract fun getActionModeMenuResource(): Int
+	@MenuRes
+	protected abstract fun getActionModeMenuResource(): Int
 
-    /**
-     * Creates ActionMode and assign it to variable
-     */
-    override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-        actionMode = mode
-        mode.menuInflater.inflate(getActionModeMenuResource(), menu)
-        return true
-    }
+	/**
+	 * Creates ActionMode and assign it to variable
+	 */
+	override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+		actionMode = mode
+		mode.menuInflater.inflate(getActionModeMenuResource(), menu)
+		return true
+	}
 
-    override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-        return false
-    }
+	override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+		return false
+	}
 
-    /**
-     * Dispatches select event of ActionMode menu items that are common for any subclasses.
-     * In the end finish ActionMode.
-     */
-    override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_play -> {
-                val audios = adapter.checkedAudios.toList()
-                Player.play(audios, audios[0])
-            }
+	/**
+	 * Dispatches select event of ActionMode menu items that are common for any subclasses.
+	 * In the end finish ActionMode.
+	 */
+	override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+		when (item.itemId) {
+			R.id.action_play         -> {
+				val audios = adapter.checkedAudios.toList()
+				Player.play(audios, audios[0])
+			}
 
-            R.id.action_play_next -> {
-                val audios = adapter.checkedAudios.toList()
-                Player.addToPlayNext(audios)
-            }
+			R.id.action_play_next    -> {
+				val audios = adapter.checkedAudios.toList()
+				Player.addToPlayNext(audios)
+			}
 
-            R.id.action_delete -> {
-                adapter.removeChecked()
-            }
+			R.id.action_delete       -> {
+				adapter.removeChecked()
+			}
 
-            R.id.action_add_to_queue -> {
-                Player.addToQueue(adapter.checkedAudios)
-            }
-        }
-        mode.finish()
-        return true
-    }
+			R.id.action_add_to_queue -> {
+				Player.addToQueue(adapter.checkedAudios)
+			}
+		}
+		mode.finish()
+		return true
+	}
 
-    override fun onDestroyActionMode(mode: ActionMode) {
-        adapter.clearChecked()
-        actionMode = null
-    }
+	override fun onDestroyActionMode(mode: ActionMode) {
+		adapter.clearChecked()
+		actionMode = null
+	}
 
-    override fun onBackPressed(): Boolean {
-        if (adapter.isSortMode()) {
-            revertSortMode()
-            return true
-        } else {
-            return false
-        }
-    }
+	override fun onBackPressed(): Boolean {
+		if (adapter.isSortMode()) {
+			revertSortMode()
+			return true
+		} else {
+			return false
+		}
+	}
 
-    private fun configureRecyclerView() {
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.itemAnimator = DefaultItemAnimator()
-    }
+	private fun configureRecyclerView() {
+		recyclerView.adapter = adapter
+		recyclerView.layoutManager = LinearLayoutManager(context)
+		recyclerView.itemAnimator = DefaultItemAnimator()
+	}
 
-    private fun configureRefreshLayout() {
-        refreshLayout.setColorSchemeResources(R.color.accent, R.color.primary)
-        refreshLayout.setOnRefreshListener {
-            actionMode?.finish()
-            if (adapter.isSortMode()) {
-                commitSortMode()
-            }
-            onRefresh()
-        }
-    }
+	private fun configureRefreshLayout() {
+		refreshLayout.setColorSchemeResources(R.color.accent, R.color.primary)
+		refreshLayout.setOnRefreshListener {
+			actionMode?.finish()
+			if (adapter.isSortMode()) {
+				commitSortMode()
+			}
+			onRefresh()
+		}
+	}
 
-    open protected fun onRefresh() {
+	open protected fun onRefresh() {
 
-    }
+	}
 
-    //TODO:
-    private fun configureSortModeHolder() {
-        sortModeHolder.apply {
-            findViewById(R.id.sort_by_title).setOnClickListener {
-                //adapter.sort(Comparators.TITLE_COMPARATOR)
-            }
+	private fun configureSortModeHolder() {
+		sortModeHolder.apply {
+			findViewById(R.id.sort_by_title).setOnClickListener {
+				adapter.sort(Comparators.TITLE_COMPARATOR.
+						to(Comparators.TITLE_REVERSE_COMPARATOR))
+			}
 
-            findViewById(R.id.sort_by_artist).setOnClickListener {
-                //adapter.sort(Comparators.ARTIST_COMPARATOR)
-            }
+			findViewById(R.id.sort_by_artist).setOnClickListener {
+				adapter.sort(Comparators.ARTIST_COMPARATOR
+						.to(Comparators.ARTIST_REVERSE_COMPARATOR))
+			}
 
-            findViewById(R.id.sort_by_length).setOnClickListener {
-                //adapter.sort(Comparators.LENGTH_COMPARATOR)
-            }
-        }
-    }
+			findViewById(R.id.sort_by_length).setOnClickListener {
+				adapter.sort(Comparators.LENGTH_COMPARATOR
+						.to(Comparators.LENGTH_REVERSE_COMPARATOR))
+			}
+		}
+	}
 
-    open protected fun configureEmptyView() {
+	open protected fun configureEmptyView() {
 
-    }
+	}
 
-    private fun startSortMode() {
-        adapter.startSortMode()
-        configureStartSortMode()
-    }
+	private fun startSortMode() {
+		adapter.startSortMode()
+		configureStartSortMode()
+	}
 
-    private fun commitSortMode() {
-        adapter.commitSortMode()
-        configureFinishSortMode()
-    }
+	private fun commitSortMode() {
+		adapter.commitSortMode()
+		configureFinishSortMode()
+	}
 
-    private fun revertSortMode() {
-        adapter.revertSortMode()
-        configureFinishSortMode()
-    }
+	private fun revertSortMode() {
+		adapter.revertSortMode()
+		configureFinishSortMode()
+	}
 
-    private fun configureStartSortMode() {
-        activity.apply {
-            if (this is PlayerController.VisibilityController) {
-                hidePlayerController()
-            }
-        }
+	private fun configureStartSortMode() {
+		activity.apply {
+			if (this is PlayerController.VisibilityController) {
+				hidePlayerController()
+			}
+		}
 
-        sortModeHolder.slideInUp()
-        menu.findItem(R.id.action_sort).isVisible = false
-        menu.findItem(R.id.action_sort_done).isVisible = true
-    }
+		sortModeHolder.slideInUp()
+		menu.findItem(R.id.action_sort).isVisible = false
+		menu.findItem(R.id.action_sort_done).isVisible = true
+	}
 
-    private fun configureFinishSortMode() {
-        activity.apply {
-            if (this is PlayerController.VisibilityController) {
-                showPlayerController()
-            }
-        }
+	private fun configureFinishSortMode() {
+		activity.apply {
+			if (Player.isReady && this is PlayerController.VisibilityController) {
+				showPlayerController()
+			}
+		}
 
-        sortModeHolder.slideOutDown()
-        menu.findItem(R.id.action_sort).isVisible = true
-        menu.findItem(R.id.action_sort_done).isVisible = false
-    }
+		sortModeHolder.slideOutDown()
+		menu.findItem(R.id.action_sort).isVisible = true
+		menu.findItem(R.id.action_sort_done).isVisible = false
+	}
 }

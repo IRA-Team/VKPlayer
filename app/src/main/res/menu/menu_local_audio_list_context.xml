@@ -25,7 +25,7 @@
 
     <item
         android:id="@+id/action_play_next"
-        android:icon="@drawable/ic_notification_play_white_24dp"
+        android:icon="@drawable/ic_playlist_play_white_24px"
         android:title="@string/action_play_next"
         app:showAsAction="ifRoom"/>
 

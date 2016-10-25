@@ -130,6 +130,7 @@ class VKAudioListFragment : BaseAudioListFragment(),
             onSuccess {
                 adapter.audios = it
                 emptyView.isVisible = it.isEmpty()
+                adapter.notifyDataSetChanged()
             }
 
             onFinish {

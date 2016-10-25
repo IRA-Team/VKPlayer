@@ -12,6 +12,7 @@
 
 
         <RelativeLayout
+            android:id="@+id/content_holder"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
@@ -24,19 +25,12 @@
                 android:layout_below="@+id/toolbar"
                 android:background="@drawable/shadow_action_bar"/>
 
-            <LinearLayout
-                android:id="@+id/linearLayout"
+            <FrameLayout
+                android:id="@+id/container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_above="@+id/player_panel"
-                android:layout_below="@+id/toolbar"
-                android:orientation="vertical">
-
-                <FrameLayout
-                    android:id="@+id/container"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
-            </LinearLayout>
+                android:layout_below="@+id/toolbar"/>
 
             <include
                 android:id="@+id/player_panel"

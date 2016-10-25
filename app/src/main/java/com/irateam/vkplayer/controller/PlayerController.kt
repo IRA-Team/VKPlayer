@@ -36,229 +36,224 @@ import org.greenrobot.eventbus.Subscribe
 */
 open class PlayerController {
 
-    protected val context: Context
-    protected val resources: Resources
+	protected val context: Context
+	protected val resources: Resources
 
-    /*
-    * Views
-    */
-    val rootView: View
+	/*
+	* Views
+	*/
+	val rootView: View
 
-    val songName: TextView
-    val author: TextView
+	val songName: TextView
+	val author: TextView
 
-    val repeat: ImageView
-    val previous: ImageView
-    val playPause: ImageView
-    val next: ImageView
-    val random: ImageView
+	val repeat: ImageView
+	val previous: ImageView
+	val playPause: ImageView
+	val next: ImageView
+	val random: ImageView
 
-    val progress: SeekBar
+	val progress: SeekBar
 
-    /*
-    * Flag that indicates user holds progress bar
-    */
-    var dragMode: Boolean = false
+	/*
+	* Flag that indicates user holds progress bar
+	*/
+	var dragMode: Boolean = false
 
-    private val resumeAction: (View) -> Unit = { Player.resume() }
-    private val pauseAction: (View) -> Unit = { Player.pause(true) }
+	private val resumeAction: (View) -> Unit = { Player.resume() }
+	private val pauseAction: (View) -> Unit = { Player.pause(true) }
 
 
-    /*
-    * Constructor accepts 2 parameters:
-    * Context for access to resources
-    * Root view that contains views for playback controls
-    */
-    constructor(context: Context, view: View) {
-        this.context = context
-        resources = context.resources
+	/*
+	* Constructor accepts 2 parameters:
+	* Context for access to resources
+	* Root view that contains views for playback controls
+	*/
+	constructor(context: Context, view: View) {
+		this.context = context
+		resources = context.resources
 
-        rootView = view
+		rootView = view
 
-        songName = rootView.getViewById(R.id.player_panel_song_name)
-        author = rootView.getViewById(R.id.player_panel_author)
+		songName = rootView.getViewById(R.id.player_panel_song_name)
+		author = rootView.getViewById(R.id.player_panel_author)
 
-        repeat = rootView.getViewById(R.id.player_panel_repeat)
-        previous = rootView.getViewById(R.id.player_panel_previous)
-        playPause = rootView.getViewById(R.id.player_panel_play_pause)
-        next = rootView.getViewById(R.id.player_panel_next)
-        random = rootView.getViewById(R.id.player_panel_random)
+		repeat = rootView.getViewById(R.id.player_panel_repeat)
+		previous = rootView.getViewById(R.id.player_panel_previous)
+		playPause = rootView.getViewById(R.id.player_panel_play_pause)
+		next = rootView.getViewById(R.id.player_panel_next)
+		random = rootView.getViewById(R.id.player_panel_random)
 
-        progress = rootView.getViewById(R.id.progress)
-    }
+		progress = rootView.getViewById(R.id.progress)
+	}
 
-    /*
-    * Configuring view events when playerService is set up
-    */
-    open fun initialize() {
-        configurePanel()
+	/*
+	* Configuring view events when playerService is set up
+	*/
+	open fun initialize() {
+		configurePanel()
 
-        if (Player.isPlaying) setupPlay() else setupPause()
+		if (Player.isPlaying) setupPlay() else setupPause()
 
-        previous.setOnClickListener { Player.previous() }
-        next.setOnClickListener { Player.next() }
+		previous.setOnClickListener { Player.previous() }
+		next.setOnClickListener { Player.next() }
 
-        setRepeatState(Player.repeatState)
-        repeat.setOnClickListener { Player.switchRepeatState() }
+		setRepeatState(Player.repeatState)
+		repeat.setOnClickListener { Player.switchRepeatState() }
 
-        setRandomState(Player.randomState)
-        random.setOnClickListener { Player.switchRandomState() }
+		setRandomState(Player.randomState)
+		random.setOnClickListener { Player.switchRandomState() }
 
-        if (Player.isReady && !Player.isPlaying) {
-            progress.progress = Player.pauseTime
-        }
+		if (Player.isReady && !Player.isPlaying) {
+			progress.progress = Player.pauseTime
+		}
 
-        progress.setOnSeekBarChangeListener(ProgressBarChangeListener())
-    }
+		progress.setOnSeekBarChangeListener(ProgressBarChangeListener())
+	}
 
-    open fun getPlayDrawable(): Drawable {
-        return context.getThemedDrawable(R.drawable.ic_player_play_grey_18dp)
-    }
+	open fun getPlayDrawable(): Drawable {
+		return context.getThemedDrawable(R.drawable.ic_player_play_grey_18dp)
+	}
 
-    open fun getPauseDrawable(): Drawable {
-        return context.getThemedDrawable(R.drawable.ic_player_pause_grey_18dp)
-    }
+	open fun getPauseDrawable(): Drawable {
+		return context.getThemedDrawable(R.drawable.ic_player_pause_grey_18dp)
+	}
 
-    open fun setupPlay() {
-        playPause.setImageDrawable(getPauseDrawable())
-        playPause.setOnClickListener(pauseAction)
-    }
+	open fun setupPlay() {
+		playPause.setImageDrawable(getPauseDrawable())
+		playPause.setOnClickListener(pauseAction)
+	}
 
-    open fun setupPause() {
-        playPause.setImageDrawable(getPlayDrawable())
-        playPause.setOnClickListener(resumeAction)
-    }
+	open fun setupPause() {
+		playPause.setImageDrawable(getPlayDrawable())
+		playPause.setOnClickListener(resumeAction)
+	}
 
-    fun configurePanel() {
-        val audio = Player.audio
-        val index = Player.audioIndex
+	fun configurePanel() {
+		val audio = Player.audio
+		val index = Player.audioIndex
 
-        if (audio != null) {
-            rootView.visibility = View.VISIBLE
-            setAudio(index, audio)
-            setRepeatState(Player.repeatState)
-            setRandomState(Player.randomState)
-        }
-    }
+		if (audio != null) {
+			rootView.visibility = View.VISIBLE
+			setAudio(index, audio)
+			setRepeatState(Player.repeatState)
+			setRandomState(Player.randomState)
+		}
+	}
 
-    fun show() {
-        rootView.slideInUp()
-    }
+	fun show(animationListener: (() -> Unit)? = null) {
+		rootView.slideInUp(animationListener)
+	}
 
-    fun hide() {
-        rootView.slideOutDown()
-    }
+	fun hide() {
+		rootView.slideOutDown()
+	}
 
-    fun isVisible(): Boolean {
-        return rootView.isVisible
-    }
+	fun isVisible(): Boolean {
+		return rootView.isVisible
+	}
 
-    @Subscribe
-    open fun onPlayEvent(e: PlayerPlayEvent) {
-        if (!isVisible()) {
-            show()
-        }
+	@Subscribe
+	open fun onPlayEvent(e: PlayerPlayEvent) {
+		val index = e.index
+		val audio = e.audio
 
-        val index = e.index
-        val audio = e.audio
+		setAudio(index, audio)
+		setupPlay()
+	}
 
-        setAudio(index, audio)
-        setupPlay()
-    }
+	@Subscribe
+	open fun onPauseEvent(e: PlayerPauseEvent) {
+		setupPause()
+	}
 
-    @Subscribe
-    open fun onPauseEvent(e: PlayerPauseEvent) {
-        setupPause()
-    }
+	@Subscribe
+	open fun onResumeEvent(e: PlayerResumeEvent) {
+		setupPlay()
+	}
 
-    @Subscribe
-    open fun onResumeEvent(e: PlayerResumeEvent) {
-        setupPlay()
-    }
+	@Subscribe
+	open fun onProgressChangedEvent(e: PlayerProgressChangedEvent) {
+		setProgress(e.milliseconds)
+	}
 
-    @Subscribe
-    open fun onStopEvent(e: PlayerStopEvent) {
-        hide()
-    }
+	@Subscribe
+	open fun onBufferingUpdate(e: PlayerBufferingUpdateEvent) {
+		progress.secondaryProgress = e.milliseconds
+	}
 
-    @Subscribe
-    open fun onProgressChangedEvent(e: PlayerProgressChangedEvent) {
-        setProgress(e.milliseconds)
-    }
+	@Subscribe
+	open fun onPlayerRandomChangedEvent(e: PlayerRandomChangedEvent) {
+		setRandomState(e.randomState)
+	}
 
-    @Subscribe
-    open fun onBufferingUpdate(e: PlayerBufferingUpdateEvent) {
-        progress.secondaryProgress = e.milliseconds
-    }
+	@Subscribe
+	open fun onPlayerRepeatChangedEvent(e: PlayerRepeatChangedEvent) {
+		setRepeatState(e.repeatState)
+	}
 
-    @Subscribe
-    open fun onPlayerRandomChangedEvent(e: PlayerRandomChangedEvent) {
-        setRandomState(e.randomState)
-    }
+	open fun setAudio(index: Int, audio: Audio?) = audio?.let {
+		val position = (index + 1)
 
-    @Subscribe
-    open fun onPlayerRepeatChangedEvent(e: PlayerRepeatChangedEvent) {
-        setRepeatState(e.repeatState)
-    }
+		if (!isVisible()) {
+			show()
+		}
 
-    open fun setAudio(index: Int, audio: Audio?) = audio?.let {
-        val position = (index + 1).toString()
+		songName.text = if (position != 0) {
+			"$position. ${audio.title}"
+		} else {
+			audio.title
+		}
+		author.text = audio.artist
+		progress.max = audio.duration * 1000
+		progress.progress = 0
+		progress.secondaryProgress = 0
+	}
 
-        if (!isVisible()) {
-            show()
-        }
+	open fun setProgress(milliseconds: Int) {
+		if (!dragMode) {
+			progress.progress = milliseconds
+		}
+	}
 
-        songName.text = position + ". " + audio.title
-        author.text = audio.artist
-        progress.max = audio.duration * 1000
-        progress.progress = 0
-        progress.secondaryProgress = 0
-    }
+	fun setRepeatState(repeatState: Player.RepeatState) {
+		@DrawableRes val drawableRes = when (repeatState) {
+			NO_REPEAT  -> R.drawable.ic_player_repeat_light_grey_18dp
+			ALL_REPEAT -> R.drawable.ic_player_repeat_all_light_grey_18dp
+			ONE_REPEAT -> R.drawable.ic_player_repeat_one_light_grey_18dp
+		}
 
-    open fun setProgress(milliseconds: Int) {
-        if (!dragMode) {
-            progress.progress = milliseconds
-        }
-    }
+		repeat.setImageDrawable(context.getThemedDrawable(drawableRes))
+	}
 
-    fun setRepeatState(repeatState: Player.RepeatState) {
-        @DrawableRes val drawableRes = when (repeatState) {
-            NO_REPEAT -> R.drawable.ic_player_repeat_light_grey_18dp
-            ALL_REPEAT -> R.drawable.ic_player_repeat_all_light_grey_18dp
-            ONE_REPEAT -> R.drawable.ic_player_repeat_one_light_grey_18dp
-        }
+	fun setRandomState(randomState: Boolean) {
+		@DrawableRes val drawableRes = if (randomState) {
+			R.drawable.ic_player_random_on_light_grey_18dp
+		} else {
+			R.drawable.ic_player_random_light_grey_18dp
+		}
+		random.setImageDrawable(context.getThemedDrawable(drawableRes))
+	}
 
-        repeat.setImageDrawable(context.getThemedDrawable(drawableRes))
-    }
+	protected inner class ProgressBarChangeListener : SeekBar.OnSeekBarChangeListener {
 
-    fun setRandomState(randomState: Boolean) {
-        @DrawableRes val drawableRes = if (randomState) {
-            R.drawable.ic_player_random_on_light_grey_18dp
-        } else {
-            R.drawable.ic_player_random_light_grey_18dp
-        }
-        random.setImageDrawable(context.getThemedDrawable(drawableRes))
-    }
+		override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+		}
 
-    protected inner class ProgressBarChangeListener : SeekBar.OnSeekBarChangeListener {
+		override fun onStartTrackingTouch(seekBar: SeekBar) {
+			dragMode = true
+		}
 
-        override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        }
+		override fun onStopTrackingTouch(seekBar: SeekBar) {
+			dragMode = false
+			Player.seekTo(progress.progress)
+		}
+	}
 
-        override fun onStartTrackingTouch(seekBar: SeekBar) {
-            dragMode = true
-        }
+	interface VisibilityController {
 
-        override fun onStopTrackingTouch(seekBar: SeekBar) {
-            dragMode = false
-            Player.seekTo(progress.progress)
-        }
-    }
+		fun showPlayerController()
 
-    interface VisibilityController {
-
-        fun showPlayerController()
-
-        fun hidePlayerController()
-    }
+		fun hidePlayerController()
+	}
 }
