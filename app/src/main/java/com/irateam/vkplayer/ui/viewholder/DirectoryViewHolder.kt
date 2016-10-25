@@ -18,17 +18,16 @@ package com.irateam.vkplayer.ui.viewholder
 
 import android.support.v7.widget.RecyclerView
 import android.view.View
+import android.widget.CheckBox
 import android.widget.TextView
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.util.extension.getViewById
 
-class DirectoryViewHolder : RecyclerView.ViewHolder {
+class DirectoryViewHolder : FilePickerViewHolder {
 
-    val name: TextView
-    val filesCount: TextView
+	val filesCount: TextView
 
-    constructor(v: View) : super(v) {
-        this.name = v.getViewById(R.id.name)
-        this.filesCount = v.getViewById(R.id.files_count)
-    }
+	constructor(v: View) : super(v) {
+		this.filesCount = v.getViewById(R.id.files_count)
+	}
 }

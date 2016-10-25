@@ -21,34 +21,35 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.ui.viewholder.DirectoryViewHolder
+import com.irateam.vkplayer.ui.viewholder.FilePickerViewHolder
 import com.irateam.vkplayer.ui.viewholder.FileViewHolder
 import com.irateam.vkplayer.util.filepicker.FileMatcher
 import com.irateam.vkplayer.util.filepicker.OnFileClickedListener
-import com.irateam.vkplayer.util.filepicker.OnFilePickedListener
+import com.irateam.vkplayer.util.filepicker.OnFilePickedStateChangeListener
 import com.irateam.vkplayer.util.filepicker.PickedStateProvider
 import java.io.File
 
-class FilePickerRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> {
+class FilePickerRecyclerAdapter : RecyclerView.Adapter<FilePickerViewHolder> {
 
 	val directory: File
 	val listFiles: List<File>
 
 	private val pickedStateProvider: PickedStateProvider
 	private val fileClickedListeners: Collection<OnFileClickedListener>
-	private val filePickedListeners: Collection<OnFilePickedListener>
+	private val filePickedStateChangeListeners: Collection<OnFilePickedStateChangeListener>
 	private val fileMatchers: Collection<FileMatcher>
 
 	private constructor(
 			directory: File,
 			pickedStateProvider: PickedStateProvider,
 			fileClickedListeners: Collection<OnFileClickedListener>,
-			filePickedListeners: Collection<OnFilePickedListener>,
+			filePickedStateChangeListeners: Collection<OnFilePickedStateChangeListener>,
 			fileMatchers: Collection<FileMatcher>) {
 
 		this.directory = directory
 		this.pickedStateProvider = pickedStateProvider
 		this.fileClickedListeners = fileClickedListeners
-		this.filePickedListeners = filePickedListeners
+		this.filePickedStateChangeListeners = filePickedStateChangeListeners
 		this.fileMatchers = fileMatchers
 
 		val files = directory.listFiles()
@@ -72,7 +73,7 @@ class FilePickerRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> 
 		}
 	}
 
-	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilePickerViewHolder {
 		val inflater = LayoutInflater.from(parent.context)
 		return if (viewType == TYPE_DIRECTORY) {
 			DirectoryViewHolder(inflater.inflate(R.layout.item_directory, parent, false))
@@ -81,18 +82,23 @@ class FilePickerRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> 
 		}
 	}
 
-	override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+	override fun onBindViewHolder(holder: FilePickerViewHolder, position: Int) {
 		val file = listFiles[position]
+		holder.name.text = file.name
+		holder.itemView.setOnClickListener { notifyFileClicked(file) }
+		holder.checkBox.isChecked = pickedStateProvider.getPickedFiles().contains(file)
+		holder.checkBoxHolder.setOnClickListener {
+			holder.checkBox.toggle()
+			notifyFilePickedStateChanged(file, holder.checkBox.isChecked)
+		}
+
 		when (holder) {
 			is DirectoryViewHolder -> {
-				holder.name.text = file.name
-				holder.itemView.setOnClickListener { notifyFileClicked(file) }
 				holder.filesCount.text = (file.list()?.size ?: 0).toString()
 			}
 
 			is FileViewHolder      -> {
-				holder.name.text = file.name
-				holder.itemView.setOnClickListener { notifyFileClicked(file) }
+
 			}
 		}
 	}
@@ -105,8 +111,8 @@ class FilePickerRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> 
 		fileClickedListeners.forEach { it.onFileClicked(file) }
 	}
 
-	private fun notifyFilePicked(file: File) {
-		filePickedListeners.forEach { it.onFilePicked(file) }
+	private fun notifyFilePickedStateChanged(file: File, isPicked: Boolean) {
+		filePickedStateChangeListeners.forEach { it.onChange(file, isPicked) }
 	}
 
 	companion object {
@@ -122,7 +128,7 @@ class FilePickerRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> 
 		private var directory: File? = null
 		private var pickedStateProvider: PickedStateProvider? = null
 		private var fileClickedListeners: List<OnFileClickedListener> = emptyList()
-		private var filePickedListeners: List<OnFilePickedListener> = emptyList()
+		private var filePickedStateChangeListeners: List<OnFilePickedStateChangeListener> = emptyList()
 		private var fileMatchers: List<FileMatcher> = emptyList()
 
 		fun showDirectories(showDirectories: Boolean): Builder {
@@ -145,8 +151,8 @@ class FilePickerRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> 
 			return this
 		}
 
-		fun addFilePickedListener(filePickedListener: OnFilePickedListener): Builder {
-			this.filePickedListeners += filePickedListener
+		fun addFilePickedListener(filePickedStateChangeListener: OnFilePickedStateChangeListener): Builder {
+			this.filePickedStateChangeListeners += filePickedStateChangeListener
 			return this
 		}
 
@@ -166,7 +172,7 @@ class FilePickerRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> 
 					pickedStateProvider = pickedStateProvider ?:
 							throw IllegalStateException("You must set ${PickedStateProvider::class.java.name} before build!"),
 					fileClickedListeners = fileClickedListeners,
-					filePickedListeners = filePickedListeners,
+					filePickedStateChangeListeners = filePickedStateChangeListeners,
 					fileMatchers = fileMatchers)
 		}
 	}
