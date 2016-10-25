@@ -55,14 +55,9 @@ class FilePickerRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> 
 		this.listFiles = if (files != null && files.isNotEmpty()) {
 			var listFiles = files.toList()
 			if (fileMatchers.isNotEmpty()) {
-				listFiles = files.filter { file ->
-					fileMatchers
-							.map { it.match(file) }
-							.any { it }
-				}
+				listFiles = files.filter { file -> fileMatchers.any { it.match(file) } }
 			}
-			listFiles.sortedBy { it.name }
-					.sortedBy { it.isFile }
+			listFiles.sortedBy { it.name }.sortedBy { it.isFile }
 		} else {
 			emptyList<File>()
 		}
@@ -161,7 +156,7 @@ class FilePickerRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder> 
 		}
 
 		fun build(): FilePickerRecyclerAdapter {
-			if (showDirectories) {
+			if (showDirectories && fileMatchers.isNotEmpty()) {
 				fileMatchers += FileMatcher.DirectoryMatcher()
 			}
 

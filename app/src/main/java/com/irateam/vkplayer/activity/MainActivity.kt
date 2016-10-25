@@ -76,7 +76,7 @@ class MainActivity : AppCompatActivity(),
 
         toolbar = getViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+       // supportActionBar?.setDisplayHomeAsUpEnabled(true)
         toolbar.setNavigationOnClickListener { drawerLayout.openDrawer(GravityCompat.START) }
 
         drawerLayout = getViewById(R.id.drawer_layout)
@@ -85,9 +85,8 @@ class MainActivity : AppCompatActivity(),
                 drawerLayout,
                 R.string.navigation_drawer_open,
                 R.string.navigation_drawer_close)
-        drawerLayout.setDrawerListener(drawerToggle)
+        drawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
-
         navigationView = getViewById(R.id.navigation_view)
         navigationView.setNavigationItemSelectedListener(this)
 

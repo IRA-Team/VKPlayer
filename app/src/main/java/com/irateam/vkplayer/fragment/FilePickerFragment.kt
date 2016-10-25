@@ -26,52 +26,130 @@ import android.view.ViewGroup
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapter.FilePickerRecyclerAdapter
 import com.irateam.vkplayer.util.extension.getViewById
+import com.irateam.vkplayer.util.filepicker.OnFileClickedListener
+import com.irateam.vkplayer.util.filepicker.OnFilePickedListener
 import com.irateam.vkplayer.util.filepicker.PickedStateProvider
 import java.io.File
 import java.util.*
 
-class FilePickerFragment : Fragment(), PickedStateProvider {
+class FilePickerFragment : Fragment(),
+        PickedStateProvider,
+        OnFileClickedListener,
+        OnFilePickedListener,
+        BackPressedListener {
 
-	private lateinit var recyclerView: RecyclerView
-	private lateinit var adapter: FilePickerRecyclerAdapter
+    private val pickedFiles: HashSet<File> = HashSet()
+    private val excludedFiles: HashSet<File> = HashSet()
 
-	private val pickedFiles: HashSet<File> = HashSet()
-	private val excludedFiles: HashSet<File> = HashSet()
+    override fun onCreateView(inflater: LayoutInflater,
+                              container: ViewGroup?,
+                              savedInstanceState: Bundle?): View {
 
-	override fun onCreateView(inflater: LayoutInflater,
-							  container: ViewGroup?,
-							  savedInstanceState: Bundle?): View {
+        return inflater.inflate(R.layout.fragment_file_picker_container, container, false)
+    }
 
-		return inflater.inflate(R.layout.fragment_file_picker, container, false)
-	}
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        addFragment(File("/"))
+    }
 
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-		recyclerView = view.getViewById(R.id.recycler_view)
-		configureRecyclerView()
-	}
+    override fun onFileClicked(file: File) {
+        addFragment(file)
+    }
 
-	private fun configureRecyclerView() {
-		adapter = FilePickerRecyclerAdapter.Builder()
-				.setDirectory(File("/"))
-				.setPickedStateProvider(this)
-				.showDirectories(false)
-				.build()
+    override fun onFilePicked(file: File) {
 
-		recyclerView.adapter = adapter
-		recyclerView.layoutManager = LinearLayoutManager(context)
-	}
+    }
 
-	override fun getPickedFiles(): Collection<File> {
-		return pickedFiles
-	}
+    override fun onBackPressed(): Boolean {
+        childFragmentManager.popBackStack()
+        return true
+    }
 
-	override fun getExcludedFiles(): Collection<File> {
-		return excludedFiles
-	}
+    private fun addFragment(file: File) {
+        val fragment = FilePickerEntry.newInstance(
+                file = file,
+                pickedStateProvider = this,
+                fileClickedListener = this,
+                filePickedListener = this)
 
-	companion object {
+        childFragmentManager.beginTransaction()
+                .setCustomAnimations(
+                        R.anim.slide_in_left,
+                        R.anim.slide_in_right,
+                        R.anim.slide_out_left,
+                        R.anim.slide_out_right)
+                .add(R.id.file_picker_container, fragment)
+                .addToBackStack(null)
+                .commit()
+    }
 
-		@JvmStatic
-		fun newInstance() = FilePickerFragment()
-	}
+    override fun getPickedFiles(): Collection<File> {
+        return pickedFiles
+    }
+
+    override fun getExcludedFiles(): Collection<File> {
+        return excludedFiles
+    }
+
+    companion object {
+
+        fun newInstance() = FilePickerFragment()
+    }
+
+    class FilePickerEntry : Fragment {
+
+        private lateinit var recyclerView: RecyclerView
+        private lateinit var adapter: FilePickerRecyclerAdapter
+
+        private lateinit var file: File
+        private lateinit var pickedStateProvider: PickedStateProvider
+        private lateinit var fileClickedListener: OnFileClickedListener
+        private lateinit var filePickedListener: OnFilePickedListener
+
+        constructor() {
+
+        }
+
+        override fun onCreateView(inflater: LayoutInflater,
+                                  container: ViewGroup?,
+                                  savedInstanceState: Bundle?): View {
+
+            return inflater.inflate(R.layout.fragment_file_picker, container, false)
+        }
+
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            recyclerView = view.getViewById(R.id.recycler_view)
+            configureRecyclerView()
+        }
+
+        private fun configureRecyclerView() {
+            adapter = FilePickerRecyclerAdapter.Builder()
+                    .setDirectory(file)
+                    .setPickedStateProvider(pickedStateProvider)
+                    .addFileClickedListener(fileClickedListener)
+                    .addFilePickedListener(filePickedListener)
+                    .build()
+
+            recyclerView.adapter = adapter
+            recyclerView.layoutManager = LinearLayoutManager(context)
+        }
+
+        companion object {
+
+            @JvmStatic
+            fun newInstance(
+                    file: File,
+                    pickedStateProvider: PickedStateProvider,
+                    fileClickedListener: OnFileClickedListener,
+                    filePickedListener: OnFilePickedListener): FilePickerEntry {
+
+                val fragment = FilePickerEntry()
+                fragment.file = file
+                fragment.pickedStateProvider = pickedStateProvider
+                fragment.fileClickedListener = fileClickedListener
+                fragment.filePickedListener = filePickedListener
+                return fragment
+            }
+        }
+    }
 }
