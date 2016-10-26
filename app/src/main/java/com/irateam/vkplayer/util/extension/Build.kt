@@ -19,7 +19,14 @@
 package com.irateam.vkplayer.util.extension
 
 import android.os.Build
+import com.irateam.vkplayer.BuildConfig
 
 fun isPreLollipop(): Boolean {
-    return Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP
+	return Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP
+}
+
+inline fun debug(block: () -> Unit) {
+	if (BuildConfig.DEBUG) {
+		block.invoke()
+	}
 }

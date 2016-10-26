@@ -25,19 +25,16 @@
     <TextView
         android:id="@+id/sort_by_title"
         style="@style/SortModeItem"
-        android:drawableTop="@drawable/ic_audio_title_white_24px"
         android:text="@string/title"/>
 
     <TextView
         android:id="@+id/sort_by_artist"
         style="@style/SortModeItem"
-        android:drawableTop="@drawable/ic_audio_artist_white_24px"
         android:text="@string/artist"/>
 
     <TextView
         android:id="@+id/sort_by_length"
         style="@style/SortModeItem"
-        android:drawableTop="@drawable/ic_audio_length_white_24px"
         android:text="@string/length"/>
 
 </LinearLayout>

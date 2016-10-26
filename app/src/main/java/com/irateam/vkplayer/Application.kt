@@ -16,26 +16,33 @@
 
 package com.irateam.vkplayer
 
+import com.irateam.vkplayer.util.extension.d
+import com.irateam.vkplayer.util.extension.debug
 import com.nostra13.universalimageloader.core.DisplayImageOptions
 import com.nostra13.universalimageloader.core.ImageLoader
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration
 import com.vk.sdk.VKSdk
+import com.vk.sdk.util.VKUtil
 
 class Application : android.app.Application() {
 
-    override fun onCreate() {
-        super.onCreate()
-        VKSdk.initialize(this)
+	override fun onCreate() {
+		super.onCreate()
+		VKSdk.initialize(this)
 
-        val options = DisplayImageOptions.Builder()
-                .cacheInMemory(true)
-                .cacheOnDisk(true)
-                .build()
+		debug {
+			d(VKUtil.getCertificateFingerprint(this, packageName)[0])
+		}
 
-        val config = ImageLoaderConfiguration.Builder(this)
-                .defaultDisplayImageOptions(options)
-                .build()
+		val options = DisplayImageOptions.Builder()
+				.cacheInMemory(true)
+				.cacheOnDisk(true)
+				.build()
 
-        ImageLoader.getInstance().init(config)
-    }
+		val config = ImageLoaderConfiguration.Builder(this)
+				.defaultDisplayImageOptions(options)
+				.build()
+
+		ImageLoader.getInstance().init(config)
+	}
 }

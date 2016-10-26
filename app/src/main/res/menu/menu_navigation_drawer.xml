@@ -12,6 +12,12 @@
             android:title="@string/navigation_drawer_current_playlist"/>
 
         <item
+            android:id="@+id/local_audio"
+            android:checked="false"
+            android:icon="@drawable/ic_navigation_drawer_cache_grey_24dp"
+            android:title="@string/navigation_drawer_local"/>
+
+        <item
             android:id="@+id/my_audio"
             android:checked="false"
             android:icon="@drawable/ic_navigation_drawer_mysound_grey_24dp"
@@ -36,10 +42,10 @@
             android:title="@string/navigation_drawer_downloaded"/>
 
         <item
-            android:id="@+id/local_audio"
+            android:id="@+id/external_audio"
             android:checked="false"
-            android:icon="@drawable/ic_navigation_drawer_cache_grey_24dp"
-            android:title="@string/navigation_drawer_local"/>
+            android:icon="@drawable/ic_navigation_drawer_external_24px"
+            android:title="@string/navigation_drawer_external"/>
     </group>
 
     <group android:id="@+id/secondary_group">

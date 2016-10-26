@@ -18,7 +18,6 @@ package com.irateam.vkplayer.api.service
 
 import android.content.Context
 import android.util.Log
-import com.irateam.vkplayer.R
 import com.irateam.vkplayer.api.AbstractQuery
 import com.irateam.vkplayer.api.ProgressableAbstractQuery
 import com.irateam.vkplayer.api.ProgressableQuery
@@ -28,6 +27,7 @@ import com.irateam.vkplayer.event.AudioScannedEvent
 import com.irateam.vkplayer.model.LocalAudio
 import com.irateam.vkplayer.util.extension.e
 import com.irateam.vkplayer.util.extension.process
+import com.irateam.vkplayer.util.extension.splitToPartitions
 import com.mpatric.mp3agic.Mp3File
 import java.io.File
 import java.util.*
@@ -38,161 +38,119 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class LocalAudioService {
 
-    private val context: Context
-    private val database: AudioLocalIndexedDatabase
-    private val nameDiscover: LocalAudioNameDiscover
+	private val context: Context
+	private val database: AudioLocalIndexedDatabase
+	private val audioConverterService: AudioConverterService
 
-    private val unknownArtist: String
-    private val unknownTitle: String
 
-    constructor(context: Context) {
-        this.context = context
-        this.database = AudioLocalIndexedDatabase(context)
-        this.nameDiscover = LocalAudioNameDiscover()
+	constructor(context: Context) {
+		this.context = context
+		this.database = AudioLocalIndexedDatabase(context)
+		this.audioConverterService = AudioConverterService(context)
+	}
 
-        this.unknownArtist = context.getString(R.string.unknown_artist)
-        this.unknownTitle = context.getString(R.string.unknown_title)
-    }
+	fun scan(): ProgressableQuery<List<LocalAudio>, AudioScannedEvent> {
+		val root = File("/storage")
+		return ScanAndIndexAudioQuery(root)
+	}
 
-    fun scan(): ProgressableQuery<List<LocalAudio>, AudioScannedEvent> {
-        val root = File("/storage")
-        return ScanAndIndexAudioQuery(root)
-    }
+	fun getAllIndexed(): Query<List<LocalAudio>> {
+		return IndexedAudioQuery()
+	}
 
-    fun getAllIndexed(): Query<List<LocalAudio>> {
-        return IndexedAudioQuery()
-    }
+	fun removeFromFilesystem(audios: Collection<LocalAudio>): Query<Collection<LocalAudio>> {
+		return RemoveFromFilesystemQuery(audios)
+	}
 
-    fun removeFromFilesystem(audios: Collection<LocalAudio>): Query<Collection<LocalAudio>> {
-        return RemoveFromFilesystemQuery(audios)
-    }
+	private inner class IndexedAudioQuery : AbstractQuery<List<LocalAudio>>() {
 
-    private fun createLocalAudioFromMp3(mp3: Mp3File): LocalAudio = if (mp3.hasId3v2Tag()) {
-        val artist = mp3.id3v2Tag.artist ?: unknownArtist
-        val title = mp3.id3v2Tag.title ?: unknownTitle
-        mp3.id3v2Tag.albumImage
+		override fun query() = database.getAll()
+	}
 
-        LocalAudio(artist,
-                title,
-                mp3.lengthInSeconds.toInt(),
-                mp3.filename)
-    } else {
-        val name = File(mp3.filename).nameWithoutExtension
-        val titleArtist = nameDiscover.getTitleAndArtist(name)
+	private inner class ScanAndIndexAudioQuery : ProgressableAbstractQuery<List<LocalAudio>, AudioScannedEvent> {
 
-        val artist = titleArtist.artist ?: unknownArtist
-        val title = titleArtist.title ?: unknownTitle
+		val root: File
 
-        LocalAudio(artist,
-                title,
-                mp3.lengthInSeconds.toInt(),
-                mp3.filename)
-    }
+		constructor(root: File) : super() {
+			this.root = root
+		}
 
-    private inner class IndexedAudioQuery : AbstractQuery<List<LocalAudio>>() {
+		override fun query(): List<LocalAudio> {
+			val audios = root.walk()
+					.toList()
+					.map { e(it); it }
+					.filter { !it.isDirectory }
+					.filter { it.name.endsWith(".mp3") }
+					.map {
+						try {
+							Mp3File(it.path)
+						} catch (e: Exception) {
+							e.printStackTrace()
+							e(it.path)
+							null
+						}
+					}
+					.filterNotNull()
 
-        override fun query() = database.getAll()
-    }
 
-    private inner class ScanAndIndexAudioQuery : ProgressableAbstractQuery<List<LocalAudio>, AudioScannedEvent> {
+			val i = AtomicInteger()
+			val tasks = audios.splitToPartitions(CORE_COUNT).map {
+				Callable {
+					it.map { audioConverterService.createLocalAudioFromMp3(it) }
+							.process {
+								try {
+									database.index(it)
+									Log.i(TAG, "Stored $it")
+								} catch (ignore: Exception) {
+								}
 
-        val root: File
+								notifyProgress(AudioScannedEvent(
+										it,
+										i.incrementAndGet(),
+										audios.count()))
+							}
+							.toList()
+				}
+			}
 
-        constructor(root: File) : super() {
-            this.root = root
-        }
+			return CONVERTER_EXECUTOR.invokeAll(tasks)
+					.map { it.get() }
+					.flatMap { it }
+		}
+	}
 
-        override fun query(): List<LocalAudio> {
-            val audios = root.walk()
-                    .toList()
-                    .map { e(it); it }
-                    .filter { !it.isDirectory }
-                    .filter { it.name.endsWith(".mp3") }
-                    .map {
-                        try {
-                            Mp3File(it.path)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            e(it.path)
-                            null
-                        }
-                    }
-                    .filterNotNull()
+	private inner class RemoveFromFilesystemQuery : AbstractQuery<Collection<LocalAudio>> {
 
-            val total = audios.size
+		val audios: Collection<LocalAudio>
 
-            val elementsCount = Math.ceil(total.toDouble() / CORE_COUNT).toInt()
-            val slices = ArrayList<List<Mp3File>>()
-            for (i in 0..CORE_COUNT - 1) {
-                val probMax = (i + 1) * elementsCount
-                val max = if (probMax > total) {
-                    total
-                } else {
-                    probMax
-                }
+		/**
+		 * Always make copy
+		 */
+		constructor(audios: Collection<LocalAudio>) : super() {
+			this.audios = audios.toList()
+		}
 
-                val range = IntRange(i * elementsCount, max - 1)
-                slices.add(audios.toList().slice(range))
-            }
+		override fun query(): Collection<LocalAudio> {
+			val removed = ArrayList<LocalAudio>()
+			audios.forEach {
+				val file = File(it.path)
+				if (!file.exists() || file.delete()) {
+					database.delete(it)
+					removed.add(it)
+				} else {
+					throw AccessDeniedException(
+							file = file,
+							reason = "The error occurred during deleting file.")
+				}
+			}
+			return removed
+		}
+	}
 
-            val i = AtomicInteger()
-            val tasks = slices.map {
-                Callable {
-                    it.map { createLocalAudioFromMp3(it) }
-                            .process {
-                                try {
-                                    database.index(it)
-                                    Log.i(TAG, "Stored $it")
-                                } catch (ignore: Exception) {
-                                }
+	companion object {
+		val TAG: String = LocalAudioService::class.java.name
 
-                                notifyProgress(AudioScannedEvent(
-                                        it,
-                                        i.incrementAndGet(),
-                                        audios.count()))
-                            }
-                            .toList()
-                }
-            }
-
-            return CONVERTER_EXECUTOR.invokeAll(tasks)
-                    .map { it.get() }
-                    .flatMap { it }
-        }
-    }
-
-    private inner class RemoveFromFilesystemQuery : AbstractQuery<Collection<LocalAudio>> {
-
-        val audios: Collection<LocalAudio>
-
-        /**
-         * Always make copy
-         */
-        constructor(audios: Collection<LocalAudio>) : super() {
-            this.audios = audios.toList()
-        }
-
-        override fun query(): Collection<LocalAudio> {
-            val removed = ArrayList<LocalAudio>()
-            audios.forEach {
-                val file = File(it.path)
-                if (!file.exists() || file.delete()) {
-                    database.delete(it)
-                    removed.add(it)
-                } else {
-                    throw AccessDeniedException(
-                            file = file,
-                            reason = "The error occurred during deleting file.")
-                }
-            }
-            return removed
-        }
-    }
-
-    companion object {
-        val TAG: String = LocalAudioService::class.java.name
-
-        val CORE_COUNT = Runtime.getRuntime().availableProcessors() * 2
-        val CONVERTER_EXECUTOR: ExecutorService = Executors.newFixedThreadPool(CORE_COUNT)
-    }
+		val CORE_COUNT = Runtime.getRuntime().availableProcessors() * 2
+		val CONVERTER_EXECUTOR: ExecutorService = Executors.newFixedThreadPool(CORE_COUNT)
+	}
 }

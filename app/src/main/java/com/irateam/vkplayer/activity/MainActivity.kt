@@ -40,6 +40,7 @@ import com.irateam.vkplayer.controller.PlayerController
 import com.irateam.vkplayer.fragment.BackPressedListener
 import com.irateam.vkplayer.fragment.LocalAudioListFragment
 import com.irateam.vkplayer.fragment.VKAudioListFragment
+import com.irateam.vkplayer.fragment.VKExternalAudioListFragment
 import com.irateam.vkplayer.model.User
 import com.irateam.vkplayer.player.PlayerPlayEvent
 import com.irateam.vkplayer.player.PlayerStopEvent
@@ -141,11 +142,12 @@ class MainActivity : AppCompatActivity(),
 			supportActionBar?.title = menuItem.title
 			val fragment: Fragment = when (itemId) {
 				R.id.current_playlist  -> VKAudioListFragment.newInstance(audioService.getCurrent())
+				R.id.local_audio       -> LocalAudioListFragment.newInstance()
+				R.id.external_audio    -> VKExternalAudioListFragment.newInstance()
 				R.id.my_audio          -> VKAudioListFragment.newInstance(audioService.getMy())
 				R.id.recommended_audio -> VKAudioListFragment.newInstance(audioService.getRecommendation())
 				R.id.popular_audio     -> VKAudioListFragment.newInstance(audioService.getPopular())
 				R.id.cached_audio      -> VKAudioListFragment.newInstance(audioService.getCached())
-				R.id.local_audio       -> LocalAudioListFragment.newInstance()
 				else                   -> throw IllegalStateException("This item doesn't support.")
 			}
 			setFragment(fragment)

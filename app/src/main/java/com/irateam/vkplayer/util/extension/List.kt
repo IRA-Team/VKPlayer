@@ -23,3 +23,20 @@ fun <T> List<T>.swap(from: Int, to: Int): List<T> {
     Collections.swap(toSwap, from, to)
     return toSwap
 }
+
+fun <E> List<E>.splitToPartitions(count: Int): List<List<E>> {
+    val elementsCount = Math.ceil(size.toDouble() / count).toInt()
+    val slices = ArrayList<List<E>>()
+    for (i in 0..count - 1) {
+        val probMax = (i + 1) * elementsCount
+        val max = if (probMax > size) {
+            size
+        } else {
+            probMax
+        }
+
+        val range = IntRange(i * elementsCount, max - 1)
+        slices.add(slice(range))
+    }
+    return slices
+}
