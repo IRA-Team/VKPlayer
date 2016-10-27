@@ -19,6 +19,7 @@ package com.irateam.vkplayer.api.service
 import android.content.Context
 import com.irateam.vkplayer.api.AbstractQuery
 import com.irateam.vkplayer.api.Query
+import com.irateam.vkplayer.api.VkConstants
 import com.irateam.vkplayer.model.LocalAudio
 import com.irateam.vkplayer.util.extension.splitToPartitions
 import com.irateam.vkplayer.util.extension.w
@@ -40,6 +41,16 @@ class VKExternalAudioService {
 		return VKExternalAudioQuery()
 	}
 
+	fun isAudiosExist(): Boolean {
+		return VkConstants.POSSIBLE_AUDIO_DIRECTORIES
+				.map(::File)
+				.map(File::listFiles)
+				.filterNotNull()
+				.flatMap { it.toList() }
+				.filter { it.extension.isNotEmpty() }
+				.isNotEmpty()
+	}
+
 	fun removeFromFilesystem(audios: Collection<LocalAudio>): Query<List<LocalAudio>> {
 		TODO()
 	}
@@ -54,7 +65,7 @@ class VKExternalAudioService {
 	private inner class VKExternalAudioQuery : AbstractQuery<List<LocalAudio>>() {
 
 		override fun query(): List<LocalAudio> {
-			return possibleDirectories
+			return VkConstants.POSSIBLE_AUDIO_DIRECTORIES
 					.map(::File)
 					.map { it.walk() }
 					.flatMap { it.toList() }
@@ -81,14 +92,10 @@ class VKExternalAudioService {
 						.filterNotNull()
 						.map { audioConverterService.createLocalAudioFromMp3(it) }
 			}
-
-
 		}
 	}
 
 	companion object {
-		private val possibleDirectories = listOf(
-				"/sdcard/.vkontakte/cache/audio")
 
 		val CORE_COUNT = Runtime.getRuntime().availableProcessors() * 2
 		val CONVERTER_EXECUTOR: ExecutorService = Executors.newFixedThreadPool(CORE_COUNT)

@@ -81,6 +81,14 @@ fun Context.isPermissionsGranted(vararg permissions: Permission): Boolean {
 	}
 }
 
+fun Context.isPackageInstalled(packageName: String): Boolean = try {
+	packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
+	true;
+} catch (e: PackageManager.NameNotFoundException) {
+	false;
+}
+
+
 inline fun <reified T> Context.startActivity() where T : Activity {
 	startActivity(Intent(this, T::class.java))
 }
