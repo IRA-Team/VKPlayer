@@ -1,5 +1,6 @@
 package com.irateam.vkplayer.api
 
+import com.irateam.vkplayer.util.extension.e
 import com.vk.sdk.api.VKError
 import com.vk.sdk.api.VKRequest
 import com.vk.sdk.api.VKResponse
@@ -20,6 +21,7 @@ abstract class VKQuery<T> : AbstractQuery<T> {
 		if (result != null) {
 			return result
 		} else {
+			e("An VK error occurred during execution: ${listener.error.toString()}")
 			throw VKException(listener.error)
 		}
 	}

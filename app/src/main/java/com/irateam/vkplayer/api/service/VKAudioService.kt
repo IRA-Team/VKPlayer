@@ -65,6 +65,12 @@ class VKAudioService {
         return CacheQueryDecorator(query)
     }
 
+    fun getById(audios: Collection<String>): Query<List<VKAudio>> {
+        val params = VKParameters.from("audios", audios.joinToString())
+        val request = VKApi.audio().getById(params)
+        return VKAudioQuery(request)
+    }
+
     fun getCached(): Query<List<VKAudio>> {
         return CachedAudioQuery()
     }

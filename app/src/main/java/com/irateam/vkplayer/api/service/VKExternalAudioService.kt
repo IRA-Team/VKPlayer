@@ -21,83 +21,60 @@ import com.irateam.vkplayer.api.AbstractQuery
 import com.irateam.vkplayer.api.Query
 import com.irateam.vkplayer.api.VkConstants
 import com.irateam.vkplayer.model.LocalAudio
-import com.irateam.vkplayer.util.extension.splitToPartitions
-import com.irateam.vkplayer.util.extension.w
-import com.mpatric.mp3agic.Mp3File
+import com.irateam.vkplayer.model.VKAudio
 import java.io.File
-import java.util.concurrent.Callable
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
 class VKExternalAudioService {
 
-	private val audioConverterService: AudioConverterService
+    private val vkAudioService: VKAudioService
+    private val audioConverterService: AudioConverterService
 
-	constructor(context: Context) {
-		this.audioConverterService = AudioConverterService(context)
-	}
+    constructor(context: Context) {
+        this.vkAudioService = VKAudioService(context)
+        this.audioConverterService = AudioConverterService(context)
+    }
 
-	fun getExternal(): Query<List<LocalAudio>> {
-		return VKExternalAudioQuery()
-	}
+    fun getExternal(): Query<List<VKAudio>> {
+        return VKExternalAudioQuery()
+    }
 
-	fun isAudiosExist(): Boolean {
-		return VkConstants.POSSIBLE_AUDIO_DIRECTORIES
-				.map(::File)
-				.map(File::listFiles)
-				.filterNotNull()
-				.flatMap { it.toList() }
-				.filter { it.extension.isNotEmpty() }
-				.isNotEmpty()
-	}
+    fun isAudiosExist(): Boolean {
+        return VkConstants.POSSIBLE_AUDIO_DIRECTORIES
+                .map(::File)
+                .map(File::listFiles)
+                .filterNotNull()
+                .flatMap { it.toList() }
+                .filter { it.extension.isNotEmpty() }
+                .isNotEmpty()
+    }
 
-	fun removeFromFilesystem(audios: Collection<LocalAudio>): Query<List<LocalAudio>> {
-		TODO()
-	}
+    fun removeFromFilesystem(audios: Collection<LocalAudio>): Query<List<LocalAudio>> {
+        TODO()
+    }
 
-	private fun File.toMp3File(): Mp3File? = try {
-		Mp3File(path)
-	} catch (e: Exception) {
-		w("File can't be converted to Mp3File $path")
-		null
-	}
+    private inner class VKExternalAudioQuery : AbstractQuery<List<VKAudio>>() {
 
-	private inner class VKExternalAudioQuery : AbstractQuery<List<LocalAudio>>() {
+        override fun query(): List<VKAudio> {
+            val audioMap = VkConstants.POSSIBLE_AUDIO_DIRECTORIES
+                    .map(::File)
+                    .map { it.walk() }
+                    .flatMap { it.toList() }
+                    .filter { !it.isDirectory }
+                    .filter { it.extension.isEmpty() }
+                    .map { it.name.to(it) }
+                    .toMap()
 
-		override fun query(): List<LocalAudio> {
-			return VkConstants.POSSIBLE_AUDIO_DIRECTORIES
-					.map(::File)
-					.map { it.walk() }
-					.flatMap { it.toList() }
-					.filter { !it.isDirectory }
-					.filter { it.extension.isEmpty() }
-					.splitToPartitions(CORE_COUNT)
-					.map { Mp3ConvertCallable(it) }
-					.map { CONVERTER_EXECUTOR.submit(it) }
-					.map { it.get() }
-					.flatten()
-		}
+            val vkAudios = vkAudioService.getById(audioMap.keys).execute()
+            return vkAudios
+                    .map { buildAudioIdPair(it) }
+                    .map {
+                        it.second.cachePath = audioMap[it.first]?.absolutePath
+                        it.second
+                    }
+        }
 
-		private inner class Mp3ConvertCallable : Callable<List<LocalAudio>> {
-
-			val files: List<File>
-
-			constructor(files: List<File>) {
-				this.files = files
-			}
-
-			override fun call(): List<LocalAudio> {
-				return files
-						.map { it.toMp3File() }
-						.filterNotNull()
-						.map { audioConverterService.createLocalAudioFromMp3(it) }
-			}
-		}
-	}
-
-	companion object {
-
-		val CORE_COUNT = Runtime.getRuntime().availableProcessors() * 2
-		val CONVERTER_EXECUTOR: ExecutorService = Executors.newFixedThreadPool(CORE_COUNT)
-	}
+        private fun buildAudioIdPair(audio: VKAudio): Pair<String, VKAudio> = with(audio) {
+            "${ownerId}_${id}".to(this)
+        }
+    }
 }

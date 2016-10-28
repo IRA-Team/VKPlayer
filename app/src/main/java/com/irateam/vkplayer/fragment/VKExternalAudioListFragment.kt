@@ -96,7 +96,7 @@ class VKExternalAudioListFragment : BaseAudioListFragment() {
 		refreshLayout.post { refreshLayout.isRefreshing = true }
 		audioService.getExternal().execute {
 			onSuccess {
-				adapter.setAudios(it)
+				//adapter.setAudios(it)
 				emptyView.isVisible = it.isEmpty()
 			}
 
