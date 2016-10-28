@@ -43,6 +43,7 @@ class LocalAudioListFragment : BaseAudioListFragment() {
      * Views
      */
     private lateinit var scanProgressHolder: View
+    private lateinit var scanHint: TextView
     private lateinit var scanProgress: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,6 +62,7 @@ class LocalAudioListFragment : BaseAudioListFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         scanProgressHolder = view.getViewById(R.id.scan_progress_holder)
+        scanHint = view.getViewById(R.id.scan_hint)
         scanProgress = view.getViewById(R.id.scan_progress)
 
         adapter.checkedListener = this
@@ -161,7 +163,6 @@ class LocalAudioListFragment : BaseAudioListFragment() {
             onSuccess {
                 adapter.removeAll(it)
             }
-
             onError {
                 showLongToast("Error occurred!")
             }
@@ -202,7 +203,10 @@ class LocalAudioListFragment : BaseAudioListFragment() {
             }
 
             onFinish {
-                scanProgressHolder.slideOutUp()
+                scanHint.text = "Finished. Scanned ${adapter.itemCount} audios."
+                scanProgressHolder.postDelayed({
+                    scanProgressHolder.slideOutUp()
+                }, 2000)
             }
         }
     }

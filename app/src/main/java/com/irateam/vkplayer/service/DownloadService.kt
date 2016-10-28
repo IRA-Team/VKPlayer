@@ -33,6 +33,7 @@ import com.irateam.vkplayer.event.DownloadTerminatedEvent
 import com.irateam.vkplayer.model.Audio
 import com.irateam.vkplayer.model.VKAudio
 import com.irateam.vkplayer.notification.DownloadNotificationFactory
+import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.util.AudioDownloader
 import com.irateam.vkplayer.util.EventBus
 import com.irateam.vkplayer.util.extension.execute
@@ -43,242 +44,248 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 class DownloadService : Service(), AudioDownloader.Listener {
 
-    private val audioService = VKAudioService(this)
-    private val database = AudioVKCacheDatabase(this)
-    private val settings = SettingsService(this)
-    private val notificationFactory = DownloadNotificationFactory(this)
-    private val downloadQueue = ConcurrentLinkedQueue<VKAudio>()
-    private val syncQueue = ConcurrentLinkedQueue<VKAudio>()
+	private val downloadQueue = ConcurrentLinkedQueue<VKAudio>()
+	private val syncQueue = ConcurrentLinkedQueue<VKAudio>()
 
-    private var currentSession: Session? = null
+	private var currentSession: Session? = null
 
-    private lateinit var downloader: AudioDownloader
-    private lateinit var notificationManager: NotificationManagerCompat
+	private lateinit var downloader: AudioDownloader
+	private lateinit var audioService: VKAudioService
+	private lateinit var database: AudioVKCacheDatabase
+	private lateinit var settingsService: SettingsService
+	private lateinit var notificationManager: NotificationManagerCompat
+	private lateinit var notificationFactory: DownloadNotificationFactory
 
-    override fun onCreate() {
-        super.onCreate()
-        downloader = AudioDownloader(this)
-        downloader.listener = this
-        notificationManager = NotificationManagerCompat.from(this)
-    }
+	override fun onCreate() {
+		super.onCreate()
+		downloader = AudioDownloader(this)
+		downloader.listener = this
+		audioService = VKAudioService(this)
+		database = AudioVKCacheDatabase(this)
+		settingsService = SettingsService(this)
+		notificationFactory = DownloadNotificationFactory(this)
+		notificationManager = NotificationManagerCompat.from(this)
+	}
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        intent.action?.let {
-            when (intent.action) {
-                START_DOWNLOADING -> {
-                    val audios = intent.getParcelableArrayListExtra<VKAudio>(AUDIO_LIST)
-                    downloadQueue.addAll(audios)
-                    startDownloadIfNeeded()
-                }
-                START_SYNC -> if (intent.extras.getBoolean(USER_SYNC, false)) {
-                    startManualSync()
-                } else {
-                    startScheduledSync()
-                }
-                STOP_DOWNLOADING -> {
-                    stopDownloading()
-                }
-            }
-        }
-        return START_NOT_STICKY
-    }
+	override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+		intent.action?.let {
+			when (intent.action) {
+				START_DOWNLOADING -> {
+					val audios = intent.getParcelableArrayListExtra<VKAudio>(AUDIO_LIST)
+					downloadQueue.addAll(audios)
+					startDownloadIfNeeded()
+				}
 
-    private fun startManualSync() = if (isNetworkAvailable()) {
-        prepareToSync()
-    } else {
-        Toast.makeText(this, R.string.error_no_internet_connection, Toast.LENGTH_LONG).show()
-    }
+				START_SYNC        -> if (intent.extras.getBoolean(USER_SYNC, false)) {
+					startManualSync()
+				} else {
+					startScheduledSync()
+				}
 
-    private fun startScheduledSync() {
-        val isWifiOnly = settings.loadWifiSync()
-        if ((isWifiOnly && isWifiNetworkAvailable()) || (!isWifiOnly && isNetworkAvailable())) {
-            prepareToSync()
-        } else {
-            notifyNoWifiConnection()
-        }
-    }
+				STOP_DOWNLOADING  -> {
+					stopDownloading()
+				}
+			}
+		}
+		return START_NOT_STICKY
+	}
 
-    private fun prepareToSync() {
-        val count = settings.loadSyncCount()
-        audioService.getMy(count).execute {
-            onSuccess {
-                val vkList = it
-                val cachedIds = database.getAll().map { it.id }
-                val nonCached = vkList.filter { it.id in cachedIds }.asReversed()
+	private fun startManualSync() = if (isNetworkAvailable()) {
+		prepareToSync()
+	} else {
+		Toast.makeText(this, R.string.error_no_internet_connection, Toast.LENGTH_LONG).show()
+	}
 
-                syncQueue.clear()
-                syncQueue.addAll(nonCached)
+	private fun startScheduledSync() {
+		val isWifiOnly = settingsService.loadWifiSync()
+		if ((isWifiOnly && isWifiNetworkAvailable()) || (!isWifiOnly && isNetworkAvailable())) {
+			prepareToSync()
+		} else {
+			notifyNoWifiConnection()
+		}
+	}
 
-                if (!downloader.isDownloading()) {
-                    pollAndDownload()
-                }
-            }
+	private fun prepareToSync() {
+		val count = settingsService.loadSyncCount()
+		audioService.getMy(count).execute {
+			onSuccess {
+				val vkList = it
+				val cachedIds = database.getAll().map { it.id }
+				val nonCached = vkList.filter { it.id in cachedIds }.asReversed()
 
-            onError {
-                notifyError()
-            }
-        }
-    }
+				syncQueue.clear()
+				syncQueue.addAll(nonCached)
 
-    private fun clearCurrentSession() {
-        currentSession = null
-    }
+				if (!downloader.isDownloading()) {
+					pollAndDownload()
+				}
+			}
 
-    private fun getPreferredQueue() = if (downloadQueue.isEmpty()) {
-        syncQueue
-    } else {
-        downloadQueue
-    }
+			onError {
+				notifyError()
+			}
+		}
+	}
 
-    private fun hasAudios(): Boolean {
-        val queue = getPreferredQueue()
-        return !queue.isEmpty()
-    }
+	private fun clearCurrentSession() {
+		currentSession = null
+	}
 
-    private fun startDownloadIfNeeded() {
-        if (!downloader.isDownloading()) {
-            pollAndDownload()
-        }
-    }
+	private fun getPreferredQueue() = if (downloadQueue.isEmpty()) {
+		syncQueue
+	} else {
+		downloadQueue
+	}
 
-    fun stopDownloading() {
-        downloader.stop()
-    }
+	private fun hasAudios(): Boolean {
+		val queue = getPreferredQueue()
+		return !queue.isEmpty()
+	}
 
-    fun pollAndDownload() {
-        val queue = getPreferredQueue()
-        val audio = queue.poll()
+	private fun startDownloadIfNeeded() {
+		if (!downloader.isDownloading()) {
+			pollAndDownload()
+		}
+	}
 
-        if (audio != null) {
-            val session = Session(audio = audio,
-                    progress = 0,
-                    audioCount = currentSession?.audioCount ?: 0,
-                    queue = queue,
-                    isSync = syncQueue === queue)
+	fun stopDownloading() {
+		downloader.stop()
+	}
 
-            currentSession = session
+	fun pollAndDownload() {
+		val queue = getPreferredQueue()
+		val audio = queue.poll()
 
-            downloader.download(audio)
-            val notification = notificationFactory.getDownload(session)
-            startForeground(NOTIFICATION_ID_DOWNLOADING, notification)
-        } else {
-            clearCurrentSession()
-        }
-    }
+		if (audio != null) {
+			val session = Session(audio = audio,
+					progress = 0,
+					audioCount = currentSession?.audioCount ?: 0,
+					queue = queue,
+					isSync = syncQueue === queue)
 
-    override fun onDownloadProgressChanged(audio: VKAudio, progress: Int) {
-        EventBus.post(DownloadProgressChangedEvent(audio, progress))
-        currentSession?.let {
-            currentSession = it.copy(progress = progress)
-            notifyDownloading()
-        }
-    }
+			currentSession = session
 
-    override fun onDownloadFinished(audio: VKAudio) {
-        database.cache(audio)
-        EventBus.post(DownloadFinishedEvent(audio))
-        currentSession?.let {
-            val newSession = it.copy(audioCount = it.audioCount + 1)
-            currentSession = newSession
-        }
+			downloader.download(audio)
+			val notification = notificationFactory.getDownload(session)
+			startForeground(NOTIFICATION_ID_DOWNLOADING, notification)
+		} else {
+			clearCurrentSession()
+		}
+	}
 
-        if (hasAudios()) {
-            pollAndDownload()
-        } else {
-            notifyFinished()
-            stopForeground(true)
-        }
-    }
+	override fun onDownloadProgressChanged(audio: VKAudio, progress: Int) {
+		EventBus.post(DownloadProgressChangedEvent(audio, progress))
+		currentSession?.let {
+			currentSession = it.copy(progress = progress)
+			notifyDownloading()
+		}
+	}
 
-    override fun onDownloadError(audio: VKAudio, cause: Throwable) {
-        EventBus.post(DownloadErrorEvent(audio, cause))
-        stopForeground(true)
-        clearCurrentSession()
-    }
+	override fun onDownloadFinished(audio: VKAudio) {
+		database.cache(audio)
+		EventBus.post(DownloadFinishedEvent(audio))
+		currentSession?.let {
+			val newSession = it.copy(audioCount = it.audioCount + 1)
+			currentSession = newSession
+		}
 
-    override fun onDownloadTerminated(audio: VKAudio) {
-        EventBus.post(DownloadTerminatedEvent(audio))
-        stopForeground(true)
-        clearCurrentSession()
-    }
+		if (hasAudios()) {
+			pollAndDownload()
+		} else {
+			notifyFinished()
+			stopForeground(true)
+		}
+	}
 
-    fun notifyDownloading() = currentSession?.let {
-        val notification = notificationFactory.getDownload(it)
-        notificationManager.notify(NOTIFICATION_ID_DOWNLOADING, notification)
-    }
+	override fun onDownloadError(audio: VKAudio, cause: Throwable) {
+		EventBus.post(DownloadErrorEvent(audio, cause))
+		stopForeground(true)
+		clearCurrentSession()
+	}
 
-    fun notifyFinished() = currentSession?.let {
-        val notification = notificationFactory.getSuccessful(it)
-        notificationManager.notify(NOTIFICATION_ID_FINISHED, notification)
-    }
+	override fun onDownloadTerminated(audio: VKAudio) {
+		EventBus.post(DownloadTerminatedEvent(audio))
+		stopForeground(true)
+		clearCurrentSession()
+	}
 
-    fun notifyError() = currentSession?.let {
-        val notification = notificationFactory.getError(it)
-        notificationManager.notify(NOTIFICATION_ID_FINISHED, notification)
-    }
+	fun notifyDownloading() = currentSession?.let {
+		val notification = notificationFactory.getDownload(it)
+		notificationManager.notify(NOTIFICATION_ID_DOWNLOADING, notification)
+	}
 
-    fun notifyNoWifiConnection() = currentSession?.let {
-        val notification = notificationFactory.getErrorNoWifiConnection(it)
-        notificationManager.notify(NOTIFICATION_ID_FINISHED, notification)
-    }
+	fun notifyFinished() = currentSession?.let {
+		val notification = notificationFactory.getSuccessful(it)
+		notificationManager.notify(NOTIFICATION_ID_FINISHED, notification)
+	}
 
-    override fun onBind(intent: Intent): IBinder {
-        throw UnsupportedOperationException()
-    }
+	fun notifyError() = currentSession?.let {
+		val notification = notificationFactory.getError(it)
+		notificationManager.notify(NOTIFICATION_ID_FINISHED, notification)
+	}
 
-    data class Session(val audio: VKAudio,
-                       val progress: Int,
-                       val audioCount: Int,
-                       private val queue: Queue<VKAudio>,
-                       val isSync: Boolean) {
+	fun notifyNoWifiConnection() = currentSession?.let {
+		val notification = notificationFactory.getErrorNoWifiConnection(it)
+		notificationManager.notify(NOTIFICATION_ID_FINISHED, notification)
+	}
 
-        val audioCountLeft: Int
-            get() = queue.size
-    }
+	override fun onBind(intent: Intent): IBinder {
+		throw UnsupportedOperationException()
+	}
 
-    companion object {
+	data class Session(val audio: VKAudio,
+					   val progress: Int,
+					   val audioCount: Int,
+					   private val queue: Queue<VKAudio>,
+					   val isSync: Boolean) {
 
-        val NOTIFICATION_ID_DOWNLOADING = 2
-        val NOTIFICATION_ID_FINISHED = 3
+		val audioCountLeft: Int
+			get() = queue.size
+	}
 
-        val AUDIO_LIST = "audio_list"
-        val START_SYNC = "start_sync"
-        val STOP_DOWNLOADING = "stop_downloading"
-        val START_DOWNLOADING = "start_downloading"
-        val USER_SYNC = "user_sync"
+	companion object {
 
-        @JvmStatic
-        fun download(context: Context, audios: Collection<Audio>) {
-            val intent = startDownloadIntent(context, audios)
-            context.startService(intent)
-        }
+		val NOTIFICATION_ID_DOWNLOADING = 2
+		val NOTIFICATION_ID_FINISHED = 3
 
-        @JvmStatic
-        fun stop(context: Context) {
-            val intent = stopDownloadIntent(context)
-            context.stopService(intent)
-        }
+		val AUDIO_LIST = "audio_list"
+		val START_SYNC = "start_sync"
+		val STOP_DOWNLOADING = "stop_downloading"
+		val START_DOWNLOADING = "start_downloading"
+		val USER_SYNC = "user_sync"
 
-        @JvmStatic
-        fun startDownloadIntent(context: Context, audios: Collection<Audio>): Intent {
-            return Intent(context, DownloadService::class.java)
-                    .setAction(START_DOWNLOADING)
-                    .putParcelableArrayListExtra(AUDIO_LIST, ArrayList(audios))
-        }
+		@JvmStatic
+		fun download(context: Context, audios: Collection<Audio>) {
+			val intent = startDownloadIntent(context, audios)
+			context.startService(intent)
+		}
 
-        @JvmStatic
-        fun stopDownloadIntent(context: Context): Intent {
-            return Intent(context, DownloadService::class.java)
-                    .setAction(STOP_DOWNLOADING)
-        }
+		@JvmStatic
+		fun stop(context: Context) {
+			val intent = stopDownloadIntent(context)
+			context.stopService(intent)
+		}
 
-        @JvmStatic
-        fun startSyncIntent(context: Context, userSync: Boolean = false): Intent {
-            return Intent(context, DownloadService::class.java)
-                    .setAction(DownloadService.START_SYNC)
-                    .putExtra(DownloadService.USER_SYNC, userSync)
-        }
+		@JvmStatic
+		fun startDownloadIntent(context: Context, audios: Collection<Audio>): Intent {
+			return Intent(context, DownloadService::class.java)
+					.setAction(START_DOWNLOADING)
+					.putParcelableArrayListExtra(AUDIO_LIST, ArrayList(audios))
+		}
 
-    }
+		@JvmStatic
+		fun stopDownloadIntent(context: Context): Intent {
+			return Intent(context, DownloadService::class.java)
+					.setAction(STOP_DOWNLOADING)
+		}
+
+		@JvmStatic
+		fun startSyncIntent(context: Context, userSync: Boolean = false): Intent {
+			return Intent(context, DownloadService::class.java)
+					.setAction(DownloadService.START_SYNC)
+					.putExtra(DownloadService.USER_SYNC, userSync)
+		}
+
+	}
 
 }

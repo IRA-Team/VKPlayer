@@ -120,18 +120,15 @@ class MainActivity : AppCompatActivity(),
 
         initializeUser()
         initializeFragment()
-    }
 
-    override fun onStart() {
-        super.onStart()
         EventBus.register(this)
         EventBus.register(playerController)
     }
 
-    override fun onStop() {
+    override fun onDestroy() {
         EventBus.unregister(this)
         EventBus.unregister(playerController)
-        super.onStop()
+        super.onDestroy()
     }
 
     override fun onNavigationItemSelected(menuItem: MenuItem): Boolean {

@@ -16,7 +16,6 @@
 
 package com.irateam.vkplayer.activity
 
-import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
@@ -26,6 +25,7 @@ import com.irateam.vkplayer.R
 import com.irateam.vkplayer.api.service.VKAudioService
 import com.irateam.vkplayer.controller.ActivityPlayerController
 import com.irateam.vkplayer.controller.PlayerController
+import com.irateam.vkplayer.event.DownloadFinishedEvent
 import com.irateam.vkplayer.model.VKAudio
 import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.service.DownloadService
@@ -33,7 +33,9 @@ import com.irateam.vkplayer.service.PlayerService
 import com.irateam.vkplayer.util.EventBus
 import com.irateam.vkplayer.util.extension.execute
 import com.irateam.vkplayer.util.extension.getViewById
+import com.irateam.vkplayer.util.extension.startService
 import com.melnykov.fab.FloatingActionButton
+import org.greenrobot.eventbus.Subscribe
 
 class AudioActivity : AppCompatActivity() {
 
@@ -61,21 +63,32 @@ class AudioActivity : AppCompatActivity() {
 
         playerController = ActivityPlayerController(this, findViewById(R.id.activity_player_panel)!!)
         playerController.initialize()
-        EventBus.register(playerController)
 
-        startService(Intent(this, PlayerService::class.java))
+        startService<PlayerService>()
+        EventBus.register(this)
+        EventBus.register(playerController)
     }
 
+    override fun onDestroy() {
+        EventBus.unregister(this)
+        EventBus.unregister(playerController)
+        super.onDestroy()
+    }
+
+    @Subscribe
+    fun onDownloadFinished(e: DownloadFinishedEvent) {
+        val audio = e.audio
+        when (audio) {
+            is VKAudio -> setCacheAction(audio.isCached)
+        }
+    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         this.menu = menu
         menuInflater.inflate(R.menu.menu_audio, menu)
-        Player.audio?.let {
-            when (it) {
-                is VKAudio -> {
-                    setCacheAction(it.isCached)
-                }
-            }
+        val audio = Player.audio
+        when (audio) {
+            is VKAudio -> setCacheAction(audio.isCached)
         }
         return true
     }
@@ -87,27 +100,34 @@ class AudioActivity : AppCompatActivity() {
         }
 
         R.id.action_cache -> {
-            Player.audio?.let {
-                DownloadService.download(this, listOf(it))
-            }
+            saveCurrentAudioToCache()
             true
         }
 
         R.id.action_remove_from_cache -> {
-            Player.audio?.let {
-                if (it is VKAudio) {
-                    audioService.removeFromCache(listOf(it)).execute {
-                        onSuccess {
-                            setCacheAction(false)
-                        }
-                    }
-                }
-            }
+            removeCurrentAudioFromCache()
             true
         }
 
         else -> {
             super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun saveCurrentAudioToCache() {
+        Player.audio?.let {
+            DownloadService.download(this, listOf(it))
+        }
+    }
+
+    private fun removeCurrentAudioFromCache() {
+        val audio = Player.audio
+        if (audio is VKAudio) {
+            audioService.removeFromCache(listOf(audio)).execute {
+                onSuccess {
+                    setCacheAction(false)
+                }
+            }
         }
     }
 

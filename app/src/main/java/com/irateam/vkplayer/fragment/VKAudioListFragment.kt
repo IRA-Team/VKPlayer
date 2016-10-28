@@ -29,6 +29,7 @@ import com.irateam.vkplayer.model.VKAudio
 import com.irateam.vkplayer.service.DownloadService
 import com.irateam.vkplayer.util.extension.execute
 import com.irateam.vkplayer.util.extension.isVisible
+import com.irateam.vkplayer.util.extension.showLongToast
 import java.util.*
 
 /**
@@ -46,6 +47,8 @@ class VKAudioListFragment : BaseAudioListFragment(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
+        audioService = VKAudioService(context)
     }
 
     override fun onCreateView(inflater: LayoutInflater,
@@ -59,8 +62,6 @@ class VKAudioListFragment : BaseAudioListFragment(),
         super.onViewCreated(view, savedInstanceState)
 
         adapter.checkedListener = this
-
-        audioService = VKAudioService(context)
         loadVKAudios()
     }
 
@@ -106,6 +107,7 @@ class VKAudioListFragment : BaseAudioListFragment(),
             R.id.action_cache -> {
                 val nonCached = adapter.checkedAudios.filter { !it.isCached }
                 DownloadService.download(context, nonCached)
+                actionMode?.finish()
                 return true
             }
 
@@ -132,7 +134,9 @@ class VKAudioListFragment : BaseAudioListFragment(),
                 emptyView.isVisible = it.isEmpty()
                 adapter.notifyDataSetChanged()
             }
-
+            onError {
+                showLongToast(R.string.error_load)
+            }
             onFinish {
                 refreshLayout.post { refreshLayout.isRefreshing = false }
             }

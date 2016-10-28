@@ -185,11 +185,13 @@ open class PlayerController {
 	@Subscribe
 	open fun onPlayerRandomChangedEvent(e: PlayerRandomChangedEvent) {
 		setRandomState(e.randomState)
+		v(TAG, "Random state changed to ${e.randomState}")
 	}
 
 	@Subscribe
 	open fun onPlayerRepeatChangedEvent(e: PlayerRepeatChangedEvent) {
 		setRepeatState(e.repeatState)
+		v(TAG, "Repeat state changed to ${e.repeatState}")
 	}
 
 	open fun setAudio(index: Int, audio: Audio?) = audio?.let {
@@ -255,5 +257,10 @@ open class PlayerController {
 		fun showPlayerController()
 
 		fun hidePlayerController()
+	}
+
+	companion object {
+
+		val TAG: String = PlayerController::class.java.name
 	}
 }

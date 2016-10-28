@@ -33,7 +33,7 @@ object Player : MediaPlayer(),
 		MediaPlayer.OnPreparedListener,
 		MediaPlayer.OnBufferingUpdateListener {
 
-	val TAG = Player.javaClass.name
+	val TAG: String = Player::class.java.name
 
 	/**
 	 * Original playlist.
@@ -41,7 +41,8 @@ object Player : MediaPlayer(),
 	 * Also uses for providing correct audio position.
 	 * Must be changed only by calling setQueue()
 	 */
-	private var originalPlaylist: List<Audio> = emptyList()
+	var originalPlaylist: List<Audio> = emptyList()
+		private set
 
 	/**
 	 * Inner playlist
