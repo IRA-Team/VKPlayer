@@ -29,7 +29,7 @@ class VKAudioQuery(request: VKRequest) : VKQuery<List<VKAudio>>(request) {
 
     fun parse(from: JSONObject): VKAudio {
         return VKAudio(
-                from.optString("id").toString(),
+                from.optInt("id"),
                 from.optInt("owner_id"),
                 from.optString("artist").trim(),
                 from.optString("title").trim(),

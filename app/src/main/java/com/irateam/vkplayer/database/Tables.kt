@@ -23,7 +23,7 @@ object Tables {
         val NAME = "audio_vk_cache"
         val SQL_CREATE = """CREATE TABLE $NAME
                             (_id INTEGER PRIMARY KEY,
-                            ${Columns.ID} INTEGER,
+                            ${Columns.AUDIO_ID} INTEGER,
                             ${Columns.OWNER_ID} INTEGER,
                             ${Columns.ARTIST} TEXT,
                             ${Columns.TITLE} TEXT,
@@ -36,7 +36,7 @@ object Tables {
                             ${Columns.ACCESS_KEY} TEXT)"""
 
         object Columns {
-            val ID = "id"
+            val AUDIO_ID = "audio_id"
             val OWNER_ID = "owner_id"
             val ARTIST = "artist"
             val TITLE = "title"

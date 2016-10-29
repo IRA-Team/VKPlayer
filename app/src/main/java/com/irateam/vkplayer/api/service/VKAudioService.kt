@@ -17,16 +17,17 @@
 package com.irateam.vkplayer.api.service
 
 import android.content.Context
-import com.irateam.vkplayer.api.AbstractQuery
-import com.irateam.vkplayer.api.Callback
-import com.irateam.vkplayer.api.Query
-import com.irateam.vkplayer.api.VKAudioQuery
+import com.irateam.vkplayer.api.*
 import com.irateam.vkplayer.database.AudioVKCacheDatabase
 import com.irateam.vkplayer.model.VKAudio
 import com.irateam.vkplayer.player.Player
+import com.irateam.vkplayer.util.extension.e
+import com.irateam.vkplayer.util.extension.process
+import com.irateam.vkplayer.util.extension.v
 import com.vk.sdk.api.VKApi
 import com.vk.sdk.api.VKApiConst
 import com.vk.sdk.api.VKParameters
+import java.io.File
 
 class VKAudioService {
 
@@ -54,7 +55,7 @@ class VKAudioService {
     }
 
     fun getRecommendation(): Query<List<VKAudio>> {
-        val request = VKApi.audio().recommendations
+        val request = VKApi.audio().getRecommendations()
         val query = VKAudioQuery(request)
         return CacheQueryDecorator(query)
     }
@@ -66,7 +67,7 @@ class VKAudioService {
     }
 
     fun getById(audios: Collection<String>): Query<List<VKAudio>> {
-        val params = VKParameters.from("audios", audios.joinToString())
+        val params = VKParameters.from(AUDIOS, audios.joinToString())
         val request = VKApi.audio().getById(params)
         return VKAudioQuery(request)
     }
@@ -93,10 +94,41 @@ class VKAudioService {
         return audios
     }
 
+    /**
+     * Returns a map that contains names of found external audio files and this files.
+     * Name of files have format {OWNER_ID}_{AUDIO_ID}
+     */
+    private fun getExternalAudioFileMap(): Map<String, File> {
+        return VkConstants.POSSIBLE_AUDIO_DIRECTORIES
+                .map(::File)
+                .map { it.walk().toList() }
+                .flatten()
+                .filter { !it.isDirectory }
+                .filter { it.extension.isEmpty() }
+                .map { it.name.to(it) }
+                .toMap()
+    }
+
     //Queries
     private inner class CachedAudioQuery : AbstractQuery<List<VKAudio>>() {
 
-        override fun query(): List<VKAudio> = helper.getAll().filter { it.isCached }
+        override fun query(): List<VKAudio> {
+            val cached = helper.getAll().filter { it.isCached }
+            val cachedIds = cached.map { it.id }.toSet()
+            val nonIndexedExternal = getExternalAudioFileMap()
+                    .filter { !cachedIds.contains(it.key) }
+
+            v(TAG, "External non indexed audios: ${nonIndexedExternal.keys}")
+            val externalIndexed = try {
+                VKExternalAudioQuery(nonIndexedExternal).execute()
+            } catch (exception: Exception) {
+                e(TAG, "An error occurred during indexing")
+                exception.printStackTrace()
+                emptyList<VKAudio>()
+            }
+
+            return cached + externalIndexed
+        }
     }
 
     private inner class CurrentAudioQuery : AbstractQuery<List<VKAudio>>() {
@@ -121,6 +153,26 @@ class VKAudioService {
             return audios.filter { it.isCached }
                     .map { it.removeFromCache(); it }
                     .toList()
+        }
+    }
+
+    private inner class VKExternalAudioQuery : AbstractQuery<List<VKAudio>> {
+
+        val audioMap: Map<String, File>
+
+        constructor(audioMap: Map<String, File>) {
+            this.audioMap = audioMap
+        }
+
+        override fun query(): List<VKAudio> {
+            return if (audioMap.isNotEmpty()) {
+                getById(audioMap.keys)
+                        .execute()
+                        .process { it.cachePath = audioMap[it.id]?.absolutePath }
+                        .process { helper.cache(it) }
+            } else {
+                emptyList()
+            }
         }
     }
 
@@ -169,6 +221,9 @@ class VKAudioService {
     //Constants
     companion object {
 
+        val TAG: String = VKAudioService::class.java.name
+
+        val AUDIOS = "audios"
         val GENRE_ID = "genre_id"
     }
 

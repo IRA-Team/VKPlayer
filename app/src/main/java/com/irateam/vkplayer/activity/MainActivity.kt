@@ -36,7 +36,6 @@ import com.irateam.vkplayer.activity.settings.SettingsActivity
 import com.irateam.vkplayer.api.service.LocalAudioService
 import com.irateam.vkplayer.api.service.UserService
 import com.irateam.vkplayer.api.service.VKAudioService
-import com.irateam.vkplayer.api.service.VKExternalAudioService
 import com.irateam.vkplayer.controller.PlayerController
 import com.irateam.vkplayer.fragment.BackPressedListener
 import com.irateam.vkplayer.fragment.LocalAudioListFragment
@@ -75,7 +74,6 @@ class MainActivity : AppCompatActivity(),
 
     //Player helpers
     private lateinit var playerController: PlayerController
-    private lateinit var vkExternalService: VKExternalAudioService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,7 +81,6 @@ class MainActivity : AppCompatActivity(),
 
         audioService = VKAudioService(this)
         localAudioService = LocalAudioService(this)
-        vkExternalService = VKExternalAudioService(this)
         userService = UserService(this)
 
         toolbar = getViewById(R.id.toolbar)
@@ -142,7 +139,6 @@ class MainActivity : AppCompatActivity(),
             val fragment: Fragment = when (itemId) {
                 R.id.current_playlist -> VKAudioListFragment.newInstance(audioService.getCurrent())
                 R.id.local_audio -> LocalAudioListFragment.newInstance()
-                R.id.external_audio -> VKAudioListFragment.newInstance(vkExternalService.getExternal())
                 R.id.my_audio -> VKAudioListFragment.newInstance(audioService.getMy())
                 R.id.recommended_audio -> VKAudioListFragment.newInstance(audioService.getRecommendation())
                 R.id.popular_audio -> VKAudioListFragment.newInstance(audioService.getPopular())

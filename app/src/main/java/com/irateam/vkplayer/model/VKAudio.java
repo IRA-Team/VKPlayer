@@ -22,6 +22,7 @@ import java.io.File;
 
 public class VKAudio extends Audio {
 
+    private final int audioId;
     private final int ownerId;
     private final String url;
     private final int lyricsId;
@@ -32,7 +33,7 @@ public class VKAudio extends Audio {
     private String cachePath;
     private File cacheFile;
 
-    public VKAudio(String id,
+    public VKAudio(int audioId,
                    int ownerId,
                    String artist,
                    String title,
@@ -42,7 +43,8 @@ public class VKAudio extends Audio {
                    int albumId,
                    int genre,
                    String accessKey) {
-        super(id, artist, title, duration);
+        super(ownerId + "_" + audioId, artist, title, duration);
+        this.audioId = audioId;
         this.ownerId = ownerId;
         this.url = url;
         this.lyricsId = lyricsId;
@@ -53,6 +55,7 @@ public class VKAudio extends Audio {
 
     protected VKAudio(Parcel in) {
         super(in);
+        this.audioId = in.readInt();
         this.ownerId = in.readInt();
         this.url = in.readString();
         this.lyricsId = in.readInt();
@@ -61,6 +64,9 @@ public class VKAudio extends Audio {
         this.accessKey = in.readString();
     }
 
+    public int getAudioId() {
+        return audioId;
+    }
 
     public int getOwnerId() {
         return ownerId;
@@ -118,7 +124,7 @@ public class VKAudio extends Audio {
     @SuppressWarnings("CloneDoesntCallSuperClone")
     public VKAudio clone() {
         VKAudio audio = new VKAudio(
-                getId(),
+                getAudioId(),
                 getOwnerId(),
                 getArtist(),
                 getTitle(),
@@ -141,6 +147,7 @@ public class VKAudio extends Audio {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
+        dest.writeInt(audioId);
         dest.writeInt(ownerId);
         dest.writeString(url);
         dest.writeInt(lyricsId);

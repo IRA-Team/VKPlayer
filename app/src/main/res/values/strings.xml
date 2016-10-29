@@ -92,6 +92,5 @@
     <string name="length">Длинна</string>
     <string name="permission_required_to_scan">Permission required to scan</string>
     <string name="permission_required_to_remove">Permission required to remove</string>
-    <string name="navigation_drawer_external">Внешние</string>
 
 </resources>
