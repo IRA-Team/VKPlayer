@@ -120,10 +120,17 @@ class VKAudioService {
 
             v(TAG, "External non indexed audios: ${nonIndexedExternal.keys}")
             val externalIndexed = try {
-                VKExternalAudioQuery(nonIndexedExternal).execute()
-            } catch (exception: Exception) {
+                if (nonIndexedExternal.isNotEmpty()) {
+                    getById(nonIndexedExternal.keys)
+                            .execute()
+                            .process { it.cachePath = nonIndexedExternal[it.id]?.absolutePath }
+                            .process { helper.cache(it) }
+                } else {
+                    emptyList()
+                }
+            } catch (e: Exception) {
                 e(TAG, "An error occurred during indexing")
-                exception.printStackTrace()
+                e.printStackTrace()
                 emptyList<VKAudio>()
             }
 
@@ -153,26 +160,6 @@ class VKAudioService {
             return audios.filter { it.isCached }
                     .map { it.removeFromCache(); it }
                     .toList()
-        }
-    }
-
-    private inner class VKExternalAudioQuery : AbstractQuery<List<VKAudio>> {
-
-        val audioMap: Map<String, File>
-
-        constructor(audioMap: Map<String, File>) {
-            this.audioMap = audioMap
-        }
-
-        override fun query(): List<VKAudio> {
-            return if (audioMap.isNotEmpty()) {
-                getById(audioMap.keys)
-                        .execute()
-                        .process { it.cachePath = audioMap[it.id]?.absolutePath }
-                        .process { helper.cache(it) }
-            } else {
-                emptyList()
-            }
         }
     }
 

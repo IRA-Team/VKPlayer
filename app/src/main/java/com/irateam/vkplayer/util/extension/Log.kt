@@ -26,11 +26,7 @@ fun v(obj: Any) {
 }
 
 fun v(tag: String, obj: Any) {
-    Log.v(tag, obj.toString());
-}
-
-fun v(tag: String, message: String, vararg objects: Any) {
-    Log.v(tag, message.format(objects));
+    Log.v(tag, obj.toString())
 }
 
 //Debug level
@@ -39,11 +35,7 @@ fun d(obj: Any) {
 }
 
 fun d(tag: String, obj: Any) {
-    Log.d(tag, obj.toString());
-}
-
-fun d(tag: String, message: String, vararg objects: Any) {
-    Log.d(tag, message.format(objects));
+    Log.d(tag, obj.toString())
 }
 
 //Info level
@@ -52,11 +44,7 @@ fun i(obj: Any?) {
 }
 
 fun i(tag: String, obj: Any?) {
-    Log.i(tag, obj.toString());
-}
-
-fun i(tag: String, message: String, vararg objects: Any) {
-    Log.i(tag, message.format(objects));
+    Log.i(tag, obj.toString())
 }
 
 //Warning level
@@ -65,11 +53,7 @@ fun w(obj: Any) {
 }
 
 fun w(tag: String, obj: Any) {
-    Log.w(tag, obj.toString());
-}
-
-fun w(tag: String, message: String, vararg objects: Any) {
-    Log.w(tag, message.format(objects));
+    Log.w(tag, obj.toString())
 }
 
 //Error level
@@ -78,11 +62,7 @@ fun e(obj: Any) {
 }
 
 fun e(tag: String, obj: Any) {
-    Log.e(tag, obj.toString());
-}
-
-fun e(tag: String, message: String, vararg objects: Any) {
-    Log.e(tag, message.format(objects));
+    Log.e(tag, obj.toString())
 }
 
 //Wtf level
@@ -91,9 +71,5 @@ fun wtf(obj: Any) {
 }
 
 fun wtf(tag: String, obj: Any) {
-    Log.wtf(tag, obj.toString());
-}
-
-fun wtf(tag: String, message: String, vararg objects: Any) {
-    Log.wtf(tag, message.format(objects));
+    Log.wtf(tag, obj.toString())
 }

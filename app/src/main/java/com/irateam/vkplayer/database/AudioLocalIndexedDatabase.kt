@@ -21,42 +21,37 @@ import android.content.Context
 import android.database.Cursor
 import com.irateam.vkplayer.database.Tables.AudioLocalIndexed.Columns
 import com.irateam.vkplayer.model.LocalAudio
-import com.irateam.vkplayer.util.extension.use
+import com.irateam.vkplayer.util.extension.*
 import java.util.*
 
 class AudioLocalIndexedDatabase(context: Context) : DatabaseHelper(context) {
 
-    fun insert(audio: LocalAudio): Long = writableDatabase.use {
-        it.insert(Tables.AudioLocalIndexed.NAME, null, audio.toContentValues())
+    fun insert(audio: LocalAudio): Long = writableDatabase.use { db ->
+        db.insert(
+                table = Tables.AudioLocalIndexed.NAME,
+                values = audio.toContentValues())
     }
 
-    fun update(audio: LocalAudio): Long = writableDatabase.use {
-        val id = it.update(Tables.AudioLocalIndexed.NAME,
-                audio.toContentValues(),
-                "${Columns.PATH} = \"${audio.path}\"",
-                null)
-
-        id.toLong()
+    fun update(audio: LocalAudio): Long = writableDatabase.use { db ->
+        db.update(
+                table = Tables.AudioLocalIndexed.NAME,
+                values = audio.toContentValues(),
+                whereClause = "${Columns.PATH} = \"${audio.path}\"")
     }
 
     fun delete(audio: LocalAudio): Long = writableDatabase.use {
-        val id = it.delete(Tables.AudioLocalIndexed.NAME,
-                "${Columns.PATH} = \"${audio.path}\"",
-                null)
-
-        id.toLong()
+        it.delete(
+                table = Tables.AudioLocalIndexed.NAME,
+                whereClause = "${Columns.PATH} = \"${audio.path}\"")
     }
 
     fun index(audio: LocalAudio): Long = writableDatabase.use { db ->
-        db.query(Tables.AudioLocalIndexed.NAME,
-                null,
-                "${Columns.PATH} = \"${audio.path}\"",
-                null,
-                null,
-                null,
-                null).use { cursor ->
+        val cursor = db.query(
+                table = Tables.AudioLocalIndexed.NAME,
+                selection = "${Columns.PATH} = \"${audio.path}\"")
 
-            if (cursor.count <= 0) {
+        cursor.use {
+            if (it.count <= 0) {
                 insert(audio)
             } else {
                 update(audio)
@@ -64,37 +59,60 @@ class AudioLocalIndexedDatabase(context: Context) : DatabaseHelper(context) {
         }
     }
 
-    fun getAll(): List<LocalAudio> = readableDatabase.use { db ->
-        db.query(Tables.AudioLocalIndexed.NAME, null, null, null, null, null, null)
-                .use { cursor ->
-                    val audios = ArrayList<LocalAudio>()
-                    if (cursor.moveToFirst()) {
-                        do {
-                            audios.add(cursor.toLocalAudio())
-                        } while (cursor.moveToNext())
-                    }
-                    audios
+    fun bulkIndex(audios: List<LocalAudio>) = writableDatabase.use { db ->
+        db.beginTransaction()
+
+        audios.forEach { audio ->
+            val cursor = db.query(
+                    table = Tables.AudioLocalIndexed.NAME,
+                    selection = "${Columns.PATH} = \"${audio.path}\"")
+
+            cursor.use {
+                if (it.count <= 0) {
+                    db.insert(
+                            table = Tables.AudioLocalIndexed.NAME,
+                            values = audio.toContentValues())
+                } else {
+                    db.update(
+                            table = Tables.AudioLocalIndexed.NAME,
+                            values = audio.toContentValues(),
+                            whereClause = "${Columns.PATH} = \"${audio.path}\"")
                 }
+            }
+        }
+
+        db.setTransactionSuccessful()
+        db.endTransaction()
+    }
+
+    fun getAll(): List<LocalAudio> = readableDatabase.use { db ->
+        db.query(table = Tables.AudioLocalIndexed.NAME).use { cursor ->
+            val audios = ArrayList<LocalAudio>()
+            if (cursor.moveToFirst()) {
+                do {
+                    audios.add(cursor.toLocalAudio())
+                } while (cursor.moveToNext())
+            }
+            audios
+        }
     }
 
     fun getIndexedPaths(): Set<String> = readableDatabase.use { db ->
-        db.query(Tables.AudioLocalIndexed.NAME, null, null, null, null, null, null)
-                .use { cursor ->
-                    val paths = HashSet<String>()
-                    if (cursor.moveToFirst()) {
-                        val columnIndex = cursor.getColumnIndex(Columns.PATH)
-                        do {
-                            paths.add(cursor.getString(columnIndex))
-                        } while (cursor.moveToNext())
-                    }
-                    paths
-                }
+        db.query(table = Tables.AudioLocalIndexed.NAME).use { cursor ->
+            val paths = HashSet<String>()
+            if (cursor.moveToFirst()) {
+                val columnIndex = cursor.getColumnIndex(Columns.PATH)
+                do {
+                    paths.add(cursor.getString(columnIndex))
+                } while (cursor.moveToNext())
+            }
+            paths
+        }
     }
 
     fun removeAll(): Unit = writableDatabase.use {
-        it.delete(Tables.AudioLocalIndexed.NAME, null, null)
+        it.delete(table = Tables.AudioLocalIndexed.NAME)
     }
-
 
     companion object {
 
@@ -107,17 +125,11 @@ class AudioLocalIndexedDatabase(context: Context) : DatabaseHelper(context) {
 
         fun Cursor.toLocalAudio(): LocalAudio {
             var i = 1
-            val artist = getString(i++)
-            val title = getString(i++)
-            val duration = getInt(i++)
-            val path = getString(i)
-
-            val audio = LocalAudio(
-                    artist,
-                    title,
-                    duration,
-                    path)
-            return audio
+            return LocalAudio(
+                    artist = getString(i++),
+                    title = getString(i++),
+                    duration = getInt(i++),
+                    path = getString(i))
         }
     }
 }

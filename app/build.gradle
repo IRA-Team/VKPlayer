@@ -39,6 +39,9 @@ dependencies {
     compile group: 'org.greenrobot', name: 'eventbus', version: '3.0.0'
     compile group: 'com.vk', name: 'androidsdk', version: '1.6.7'
     compile group: 'com.mpatric', name: 'mp3agic', version: '0.8.4'
+    // https://mvnrepository.com/artifact/org/jaudiotagger
+    compile group: 'org', name: 'jaudiotagger', version: '2.0.3'
+
 
     //UI
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'

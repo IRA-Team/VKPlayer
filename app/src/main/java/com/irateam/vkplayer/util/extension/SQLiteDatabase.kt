@@ -16,6 +16,8 @@
 
 package com.irateam.vkplayer.util.extension
 
+import android.content.ContentValues
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 
 inline fun <R> SQLiteDatabase.use(block: (SQLiteDatabase) -> R): R {
@@ -34,4 +36,41 @@ inline fun <R> SQLiteDatabase.use(block: (SQLiteDatabase) -> R): R {
             close()
         }
     }
+}
+
+fun SQLiteDatabase.query(
+        table: String,
+        columns: Array<String>? = null,
+        selection: String? = null,
+        selectionArgs: Array<String>? = null,
+        groupBy: String? = null,
+        having: String? = null,
+        orderBy: String? = null): Cursor {
+
+    return query(table, columns, selection, selectionArgs, groupBy, having, orderBy)
+}
+
+fun SQLiteDatabase.insert(
+        table: String,
+        nullColumnHack: String? = null,
+        values: ContentValues): Long {
+
+    return insert(table, nullColumnHack, values)
+}
+
+fun SQLiteDatabase.update(
+        table: String,
+        values: ContentValues,
+        whereClause: String? = null,
+        whereArgs: Array<String>? = null): Long {
+
+    return update(table, values, whereClause, whereArgs).toLong()
+}
+
+fun SQLiteDatabase.delete(
+        table: String,
+        whereClause: String? = null,
+        whereArgs: Array<String>? = null): Long {
+
+    return delete(table, whereClause, whereArgs).toLong()
 }
