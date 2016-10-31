@@ -16,16 +16,18 @@
 
 package com.irateam.vkplayer.adapter
 
-import com.irateam.vkplayer.model.LocalAudio
+import com.irateam.vkplayer.model.Audio
 
-class LocalSearchDelegate : SearchDelegate {
+class LocalSearchDelegate<T : Audio> : SearchDelegate {
 
-    private val adapter: LocalAudioRecyclerAdapter
+    private val adapter: BaseAudioRecyclerAdapter<T, *>
 
-    private var original: List<LocalAudio> = emptyList()
+    var original: List<T> = emptyList()
+        private set
+
     override var query: String = ""
 
-    constructor(adapter: LocalAudioRecyclerAdapter) {
+    constructor(adapter: BaseAudioRecyclerAdapter<T, *>) {
         this.adapter = adapter
     }
 
@@ -42,7 +44,6 @@ class LocalSearchDelegate : SearchDelegate {
         } else {
             original
         }
-
 
         adapter.notifyDataSetChanged()
     }

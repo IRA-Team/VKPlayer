@@ -20,3 +20,11 @@ inline fun <T> Iterable<T>.process(block: (T) -> Unit): List<T> {
     forEach(block)
     return this.toList()
 }
+
+fun <T> Collection<T>?.isNullOrEmpty(): Boolean {
+    return this?.isEmpty() ?: true
+}
+
+fun <T> Collection<T>?.isNotNullOrEmpty(): Boolean {
+    return this?.isNotEmpty() ?: false
+}

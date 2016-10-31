@@ -25,6 +25,7 @@ import com.irateam.vkplayer.model.Audio
 import com.irateam.vkplayer.model.LocalAudio
 import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder
+import com.irateam.vkplayer.util.extension.isNullOrEmpty
 import java.util.*
 
 /**
@@ -47,7 +48,7 @@ class LocalAudioRecyclerAdapter : BaseAudioRecyclerAdapter<LocalAudio, AudioView
                                   position: Int,
                                   payload: MutableList<Any>?) {
         val audio = audios[position]
-        if (payload?.isEmpty() ?: true) {
+        if (payload.isNullOrEmpty()) {
             configureAudio(holder, audio)
             configurePlayingState(holder, audio)
 
@@ -66,16 +67,6 @@ class LocalAudioRecyclerAdapter : BaseAudioRecyclerAdapter<LocalAudio, AudioView
 
     override fun getItemCount(): Int {
         return audios.size
-    }
-
-    override fun onItemMove(from: Int, to: Int): Boolean {
-        sortModeDelegate.move(from, to)
-        return true
-    }
-
-    override fun onItemDismiss(position: Int) {
-        audios -= audios[position]
-        notifyItemRemoved(position)
     }
 
     private fun dispatchEvents(holder: AudioViewHolder,
@@ -110,36 +101,12 @@ class LocalAudioRecyclerAdapter : BaseAudioRecyclerAdapter<LocalAudio, AudioView
         }
     }
 
-    override fun clearChecked() {
-        checkedAudios.forEach {
-            notifyItemChanged(audios.indexOf(it), ItemUncheckedEvent)
-        }
-        checkedAudios.clear()
-    }
-
     fun removeAll(removed: Collection<Audio>) {
         removed.forEach {
             val index = audios.indexOf(it)
             audios -= audios[index]
             notifyItemRemoved(index)
         }
-    }
-
-    override fun removeChecked() {
-        val layoutManager = recyclerView?.layoutManager
-
-        checkedAudios.toList().forEach {
-            val index = audios.indexOf(it)
-            audios -= audios[index]
-
-            layoutManager?.apply {
-                val view = findViewByPosition(index)
-                removeView(view)
-                notifyItemRemoved(index)
-            }
-
-        }
-        checkedAudios.clear()
     }
 
     fun setAudios(audios: Collection<LocalAudio>) {

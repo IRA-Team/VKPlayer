@@ -17,9 +17,9 @@ abstract class AbstractQuery<T> : Query<T> {
 		this.task = task
 		task.get()
 	} catch (e: InterruptedException) {
-		throw e;
+		throw e
 	} catch (e: ExecutionException) {
-		throw e;
+		throw e
 	}
 
 	override fun execute(callback: Callback<T>) {
@@ -46,13 +46,13 @@ abstract class AbstractQuery<T> : Query<T> {
 
 		@Throws(Exception::class)
 		override fun call(): V = try {
-			val result = query.query();
+			val result = query.query()
 			notifyComplete(result)
 			result
 		} catch (e: Exception) {
 			e.printStackTrace()
 			notifyError()
-			throw e;
+			throw e
 		}
 
 		private fun notifyComplete(result: V) {

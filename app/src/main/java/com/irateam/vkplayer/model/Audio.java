@@ -19,6 +19,8 @@ package com.irateam.vkplayer.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.io.File;
+
 public abstract class Audio implements Parcelable {
 
     private final String id;
@@ -62,6 +64,10 @@ public abstract class Audio implements Parcelable {
     }
 
     public abstract String getSource();
+
+    public boolean isLocal() {
+        return new File(getSource()).exists();
+    }
 
     public Metadata getMetadata() {
         return metadata;

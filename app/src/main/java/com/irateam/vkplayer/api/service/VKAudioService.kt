@@ -20,7 +20,6 @@ import android.content.Context
 import com.irateam.vkplayer.api.*
 import com.irateam.vkplayer.database.AudioVKCacheDatabase
 import com.irateam.vkplayer.model.VKAudio
-import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.util.extension.e
 import com.irateam.vkplayer.util.extension.process
 import com.irateam.vkplayer.util.extension.v
@@ -35,10 +34,6 @@ class VKAudioService {
 
     constructor(context: Context) {
         helper = AudioVKCacheDatabase(context)
-    }
-
-    fun getCurrent(): Query<List<VKAudio>> {
-        return CurrentAudioQuery()
     }
 
     fun getMy(): Query<List<VKAudio>> {
@@ -136,11 +131,6 @@ class VKAudioService {
 
             return cached + externalIndexed
         }
-    }
-
-    private inner class CurrentAudioQuery : AbstractQuery<List<VKAudio>>() {
-        override fun query(): List<VKAudio> = Player.playlist
-                .filterIsInstance(VKAudio::class.java)
     }
 
     private inner class RemoveFromCacheQuery(val audios: Collection<VKAudio>) :

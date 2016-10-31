@@ -128,13 +128,43 @@ abstract class BaseAudioRecyclerAdapter<A : Audio, VH : RecyclerView.ViewHolder>
 		scrollToTop()
 	}
 
-	fun setSearchQuery(query: String) {
+    fun setSearchQuery(query: String) {
 		searchDelegate.search(query)
 	}
 
-	abstract fun removeChecked()
+	open fun removeChecked() {
+		val layoutManager = recyclerView?.layoutManager
 
-	abstract fun clearChecked()
+		checkedAudios.toList().forEach {
+			val index = audios.indexOf(it)
+			audios -= audios[index]
+
+			layoutManager?.apply {
+				val view = findViewByPosition(index)
+				removeView(view)
+				notifyItemRemoved(index)
+			}
+
+		}
+		checkedAudios.clear()
+	}
+
+	open fun clearChecked() {
+		checkedAudios.forEach {
+			notifyItemChanged(audios.indexOf(it), BaseAudioAdapterEvent.ItemUncheckedEvent)
+		}
+		checkedAudios.clear()
+	}
+
+    override fun onItemMove(from: Int, to: Int): Boolean {
+        sortModeDelegate.move(from, to)
+        return true
+    }
+
+    override fun onItemDismiss(position: Int) {
+        audios -= audios[position]
+        notifyItemRemoved(position)
+    }
 
 	override fun onStart() {
 		notifyItemRangeChanged(0, itemCount, BaseAudioAdapterEvent.SortModeStarted)
@@ -163,7 +193,7 @@ abstract class BaseAudioRecyclerAdapter<A : Audio, VH : RecyclerView.ViewHolder>
 	}
 
 	@Subscribe
-	fun onPlayEvent(e: PlayerPlayEvent) {
+	open fun onPlayEvent(e: PlayerPlayEvent) {
 		notifyEvent(e)
 	}
 

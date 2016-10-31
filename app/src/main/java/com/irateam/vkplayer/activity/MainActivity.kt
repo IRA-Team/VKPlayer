@@ -38,6 +38,7 @@ import com.irateam.vkplayer.api.service.UserService
 import com.irateam.vkplayer.api.service.VKAudioService
 import com.irateam.vkplayer.controller.PlayerController
 import com.irateam.vkplayer.fragment.BackPressedListener
+import com.irateam.vkplayer.fragment.CurrentPlaylistFragment
 import com.irateam.vkplayer.fragment.LocalAudioListFragment
 import com.irateam.vkplayer.fragment.VKAudioListFragment
 import com.irateam.vkplayer.model.User
@@ -137,7 +138,7 @@ class MainActivity : AppCompatActivity(),
         if (groupId == R.id.audio_group) {
             supportActionBar?.title = menuItem.title
             val fragment: Fragment = when (itemId) {
-                R.id.current_playlist -> VKAudioListFragment.newInstance(audioService.getCurrent())
+                R.id.current_playlist -> CurrentPlaylistFragment.newInstance()
                 R.id.local_audio -> LocalAudioListFragment.newInstance()
                 R.id.my_audio -> VKAudioListFragment.newInstance(audioService.getMy())
                 R.id.recommended_audio -> VKAudioListFragment.newInstance(audioService.getRecommendation())
@@ -163,6 +164,11 @@ class MainActivity : AppCompatActivity(),
     fun onPlayEvent(e: PlayerPlayEvent) {
         if (!playerController.isVisible()) {
             showPlayerController()
+        }
+
+        val fragment = supportFragmentManager.findFragmentByTag(TOP_LEVEL_FRAGMENT)
+        if (fragment !is CurrentPlaylistFragment) {
+            setFragment(CurrentPlaylistFragment.newInstance())
         }
     }
 
