@@ -26,10 +26,12 @@ import com.irateam.vkplayer.model.Audio
 import com.irateam.vkplayer.model.Header
 import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.player.PlayerPlayEvent
+import com.irateam.vkplayer.player.PlaylistPlayNextEvent
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder
 import com.irateam.vkplayer.ui.viewholder.HeaderViewHolder
 import com.irateam.vkplayer.util.extension.isNullOrEmpty
 import com.irateam.vkplayer.util.extension.v
+import org.greenrobot.eventbus.Subscribe
 import java.util.*
 
 class CurrentPlaylistRecyclerAdapter : BaseAudioRecyclerAdapter<Audio, RecyclerView.ViewHolder> {
@@ -38,24 +40,17 @@ class CurrentPlaylistRecyclerAdapter : BaseAudioRecyclerAdapter<Audio, RecyclerV
     override var audios: List<Audio> = emptyList()
     override var checkedAudios: HashSet<Audio> = HashSet()
 
-    private var snapshot: PlaylistSnapshot
-    private var data: List<Any>
+    private var data: ArrayList<Any>
 
     constructor() {
-        this.snapshot = buildSnapshot()
-        this.data = buildRecyclerData(snapshot)
+        this.audios = Player.playlist
+        this.data = buildRecyclerData()
     }
 
-    private fun buildSnapshot(): PlaylistSnapshot {
-        return PlaylistSnapshot(
-                Player.playlist,
-                Player.playNextList)
-    }
-
-    private fun buildRecyclerData(snapshot: PlaylistSnapshot): List<Any> {
+    private fun buildRecyclerData(): ArrayList<Any> {
         val data = ArrayList<Any>()
 
-        val playNext = Player.playNextList
+        val playNext = Player.playNext
         if (playNext.isNotEmpty()) {
             data.add(Header("Play next"))
             data.addAll(playNext)
@@ -66,21 +61,6 @@ class CurrentPlaylistRecyclerAdapter : BaseAudioRecyclerAdapter<Audio, RecyclerV
         data.addAll(playlist)
 
         return data
-    }
-
-    private fun invalidateRecycler(before: PlaylistSnapshot, after: PlaylistSnapshot) {
-        if (before != after) {
-
-            //Invalidate playNext
-            if (before.playNext.isEmpty() && after.playNext.isNotEmpty()) {
-                notifyItemRangeInserted(0, after.playNext.size + 2) // +2 are headers
-            } else if (before.playNext.isNotEmpty() && after.playNext.isEmpty()) {
-                notifyItemRangeRemoved(0, before.playNext.size + 2) // +2 are headers
-            }
-
-        } else {
-            v(TAG, "Snapshots are equal. No need to invalidate")
-        }
     }
 
     override fun getItemViewType(position: Int) = when (data[position]) {
@@ -155,14 +135,6 @@ class CurrentPlaylistRecyclerAdapter : BaseAudioRecyclerAdapter<Audio, RecyclerV
     }
 
 
-    override fun onPlayEvent(e: PlayerPlayEvent) {
-        val before = snapshot
-        val after = buildSnapshot()
-        this.snapshot = after
-        this.data = buildRecyclerData(after)
-        invalidateRecycler(before, after)
-    }
-
     private fun configureAudio(holder: AudioViewHolder, audio: Audio) {
         holder.setAudio(audio)
 
@@ -171,22 +143,23 @@ class CurrentPlaylistRecyclerAdapter : BaseAudioRecyclerAdapter<Audio, RecyclerV
         }
 
         holder.contentHolder.setOnClickListener {
-            val audios = if (searchDelegate.isSearching) {
-                searchDelegate.original
-            } else {
-                audios
-            }
             Player.play(audios, audio)
         }
+    }
+
+    @Subscribe
+    fun onPlaylistPlayNextEvent(e: PlaylistPlayNextEvent) {
+        val from = e.playNextPosition + 1
+        val playNext = data[from] // +1 cause header
+        data.removeAt(from)
+        val to = e.playNextSize + e.playlistPosition + 2
+        data.add(to, playNext) // +2 cause of 2 headers
+        notifyItemMoved(from, to)
     }
 
     override fun getItemCount(): Int {
         return data.size
     }
-
-    data class PlaylistSnapshot(
-            val playlist: List<Audio>,
-            val playNext: List<Audio>)
 
     companion object {
 

@@ -23,9 +23,6 @@ import android.os.Looper
 import com.irateam.vkplayer.model.Audio
 import com.irateam.vkplayer.player.Player.RepeatState.*
 import com.irateam.vkplayer.util.EventBus
-import com.irateam.vkplayer.util.extension.i
-import java.util.*
-import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.properties.Delegates.observable
 
 object Player : MediaPlayer(),
@@ -35,176 +32,42 @@ object Player : MediaPlayer(),
 
     val TAG: String = Player::class.java.name
 
-    /**
-     * Original playlist.
-     * Inner playlist is built based on original playlist.
-     * Also uses for providing correct audio position.
-     * Must be changed only by calling setQueue()
-     */
-    var originalPlaylist: List<Audio> = emptyList()
-        private set
+    private val playlistManager: PlaylistManager = PlaylistManager()
 
     /**
-     * Inner playlist
+     * Delegates from PlaylistManager
      */
-    var playlist: List<Audio> = emptyList()
-        private set
+    val originalPlaylist: List<Audio>
+        get() = playlistManager.originalPlaylist
 
-    val playNextList: List<Audio>
-        get() = playNextQueue.toList()
+    val playlist: List<Audio>
+        get() = playlistManager.playlist
 
-    /**
-     * Holds audios in order in which they would be played
-     */
-    private var queue: MutableList<Audio> = ArrayList()
-
-    /**
-     * Holds audios that should be played next
-     */
-    private val playNextQueue: Queue<Audio> = ConcurrentLinkedQueue<Audio>()
-
-    /**
-     * Holds all previously played audios
-     */
-    private val historyStack: Stack<Audio> = Stack()
-
-    /**
-     * Currently playing audio
-     */
-    var audio: Audio? = null
-        private set
+    val playNext: List<Audio>
+        get() = playlistManager.playNext
 
     val queueSize: Int
-        get() = queue.size
+        get() = playlistManager.queueSize
 
-    val audioIndex: Int
-        get() = queue.indexOf(audio)
+    val audio: Audio?
+        get() = playlistManager.audio
 
-    /**
-     * Position of playing audio relatively to original playlist
-     */
     val audioPosition: Int
-        get() = originalPlaylist.indexOf(audio)
+        get() = playlistManager.audioPosition
 
-    /**
-     * Checks if playing audio is first in queue
-     */
-    private val isFirst: Boolean
-        get() = audio === queue.first()
-
-    /**
-     * Checks if playing audio is last in queue
-     */
-    private val isLast: Boolean
-        get() = audio === queue.last()
-
-    private fun setQueue(audios: Collection<Audio>, head: Audio?) {
-        originalPlaylist = ArrayList(audios)
-        historyStack.clear()
-        setupQueues(head)
+    fun addToPlayNext(audios: Collection<Audio>) {
+        playlistManager.addToPlayNext(audios)
     }
 
     fun addToQueue(audios: Collection<Audio>) {
-        TODO()
-    }
-
-    fun addToPlayNext(audios: Collection<Audio>) {
-        playNextQueue.addAll(audios.map(Audio::clone))
-    }
-
-    private fun setupQueues(head: Audio? = null, shouldIncludeHead: Boolean = true) {
-        if (!randomState) {
-            setupDefaultQueue(
-                    head = head,
-                    shouldIncludeHead = shouldIncludeHead)
-        } else {
-            setupShuffledQueue(
-                    head = head,
-                    shouldIncludeHead = shouldIncludeHead)
-        }
-        logPlaylist()
-    }
-
-    private fun setupDefaultQueue(head: Audio?, shouldIncludeHead: Boolean) {
-        playlist = originalPlaylist
-
-        if (head != null) {
-            val headIndex = playlist.indexOf(head)
-            val firstPart = if (headIndex > 0) {
-                playlist.subList(0, headIndex)
-            } else {
-                emptyList<Audio>()
-            }
-            val lastPart = if (headIndex != playlist.size - 1) {
-                playlist.subList(headIndex + 1, playlist.size)
-            } else {
-                emptyList<Audio>()
-            }
-            queue = ArrayList<Audio>().apply {
-                if (shouldIncludeHead) {
-                    add(head)
-                }
-
-                addAll(lastPart)
-                addAll(firstPart)
-            }
-        } else {
-            queue = ArrayList(playlist)
-        }
-    }
-
-    private fun setupShuffledQueue(head: Audio?, shouldIncludeHead: Boolean) {
-        val shuffled = originalPlaylist.toMutableList()
-        Collections.shuffle(shuffled)
-        if (head != null) {
-            val index = shuffled.indexOf(head)
-            if (index != -1) {
-                shuffled.removeAt(index)
-            }
-
-            if (shouldIncludeHead) {
-                shuffled.add(0, head)
-            }
-        }
-        queue = shuffled
-        playlist = queue.toList()
-    }
-
-    private fun pollNextAudio(): Audio = when {
-        playNextQueue.isNotEmpty() -> {
-            playNextQueue.poll()
-        }
-
-        else -> {
-            if (queue.isEmpty()) {
-                setupQueues()
-            }
-            val next = queue[0]
-            queue.removeAt(0)
-            next
-        }
-    }
-
-    private fun pollPreviousAudio(): Audio = when {
-        historyStack.isNotEmpty() -> {
-            historyStack.pop()
-        }
-
-        else -> {
-            logPlaylist()
-            val index = playlist.indexOf(audio)
-            if (index == 0 || index == -1) {
-                playlist.last()
-            } else {
-                playlist[index - 1]
-            }
-        }
+        playlistManager.addToQueue(audios)
     }
 
     /**
      * Indicates that audio should be played after preparing
      */
     var shouldPlay = false
+        private set
 
     var pauseTime: Int = 0
         private set
@@ -213,10 +76,7 @@ object Player : MediaPlayer(),
         private set
 
     var randomState by observable(false) { property, oldRandomState, randomState ->
-        setupQueues(
-                head = audio,
-                shouldIncludeHead = false)
-        historyStack.clear()
+        playlistManager.random = randomState
         EventBus.post(PlayerRandomChangedEvent(randomState))
     }
 
@@ -241,8 +101,10 @@ object Player : MediaPlayer(),
     }
 
     fun play(audios: Collection<Audio>, audio: Audio) = if (audio in audios) {
-        this.audio = null
-        setQueue(audios, audio)
+        playlistManager.setQueue(
+                audios = audios,
+                head = null,
+                random = randomState)
         next()
     } else {
         throw IllegalStateException("Collection must contain given audio!")
@@ -253,13 +115,12 @@ object Player : MediaPlayer(),
         stopObserveProgress()
         setOnBufferingUpdateListener(null)
 
-        this.audio = audio
         setDataSource(audio.source)
 
         shouldPlay = true
         prepareAsync()
 
-        EventBus.post(PlayerPlayEvent(audioPosition, audio))
+        EventBus.post(PlayerPlayEvent(playlistManager.audioPosition, audio))
     }
 
     fun resume() {
@@ -270,14 +131,13 @@ object Player : MediaPlayer(),
             start()
         }
 
-        audio?.let { EventBus.post(PlayerResumeEvent(audioPosition, it)) }
+        audio?.let { EventBus.post(PlayerResumeEvent(playlistManager.audioPosition, it)) }
     }
 
     override fun stop() {
         super.reset()
         audio?.let {
-            EventBus.post(PlayerStopEvent(audioPosition, it))
-            audio = null
+            EventBus.post(PlayerStopEvent(playlistManager.audioPosition, it))
         }
     }
 
@@ -297,24 +157,18 @@ object Player : MediaPlayer(),
         }
 
         audio?.let {
-            EventBus.post(PlayerPauseEvent(audioPosition, it, shouldStopForeground))
+            EventBus.post(PlayerPauseEvent(playlistManager.audioPosition, it, shouldStopForeground))
         }
     }
 
     fun next() {
-        audio?.let { historyStack.push(it) }
         reset()
-        play(pollNextAudio())
-
-        logPlaylist()
+        play(playlistManager.pollNextAudio())
     }
 
     fun previous() {
-        audio?.let { queue.add(0, it) }
         reset()
-        play(pollPreviousAudio())
-
-        logPlaylist()
+        play(playlistManager.pollPreviousAudio())
     }
 
     override fun seekTo(milliseconds: Int) {
@@ -338,7 +192,7 @@ object Player : MediaPlayer(),
     }
 
     override fun onCompletion(mp: MediaPlayer) {
-        if (repeatState == NO_REPEAT && isLast) {
+        if (repeatState == NO_REPEAT && playlistManager.isLast()) {
             stop()
             return
         }
@@ -361,7 +215,7 @@ object Player : MediaPlayer(),
         }
 
         audio?.let {
-            EventBus.post(PlayerStartEvent(audioPosition, it))
+            EventBus.post(PlayerStartEvent(playlistManager.audioPosition, it))
         }
 
     }
@@ -395,16 +249,6 @@ object Player : MediaPlayer(),
         }
     }
 
-    private fun logPlaylist() {
-        i(TAG, "Playlist: $playlist")
-        i(TAG, "")
-        i(TAG, "HistoryStack: Size = ${historyStack.size}")
-        i(TAG, "HistoryStack: $historyStack")
-        i(TAG, "")
-        i(TAG, "Queue: Size = ${queue.size}")
-        i(TAG, "Queue: $queue")
-        i(TAG, "=================================================")
-    }
 
     private class ProgressThread : Thread() {
 
@@ -423,5 +267,26 @@ object Player : MediaPlayer(),
         NO_REPEAT,
         ONE_REPEAT,
         ALL_REPEAT
+    }
+
+    interface PlaylistManager {
+        var random: Boolean
+
+        val originalPlaylist: List<Audio>
+        val playlist: List<Audio>
+        val playNext: List<Audio>
+        val queueSize: Int
+        val audioPosition: Int
+        val audio: Audio?
+
+        fun isLast(): Boolean
+
+        fun setQueue(audios: Collection<Audio>, head: Audio?, random: Boolean)
+        fun addToQueue(audios: Collection<Audio>)
+        fun addToPlayNext(audios: Collection<Audio>)
+
+        fun reset()
+        fun pollNextAudio(): Audio
+        fun pollPreviousAudio(): Audio
     }
 }

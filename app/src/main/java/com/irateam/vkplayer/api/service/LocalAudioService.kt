@@ -17,10 +17,7 @@
 package com.irateam.vkplayer.api.service
 
 import android.content.Context
-import com.irateam.vkplayer.api.AbstractQuery
-import com.irateam.vkplayer.api.ProgressableAbstractQuery
-import com.irateam.vkplayer.api.ProgressableQuery
-import com.irateam.vkplayer.api.Query
+import com.irateam.vkplayer.api.*
 import com.irateam.vkplayer.database.AudioLocalIndexedDatabase
 import com.irateam.vkplayer.event.AudioScannedEvent
 import com.irateam.vkplayer.model.LocalAudio
@@ -67,12 +64,12 @@ class LocalAudioService {
             ProgressableAbstractQuery<List<LocalAudio>, AudioScannedEvent>() {
 
         override fun query(): List<LocalAudio> {
-            val audioFiles = POSSIBLE_DIRECTORIES
+            val audioFiles = Config.SCAN_DIRECTORIES
                     .map(::File)
                     .map { it.walk().toList() }
                     .flatten()
                     .filter { !it.isDirectory }
-                    .filter { it.name.endsWith(".mp3") }
+                    .filter { it.isSupported() }
 
             val counter = AtomicInteger()
             val tasks = audioFiles
@@ -89,6 +86,10 @@ class LocalAudioService {
 
             database.bulkIndex(audios)
             return audios
+        }
+
+        private fun File.isSupported(): Boolean {
+            return Config.SUPPORTED_FORMATS.any { name.endsWith(it) }
         }
 
         private fun notifyAudioScanned(audio: LocalAudio, counter: AtomicInteger, total: Int) {
@@ -149,9 +150,6 @@ class LocalAudioService {
 
     companion object {
         val TAG: String = LocalAudioService::class.java.name
-        val POSSIBLE_DIRECTORIES = listOf(
-                "/sdcard"
-        )
 
         val THREADS_COUNT = Runtime.getRuntime().availableProcessors() * 4
         val CONVERTER_EXECUTOR: ExecutorService = Executors.newFixedThreadPool(THREADS_COUNT)

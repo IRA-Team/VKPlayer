@@ -131,7 +131,7 @@ open class PlayerController {
 
 	fun configurePanel() {
 		val audio = Player.audio
-		val index = Player.audioIndex
+		val index = Player.audioPosition
 
 		if (audio != null) {
 			rootView.visibility = View.VISIBLE

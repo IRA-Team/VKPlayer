@@ -94,7 +94,7 @@ class VKAudioService {
      * Name of files have format {OWNER_ID}_{AUDIO_ID}
      */
     private fun getExternalAudioFileMap(): Map<String, File> {
-        return VkConstants.POSSIBLE_AUDIO_DIRECTORIES
+        return Config.EXTERNAL_DIRECTORIES
                 .map(::File)
                 .map { it.walk().toList() }
                 .flatten()
