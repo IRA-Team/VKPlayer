@@ -18,8 +18,12 @@ package com.irateam.vkplayer.fragment
 
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.support.annotation.LayoutRes
 import android.support.annotation.MenuRes
-import android.view.*
+import android.support.annotation.StringRes
+import android.view.ActionMode
+import android.view.MenuItem
+import android.view.View
 import android.widget.TextView
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapter.LocalAudioRecyclerAdapter
@@ -51,11 +55,20 @@ class LocalAudioListFragment : BaseAudioListFragment() {
         localAudioService = LocalAudioService(context)
     }
 
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
 
-        return inflater.inflate(R.layout.fragment_local_audio_list, container, false)
+    @StringRes
+    override fun getTitleRes(): Int {
+        return R.string.navigation_drawer_local
+    }
+
+    @LayoutRes
+    override fun getLayoutRes(): Int {
+        return R.layout.fragment_local_audio_list
+    }
+
+    @MenuRes
+    override fun getMenuResource(): Int {
+        return R.menu.menu_local_audio_list
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -68,11 +81,6 @@ class LocalAudioListFragment : BaseAudioListFragment() {
         adapter.checkedListener = this
 
         loadLocalAudios()
-    }
-
-    @MenuRes
-    override fun getMenuResource(): Int {
-        return R.menu.menu_local_audio_list
     }
 
     override fun onRefresh() {

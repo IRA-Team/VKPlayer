@@ -103,7 +103,7 @@ object Player : MediaPlayer(),
     fun play(audios: Collection<Audio>, audio: Audio) = if (audio in audios) {
         playlistManager.setQueue(
                 audios = audios,
-                head = null,
+                head = audio,
                 random = randomState)
         next()
     } else {
@@ -192,8 +192,9 @@ object Player : MediaPlayer(),
     }
 
     override fun onCompletion(mp: MediaPlayer) {
-        if (repeatState == NO_REPEAT && playlistManager.isLast()) {
+        if (repeatState == NO_REPEAT && playlistManager.queueSize == 0) {
             stop()
+            playlistManager.reset()
             return
         }
 
@@ -278,8 +279,6 @@ object Player : MediaPlayer(),
         val queueSize: Int
         val audioPosition: Int
         val audio: Audio?
-
-        fun isLast(): Boolean
 
         fun setQueue(audios: Collection<Audio>, head: Audio?, random: Boolean)
         fun addToQueue(audios: Collection<Audio>)

@@ -24,9 +24,7 @@ import com.irateam.vkplayer.adapter.event.BaseAudioAdapterEvent
 import com.irateam.vkplayer.event.Event
 import com.irateam.vkplayer.model.Audio
 import com.irateam.vkplayer.model.Header
-import com.irateam.vkplayer.player.Player
-import com.irateam.vkplayer.player.PlayerPlayEvent
-import com.irateam.vkplayer.player.PlaylistPlayNextEvent
+import com.irateam.vkplayer.player.*
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder
 import com.irateam.vkplayer.ui.viewholder.HeaderViewHolder
 import com.irateam.vkplayer.util.extension.isNullOrEmpty
@@ -152,9 +150,32 @@ class CurrentPlaylistRecyclerAdapter : BaseAudioRecyclerAdapter<Audio, RecyclerV
         val from = e.playNextPosition + 1
         val playNext = data[from] // +1 cause header
         data.removeAt(from)
-        val to = e.playNextSize + e.playlistPosition + 2
-        data.add(to, playNext) // +2 cause of 2 headers
+        val to = e.playNextSize + e.playlistPosition + 3
+        data.add(to, playNext) // +3 cause of 2 headers and new position
         notifyItemMoved(from, to)
+
+        //Remove 2 headers if playNext is empty now
+        if (e.playNextSize == 0) {
+            data.removeAt(0)
+            removeViewByPosition(0)
+
+            data.removeAt(0)
+            removeViewByPosition(0)
+        }
+    }
+
+    @Subscribe
+    fun onPlaylistChangedEvent(e: PlaylistChangedEvent) {
+        val newData = buildRecyclerData()
+
+        newData.forEachIndexed { index, item ->
+            val from = data.indexOf(item)
+            data.removeAt(from)
+            data.add(index, item)
+            notifyItemMoved(from, index)
+        }
+
+        scrollToTop()
     }
 
     override fun getItemCount(): Int {

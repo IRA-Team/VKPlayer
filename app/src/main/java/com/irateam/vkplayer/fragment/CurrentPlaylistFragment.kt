@@ -17,7 +17,10 @@
 package com.irateam.vkplayer.fragment
 
 import android.os.Bundle
+import android.support.annotation.LayoutRes
+import android.support.annotation.StringRes
 import android.support.v4.app.Fragment
+import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -28,18 +31,21 @@ import com.irateam.vkplayer.adapter.CurrentPlaylistRecyclerAdapter
 import com.irateam.vkplayer.util.EventBus
 import com.irateam.vkplayer.util.extension.getViewById
 
-class CurrentPlaylistFragment : Fragment() {
+class CurrentPlaylistFragment : BaseFragment() {
 
     private lateinit var playlist: RecyclerView
     private lateinit var adapter: CurrentPlaylistRecyclerAdapter
 
     private lateinit var emptyView: View
 
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    @StringRes
+    override fun getTitleRes(): Int {
+        return R.string.navigation_drawer_current_playlist
+    }
 
-        return inflater.inflate(R.layout.fragment_current_playlist, container, false)
+    @LayoutRes
+    override fun getLayoutRes(): Int {
+        return R.layout.fragment_current_playlist
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -65,6 +71,7 @@ class CurrentPlaylistFragment : Fragment() {
         adapter = CurrentPlaylistRecyclerAdapter()
 
         playlist.adapter = adapter
+        playlist.itemAnimator = DefaultItemAnimator()
         playlist.layoutManager = LinearLayoutManager(context)
     }
 

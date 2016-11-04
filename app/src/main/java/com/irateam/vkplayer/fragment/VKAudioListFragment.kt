@@ -17,9 +17,13 @@
 package com.irateam.vkplayer.fragment
 
 import android.os.Bundle
+import android.support.annotation.LayoutRes
 import android.support.annotation.MenuRes
+import android.support.annotation.StringRes
 import android.support.v7.widget.SearchView
-import android.view.*
+import android.view.ActionMode
+import android.view.MenuItem
+import android.view.View
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapter.VKAudioRecyclerAdapter
 import com.irateam.vkplayer.api.Query
@@ -35,14 +39,14 @@ import java.util.*
 /**
  * @author Artem Glugovsky
  */
-class VKAudioListFragment : BaseAudioListFragment(),
+abstract class VKAudioListFragment : BaseAudioListFragment(),
         ActionMode.Callback,
         SearchView.OnQueryTextListener {
 
     override val adapter = VKAudioRecyclerAdapter()
 
-    private lateinit var audioService: VKAudioService
-    private lateinit var query: Query<List<VKAudio>>
+    protected abstract var query: Query<List<VKAudio>>
+    protected lateinit var audioService: VKAudioService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,11 +55,14 @@ class VKAudioListFragment : BaseAudioListFragment(),
         audioService = VKAudioService(context)
     }
 
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+    @LayoutRes
+    override fun getLayoutRes(): Int {
+        return R.layout.fragment_vk_audio_list
+    }
 
-        return inflater.inflate(R.layout.fragment_vk_audio_list, container, false)
+    @MenuRes
+    override fun getMenuResource(): Int {
+        return R.menu.menu_vk_audio_list
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -63,11 +70,6 @@ class VKAudioListFragment : BaseAudioListFragment(),
 
         adapter.checkedListener = this
         loadVKAudios()
-    }
-
-    @MenuRes
-    override fun getMenuResource(): Int {
-        return R.menu.menu_vk_audio_list
     }
 
     override fun onRefresh() {
@@ -142,15 +144,4 @@ class VKAudioListFragment : BaseAudioListFragment(),
             }
         }
     }
-
-    companion object {
-
-        @JvmStatic
-        fun newInstance(query: Query<List<VKAudio>>): VKAudioListFragment {
-            val fragment = VKAudioListFragment()
-            fragment.query = query
-            return fragment
-        }
-    }
-
 }

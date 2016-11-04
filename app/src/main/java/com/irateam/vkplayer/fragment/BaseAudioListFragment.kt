@@ -37,7 +37,7 @@ import com.irateam.vkplayer.util.extension.slideInUp
 import com.irateam.vkplayer.util.extension.slideOutDown
 import java.util.*
 
-abstract class BaseAudioListFragment : Fragment(),
+abstract class BaseAudioListFragment : BaseFragment(),
 		ActionMode.Callback,
 		SearchView.OnQueryTextListener,
 		BackPressedListener,

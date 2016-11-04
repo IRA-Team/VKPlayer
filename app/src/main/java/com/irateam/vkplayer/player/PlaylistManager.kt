@@ -24,10 +24,12 @@ class PlaylistManager : Player.PlaylistManager {
         private set
 
     override var random by observable(false) { property, oldRandom, newRandom ->
+        val playlistBefore = playlist
         setupQueues(
                 head = audio,
                 shouldIncludeHead = false,
                 random = newRandom)
+        EventBus.post(PlaylistChangedEvent(playlistBefore, playlist))
     }
 
     /**
@@ -56,31 +58,16 @@ class PlaylistManager : Player.PlaylistManager {
     override val queueSize: Int
         get() = queue.size
 
-    val audioIndex: Int
-        get() = queue.indexOf(Player.audio)
-
     /**
      * Position of playing audio relatively to original playlist
      */
     override val audioPosition: Int
-        get() = originalPlaylist.indexOf(Player.audio)
-
-    /**
-     * Checks if playing audio is first in queue
-     */
-    private val isFirst: Boolean
-        get() = Player.audio === queue.first()
-
-    /**
-     * Checks if playing audio is last in queue
-     */
-    override fun isLast(): Boolean {
-        return Player.audio === queue.last()
-    }
+        get() = playlist.indexOf(Player.audio)
 
     override fun setQueue(audios: Collection<Audio>, head: Audio?, random: Boolean) {
         originalPlaylist = ArrayList(audios)
         history.clear()
+        audio = null
         setupQueues(
                 head = head,
                 shouldIncludeHead = true,
@@ -97,9 +84,9 @@ class PlaylistManager : Player.PlaylistManager {
         d(TAG, "Play next queue: $playNextQueue")
     }
 
-    private fun setupQueues(head: Audio? = null, shouldIncludeHead: Boolean, random: Boolean) {
+    private fun setupQueues(head: Audio?, shouldIncludeHead: Boolean, random: Boolean) {
         d(TAG, "Set up queues")
-        if (random) {
+        if (!random) {
             setupDefaultQueue(
                     head = head,
                     shouldIncludeHead = shouldIncludeHead)
@@ -148,13 +135,13 @@ class PlaylistManager : Player.PlaylistManager {
             if (index != -1) {
                 shuffled.removeAt(index)
             }
-
-            if (shouldIncludeHead) {
-                shuffled.add(0, head)
-            }
+            shuffled.add(0, head)
+        }
+        playlist = ArrayList(shuffled)
+        if (!shouldIncludeHead && shuffled.isNotEmpty()) {
+            shuffled.removeAt(0)
         }
         queue = shuffled
-        playlist = shuffled
     }
 
     override fun pollNextAudio(): Audio {
@@ -172,7 +159,7 @@ class PlaylistManager : Player.PlaylistManager {
                 d(TAG, "PlayNextQueue is not empty. Polling audio from it.")
                 val next = playNextQueue.poll()
 
-                val playlistIndex = playlist.indexOf(Player.audio)
+                val playlistIndex = playlist.indexOf(Player.audio) + 1
                 d(TAG, "Index of current audio in playlist: $playlistIndex")
                 playlist.add(playlistIndex, next)
 
@@ -184,10 +171,12 @@ class PlaylistManager : Player.PlaylistManager {
                 d(TAG, "PlayNextQueue is empty. Polling audio from queue.")
                 if (queue.isEmpty()) {
                     i(TAG, "Queue is empty. Set up new queue")
+                    val beforePlaylist = playlist
                     setupQueues(
                             head = null,
                             shouldIncludeHead = false,
                             random = random)
+                    EventBus.post(PlaylistChangedEvent(beforePlaylist, playlist))
                     d(TAG, "New queue: $queue")
                 }
                 val next = queue[0]

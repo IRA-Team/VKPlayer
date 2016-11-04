@@ -37,10 +37,7 @@ import com.irateam.vkplayer.api.service.LocalAudioService
 import com.irateam.vkplayer.api.service.UserService
 import com.irateam.vkplayer.api.service.VKAudioService
 import com.irateam.vkplayer.controller.PlayerController
-import com.irateam.vkplayer.fragment.BackPressedListener
-import com.irateam.vkplayer.fragment.CurrentPlaylistFragment
-import com.irateam.vkplayer.fragment.LocalAudioListFragment
-import com.irateam.vkplayer.fragment.VKAudioListFragment
+import com.irateam.vkplayer.fragment.*
 import com.irateam.vkplayer.model.User
 import com.irateam.vkplayer.player.PlayerPlayEvent
 import com.irateam.vkplayer.player.PlayerStopEvent
@@ -136,14 +133,13 @@ class MainActivity : AppCompatActivity(),
         val groupId = menuItem.groupId
 
         if (groupId == R.id.audio_group) {
-            supportActionBar?.title = menuItem.title
-            val fragment: Fragment = when (itemId) {
+            val fragment: BaseFragment = when (itemId) {
                 R.id.current_playlist -> CurrentPlaylistFragment.newInstance()
                 R.id.local_audio -> LocalAudioListFragment.newInstance()
-                R.id.my_audio -> VKAudioListFragment.newInstance(audioService.getMy())
-                R.id.recommended_audio -> VKAudioListFragment.newInstance(audioService.getRecommendation())
-                R.id.popular_audio -> VKAudioListFragment.newInstance(audioService.getPopular())
-                R.id.cached_audio -> VKAudioListFragment.newInstance(audioService.getCached())
+                R.id.my_audio -> VKMyAudioFragment.newInstance()
+                R.id.recommended_audio -> VKRecommendationAudioFragment.newInstance()
+                R.id.popular_audio -> VKPopularAudioFragment.newInstance()
+                R.id.cached_audio -> VKCachedAudioFragment.newInstance()
                 else -> throw IllegalStateException("This item doesn't support.")
             }
             setFragment(fragment)
@@ -168,6 +164,7 @@ class MainActivity : AppCompatActivity(),
 
         val fragment = supportFragmentManager.findFragmentByTag(TOP_LEVEL_FRAGMENT)
         if (fragment !is CurrentPlaylistFragment) {
+            navigationView.menu.findItem(R.id.current_playlist)?.isChecked = true
             setFragment(CurrentPlaylistFragment.newInstance())
         }
     }
@@ -235,7 +232,8 @@ class MainActivity : AppCompatActivity(),
         onNavigationItemSelected(item)
     }
 
-    fun setFragment(fragment: Fragment) {
+    fun setFragment(fragment: BaseFragment) {
+        supportActionBar?.title = getString(fragment.getTitleRes())
         supportFragmentManager.beginTransaction()
                 .replace(R.id.container, fragment, TOP_LEVEL_FRAGMENT)
                 .commit()
