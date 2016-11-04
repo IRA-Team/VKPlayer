@@ -229,7 +229,8 @@ class MainActivity : AppCompatActivity(),
     private fun initializeFragment() {
         val item = navigationView.menu.findItem(R.id.local_audio)
         item.isChecked = true
-        onNavigationItemSelected(item)
+        //onNavigationItemSelected(item)
+        setFragment(SettingsFragment.newInstance())
     }
 
     fun setFragment(fragment: BaseFragment) {
