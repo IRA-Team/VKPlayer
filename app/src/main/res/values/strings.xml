@@ -31,6 +31,7 @@
     <string name="error_load">Ошибка загрузки</string>
     <string name="error_no_internet_connection">Отсутствует соединение с интернетом</string>
     <string name="error_no_wifi_connection">Отсутствует соединение с Wi-Fi</string>
+    <string name="error_load_user_from_cache">Ошибка загрузки пользователя с кеша</string>
     <string name="title_snackbar_action">Повторить</string>
 
     <string name="notification_previous">Предыдущая</string>
@@ -78,5 +79,18 @@
 
     <string name="pref_timer_off_title">Таймер отключения</string>
     <string name="pref_timer_off_enabled">Таймер</string>
+    <string name="action_play_next">Играть следующим</string>
+    <string name="navigation_drawer_local">Локальные</string>
+    <string name="title_menu_scan">Сканировать</string>
+    <string name="unknown_artist">Неизвестный исполнитель</string>
+    <string name="scanning">Сканирование</string>
+    <string name="remove_file">Удалить файл</string>
+    <string name="local_audio_remove_warning">Вы уверены, что хотите удалить эти файлы?</string>
+    <string name="unknown_title">Неизвестное имя</string>
+    <string name="title">Название</string>
+    <string name="artist">Исполнитель</string>
+    <string name="length">Длинна</string>
+    <string name="permission_required_to_scan">Permission required to scan</string>
+    <string name="permission_required_to_remove">Permission required to remove</string>
 
 </resources>

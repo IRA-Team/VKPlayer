@@ -1,0 +1,104 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/player_list_element_height"
+                android:orientation="horizontal">
+
+    <FrameLayout
+        android:id="@+id/cover_holder"
+        android:layout_width="@dimen/item_audio_cover_holder_size"
+        android:layout_height="@dimen/item_audio_cover_holder_size"
+        android:padding="@dimen/margin_normal">
+
+        <ImageView
+            android:id="@+id/cover"
+            android:layout_width="@dimen/item_audio_cover_size"
+            android:layout_height="@dimen/item_audio_cover_size"/>
+
+        <View
+            android:id="@+id/cover_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <ProgressBar
+            android:id="@+id/preparing_progress"
+            android:layout_width="@dimen/item_audio_preparing_progress_size"
+            android:layout_height="@dimen/item_audio_preparing_progress_size"
+            android:layout_gravity="center"
+            android:visibility="gone"/>
+
+        <View
+            android:id="@+id/cover_checked_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/overlay_item_audio_checked"
+            android:visibility="gone"/>
+
+    </FrameLayout>
+
+    <RelativeLayout
+        android:id="@+id/content_holder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toRightOf="@+id/cover_holder">
+
+        <LinearLayout
+            android:id="@+id/primary_info"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toLeftOf="@+id/secondary_info"
+            android:layout_toStartOf="@+id/secondary_info"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:textColor="@color/item_audio_title"
+                android:textSize="@dimen/font_medium"/>
+
+            <TextView
+                android:id="@+id/artist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/item_audio_artist"
+                android:textSize="@dimen/font_tiny"/>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/secondary_info"
+            android:layout_width="@dimen/item_audio_secondary_info_width"
+            android:layout_height="match_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="right"
+            android:layout_marginBottom="@dimen/margin_normal"
+            android:layout_marginLeft="@dimen/margin_small"
+            android:layout_marginRight="@dimen/margin_normal"
+            android:layout_marginTop="@dimen/margin_normal"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
+
+            <ImageView
+                android:id="@+id/cached_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/ic_list_cache_light_grey_18dp"
+                android:visibility="gone"/>
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>

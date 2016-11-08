@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_play"
+        android:icon="@drawable/ic_notification_play_white_24dp"
+        android:title="@string/action_play"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_play_next"
+        android:icon="@drawable/ic_playlist_play_white_24px"
+        android:title="@string/action_play_next"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_cache"
+        android:icon="@drawable/ic_cache_white_24dp"
+        android:title="@string/action_cache"
+        android:visible="false"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_remove_from_cache"
+        android:icon="@drawable/ic_remove_cache_white_24dp"
+        android:title="@string/action_delete_from_cache"
+        android:visible="false"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_delete"
+        android:icon="@drawable/ic_selected_delete_white_24dp"
+        android:title="@string/action_remove_from_list"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_add_to_queue"
+        android:title="@string/action_add_to_playlist"
+        app:showAsAction="ifRoom"/>
+</menu>

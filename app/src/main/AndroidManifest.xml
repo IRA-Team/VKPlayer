@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.irateam.vkplayer">
+          package="com.irateam.vkplayer">
 
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:name=".Application"
@@ -14,63 +14,72 @@
         android:label="@string/app_name"
         android:theme="@style/BaseTheme.App">
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".activity.ProxyActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
         <!-- Vk Activities -->
         <activity
             android:name="com.vk.sdk.VKOpenAuthActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"/>
+
         <activity
             android:name="com.vk.sdk.VKServiceActivity"
             android:label="ServiceActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/VK.Transparent" />
+            android:theme="@style/VK.Transparent"/>
+
+        <!--Application activities -->
         <activity
-            android:name=".activities.ListActivity"
+            android:name=".activity.MainActivity"
             android:label="@string/title_activity_list"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"/>
+
         <activity
-            android:name=".activities.LoginActivity"
+            android:name=".activity.LoginActivity"
             android:label="@string/title_activity_login"
             android:screenOrientation="portrait"
-            android:theme="@style/BaseTheme.LoginActivity" />
-        <activity
-            android:name=".activities.AudioActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AudioActivityTheme" />
-        <activity
-            android:name=".activities.settings.SettingsActivity"
-            android:label="@string/title_activity_settings"
-            android:theme="@style/BaseTheme" />
+            android:theme="@style/BaseTheme.LoginActivity"/>
 
+        <activity
+            android:name=".activity.AudioActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AudioActivityTheme"/>
+
+        <activity
+            android:name=".activity.settings.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:theme="@style/BaseTheme"/>
+
+        <!-- Services -->
         <service
-            android:name=".services.PlayerService"
+            android:name=".service.PlayerService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="player.PLAY" />
-                <action android:name="player.PAUSE" />
-                <action android:name="player.NEXT" />
-                <action android:name="player.PREVIOUS" />
-                <action android:name="player.SET_PLAYLIST" />
+                <action android:name="player.PLAY"/>
+                <action android:name="player.PAUSE"/>
+                <action android:name="player.NEXT"/>
+                <action android:name="player.PREVIOUS"/>
+                <action android:name="player.SET_PLAYLIST"/>
             </intent-filter>
         </service>
-        <service
-            android:name=".services.DownloadService"
-            android:enabled="true"
-            android:exported="true" />
 
-        <receiver android:name=".receivers.BootReceiver">
+        <service
+            android:name=".service.DownloadService"
+            android:enabled="true"
+            android:exported="true"/>
+
+        <!-- Receivers -->
+        <receiver android:name=".receiver.BootReceiver">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
     </application>

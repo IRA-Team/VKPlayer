@@ -74,5 +74,16 @@
     <string name="ok">ОК</string>
     <string name="pref_timer_off_enabled">Timer</string>
     <string name="pref_timer_off_title">Timer off</string>
+    <string name="action_play_next">Play next</string>
+    <string name="navigation_drawer_local">Local</string>
+    <string name="title_menu_scan">Scan</string>
+    <string name="unknown_artist">Unknown artist</string>
+    <string name="scanning">Scanning</string>
+    <string name="remove_file">Remove file</string>
+    <string name="local_audio_remove_warning">Are you sure you want delete these files?</string>
+    <string name="unknown_title">Unknown title</string>
+    <string name="title">Title</string>
+    <string name="artist">Artist</string>
+    <string name="length">Length</string>
 
 </resources>

@@ -74,5 +74,16 @@
     <string name="ok">ОК</string>
     <string name="pref_timer_off_enabled">Таймер</string>
     <string name="pref_timer_off_title">Таймер відключення</string>
+    <string name="action_play_next">Грати наступним</string>
+    <string name="navigation_drawer_local">Локальні</string>
+    <string name="title_menu_scan">Сканувати</string>
+    <string name="unknown_artist">Невідомий виконавець</string>
+    <string name="scanning">Сканування</string>
+    <string name="remove_file">Видалити файл</string>
+    <string name="local_audio_remove_warning">Ви впевнені, що хочити видалити ці файли?</string>
+    <string name="unknown_title">Невідоме ім\'я</string>
+    <string name="title">Назва</string>
+    <string name="artist">Виконавець</string>
+    <string name="length">Довжина</string>
 
 </resources>

@@ -1,12 +1,12 @@
 <preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
 
     <header
-        android:fragment="com.irateam.vkplayer.activities.settings.SettingsActivity$SyncPreferenceFragment"
+        android:fragment="com.irateam.vkplayer.activity.settings.SettingsActivity$SyncPreferenceFragment"
         android:icon="@drawable/ic_sync_grey_24dp"
         android:title="@string/pref_header_sync_title" />
 
     <header
-        android:fragment="com.irateam.vkplayer.activities.settings.SettingsActivity$CachePreferenceFragment"
+        android:fragment="com.irateam.vkplayer.activity.settings.SettingsActivity$CachePreferenceFragment"
         android:icon="@drawable/ic_navigation_drawer_cache_grey_24dp"
         android:title="@string/pref_header_cache_title" />
 

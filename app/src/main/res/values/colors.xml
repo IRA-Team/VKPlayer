@@ -13,8 +13,7 @@
     <item name="player_list_element_color" type="color">#ffffff</item>
     <item name="player_list_element_checked_color" type="color">#eeeeee</item>
     <item name="player_list_element_drag_color" type="color">#eeeeee</item>
-    <item name="player_list_element_song_name" type="color">#000000</item>
-    <item name="player_list_element_author" type="color">#b6b6b6</item>
+
     <item name="player_list_element_cover_overlay" type="color">#80000000</item>
     <item name="player_list_element_cover_checked_overlay" type="color">#9e9e9e</item>
 
@@ -43,4 +42,14 @@
 
     <item name="empty_list_text_view_color" type="color">#d0d0d0</item>
 
+
+    <!-- v2.0 resolved colors -->
+    <item name="item_audio_title" type="color">#000000</item>
+    <item name="item_audio_artist" type="color">#b6b6b6</item>
+
+    <item name="item_header_delimiter" type="color">#d7d5d5</item>
+    <item name="item_header_title" type="color">#b6b6b6</item>
+
+    <item name="item_directory_name" type="color">#000000</item>
+    <color name="item_directory_files_count">#b6b6b6</color>
 </resources>

@@ -12,7 +12,7 @@
         android:key="sync_wifi"
         android:title="@string/pref_sync_wifi" />
 
-    <com.irateam.vkplayer.preferences.TimePreference
+    <com.irateam.vkplayer.preference.TimePreference
         android:defaultValue="@string/pref_sync_time_default"
         android:dependency="sync_enabled"
         android:key="sync_time"
