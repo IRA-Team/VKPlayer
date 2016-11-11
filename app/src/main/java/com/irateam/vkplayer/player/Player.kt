@@ -43,9 +43,6 @@ object Player : MediaPlayer(),
     val playlist: List<Audio>
         get() = playlistManager.playlist
 
-    val playNext: List<Audio>
-        get() = playlistManager.playNext
-
     val queueSize: Int
         get() = playlistManager.queueSize
 
@@ -275,7 +272,6 @@ object Player : MediaPlayer(),
 
         val originalPlaylist: List<Audio>
         val playlist: List<Audio>
-        val playNext: List<Audio>
         val queueSize: Int
         val audioPosition: Int
         val audio: Audio?

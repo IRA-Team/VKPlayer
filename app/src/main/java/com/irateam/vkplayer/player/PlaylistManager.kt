@@ -6,7 +6,6 @@ import com.irateam.vkplayer.util.extension.d
 import com.irateam.vkplayer.util.extension.e
 import com.irateam.vkplayer.util.extension.i
 import java.util.*
-import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.properties.Delegates.observable
 
 class PlaylistManager : Player.PlaylistManager {
@@ -37,18 +36,10 @@ class PlaylistManager : Player.PlaylistManager {
      */
     override var playlist: ArrayList<Audio> = ArrayList()
 
-    override val playNext: List<Audio>
-        get() = playNextQueue.toList()
-
     /**
      * Holds audios in order in which they would be played
      */
     private var queue: ArrayList<Audio> = ArrayList()
-
-    /**
-     * Holds audios that should be played next
-     */
-    private val playNextQueue: Queue<Audio> = ConcurrentLinkedQueue<Audio>()
 
     /**
      * Holds all previously played audios
@@ -79,14 +70,15 @@ class PlaylistManager : Player.PlaylistManager {
     }
 
     override fun addToPlayNext(audios: Collection<Audio>) {
-        d(TAG, "Add to play next queue audios: $audios")
-        playNextQueue.addAll(audios.map(Audio::clone))
-        d(TAG, "Play next queue: $playNextQueue")
+        val toAdd = audios.map(Audio::clone)
+        playlist.addAll(audioPosition + 1, toAdd)
+        queue.addAll(0, toAdd)
     }
 
     private fun setupQueues(head: Audio?, shouldIncludeHead: Boolean, random: Boolean) {
         d(TAG, "Set up queues")
         if (!random) {
+            history.clear()
             setupDefaultQueue(
                     head = head,
                     shouldIncludeHead = shouldIncludeHead)
@@ -138,7 +130,7 @@ class PlaylistManager : Player.PlaylistManager {
             shuffled.add(0, head)
         }
         playlist = ArrayList(shuffled)
-        if (!shouldIncludeHead && shuffled.isNotEmpty()) {
+        if (head != null && !shouldIncludeHead && shuffled.isNotEmpty()) {
             shuffled.removeAt(0)
         }
         queue = shuffled
@@ -154,36 +146,19 @@ class PlaylistManager : Player.PlaylistManager {
             e(TAG, "Current audio is null. Audio didn't added to history")
         }
 
-        val audio = when {
-            playNextQueue.isNotEmpty() -> {
-                d(TAG, "PlayNextQueue is not empty. Polling audio from it.")
-                val next = playNextQueue.poll()
-
-                val playlistIndex = playlist.indexOf(Player.audio) + 1
-                d(TAG, "Index of current audio in playlist: $playlistIndex")
-                playlist.add(playlistIndex, next)
-
-                EventBus.post(PlaylistPlayNextEvent(0, playNextQueue.size, playlistIndex))
-                next
-            }
-
-            else -> {
-                d(TAG, "PlayNextQueue is empty. Polling audio from queue.")
-                if (queue.isEmpty()) {
-                    i(TAG, "Queue is empty. Set up new queue")
-                    val beforePlaylist = playlist
-                    setupQueues(
-                            head = null,
-                            shouldIncludeHead = false,
-                            random = random)
-                    EventBus.post(PlaylistChangedEvent(beforePlaylist, playlist))
-                    d(TAG, "New queue: $queue")
-                }
-                val next = queue[0]
-                queue.removeAt(0)
-                next
-            }
+        if (queue.isEmpty()) {
+            i(TAG, "Queue is empty. Set up new queue")
+            val beforePlaylist = playlist
+            setupQueues(
+                    head = audio,
+                    shouldIncludeHead = random,
+                    random = random)
+            EventBus.post(PlaylistChangedEvent(beforePlaylist, playlist))
+            d(TAG, "New queue: $queue")
         }
+        val audio = queue[0]
+        queue.removeAt(0)
+
         i(TAG, "Polled audio: $audio")
         this.audio = audio
         return audio
@@ -224,7 +199,6 @@ class PlaylistManager : Player.PlaylistManager {
     override fun reset() {
         d(TAG, "Reset")
         audio = null
-        playNextQueue.clear()
         history.clear()
         queue = ArrayList()
     }

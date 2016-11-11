@@ -46,6 +46,7 @@ import com.irateam.vkplayer.util.EventBus
 import com.irateam.vkplayer.util.extension.*
 import com.melnykov.fab.FloatingActionButton
 import com.vk.sdk.VKSdk
+import com.vk.sdk.api.VKRequest
 import org.greenrobot.eventbus.Subscribe
 
 class MainActivity : AppCompatActivity(),
