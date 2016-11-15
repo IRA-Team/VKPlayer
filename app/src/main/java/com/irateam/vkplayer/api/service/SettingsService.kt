@@ -6,83 +6,35 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Environment
 import android.preference.PreferenceManager
-import com.irateam.vkplayer.player.Player
+import com.irateam.vkplayer.player.Player.RepeatState
 import com.irateam.vkplayer.service.DownloadService
+import com.irateam.vkplayer.util.SharedPreferencesProvider
+import com.irateam.vkplayer.util.extension.SharedPreferencesDelegates.boolean
+import com.irateam.vkplayer.util.extension.SharedPreferencesDelegates.custom
+import com.irateam.vkplayer.util.extension.SharedPreferencesDelegates.int
+import com.irateam.vkplayer.util.extension.SharedPreferencesDelegates.time
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.*
+import java.sql.Time
 
-class SettingsService {
+class SettingsService : SharedPreferencesProvider {
 
     private val context: Context
-    private val preferences: SharedPreferences
+    override val sharedPreferences: SharedPreferences
 
     constructor(context: Context) {
         this.context = context
-        this.preferences = PreferenceManager.getDefaultSharedPreferences(context)
+        this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
     }
 
-    fun saveRepeatState(state: Player.RepeatState) = preferences.edit()
-            .putString(REPEAT_STATE, state.name)
-            .apply()
+    //Playback
+    var repeatState: RepeatState by custom(RepeatState.NO_REPEAT, { RepeatState.valueOf(it) })
+    var randomState: Boolean by boolean(false)
 
-    fun loadRepeatState(): Player.RepeatState {
-        val rawRepeatState = preferences.getString(REPEAT_STATE, Player.RepeatState.NO_REPEAT.name)
-        return Player.RepeatState.valueOf(rawRepeatState)
-    }
-
-    fun saveRandomState(state: Boolean) = preferences.edit()
-            .putBoolean(RANDOM_STATE, state)
-            .apply()
-
-    fun loadRandomState(): Boolean {
-        return preferences.getBoolean(RANDOM_STATE, false)
-    }
-
-    fun saveSyncEnabled(enabled: Boolean) = preferences.edit()
-            .putBoolean(SYNC_ENABLED, enabled)
-            .apply()
-
-    fun loadSyncEnabled(): Boolean {
-        return preferences.getBoolean(SYNC_ENABLED, false)
-    }
-
-    fun saveWifiSync(isWifi: Boolean) = preferences.edit()
-            .putBoolean(SYNC_WIFI, isWifi)
-            .apply()
-
-    fun loadWifiSync(): Boolean {
-        return preferences.getBoolean(SYNC_WIFI, false)
-    }
-
-    //TODO: Probably should be refactored
-    fun saveSyncTime(hour: Int, minutes: Int) = preferences.edit()
-            .putString(SYNC_TIME, "%02d".format(hour) + ":" + "%02d".format(minutes))
-            .apply()
-
-    fun loadSyncTime(): Calendar {
-        val calendar = Calendar.getInstance()
-        val simpleDateFormat = SimpleDateFormat("HH:mm")
-        val date = simpleDateFormat.parse(preferences.getString(SYNC_TIME, "18:30"))
-
-        calendar.set(Calendar.HOUR_OF_DAY, date!!.hours)
-        calendar.set(Calendar.MINUTE, date.minutes)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-        if (calendar.timeInMillis < System.currentTimeMillis()) {
-            calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) + 1)
-        }
-        return calendar
-    }
-
-    fun saveSyncCount(count: Int) = preferences.edit()
-            .putInt(SYNC_COUNT, count)
-            .apply()
-
-    fun loadSyncCount(): Int {
-        val count = preferences.getInt(SYNC_COUNT, -1)
-        return if (count > 0) count else DEFAULT_SYNC_COUNT
-    }
+    //Sync
+    var syncEnabled: Boolean by boolean(false)
+    var syncWifiOnly: Boolean by boolean(false)
+    var syncCount: Int by int(DEFAULT_SYNC_COUNT)
+    var syncTime: Time by time(DEFAULT_SYNC_TIME)
 
     fun getAudioCacheDir(): File {
         val state = Environment.getExternalStorageState()
@@ -102,7 +54,7 @@ class SettingsService {
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
-                loadSyncTime().timeInMillis,
+                syncTime.time,
                 AlarmManager.INTERVAL_DAY,
                 pendingIntent)
     }
@@ -113,21 +65,17 @@ class SettingsService {
                 SYNC_ALARM_ID,
                 intent,
                 0)
-
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.cancel(pendingIntent)
     }
+
 
     companion object {
 
         private val SYNC_ALARM_ID = 1
         private val DEFAULT_SYNC_COUNT = 10
+        private val DEFAULT_SYNC_TIME: Long = 60 * 60 * 1000
 
-        @JvmField val REPEAT_STATE = "repeat_state"
-        @JvmField val RANDOM_STATE = "random_state"
-        @JvmField val SYNC_ENABLED = "sync_enabled"
         @JvmField val SYNC_TIME = "sync_time"
-        @JvmField val SYNC_COUNT = "sync_count"
-        @JvmField val SYNC_WIFI = "sync_wifi"
     }
 }

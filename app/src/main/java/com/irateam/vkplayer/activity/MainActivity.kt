@@ -20,7 +20,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.NavigationView
-import android.support.v4.app.Fragment
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
@@ -46,7 +45,6 @@ import com.irateam.vkplayer.util.EventBus
 import com.irateam.vkplayer.util.extension.*
 import com.melnykov.fab.FloatingActionButton
 import com.vk.sdk.VKSdk
-import com.vk.sdk.api.VKRequest
 import org.greenrobot.eventbus.Subscribe
 
 class MainActivity : AppCompatActivity(),

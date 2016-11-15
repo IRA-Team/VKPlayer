@@ -7,6 +7,7 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeStyle">@style/ActionModeStyle</item>
+        <item name="android:windowBackground">@android:color/white</item>
     </style>
 
     <style name="BaseTheme.LoginActivity" parent="Theme.AppCompat.Light.NoActionBar">
@@ -90,5 +91,14 @@
 
     <style name="BaseTheme.App.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
+    <style name="Header">
+        <item name="android:layout_height">@dimen/item_header_height</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingLeft">@dimen/padding_normal</item>
+        <item name="android:paddingStart">@dimen/padding_normal</item>
+        <item name="android:paddingRight">@dimen/padding_normal</item>
+        <item name="android:paddingEnd">@dimen/padding_normal</item>
+    </style>
 
 </resources>

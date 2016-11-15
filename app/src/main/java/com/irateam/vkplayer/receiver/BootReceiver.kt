@@ -27,7 +27,7 @@ class BootReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val settingsService = SettingsService(context)
-        if (settingsService.loadSyncEnabled()) {
+        if (settingsService.syncEnabled) {
             settingsService.setSyncAlarm()
         }
     }

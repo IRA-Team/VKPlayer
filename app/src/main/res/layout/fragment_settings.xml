@@ -2,65 +2,38 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical">
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:gravity="center_vertical"
-        android:padding="8dp"
+        style="@style/Header"
         android:text="@string/pref_header_sync_title"/>
 
-    <RelativeLayout
+    <com.irateam.vkplayer.ui.PreferenceSwitch
+        android:id="@+id/sync_enabled"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp">
+        android:paddingEnd="@dimen/padding_normal"
+        android:paddingLeft="@dimen/padding_normal"
+        android:paddingRight="@dimen/padding_normal"
+        android:paddingStart="@dimen/padding_normal"
+        app:text="Enabled"/>
 
-        <TextView
-            android:id="@+id/label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/control_switch"
-            android:layout_toStartOf="@+id/control_switch"
-            android:text="Enabled"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/vk_share_gray_line"/>
 
-        <Switch
-            android:id="@+id/control_switch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"/>
-    </RelativeLayout>
-
-    <RelativeLayout
+    <com.irateam.vkplayer.ui.PreferenceSwitch
+        android:id="@+id/sync_wifi_only"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp">
+        android:paddingEnd="@dimen/padding_normal"
+        android:paddingLeft="@dimen/padding_normal"
+        android:paddingRight="@dimen/padding_normal"
+        android:paddingStart="@dimen/padding_normal"
+        app:text="Wifi only"/>
 
-        <TextView
-            android:id="@+id/label1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/control_switch1"
-            android:layout_toStartOf="@+id/control_switch1"
-            android:text="Wifi only"/>
-
-        <Switch
-            android:id="@+id/control_switch1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"/>
-    </RelativeLayout>
+    <include layout="@layout/content_divider_gradient"/>
 
 </LinearLayout>

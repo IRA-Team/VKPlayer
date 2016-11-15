@@ -54,8 +54,8 @@ class PlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
 		this.settingsService = SettingsService(this)
 		this.notificationFactory = PlayerNotificationFactory(this)
 
-		Player.repeatState = settingsService.loadRepeatState()
-		Player.randomState = settingsService.loadRandomState()
+		Player.repeatState = settingsService.repeatState
+		Player.randomState = settingsService.randomState
 
 		EventBus.register(this)
 
@@ -132,12 +132,12 @@ class PlayerService : Service(), AudioManager.OnAudioFocusChangeListener {
 
 	@Subscribe
 	fun onRepeatChangedEvent(e: PlayerRepeatChangedEvent) {
-		settingsService.saveRepeatState(e.repeatState)
+		settingsService.repeatState = e.repeatState
 	}
 
 	@Subscribe
 	fun onRandomChangedEvent(e: PlayerRandomChangedEvent) {
-		settingsService.saveRandomState(e.randomState)
+		settingsService.randomState = e.randomState
 	}
 
 	@Subscribe

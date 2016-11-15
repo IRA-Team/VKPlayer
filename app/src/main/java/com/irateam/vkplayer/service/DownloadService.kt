@@ -33,7 +33,6 @@ import com.irateam.vkplayer.event.DownloadTerminatedEvent
 import com.irateam.vkplayer.model.Audio
 import com.irateam.vkplayer.model.VKAudio
 import com.irateam.vkplayer.notification.DownloadNotificationFactory
-import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.util.AudioDownloader
 import com.irateam.vkplayer.util.EventBus
 import com.irateam.vkplayer.util.extension.execute
@@ -97,7 +96,7 @@ class DownloadService : Service(), AudioDownloader.Listener {
 	}
 
 	private fun startScheduledSync() {
-		val isWifiOnly = settingsService.loadWifiSync()
+		val isWifiOnly = settingsService.syncWifiOnly
 		if ((isWifiOnly && isWifiNetworkAvailable()) || (!isWifiOnly && isNetworkAvailable())) {
 			prepareToSync()
 		} else {
@@ -106,7 +105,7 @@ class DownloadService : Service(), AudioDownloader.Listener {
 	}
 
 	private fun prepareToSync() {
-		val count = settingsService.loadSyncCount()
+		val count = settingsService.syncCount
 		audioService.getMy(count).execute {
 			onSuccess {
 				val vkList = it

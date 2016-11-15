@@ -23,6 +23,7 @@ import android.os.Looper
 import com.irateam.vkplayer.model.Audio
 import com.irateam.vkplayer.player.Player.RepeatState.*
 import com.irateam.vkplayer.util.EventBus
+import com.irateam.vkplayer.util.Restoreable
 import kotlin.properties.Delegates.observable
 
 object Player : MediaPlayer(),
@@ -261,10 +262,12 @@ object Player : MediaPlayer(),
         }
     }
 
-    enum class RepeatState {
+    enum class RepeatState : Restoreable<RepeatState> {
         NO_REPEAT,
         ONE_REPEAT,
-        ALL_REPEAT
+        ALL_REPEAT;
+
+        override fun of(raw: String) = valueOf(raw)
     }
 
     interface PlaylistManager {
