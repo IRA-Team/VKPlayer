@@ -16,15 +16,15 @@ class PreferenceSwitch : RelativeLayout {
     private var assigner: (() -> Unit)? = null
 
     var isChecked: Boolean
-        get() = switch.isChecked
+        get() = switchView.isChecked
         set(value) {
-            switch.isChecked = value
+            switchView.isChecked = value
         }
 
-    var text: CharSequence
-        get() = label.text
+    var title: CharSequence
+        get() = titleView.text
         set(value) {
-            label.text = value
+            titleView.text = value
         }
 
     override fun isEnabled(): Boolean {
@@ -33,12 +33,12 @@ class PreferenceSwitch : RelativeLayout {
 
     override fun setEnabled(enabled: Boolean) {
         super.setEnabled(enabled)
-        label.isEnabled = enabled
-        switch.isEnabled = enabled
+        titleView.isEnabled = enabled
+        switchView.isEnabled = enabled
     }
 
-    private lateinit var label: TextView
-    private lateinit var switch: SwitchCompat
+    private lateinit var titleView: TextView
+    private lateinit var switchView: SwitchCompat
 
     constructor(context: Context) : super(context) {
         init(context)
@@ -68,39 +68,44 @@ class PreferenceSwitch : RelativeLayout {
              defStyleRes: Int = 0) {
 
         LayoutInflater.from(context).inflate(R.layout.content_preference_switch, this)
-        label = getViewById(R.id.label)
-        switch = getViewById(R.id.control_switch)
+        titleView = getViewById(R.id.title)
+        switchView = getViewById(R.id.control_switch)
 
         if (attrs != null) {
+            val attrArray = intArrayOf(
+                    android.R.attr.checked,
+                    android.R.attr.enabled,
+                    android.R.attr.title)
+
             val typedArray = context.theme.obtainStyledAttributes(
                     attrs,
-                    R.styleable.PreferenceSwitch,
+                    attrArray,
                     defStyleAttr,
                     defStyleRes)
 
-            if (typedArray.hasValue(R.styleable.PreferenceSwitch_checked)) {
-                isChecked = typedArray.getBoolean(R.styleable.PreferenceSwitch_checked, false)
+            if (typedArray.hasValue(0)) {
+                isChecked = typedArray.getBoolean(0, false)
             }
 
-            if (typedArray.hasValue(R.styleable.PreferenceSwitch_enabled)) {
-                isEnabled = typedArray.getBoolean(R.styleable.PreferenceSwitch_enabled, true)
+            if (typedArray.hasValue(1)) {
+                isEnabled = typedArray.getBoolean(1, true)
             }
 
-            if (typedArray.hasValue(R.styleable.PreferenceSwitch_text)) {
-                text = typedArray.getString(R.styleable.PreferenceSwitch_text)
+            if (typedArray.hasValue(2)) {
+                title = typedArray.getString(2)
             }
 
             typedArray.recycle()
         }
 
         setOnClickListener {
-            switch.toggle()
+            switchView.toggle()
             assigner?.invoke()
         }
     }
 
     fun setOnCheckedChangeListener(listener: (Boolean) -> Unit) {
-        switch.setOnCheckedChangeListener { compoundButton, checked -> listener(checked) }
+        switchView.setOnCheckedChangeListener { compoundButton, checked -> listener(checked) }
     }
 
     fun assignToPreferences(settingsService: SettingsService,

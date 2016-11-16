@@ -2,7 +2,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical">
 
     <TextView
@@ -17,7 +16,7 @@
         android:paddingLeft="@dimen/padding_normal"
         android:paddingRight="@dimen/padding_normal"
         android:paddingStart="@dimen/padding_normal"
-        app:text="Enabled"/>
+        android:title="Enabled"/>
 
     <View
         android:layout_width="match_parent"
@@ -32,8 +31,19 @@
         android:paddingLeft="@dimen/padding_normal"
         android:paddingRight="@dimen/padding_normal"
         android:paddingStart="@dimen/padding_normal"
-        app:text="Wifi only"/>
+        android:title="Wifi only"/>
 
     <include layout="@layout/content_divider_gradient"/>
+
+    <com.irateam.vkplayer.ui.Preference
+        android:id="@+id/language"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:paddingEnd="@dimen/padding_normal"
+        android:paddingLeft="@dimen/padding_normal"
+        android:paddingRight="@dimen/padding_normal"
+        android:paddingStart="@dimen/padding_normal"
+        android:subtitle="Ukrainian"
+        android:title="Language"/>
 
 </LinearLayout>

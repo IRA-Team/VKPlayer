@@ -32,6 +32,7 @@ import android.support.annotation.AnimatorRes
 import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
 import android.support.v4.content.ContextCompat
+import android.view.LayoutInflater
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Toast
@@ -99,3 +100,7 @@ inline fun <reified T> Context.startActivity() where T : Activity {
 inline fun <reified T> Context.startService() where T : Service {
     startService(Intent(this, T::class.java))
 }
+
+//Services
+val Context.layoutInflater: LayoutInflater
+    get() = LayoutInflater.from(this)

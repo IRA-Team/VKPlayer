@@ -26,6 +26,7 @@ class ProxyActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         val intent = if (VKSdk.isLoggedIn()) {
             Intent(this, MainActivity::class.java)
         } else {

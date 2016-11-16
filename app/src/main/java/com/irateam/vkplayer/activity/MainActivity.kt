@@ -47,7 +47,7 @@ import com.melnykov.fab.FloatingActionButton
 import com.vk.sdk.VKSdk
 import org.greenrobot.eventbus.Subscribe
 
-class MainActivity : AppCompatActivity(),
+class MainActivity : BaseActivity(),
         NavigationView.OnNavigationItemSelectedListener,
         PlayerController.VisibilityController {
 

@@ -17,9 +17,8 @@
 
 <resources>
 
-    <declare-styleable name="PreferenceSwitch">
-        <attr name="text" format="string"/>
-        <attr name="checked" format="boolean"/>
-        <attr name="enabled" format="boolean"/>
-    </declare-styleable>
+    <attr name="title" format="string"/>
+    <attr name="checked" format="boolean"/>
+    <attr name="enabled" format="boolean"/>
+
 </resources>

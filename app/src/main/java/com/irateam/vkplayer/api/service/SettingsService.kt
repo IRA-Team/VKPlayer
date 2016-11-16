@@ -12,6 +12,7 @@ import com.irateam.vkplayer.util.SharedPreferencesProvider
 import com.irateam.vkplayer.util.extension.SharedPreferencesDelegates.boolean
 import com.irateam.vkplayer.util.extension.SharedPreferencesDelegates.custom
 import com.irateam.vkplayer.util.extension.SharedPreferencesDelegates.int
+import com.irateam.vkplayer.util.extension.SharedPreferencesDelegates.string
 import com.irateam.vkplayer.util.extension.SharedPreferencesDelegates.time
 import java.io.File
 import java.sql.Time
@@ -25,6 +26,8 @@ class SettingsService : SharedPreferencesProvider {
         this.context = context
         this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
     }
+
+    var language: String by string("")
 
     //Playback
     var repeatState: RepeatState by custom(RepeatState.NO_REPEAT, { RepeatState.valueOf(it) })

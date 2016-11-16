@@ -3,14 +3,15 @@
     android:layout_width="match_parent">
 
     <TextView
-        android:id="@+id/label"
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
         android:layout_toLeftOf="@+id/control_switch"
-        android:layout_toStartOf="@+id/control_switch"/>
+        android:layout_toStartOf="@+id/control_switch"
+        android:textColor="@color/preference_title"/>
 
     <android.support.v7.widget.SwitchCompat
         android:id="@+id/control_switch"

@@ -52,4 +52,7 @@
 
     <item name="item_directory_name" type="color">#000000</item>
     <color name="item_directory_files_count">#b6b6b6</color>
+
+    <color name="preference_title">#363636</color>
+    <color name="preference_subtitle">#b6b6b6</color>
 </resources>
