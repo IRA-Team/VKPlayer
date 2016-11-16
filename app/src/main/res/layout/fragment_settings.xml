@@ -1,49 +1,77 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <TextView
-        style="@style/Header"
-        android:text="@string/pref_header_sync_title"/>
-
-    <com.irateam.vkplayer.ui.PreferenceSwitch
-        android:id="@+id/sync_enabled"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:paddingEnd="@dimen/padding_normal"
-        android:paddingLeft="@dimen/padding_normal"
-        android:paddingRight="@dimen/padding_normal"
-        android:paddingStart="@dimen/padding_normal"
-        android:title="Enabled"/>
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/vk_share_gray_line"/>
+        <!--Start sync-->
+        <TextView
+            style="@style/Header"
+            android:text="@string/pref_header_sync_title"/>
 
-    <com.irateam.vkplayer.ui.PreferenceSwitch
-        android:id="@+id/sync_wifi_only"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:paddingEnd="@dimen/padding_normal"
-        android:paddingLeft="@dimen/padding_normal"
-        android:paddingRight="@dimen/padding_normal"
-        android:paddingStart="@dimen/padding_normal"
-        android:title="Wifi only"/>
+        <com.irateam.vkplayer.ui.PreferenceSwitch
+            android:id="@+id/sync_enabled"
+            style="@style/Preference"
+            android:title="Enabled"/>
 
-    <include layout="@layout/content_divider_gradient"/>
+        <include layout="@layout/content_divider_solid_thin"/>
 
-    <com.irateam.vkplayer.ui.Preference
-        android:id="@+id/language"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:paddingEnd="@dimen/padding_normal"
-        android:paddingLeft="@dimen/padding_normal"
-        android:paddingRight="@dimen/padding_normal"
-        android:paddingStart="@dimen/padding_normal"
-        android:subtitle="Ukrainian"
-        android:title="Language"/>
+        <com.irateam.vkplayer.ui.PreferenceSwitch
+            android:id="@+id/sync_wifi_only"
+            style="@style/Preference"
+            android:title="Wifi only"/>
 
-</LinearLayout>
+        <include layout="@layout/content_divider_solid_thin"/>
+
+        <com.irateam.vkplayer.ui.Preference
+            android:id="@+id/sync_time"
+            style="@style/Preference"
+            android:title="@string/pref_sync_time"/>
+
+        <include layout="@layout/content_divider_solid_thin"/>
+
+        <com.irateam.vkplayer.ui.Preference
+            android:id="@+id/sync_count"
+            style="@style/Preference"
+            android:title="@string/pref_sync_count"/>
+
+        <include layout="@layout/content_divider_solid_thin"/>
+
+        <TextView
+            android:id="@+id/sync_now"
+            style="@style/PreferenceButton"
+            android:text="@string/pref_cache_clear"/>
+        <!--End sync-->
+
+        <include layout="@layout/content_divider_gradient"/>
+
+        <!--Start cache-->
+        <TextView
+            style="@style/Header"
+            android:text="@string/pref_header_cache_title"/>
+
+        <TextView
+            android:id="@+id/cache_clear"
+            style="@style/PreferenceButton"
+            android:text="@string/pref_cache_clear"/>
+        <!--End cache-->
+
+        <include layout="@layout/content_divider_gradient"/>
+
+        <!--Start other-->
+        <TextView
+            style="@style/Header"
+            android:text="Other"/>
+
+        <com.irateam.vkplayer.ui.Preference
+            android:id="@+id/language"
+            style="@style/Preference"
+            android:title="Language"/>
+        <!--End other-->
+
+    </LinearLayout>
+</ScrollView>

@@ -16,6 +16,7 @@ import com.irateam.vkplayer.util.extension.SharedPreferencesDelegates.string
 import com.irateam.vkplayer.util.extension.SharedPreferencesDelegates.time
 import java.io.File
 import java.sql.Time
+import java.util.*
 
 class SettingsService : SharedPreferencesProvider {
 
@@ -37,7 +38,7 @@ class SettingsService : SharedPreferencesProvider {
     var syncEnabled: Boolean by boolean(false)
     var syncWifiOnly: Boolean by boolean(false)
     var syncCount: Int by int(DEFAULT_SYNC_COUNT)
-    var syncTime: Time by time(DEFAULT_SYNC_TIME)
+    var syncTime: Calendar by time(DEFAULT_SYNC_TIME)
 
     fun getAudioCacheDir(): File {
         val state = Environment.getExternalStorageState()
@@ -57,7 +58,7 @@ class SettingsService : SharedPreferencesProvider {
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
-                syncTime.time,
+                syncTime.timeInMillis,
                 AlarmManager.INTERVAL_DAY,
                 pendingIntent)
     }

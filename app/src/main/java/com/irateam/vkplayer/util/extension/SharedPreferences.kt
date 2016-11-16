@@ -19,6 +19,7 @@ package com.irateam.vkplayer.util.extension
 import android.content.SharedPreferences
 import com.irateam.vkplayer.util.SharedPreferencesProvider
 import java.sql.Time
+import java.util.*
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -109,7 +110,7 @@ class IntPreferencesProperty : ReadWriteProperty<SharedPreferencesProvider, Int>
     }
 }
 
-class TimePreferencesProperty : ReadWriteProperty<SharedPreferencesProvider, Time> {
+class TimePreferencesProperty : ReadWriteProperty<SharedPreferencesProvider, Calendar> {
 
     val defaultValue: Long
 
@@ -117,14 +118,16 @@ class TimePreferencesProperty : ReadWriteProperty<SharedPreferencesProvider, Tim
         this.defaultValue = defaultValue
     }
 
-    override fun getValue(thisRef: SharedPreferencesProvider, property: KProperty<*>): Time {
+    override fun getValue(thisRef: SharedPreferencesProvider, property: KProperty<*>): Calendar {
         val key = property.name
-        return Time(thisRef.sharedPreferences.getLong(key, defaultValue))
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = thisRef.sharedPreferences.getLong(key, defaultValue)
+        return calendar
     }
 
-    override fun setValue(thisRef: SharedPreferencesProvider, property: KProperty<*>, value: Time) {
+    override fun setValue(thisRef: SharedPreferencesProvider, property: KProperty<*>, value: Calendar) {
         val key = property.name
-        thisRef.sharedPreferences.save(key, value.time)
+        thisRef.sharedPreferences.save(key, value.timeInMillis)
     }
 
 }
