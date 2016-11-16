@@ -23,7 +23,6 @@ import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.view.MenuItem
 import android.widget.FrameLayout
@@ -31,7 +30,6 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import com.irateam.vkplayer.R
-import com.irateam.vkplayer.activity.settings.SettingsActivity
 import com.irateam.vkplayer.api.service.LocalAudioService
 import com.irateam.vkplayer.api.service.UserService
 import com.irateam.vkplayer.api.service.VKAudioService
@@ -146,7 +144,7 @@ class MainActivity : BaseActivity(),
 
         } else if (groupId == R.id.secondary_group) {
             when (itemId) {
-                R.id.settings -> startActivity(Intent(this, SettingsActivity::class.java))
+                R.id.settings -> setFragment(SettingsFragment.newInstance())
                 R.id.exit -> VkLogout()
             }
             return true

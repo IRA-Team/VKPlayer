@@ -52,11 +52,6 @@
             android:screenOrientation="portrait"
             android:theme="@style/AudioActivityTheme"/>
 
-        <activity
-            android:name=".activity.settings.SettingsActivity"
-            android:label="@string/title_activity_settings"
-            android:theme="@style/BaseTheme"/>
-
         <!-- Services -->
         <service
             android:name=".service.PlayerService"

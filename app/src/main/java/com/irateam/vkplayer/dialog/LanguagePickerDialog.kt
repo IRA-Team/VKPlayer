@@ -36,5 +36,7 @@ class LanguagePickerDialog : DialogFragment() {
 
     companion object {
         val TAG: String = LanguagePickerDialog::class.java.name
+
+        fun newInstance() = LanguagePickerDialog()
     }
 }

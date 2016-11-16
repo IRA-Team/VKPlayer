@@ -15,7 +15,6 @@ import com.irateam.vkplayer.util.extension.SharedPreferencesDelegates.int
 import com.irateam.vkplayer.util.extension.SharedPreferencesDelegates.string
 import com.irateam.vkplayer.util.extension.SharedPreferencesDelegates.time
 import java.io.File
-import java.sql.Time
 import java.util.*
 
 class SettingsService : SharedPreferencesProvider {
@@ -28,7 +27,7 @@ class SettingsService : SharedPreferencesProvider {
         this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
     }
 
-    var language: String by string("")
+    var language: String by string(getCurrentLanguageCode())
 
     //Playback
     var repeatState: RepeatState by custom(RepeatState.NO_REPEAT, { RepeatState.valueOf(it) })
@@ -73,6 +72,9 @@ class SettingsService : SharedPreferencesProvider {
         alarmManager.cancel(pendingIntent)
     }
 
+    private fun getCurrentLanguageCode() : String {
+        return Locale.getDefault().language
+    }
 
     companion object {
 

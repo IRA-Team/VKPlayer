@@ -7,13 +7,9 @@ import android.view.LayoutInflater
 import android.widget.RelativeLayout
 import android.widget.TextView
 import com.irateam.vkplayer.R
-import com.irateam.vkplayer.api.service.SettingsService
 import com.irateam.vkplayer.util.extension.getViewById
-import kotlin.reflect.KMutableProperty1
 
 class PreferenceSwitch : RelativeLayout {
-
-    private var assigner: (() -> Unit)? = null
 
     var isChecked: Boolean
         get() = switchView.isChecked
@@ -98,20 +94,10 @@ class PreferenceSwitch : RelativeLayout {
             typedArray.recycle()
         }
 
-        setOnClickListener {
-            switchView.toggle()
-            assigner?.invoke()
-        }
+        setOnClickListener { switchView.toggle() }
     }
 
     fun setOnCheckedChangeListener(listener: (Boolean) -> Unit) {
         switchView.setOnCheckedChangeListener { compoundButton, checked -> listener(checked) }
-    }
-
-    fun assignToPreferences(settingsService: SettingsService,
-                            property: KMutableProperty1<SettingsService, Boolean>) {
-
-        isChecked = property.get(settingsService)
-        assigner = { property.set(settingsService, isChecked) }
     }
 }
