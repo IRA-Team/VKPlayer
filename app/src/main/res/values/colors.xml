@@ -54,5 +54,6 @@
     <color name="item_directory_files_count">#b6b6b6</color>
 
     <color name="preference_title">#363636</color>
+    <color name="preference_title_disabled">#919191</color>
     <color name="preference_subtitle">#b6b6b6</color>
 </resources>

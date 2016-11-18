@@ -10,15 +10,15 @@
 
         <TextView
             android:id="@+id/title"
-            android:textColor="@color/preference_title"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:textColor="@drawable/selector_preference_title"/>
 
         <TextView
             android:id="@+id/subtitle"
-            android:textColor="@color/preference_subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/preference_subtitle"
             android:textSize="@dimen/font_small"/>
     </LinearLayout>
 </merge>

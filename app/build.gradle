@@ -54,4 +54,8 @@ dependencies {
 
 repositories {
     mavenCentral()
+    //TODO: Remove on stable version
+    maven {
+        url "https://dl.bintray.com/kotlin/kotlin-dev/"
+    }
 }

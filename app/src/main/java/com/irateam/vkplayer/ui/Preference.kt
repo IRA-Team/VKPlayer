@@ -50,6 +50,12 @@ class Preference : RelativeLayout {
         init(context, attrs, defStyleAttr, defStyleRes)
     }
 
+    override fun setEnabled(enabled: Boolean) {
+        super.setEnabled(enabled)
+        titleView.isEnabled = enabled
+        subtitleView.isEnabled = enabled
+    }
+
     fun init(context: Context,
              attrs: AttributeSet? = null,
              defStyleAttr: Int = 0,

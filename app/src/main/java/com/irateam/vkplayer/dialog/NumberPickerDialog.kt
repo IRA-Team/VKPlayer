@@ -18,6 +18,7 @@ package com.irateam.vkplayer.dialog
 
 import android.app.Dialog
 import android.os.Bundle
+import android.support.design.widget.TextInputLayout
 import android.support.v4.app.DialogFragment
 import android.support.v7.app.AlertDialog
 import android.widget.EditText
@@ -39,18 +40,45 @@ class NumberPickerDialog : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val view = activity.layoutInflater.inflate(R.layout.dialog_number_picker, null)
+        val numberLayout: TextInputLayout = view.getViewById(R.id.number_layout)
         val number: EditText = view.getViewById(R.id.number)
         number.setText((defaultNumber ?: 0).toString())
 
-        return AlertDialog.Builder(activity)
-                .setPositiveButton(R.string.ok) { dialog, button ->
-                    onNumberPickedListener?.invoke(number.text.toString().toInt())
-                }
+        val dialog = AlertDialog.Builder(activity)
+                .setTitle(R.string.title_sync_audio_count)
+                .setPositiveButton(R.string.ok, null)
                 .setNegativeButton(R.string.cancel) { dialog, button ->
                     dismiss()
                 }
                 .setView(view)
                 .create()
+
+        dialog.setOnShowListener {
+            val button = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            button.setOnClickListener {
+                val error = validate(number)
+                numberLayout.error = error
+                if (error == null) {
+                    onNumberPickedListener?.invoke(number.text.toString().toInt())
+                    dismiss()
+                }
+            }
+        }
+
+        return dialog
+    }
+
+    private fun validate(numberEditText: EditText): String? {
+        val number = try {
+            numberEditText.text.toString().toInt()
+        } catch (e: NumberFormatException) {
+            return activity.getString(R.string.error_wrong_number_format)
+        }
+
+        return when (number) {
+            0 -> activity.getString(R.string.error_sync_count_must_be_greater) + " 0"
+            else -> null
+        }
     }
 
     companion object {

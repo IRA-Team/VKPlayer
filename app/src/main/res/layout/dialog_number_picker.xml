@@ -21,10 +21,19 @@
     android:layout_height="wrap_content"
     android:padding="@dimen/padding_normal">
 
-    <EditText
-        android:id="@+id/number"
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/number_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="number"/>
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+
 
 </FrameLayout>

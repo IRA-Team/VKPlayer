@@ -1,9 +1,13 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.0.5'
+    ext.kotlin_version = '1.1-M02-8'
     repositories {
         jcenter()
+        //TODO: Remove on stable version
+        maven {
+            url "https://dl.bintray.com/kotlin/kotlin-dev/"
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.2'

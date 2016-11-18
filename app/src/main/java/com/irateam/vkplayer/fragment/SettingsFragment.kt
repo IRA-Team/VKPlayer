@@ -91,7 +91,6 @@ class SettingsFragment : BaseFragment() {
             picker.onNumberPickedListener = { count ->
                 settingsService.syncCount = count
                 syncCount.subtitle = count.toString()
-                picker.dismiss()
             }
             picker.show(activity.supportFragmentManager, NumberPickerDialog.TAG)
         }

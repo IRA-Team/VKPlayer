@@ -93,5 +93,8 @@
     <string name="title_select_language">Select language</string>
     <string name="permission_required_to_scan">Permission required to scan</string>
     <string name="permission_required_to_remove">Permission required to remove</string>
+    <string name="title_sync_audio_count">Audio count to sync</string>
+    <string name="error_wrong_number_format">Wrong number format</string>
+    <string name="error_sync_count_must_be_greater">Sync count must be greater than </string>
 
 </resources>

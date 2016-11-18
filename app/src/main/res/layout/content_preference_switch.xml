@@ -11,7 +11,7 @@
         android:layout_centerVertical="true"
         android:layout_toLeftOf="@+id/control_switch"
         android:layout_toStartOf="@+id/control_switch"
-        android:textColor="@color/preference_title"/>
+        android:textColor="@drawable/selector_preference_title"/>
 
     <android.support.v7.widget.SwitchCompat
         android:id="@+id/control_switch"
