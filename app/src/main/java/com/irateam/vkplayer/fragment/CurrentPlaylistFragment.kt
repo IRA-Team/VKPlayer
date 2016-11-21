@@ -19,13 +19,10 @@ package com.irateam.vkplayer.fragment
 import android.os.Bundle
 import android.support.annotation.LayoutRes
 import android.support.annotation.StringRes
-import android.support.v4.app.Fragment
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import com.irateam.vkplayer.R
 import com.irateam.vkplayer.adapter.CurrentPlaylistRecyclerAdapter
 import com.irateam.vkplayer.util.EventBus
@@ -37,6 +34,7 @@ class CurrentPlaylistFragment : BaseFragment() {
     private lateinit var adapter: CurrentPlaylistRecyclerAdapter
 
     private lateinit var emptyView: View
+
 
     @StringRes
     override fun getTitleRes(): Int {

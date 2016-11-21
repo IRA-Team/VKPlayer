@@ -120,6 +120,10 @@ open class PlayerController {
     }
 
     open fun setupPlay() {
+        if (!progress.isEnabled) {
+            progress.isEnabled = true
+        }
+
         playPause.setImageDrawable(getPauseDrawable())
         playPause.setOnClickListener(pauseAction)
     }
@@ -131,7 +135,7 @@ open class PlayerController {
 
     fun configurePanel() {
         val audio = Player.audio
-        val index = Player.audioPosition
+        val index = Player.audioIndex
 
         if (audio != null) {
             rootView.visibility = View.VISIBLE
@@ -195,8 +199,14 @@ open class PlayerController {
     }
 
     @Subscribe
+    open fun onPlayerErrorEvent(e: PlayerErrorEvent) {
+        setAudio(e.index, e.audio)
+        progress.isEnabled = false
+    }
+
+    @Subscribe
     open fun onPlaylistChangedEvent(e: PlaylistChangedEvent) {
-        val audioPosition = Player.audioPosition + 1
+        val audioPosition = Player.audioIndex + 1
         val audio = Player.audio
 
         if (audio != null && audioPosition > 0) {

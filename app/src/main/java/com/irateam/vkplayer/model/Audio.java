@@ -59,6 +59,10 @@ public abstract class Audio implements Parcelable {
         return title;
     }
 
+    public String getName() {
+        return getArtist() + " - " + getTitle();
+    }
+
     public int getDuration() {
         return duration;
     }
@@ -81,7 +85,7 @@ public abstract class Audio implements Parcelable {
 
     @Override
     public String toString() {
-        return artist + " - " + title;
+        return getName();
     }
 
     @Override

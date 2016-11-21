@@ -24,6 +24,7 @@ import com.irateam.vkplayer.model.Audio
 import com.irateam.vkplayer.player.Player.RepeatState.*
 import com.irateam.vkplayer.util.EventBus
 import com.irateam.vkplayer.util.Restoreable
+import java.io.IOException
 import kotlin.properties.Delegates.observable
 
 object Player : MediaPlayer(),
@@ -45,13 +46,13 @@ object Player : MediaPlayer(),
         get() = playlistManager.playlist
 
     val queueSize: Int
-        get() = playlistManager.queueSize
+        get() = playlistManager.playlistSize
 
     val audio: Audio?
         get() = playlistManager.audio
 
-    val audioPosition: Int
-        get() = playlistManager.audioPosition
+    val audioIndex: Int
+        get() = playlistManager.audioIndex
 
     fun addToPlayNext(audios: Collection<Audio>) {
         playlistManager.addToPlayNext(audios)
@@ -99,26 +100,34 @@ object Player : MediaPlayer(),
     }
 
     fun play(audios: Collection<Audio>, audio: Audio) = if (audio in audios) {
-        playlistManager.setQueue(
-                audios = audios,
-                head = audio,
-                random = randomState)
-        next()
+        playlistManager.setQueue(audios = audios, head = audio)
+        reset()
+        if (!randomState) {
+            attemptPlay(playlistManager.poll(audio))
+        } else{
+            attemptPlay(playlistManager.pollNextAudio())
+        }
     } else {
         throw IllegalStateException("Collection must contain given audio!")
     }
 
-    private fun play(audio: Audio) {
+    fun play(audio: Audio) {
+        attemptPlay(playlistManager.poll(audio))
+    }
+
+    private fun attemptPlay(audio: Audio) {
         reset()
         stopObserveProgress()
         setOnBufferingUpdateListener(null)
 
-        setDataSource(audio.source)
-
-        shouldPlay = true
-        prepareAsync()
-
-        EventBus.post(PlayerPlayEvent(playlistManager.audioPosition, audio))
+        try {
+            setDataSource(audio.source)
+            shouldPlay = true
+            prepareAsync()
+            EventBus.post(PlayerPlayEvent(playlistManager.audioIndex, audio))
+        } catch (e: IOException) {
+            EventBus.post(PlayerErrorEvent(e, playlistManager.audioIndex, audio))
+        }
     }
 
     fun resume() {
@@ -129,13 +138,13 @@ object Player : MediaPlayer(),
             start()
         }
 
-        audio?.let { EventBus.post(PlayerResumeEvent(playlistManager.audioPosition, it)) }
+        audio?.let { EventBus.post(PlayerResumeEvent(playlistManager.audioIndex, it)) }
     }
 
     override fun stop() {
-        super.reset()
+        reset()
         audio?.let {
-            EventBus.post(PlayerStopEvent(playlistManager.audioPosition, it))
+            EventBus.post(PlayerStopEvent(playlistManager.audioIndex, it))
         }
     }
 
@@ -155,18 +164,18 @@ object Player : MediaPlayer(),
         }
 
         audio?.let {
-            EventBus.post(PlayerPauseEvent(playlistManager.audioPosition, it, shouldStopForeground))
+            EventBus.post(PlayerPauseEvent(playlistManager.audioIndex, it, shouldStopForeground))
         }
     }
 
     fun next() {
         reset()
-        play(playlistManager.pollNextAudio())
+        attemptPlay(playlistManager.pollNextAudio())
     }
 
     fun previous() {
         reset()
-        play(playlistManager.pollPreviousAudio())
+        attemptPlay(playlistManager.pollPreviousAudio())
     }
 
     override fun seekTo(milliseconds: Int) {
@@ -190,7 +199,7 @@ object Player : MediaPlayer(),
     }
 
     override fun onCompletion(mp: MediaPlayer) {
-        if (repeatState == NO_REPEAT && playlistManager.queueSize == 0) {
+        if (repeatState == NO_REPEAT && playlistManager.playlistSize == 0) {
             stop()
             playlistManager.reset()
             return
@@ -199,7 +208,7 @@ object Player : MediaPlayer(),
         if (repeatState != ONE_REPEAT) {
             next()
         } else {
-            audio?.let { play(it) }
+            audio?.let { attemptPlay(it) }
         }
 
     }
@@ -214,7 +223,7 @@ object Player : MediaPlayer(),
         }
 
         audio?.let {
-            EventBus.post(PlayerStartEvent(playlistManager.audioPosition, it))
+            EventBus.post(PlayerStartEvent(playlistManager.audioIndex, it))
         }
 
     }
@@ -275,15 +284,16 @@ object Player : MediaPlayer(),
 
         val originalPlaylist: List<Audio>
         val playlist: List<Audio>
-        val queueSize: Int
-        val audioPosition: Int
+        val playlistSize: Int
+        val audioIndex: Int
         val audio: Audio?
 
-        fun setQueue(audios: Collection<Audio>, head: Audio?, random: Boolean)
+        fun setQueue(audios: Collection<Audio>, head: Audio?)
         fun addToQueue(audios: Collection<Audio>)
         fun addToPlayNext(audios: Collection<Audio>)
 
         fun reset()
+        fun poll(audio: Audio): Audio
         fun pollNextAudio(): Audio
         fun pollPreviousAudio(): Audio
     }

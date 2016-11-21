@@ -36,6 +36,7 @@ import com.irateam.vkplayer.api.service.VKAudioService
 import com.irateam.vkplayer.controller.PlayerController
 import com.irateam.vkplayer.fragment.*
 import com.irateam.vkplayer.model.User
+import com.irateam.vkplayer.player.PlayerErrorEvent
 import com.irateam.vkplayer.player.PlayerPlayEvent
 import com.irateam.vkplayer.player.PlayerStopEvent
 import com.irateam.vkplayer.service.PlayerService
@@ -169,6 +170,11 @@ class MainActivity : BaseActivity(),
     @Subscribe
     fun onStopEvent(e: PlayerStopEvent) {
         hidePlayerController()
+    }
+
+    @Subscribe
+    fun onErrorEvent(e: PlayerErrorEvent) {
+        showLongToast("Can't play ${e.audio.name}")
     }
 
     override fun showPlayerController() {

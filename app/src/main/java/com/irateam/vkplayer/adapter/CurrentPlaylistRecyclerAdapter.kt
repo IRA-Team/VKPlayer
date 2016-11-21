@@ -16,6 +16,8 @@
 
 package com.irateam.vkplayer.adapter
 
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.irateam.vkplayer.R
@@ -24,7 +26,6 @@ import com.irateam.vkplayer.event.Event
 import com.irateam.vkplayer.model.Audio
 import com.irateam.vkplayer.player.Player
 import com.irateam.vkplayer.player.PlaylistChangedEvent
-import com.irateam.vkplayer.player.PlaylistPlayNextEvent
 import com.irateam.vkplayer.ui.viewholder.AudioViewHolder
 import com.irateam.vkplayer.util.extension.isNullOrEmpty
 import org.greenrobot.eventbus.Subscribe
@@ -96,7 +97,7 @@ class CurrentPlaylistRecyclerAdapter : BaseAudioRecyclerAdapter<Audio, AudioView
         }
 
         holder.contentHolder.setOnClickListener {
-            Player.play(audios, audio)
+            Player.play(audio)
         }
     }
 
@@ -120,6 +121,20 @@ class CurrentPlaylistRecyclerAdapter : BaseAudioRecyclerAdapter<Audio, AudioView
 
     override fun getItemCount(): Int {
         return audios.size
+    }
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView?) {
+        recyclerView?.post {
+            val manager = recyclerView.layoutManager as LinearLayoutManager
+            val countVisible = manager.findFirstVisibleItemPosition() - manager.findLastVisibleItemPosition()
+            val probPosition = Player.audioIndex - Math.round(countVisible / 2.0)
+            val position = if (probPosition > 0) {
+                probPosition
+            } else {
+                0
+            }
+            recyclerView.scrollToPosition(position.toInt())
+        }
     }
 
     companion object {
